@@ -145,12 +145,19 @@ def compute_indicators(prices: pd.DataFrame) -> pd.DataFrame:
         if prev_close <= 0 or close <= 0:
             continue
 
-        # 20-day average volume (using last 20 rows including today)
+        # 20-day average volume
         avg_vol_20 = float(group["volume"].tail(20).mean()) or 1.0
         volume_ratio = volume / avg_vol_20 if avg_vol_20 > 0 else 0.0
 
         # Daily return
         daily_return = (close - prev_close) / prev_close * 100
+
+        # 5-day return (recent short-term momentum)
+        ret_5d = None
+        if len(group) >= 6:
+            close_5d_ago = float(group["close"].iloc[-6])
+            if close_5d_ago > 0:
+                ret_5d = (close - close_5d_ago) / close_5d_ago * 100
 
         # Intraday range %
         range_pct = (high - low) / close * 100 if close > 0 else 0.0
@@ -158,6 +165,13 @@ def compute_indicators(prices: pd.DataFrame) -> pd.DataFrame:
         # Turnover (yen)
         vwap_approx = (open_ + high + low + close) / 4
         turnover = vwap_approx * volume
+
+        # Position within 20-day range — how stretched vs how far from support
+        tail_20 = group.tail(20)
+        high_20 = float(tail_20["high"].max())
+        low_20 = float(tail_20["low"].min())
+        pct_from_high_20 = (close - high_20) / high_20 * 100 if high_20 > 0 else 0.0  # negative if below
+        pct_from_low_20 = (close - low_20) / low_20 * 100 if low_20 > 0 else 0.0      # positive if above
 
         # RSI(14) on closes
         closes = group["close"].to_numpy()
@@ -173,8 +187,13 @@ def compute_indicators(prices: pd.DataFrame) -> pd.DataFrame:
             "avg_vol_20": round(avg_vol_20, 0),
             "volume_ratio": round(volume_ratio, 2),
             "daily_return": round(daily_return, 2),
+            "ret_5d": round(ret_5d, 2) if ret_5d is not None else None,
             "range_pct": round(range_pct, 2),
             "turnover": int(turnover),
+            "pct_from_high_20": round(pct_from_high_20, 2),
+            "pct_from_low_20": round(pct_from_low_20, 2),
+            "high_20": round(high_20, 2),
+            "low_20": round(low_20, 2),
             "rsi14": round(rsi, 1) if rsi is not None else None,
         })
 
@@ -254,6 +273,55 @@ def top_n(df: pd.DataFrame, sort_col: str, n: int = 10, asc: bool = False, extra
 # ---------------------------------------------------------------------------
 # Gap candidates: stocks in JP sectors corresponding to hot/cold US sector ETFs
 # ---------------------------------------------------------------------------
+
+def _build_ai_input_pool(scored: pd.DataFrame, picks: dict, gap_cands: dict, n: int = 30) -> list[dict]:
+    """Return top N candidates by combined score, augmented with category flags
+    and gap-candidate triggers so the LLM has rich context to pick its own.
+    """
+    # Build ticker -> set of category labels appearance map
+    appears: dict[str, list[str]] = {}
+    category_labels = {
+        "total_score": "総合", "volume_surge": "出来高急増", "high_range": "値幅大",
+        "high_turnover": "売買代金", "momentum_long": "続伸", "reversal_long": "反転",
+    }
+    for cat, label in category_labels.items():
+        for p in picks.get(cat, []):
+            appears.setdefault(p["ticker"], []).append(label)
+
+    gap_trigger: dict[str, str] = {}
+    for side, rows in (("up", gap_cands.get("up", [])), ("down", gap_cands.get("down", []))):
+        for r in rows:
+            gap_trigger.setdefault(r["ticker"], f"{('ギャップ上' if side=='up' else 'ギャップ下')}: {r['trigger_label']} {r['trigger_change']:+.2f}%")
+
+    # Union: top by score + anyone appearing in any pick category + gap candidates
+    eligible_tickers = set(scored.sort_values("score", ascending=False).head(n)["ticker"])
+    eligible_tickers.update(appears.keys())
+    eligible_tickers.update(gap_trigger.keys())
+
+    sub = scored[scored["ticker"].isin(eligible_tickers)].sort_values("score", ascending=False).head(n + 10)
+    rows = []
+    for _, r in sub.iterrows():
+        rows.append({
+            "ticker": r["ticker"],
+            "name": r["name"],
+            "sector17": r["sector17"],
+            "close": float(r["close"]),
+            "daily_return": float(r["daily_return"]),
+            "ret_5d": float(r["ret_5d"]) if pd.notna(r["ret_5d"]) else None,
+            "volume_ratio": float(r["volume_ratio"]),
+            "range_pct": float(r["range_pct"]),
+            "turnover_oku": round(float(r["turnover"]) / 1e8, 1),  # 億円単位
+            "rsi14": float(r["rsi14"]) if pd.notna(r["rsi14"]) else None,
+            "pct_from_high_20": float(r["pct_from_high_20"]),
+            "pct_from_low_20": float(r["pct_from_low_20"]),
+            "high_20": float(r["high_20"]),
+            "low_20": float(r["low_20"]),
+            "score": float(r["score"]),
+            "appears_in": appears.get(r["ticker"], []),
+            "gap_trigger": gap_trigger.get(r["ticker"]),
+        })
+    return rows
+
 
 def build_gap_candidates(metrics: pd.DataFrame, sector_signals: list[dict]) -> dict:
     """Find JP stocks in JP sectors mapped from hot US sector ETFs.
@@ -353,6 +421,10 @@ def main() -> int:
     # 6. Gap candidates from sector overnight moves
     gap_candidates = build_gap_candidates(scored, sector_signals)
 
+    # 7. AI input pool: top 30 by combined score, with category flags so the
+    #    LLM can see which stocks appear in multiple ranking lists.
+    ai_pool = _build_ai_input_pool(scored, picks, gap_candidates, n=30)
+
     asof_date = str(prices["date"].max())
     result = {
         "asof": asof_date,                              # data is from this trading day's close
@@ -363,6 +435,7 @@ def main() -> int:
         "sector_signals": sector_signals,
         "gap_candidates": gap_candidates,
         "picks": picks,
+        "ai_input_pool": ai_pool,
     }
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
