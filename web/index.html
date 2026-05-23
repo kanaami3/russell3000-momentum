@@ -177,6 +177,15 @@
       🎯 EA(自動売買)開発を見据えた指数モニター。RSI(14)・MACD(12/26/9)・ボリンジャー(20,2)・ATR(14)・SMA(20/50/200)を計算し、テクニカル状態を可視化。データソース: Yahoo Finance(yfinance)。
     </p>
 
+    <!-- Overall AI commentary at the top -->
+    <section x-show="indicesData.overall_commentary" class="bg-gradient-to-br from-teal-50 to-emerald-50 border-2 border-teal-300 rounded-2xl p-5 sm:p-6">
+      <h2 class="flex items-center gap-3 text-lg font-extrabold text-teal-900 mb-3">
+        <span>🤖</span>
+        AIによる総合解説(日経225 + NASDAQ100 + USD/JPY)
+      </h2>
+      <article class="text-sm leading-relaxed text-slate-700 whitespace-pre-line" x-text="indicesData.overall_commentary"></article>
+    </section>
+
     <template x-for="ix in indicesData.indices" :key="ix.id">
       <section class="bg-white border-2 border-teal-200 rounded-2xl p-5 sm:p-6 shadow-sm">
         <!-- Hero: name + price + trend -->
@@ -243,6 +252,12 @@
         <!-- Chart -->
         <div class="relative" style="height: 320px;">
           <div :id="'index-chart-' + ix.id" class="absolute inset-0"></div>
+        </div>
+
+        <!-- Per-index AI commentary -->
+        <div x-show="ix.commentary" class="mt-4 bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <div class="text-[10px] font-bold text-teal-700 tracking-wider mb-1">🤖 テクニカル解説</div>
+          <article class="text-sm leading-relaxed text-slate-700 whitespace-pre-line" x-text="ix.commentary"></article>
         </div>
       </section>
     </template>

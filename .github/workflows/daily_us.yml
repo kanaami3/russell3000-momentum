@@ -40,6 +40,16 @@ jobs:
       - name: Fetch indices (N225 / NDX / USDJPY with indicators)
         run: python batch/fetch_indices.py
 
+      - name: Generate index AI commentary (Claude)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            python batch/generate_index_commentary.py
+          else
+            echo "ANTHROPIC_API_KEY not set — skipping index commentary"
+          fi
+
       - name: Generate US market summary (Claude)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
