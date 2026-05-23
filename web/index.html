@@ -80,31 +80,79 @@
   <div x-show="loading" class="text-center py-20 text-slate-500">データを読み込み中...</div>
 
   <!-- Mood indicators bar (US / JP tabs only; daytrade tab has its own dashboard) -->
-  <section x-show="market !== 'daytrade' && data?.market_indicators" class="-mt-2">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <!-- VIX (always shown) -->
-      <div x-show="data?.market_indicators?.vix" class="bg-white border rounded-xl p-4 flex items-center gap-4" :class="vixBorderClass(data?.market_indicators?.vix?.value)">
-        <div class="text-2xl">📊</div>
-        <div class="flex-1 min-w-0">
-          <div class="text-[10px] font-bold text-slate-500 tracking-wider">VIX(恐怖指数)</div>
-          <div class="flex items-baseline gap-2 flex-wrap">
-            <span class="text-2xl font-extrabold num" :class="vixTextClass(data?.market_indicators?.vix?.value)" x-text="data?.market_indicators?.vix?.value"></span>
-            <span class="text-xs font-bold num" :class="pctClass(data?.market_indicators?.vix?.change_pct)" x-text="fmtPct(data?.market_indicators?.vix?.change_pct ?? 0)"></span>
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full" :class="vixLabelClass(data?.market_indicators?.vix?.value)" x-text="data?.market_indicators?.vix?.level"></span>
-          </div>
+  <section x-show="market !== 'daytrade' && data?.market_indicators" class="-mt-2 space-y-3">
+    <!-- VIX small card -->
+    <div x-show="data?.market_indicators?.vix" class="bg-white border rounded-xl p-4 flex items-center gap-4" :class="vixBorderClass(data?.market_indicators?.vix?.value)">
+      <div class="text-2xl">📊</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-[10px] font-bold text-slate-500 tracking-wider">VIX(恐怖指数)</div>
+        <div class="flex items-baseline gap-2 flex-wrap">
+          <span class="text-2xl font-extrabold num" :class="vixTextClass(data?.market_indicators?.vix?.value)" x-text="data?.market_indicators?.vix?.value"></span>
+          <span class="text-xs font-bold num" :class="pctClass(data?.market_indicators?.vix?.change_pct)" x-text="fmtPct(data?.market_indicators?.vix?.change_pct ?? 0)"></span>
+          <span class="text-xs font-semibold px-2 py-0.5 rounded-full" :class="vixLabelClass(data?.market_indicators?.vix?.value)" x-text="data?.market_indicators?.vix?.level"></span>
         </div>
       </div>
-      <!-- Fear & Greed (US only) -->
-      <div x-show="data?.market_indicators?.fear_greed" class="bg-white border rounded-xl p-4 flex items-center gap-4" :class="fgBorderClass(data?.market_indicators?.fear_greed?.score)">
-        <div class="text-2xl">😱😀</div>
-        <div class="flex-1 min-w-0">
-          <div class="text-[10px] font-bold text-slate-500 tracking-wider">FEAR & GREED INDEX (CNN)</div>
-          <div class="flex items-baseline gap-2 flex-wrap">
-            <span class="text-2xl font-extrabold num" :class="fgTextClass(data?.market_indicators?.fear_greed?.score)" x-text="data?.market_indicators?.fear_greed?.score"></span>
-            <span class="text-xs text-slate-500">/100</span>
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full" :class="fgLabelClass(data?.market_indicators?.fear_greed?.score)" x-text="data?.market_indicators?.fear_greed?.label_ja"></span>
-          </div>
+    </div>
+
+    <!-- Fear & Greed gauge (US only) -->
+    <div x-show="data?.market_indicators?.fear_greed" class="bg-white border-2 rounded-xl p-5 sm:p-6" :class="fgBorderClass(data?.market_indicators?.fear_greed?.score)">
+      <div class="flex items-start justify-between mb-1 flex-wrap gap-2">
+        <div>
+          <h3 class="text-base sm:text-lg font-extrabold text-slate-800">Fear & Greed Index</h3>
+          <p class="text-xs text-slate-500">What emotion is driving the market now?(CNN)</p>
         </div>
+        <a href="https://www.cnn.com/markets/fear-and-greed" target="_blank" rel="noopener" class="text-xs text-slate-500 hover:text-slate-900 underline">CNN元データ ↗</a>
+      </div>
+
+      <!-- SVG gauge -->
+      <div class="flex justify-center py-2">
+        <svg viewBox="0 0 240 160" class="w-full max-w-md" style="max-height:200px;">
+          <g transform="translate(120, 140)">
+            <!-- 5 colored arc segments -->
+            <path :d="fgArcPath(0, 25)"   stroke="#dc2626" stroke-width="22" fill="none" stroke-linecap="butt"/>
+            <path :d="fgArcPath(25, 45)"  stroke="#f59e0b" stroke-width="22" fill="none" stroke-linecap="butt"/>
+            <path :d="fgArcPath(45, 55)"  stroke="#94a3b8" stroke-width="22" fill="none" stroke-linecap="butt"/>
+            <path :d="fgArcPath(55, 75)"  stroke="#34d399" stroke-width="22" fill="none" stroke-linecap="butt"/>
+            <path :d="fgArcPath(75, 100)" stroke="#059669" stroke-width="22" fill="none" stroke-linecap="butt"/>
+
+            <!-- Zone labels along arc -->
+            <text :x="fgLabelPos(12.5).x"  :y="fgLabelPos(12.5).y"  text-anchor="middle" font-size="8"  font-weight="700" fill="#7f1d1d" :transform="`rotate(${fgLabelRot(12.5)} ${fgLabelPos(12.5).x} ${fgLabelPos(12.5).y})`">EXT FEAR</text>
+            <text :x="fgLabelPos(35).x"    :y="fgLabelPos(35).y"    text-anchor="middle" font-size="9"  font-weight="700" fill="#92400e" :transform="`rotate(${fgLabelRot(35)} ${fgLabelPos(35).x} ${fgLabelPos(35).y})`">FEAR</text>
+            <text :x="fgLabelPos(50).x"    :y="fgLabelPos(50).y"    text-anchor="middle" font-size="8"  font-weight="700" fill="#475569" :transform="`rotate(${fgLabelRot(50)} ${fgLabelPos(50).x} ${fgLabelPos(50).y})`">NEUTRAL</text>
+            <text :x="fgLabelPos(65).x"    :y="fgLabelPos(65).y"    text-anchor="middle" font-size="9"  font-weight="700" fill="#065f46" :transform="`rotate(${fgLabelRot(65)} ${fgLabelPos(65).x} ${fgLabelPos(65).y})`">GREED</text>
+            <text :x="fgLabelPos(87.5).x"  :y="fgLabelPos(87.5).y"  text-anchor="middle" font-size="8"  font-weight="700" fill="#064e3b" :transform="`rotate(${fgLabelRot(87.5)} ${fgLabelPos(87.5).x} ${fgLabelPos(87.5).y})`">EXT GREED</text>
+
+            <!-- Tick labels (0, 25, 50, 75, 100) -->
+            <text :x="fgTickPos(0).x"   :y="fgTickPos(0).y"   text-anchor="end"    font-size="9" fill="#64748b" dy="0.3em">0</text>
+            <text :x="fgTickPos(25).x"  :y="fgTickPos(25).y"  text-anchor="middle" font-size="9" fill="#64748b">25</text>
+            <text :x="fgTickPos(50).x"  :y="fgTickPos(50).y"  text-anchor="middle" font-size="9" fill="#64748b">50</text>
+            <text :x="fgTickPos(75).x"  :y="fgTickPos(75).y"  text-anchor="middle" font-size="9" fill="#64748b">75</text>
+            <text :x="fgTickPos(100).x" :y="fgTickPos(100).y" text-anchor="start"  font-size="9" fill="#64748b" dy="0.3em">100</text>
+
+            <!-- Needle -->
+            <line x1="0" y1="0" :x2="fgNeedle(data?.market_indicators?.fear_greed?.score).x" :y2="fgNeedle(data?.market_indicators?.fear_greed?.score).y" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Center hub -->
+            <circle r="7" fill="#0f172a"/>
+            <circle r="3" fill="#fff"/>
+
+            <!-- Big score in center below hub -->
+            <text x="0" y="-30" text-anchor="middle" font-size="36" font-weight="800" fill="#0f172a" x-text="data?.market_indicators?.fear_greed?.score"></text>
+            <text x="0" y="-12" text-anchor="middle" font-size="11" font-weight="700" :fill="fgTextHex(data?.market_indicators?.fear_greed?.score)" x-text="(data?.market_indicators?.fear_greed?.label_ja || '').toUpperCase()"></text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Historical comparisons -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
+        <template x-for="h in fgHistoryList(data?.market_indicators?.fear_greed?.history)" :key="h.label">
+          <div class="flex items-center gap-3 border-t pt-3 sm:border-0 sm:pt-0">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-extrabold shrink-0" :class="fgHistoryDotClass(h.score)" x-text="h.score"></div>
+            <div class="min-w-0">
+              <div class="text-[10px] text-slate-500 font-semibold" x-text="h.label"></div>
+              <div class="text-xs font-bold" :class="fgTextClass(h.score)" x-text="h.label_ja"></div>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
   </section>
@@ -1180,6 +1228,68 @@ function momentumApp() {
       if (o.startsWith('target') || o === 'gap_target') return 'bg-emerald-100 text-emerald-700';
       if (o.startsWith('stop') || o === 'gap_stop')     return 'bg-red-100 text-red-700';
       return 'bg-slate-100 text-slate-600';
+    },
+
+    // --- Fear & Greed gauge geometry ---
+    // Score 0 → angle 180° (left), 100 → 0° (right). Arc radius 100.
+    _fgAngleRad(score) {
+      return (180 - (score ?? 0) * 1.8) * Math.PI / 180;
+    },
+    fgArcPath(s1, s2, r = 100) {
+      const a1 = this._fgAngleRad(s1);
+      const a2 = this._fgAngleRad(s2);
+      const x1 = (r * Math.cos(a1)).toFixed(1);
+      const y1 = (-r * Math.sin(a1)).toFixed(1);
+      const x2 = (r * Math.cos(a2)).toFixed(1);
+      const y2 = (-r * Math.sin(a2)).toFixed(1);
+      return `M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`;
+    },
+    fgLabelPos(score, r = 100) {
+      // Position label slightly outside the band
+      const a = this._fgAngleRad(score);
+      return { x: (r + 5) * Math.cos(a), y: -(r + 5) * Math.sin(a) };
+    },
+    fgLabelRot(score) {
+      // Rotate label tangent to arc (so it reads along the curve)
+      // Tangent at angle θ has slope perpendicular to radius → rotation = -(angle - 90)
+      const angleDeg = 180 - score * 1.8;
+      return -(angleDeg - 90);
+    },
+    fgTickPos(score, r = 78) {
+      const a = this._fgAngleRad(score);
+      return { x: r * Math.cos(a), y: -r * Math.sin(a) };
+    },
+    fgNeedle(score, length = 88) {
+      const a = this._fgAngleRad(score ?? 0);
+      return { x: (length * Math.cos(a)).toFixed(1), y: (-length * Math.sin(a)).toFixed(1) };
+    },
+    fgTextHex(s) {
+      if (s == null) return '#334155';
+      if (s < 25) return '#b91c1c';
+      if (s < 45) return '#b45309';
+      if (s < 55) return '#475569';
+      if (s < 75) return '#047857';
+      return '#065f46';
+    },
+    fgHistoryList(h) {
+      if (!h) return [];
+      const labels = [
+        ['previous_close',   '前日終値'],
+        ['previous_1_week',  '1週間前'],
+        ['previous_1_month', '1ヶ月前'],
+        ['previous_1_year',  '1年前'],
+      ];
+      return labels
+        .map(([k, label]) => h[k] ? { label, score: h[k].score, label_ja: h[k].label_ja } : null)
+        .filter(Boolean);
+    },
+    fgHistoryDotClass(s) {
+      if (s == null) return 'bg-slate-200 text-slate-700';
+      if (s < 25) return 'bg-red-200 text-red-800';
+      if (s < 45) return 'bg-amber-200 text-amber-800';
+      if (s < 55) return 'bg-slate-200 text-slate-700';
+      if (s < 75) return 'bg-emerald-200 text-emerald-800';
+      return 'bg-emerald-300 text-emerald-900';
     },
 
     vixBorderClass(v) {

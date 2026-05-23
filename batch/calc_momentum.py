@@ -131,8 +131,19 @@ def fetch_vix() -> dict | None:
         return None
 
 
+def _fg_label_ja(score: float) -> str:
+    if score < 25:    return "極度の恐怖"
+    if score < 45:    return "恐怖"
+    if score < 55:    return "中立"
+    if score < 75:    return "強欲"
+    return "極度の強欲"
+
+
 def fetch_fear_greed() -> dict | None:
-    """CNN Fear & Greed Index — 0=Extreme Fear, 100=Extreme Greed."""
+    """CNN Fear & Greed Index — 0=Extreme Fear, 100=Extreme Greed.
+
+    Includes historical comparison points (previous close / 1w / 1m / 1y).
+    """
     try:
         resp = requests.get(
             "https://production.dataviz.cnn.io/index/fearandgreed/graphdata",
@@ -149,16 +160,28 @@ def fetch_fear_greed() -> dict | None:
         fg = (resp.json() or {}).get("fear_and_greed") or {}
         score = float(fg.get("score") or 0)
         rating = (fg.get("rating") or "").lower()
-        if score < 25:    label_ja = "極度の恐怖"
-        elif score < 45:  label_ja = "恐怖"
-        elif score < 55:  label_ja = "中立"
-        elif score < 75:  label_ja = "強欲"
-        else:             label_ja = "極度の強欲"
+
+        def _hist(key: str) -> dict | None:
+            v = fg.get(key)
+            if v is None:
+                return None
+            try:
+                v = float(v)
+            except (TypeError, ValueError):
+                return None
+            return {"score": round(v, 1), "label_ja": _fg_label_ja(v)}
+
         return {
             "score": round(score, 1),
             "rating": rating,
-            "label_ja": label_ja,
+            "label_ja": _fg_label_ja(score),
             "as_of": (fg.get("timestamp") or "")[:10],
+            "history": {
+                "previous_close": _hist("previous_close"),
+                "previous_1_week": _hist("previous_1_week"),
+                "previous_1_month": _hist("previous_1_month"),
+                "previous_1_year": _hist("previous_1_year"),
+            },
         }
     except Exception as e:
         print(f"WARN: fetch_fear_greed failed: {e}", file=sys.stderr)
