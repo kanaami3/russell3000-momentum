@@ -18,6 +18,7 @@
   .num { font-variant-numeric: tabular-nums; }
   .gradient-us { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%); }
   .gradient-jp { background: linear-gradient(135deg, #dc2626 0%, #e11d48 50%, #be185d 100%); }
+  .gradient-daytrade { background: linear-gradient(135deg, #d97706 0%, #ea580c 50%, #c2410c 100%); }
   .ticker-link { cursor: pointer; text-decoration: none; }
   .ticker-link:hover { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
 </style>
@@ -25,33 +26,50 @@
 <body class="bg-slate-50 text-slate-900" x-data="momentumApp()" x-init="init()">
 
 <!-- Header -->
-<header :class="market === 'jp' ? 'gradient-jp text-white' : 'gradient-us text-white'">
+<header :class="headerGradient + ' text-white'">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
     <div class="text-xs sm:text-sm font-semibold tracking-widest mb-2 opacity-90" x-text="config.label"></div>
     <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight" x-text="config.title"></h1>
     <div class="mt-3 text-sm sm:text-base opacity-90">
-      <span x-text="formatDate(data?.asof)"></span>
-      <span class="mx-2 opacity-60">|</span>
-      <span><span x-text="data?.ticker_count ?? '...'"></span>銘柄対象（自動更新）</span>
+      <template x-if="market === 'daytrade'">
+        <span>
+          <span x-text="morningBrief ? formatDate(morningBrief.asof) + 'ベース' : '...'"></span>
+          <span class="mx-2 opacity-60">|</span>
+          <span>毎平日 8:00 JST 更新</span>
+        </span>
+      </template>
+      <template x-if="market !== 'daytrade'">
+        <span>
+          <span x-text="formatDate(data?.asof)"></span>
+          <span class="mx-2 opacity-60">|</span>
+          <span><span x-text="data?.ticker_count ?? '...'"></span>銘柄対象（自動更新）</span>
+        </span>
+      </template>
     </div>
   </div>
 </header>
 
 <!-- Market tabs -->
-<nav class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm overflow-x-auto">
   <div class="max-w-6xl mx-auto px-4 sm:px-6">
-    <div class="flex gap-1">
+    <div class="flex gap-1 whitespace-nowrap">
       <button
         @click="setMarket('us')"
         :class="market === 'us' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors">
+        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
         🇺🇸 米国 (Russell 3000)
       </button>
       <button
         @click="setMarket('jp')"
         :class="market === 'jp' ? 'border-rose-600 text-rose-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors">
+        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
         🇯🇵 日本 (東証プライム)
+      </button>
+      <button
+        @click="setMarket('daytrade')"
+        :class="market === 'daytrade' ? 'border-amber-600 text-amber-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
+        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
+        🎯 朝のデイトレ・ピックアップ
       </button>
     </div>
   </div>
@@ -61,11 +79,170 @@
 
   <div x-show="loading" class="text-center py-20 text-slate-500">データを読み込み中...</div>
 
-  <template x-if="data && !loading">
+  <!-- Daytrade tab: loading state when morning brief not yet loaded -->
+  <div x-show="market === 'daytrade' && !morningBrief" class="text-center py-20 text-slate-500">朝のデイトレ・ブリーフを読み込み中...</div>
+
+  <!-- Daytrade results report placeholder (top of daytrade view) -->
+  <section x-show="market === 'daytrade' && morningBrief" class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-5 sm:p-6 mb-8">
+    <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-extrabold text-slate-700 mb-3">
+      <span>📊</span>
+      当日の結果報告
+    </h2>
+    <p class="text-sm text-slate-600 leading-relaxed">
+      AIピックがどう動いたか、引け時点で自動集計してここに表示する機能を準備中です。
+      <span class="block mt-2 text-xs text-slate-500">
+        実装予定: 各推奨銘柄について「目標到達 ✓」「損切り ✗」「持ち越し継続 →」を引け後に自動レビュー。
+      </span>
+    </p>
+  </section>
+
+  <!-- Daytrade tab: morning brief content (moved from JP page) -->
+  <section x-show="market === 'daytrade' && morningBrief" class="bg-gradient-to-br from-rose-50 to-amber-50 border-2 border-rose-200 rounded-2xl p-5 sm:p-6 shadow-md mb-12">
+    <div class="flex items-center justify-between mb-5 flex-wrap gap-2">
+      <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-extrabold text-rose-900">
+        <span>🌅</span>
+        朝のデイトレ・ピックアップ
+      </h2>
+      <div class="text-xs text-slate-600">
+        <span>前日終値ベース · </span>
+        <span x-text="morningBrief ? morningBriefAsof(morningBrief) : ''"></span>
+      </div>
+    </div>
+
+    <!-- Macro signals -->
+    <div class="mb-6">
+      <h3 class="text-xs font-bold text-rose-900 mb-2 tracking-wider">🌐 夜間マクロ指標</h3>
+      <div class="grid grid-cols-3 sm:grid-cols-5 gap-2">
+        <template x-for="m in (morningBrief?.macro_signals || [])" :key="m.ticker">
+          <div class="bg-white rounded-lg p-2 border border-slate-200 text-center">
+            <div class="text-[10px] text-slate-500 truncate" x-text="m.label"></div>
+            <div class="text-sm font-bold num text-slate-800" x-text="m.value.toLocaleString()"></div>
+            <div class="text-xs font-bold num" :class="pctClass(m.change_pct)" x-text="fmtPct(m.change_pct)"></div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Sector signals -->
+    <div class="mb-6">
+      <h3 class="text-xs font-bold text-rose-900 mb-2 tracking-wider">🌍 米セクター騰落 → 日本セクター含み</h3>
+      <div class="bg-white rounded-lg border border-slate-200 divide-y divide-slate-100">
+        <template x-for="s in (morningBrief?.sector_signals || [])" :key="s.ticker">
+          <div class="px-3 py-1.5 text-xs flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0 flex-1">
+              <span class="font-bold text-slate-700 w-12 shrink-0" x-text="s.ticker"></span>
+              <span class="text-slate-600 w-20 shrink-0" x-text="s.label"></span>
+              <span class="text-slate-500 truncate text-[11px]">→ 日本: <span x-text="(s.jp_sectors||[]).join('・')"></span></span>
+            </div>
+            <span class="num font-bold shrink-0" :class="pctClass(s.change_pct)" x-text="fmtPct(s.change_pct)"></span>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Gap candidates -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-white rounded-lg p-4 border border-emerald-200">
+        <h3 class="text-xs font-bold text-emerald-700 mb-2 tracking-wider">🚀 ギャップアップ候補(海外セクター→日本)</h3>
+        <div class="space-y-1" x-show="(morningBrief?.gap_candidates?.up || []).length > 0">
+          <template x-for="c in (morningBrief?.gap_candidates?.up || []).slice(0, 10)" :key="c.ticker">
+            <div class="text-xs py-1 flex items-center justify-between gap-2 border-b border-emerald-50 last:border-0">
+              <div class="flex items-center gap-2 min-w-0 flex-1">
+                <a class="font-bold text-rose-700 ticker-link w-12 shrink-0" @click="openChart(c.ticker)" x-text="displayTicker(c.ticker)"></a>
+                <span class="text-slate-700 truncate" x-text="shortName(c.name)"></span>
+              </div>
+              <span class="text-[10px] text-slate-500 shrink-0" x-text="c.trigger_etf + ' ' + fmtPct(c.trigger_change)"></span>
+            </div>
+          </template>
+        </div>
+        <div x-show="(morningBrief?.gap_candidates?.up || []).length === 0" class="text-xs text-slate-400">該当なし</div>
+      </div>
+      <div class="bg-white rounded-lg p-4 border border-red-200">
+        <h3 class="text-xs font-bold text-red-700 mb-2 tracking-wider">🔻 ギャップダウン候補</h3>
+        <div class="space-y-1" x-show="(morningBrief?.gap_candidates?.down || []).length > 0">
+          <template x-for="c in (morningBrief?.gap_candidates?.down || []).slice(0, 10)" :key="c.ticker">
+            <div class="text-xs py-1 flex items-center justify-between gap-2 border-b border-red-50 last:border-0">
+              <div class="flex items-center gap-2 min-w-0 flex-1">
+                <a class="font-bold text-rose-700 ticker-link w-12 shrink-0" @click="openChart(c.ticker)" x-text="displayTicker(c.ticker)"></a>
+                <span class="text-slate-700 truncate" x-text="shortName(c.name)"></span>
+              </div>
+              <span class="text-[10px] text-slate-500 shrink-0" x-text="c.trigger_etf + ' ' + fmtPct(c.trigger_change)"></span>
+            </div>
+          </template>
+        </div>
+        <div x-show="(morningBrief?.gap_candidates?.down || []).length === 0" class="text-xs text-slate-400">該当なし</div>
+      </div>
+    </div>
+
+    <!-- 6 day-trade pick panels -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+      <template x-for="panel in dayTradePanels" :key="panel.key">
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <h3 class="text-xs font-bold mb-2 tracking-wider" :class="panel.text" x-text="panel.label"></h3>
+          <div class="space-y-0.5">
+            <template x-for="p in (morningBrief?.picks?.[panel.key] || []).slice(0, 5)" :key="p.ticker">
+              <div class="text-xs py-1 flex items-center justify-between gap-2 border-b border-slate-50 last:border-0">
+                <div class="flex items-center gap-2 min-w-0 flex-1">
+                  <a class="font-bold text-rose-700 ticker-link w-12 shrink-0" @click="openChart(p.ticker)" x-text="displayTicker(p.ticker)"></a>
+                  <span class="text-slate-700 truncate" x-text="shortName(p.name)"></span>
+                </div>
+                <span class="num font-bold shrink-0" :class="pctClass(p.daily_return)" x-text="fmtPct(p.daily_return)"></span>
+              </div>
+            </template>
+            <div x-show="(morningBrief?.picks?.[panel.key] || []).length === 0" class="text-xs text-slate-400">該当なし</div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- AI picks -->
+    <div x-show="(morningBrief?.ai_picks || []).length > 0" class="mb-6">
+      <h3 class="text-xs font-bold text-rose-900 mb-2 tracking-wider">🎯 AIが選ぶ本日のデイトレ推奨銘柄</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <template x-for="pick in (morningBrief?.ai_picks || [])" :key="pick.ticker">
+          <div class="bg-white rounded-lg border border-rose-300 p-4 shadow-sm">
+            <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+              <div class="flex items-center gap-2 min-w-0 flex-1">
+                <a class="font-bold text-rose-700 ticker-link text-base shrink-0" @click="openChart(pick.ticker)" x-text="displayTicker(pick.ticker)"></a>
+                <span class="text-slate-700 font-semibold truncate" x-text="shortName(pick.name)"></span>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <span x-show="pick.hold_horizon" class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full" :class="pick.hold_horizon === '翌日持越し可' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'" x-text="pick.hold_horizon"></span>
+                <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full" :class="aiPickBadgeClass(pick.type)" x-text="pick.type"></span>
+              </div>
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed mb-2" x-text="pick.rationale"></p>
+            <div class="space-y-1 text-[11px]">
+              <div class="flex items-start gap-2">
+                <span class="font-bold text-emerald-700 shrink-0 w-12">🎯 寄付</span>
+                <span class="text-slate-700" x-text="pick.entry"></span>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="font-bold text-blue-700 shrink-0 w-12">📈 利食</span>
+                <span class="text-slate-700" x-text="pick.target"></span>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="font-bold text-red-700 shrink-0 w-12">⚠️ リスク</span>
+                <span class="text-slate-700" x-text="pick.risk"></span>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- AI narrative brief -->
+    <div x-show="morningBrief?.ai_brief">
+      <h3 class="text-xs font-bold text-rose-900 mb-2 tracking-wider">🤖 本日のAIモーニングブリーフ</h3>
+      <article class="bg-white rounded-lg border border-slate-200 p-4 text-sm leading-relaxed whitespace-pre-line" x-text="morningBrief?.ai_brief"></article>
+    </div>
+  </section>
+
+  <template x-if="market !== 'daytrade' && data && !loading">
   <div class="space-y-12">
 
-    <!-- Section 0: Morning daytrade brief (JP only) -->
-    <section x-show="market === 'jp' && morningBrief" class="bg-gradient-to-br from-rose-50 to-amber-50 border-2 border-rose-200 rounded-2xl p-5 sm:p-6 shadow-md">
+    <!-- Section 0 (legacy): Morning daytrade brief — now moved to daytrade tab, this is kept as no-op -->
+    <section x-show="false" class="bg-gradient-to-br from-rose-50 to-amber-50 border-2 border-rose-200 rounded-2xl p-5 sm:p-6 shadow-md">
       <div class="flex items-center justify-between mb-5 flex-wrap gap-2">
         <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-extrabold text-rose-900">
           <span>🌅</span>
@@ -468,6 +645,13 @@ const MARKET_CONFIG = {
     docTitle: '東証プライム モメンタムランキング | Daily TSE Prime Momentum Report',
     defaultSort: 'm3',
   },
+  daytrade: {
+    file: null,  // no momentum file — uses morning_brief_jp.json only
+    title: '朝のデイトレ・ピックアップ',
+    label: 'MORNING DAYTRADE BRIEF (TSE PRIME)',
+    docTitle: '朝のデイトレ・ピックアップ | Morning Daytrade Brief',
+    defaultSort: 'm3',
+  },
 };
 
 function momentumApp() {
@@ -488,6 +672,17 @@ function momentumApp() {
     chartTicker: null,
 
     get config() { return MARKET_CONFIG[this.market]; },
+
+    get isJpDomain() {
+      // daytrade is JP data — tickers in morning_brief_jp.json are JP (.T suffix)
+      return this.market === 'jp' || this.market === 'daytrade';
+    },
+
+    get headerGradient() {
+      if (this.market === 'daytrade') return 'gradient-daytrade';
+      if (this.market === 'jp') return 'gradient-jp';
+      return 'gradient-us';
+    },
 
     init() {
       // Pick market from URL hash > localStorage > default 'us'
@@ -520,18 +715,19 @@ function momentumApp() {
       this.data = null;
       this.morningBrief = null;
       try {
-        const url = './data/' + this.config.file + '?v=' + Date.now();
-        const resp = await fetch(url);
-        if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
-        this.data = await resp.json();
+        if (this.config.file) {
+          const url = './data/' + this.config.file + '?v=' + Date.now();
+          const resp = await fetch(url);
+          if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
+          this.data = await resp.json();
+        }
       } catch (e) {
         console.error(e);
-        document.querySelector('main').innerHTML = '<div class="text-center py-20 text-red-600">データの読み込みに失敗しました: ' + e.message + '</div>';
       } finally {
         this.loading = false;
       }
-      // JP only: load morning brief in background (non-blocking)
-      if (this.market === 'jp') {
+      // JP / daytrade: load morning brief (always for daytrade, in background for JP)
+      if (this.isJpDomain) {
         this.loadMorningBrief();
       }
     },
@@ -597,7 +793,7 @@ function momentumApp() {
 
     displayTicker(t) {
       // JP tickers come as "7203.T"; show as "7203"
-      if (this.market === 'jp' && t && t.endsWith('.T')) return t.slice(0, -2);
+      if (this.isJpDomain && t && t.endsWith('.T')) return t.slice(0, -2);
       return t;
     },
 
@@ -694,10 +890,10 @@ function momentumApp() {
     },
 
     renderChart() {
-      // JP: render via TradingView Lightweight Charts using our self-fetched data
-      // (TradingView's free embed widget lacks JP data licensing).
-      // US: render via TradingView Advanced Chart Widget (works for US tickers).
-      if (this.market === 'jp') {
+      // JP / daytrade (which uses JP tickers): render via Lightweight Charts
+      // from our self-fetched OHLCV data.
+      // US: render via TradingView Advanced Chart Widget.
+      if (this.isJpDomain) {
         this.renderLightweightChart();
       } else {
         this.renderTradingViewWidget();
@@ -876,12 +1072,11 @@ function momentumApp() {
 
     get tradingViewSymbol() {
       if (!this.chartTicker) return '';
-      if (this.market === 'jp') {
+      if (this.isJpDomain) {
         return 'TSE:' + this.chartTicker.replace(/\.T$/, '');
       }
       const row = this.chartTickerRow;
       const ex = (row?.exchange || 'NASDAQ').toUpperCase();
-      // TradingView uses AMEX for NYSE American
       return ex + ':' + this.chartTicker;
     },
 
@@ -931,7 +1126,7 @@ function momentumApp() {
         .replace(' Class C', ' C')
         .replace(' Capital Stock', '');
       // JP-side cleanup (drop ホールディングス etc)
-      if (this.market === 'jp') {
+      if (this.isJpDomain) {
         n = n
           .replace(/ホールディングス$/, 'HD')
           .replace(/グループ$/, 'G')
