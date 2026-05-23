@@ -256,7 +256,7 @@
 </main>
 
 <!-- Chart modal (TradingView Advanced Chart Widget) -->
-<div x-show="chartTicker" x-cloak x-transition.opacity @keydown.escape.window="chartTicker = null" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-2 sm:p-4" @click.self="chartTicker = null">
+<div x-show="chartTicker" x-cloak x-transition.opacity @keydown.escape.window="closeChart()" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-2 sm:p-4" @click.self="closeChart()">
   <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[85vh] flex flex-col overflow-hidden">
     <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50">
       <div class="flex items-center gap-3 min-w-0">
@@ -265,11 +265,9 @@
       </div>
       <div class="flex items-center gap-2 shrink-0">
         <a :href="tradingViewExternalUrl" target="_blank" rel="noopener" class="text-xs text-slate-500 hover:text-slate-900 underline">外部で開く ↗</a>
-        <button @click="chartTicker = null" class="text-slate-500 hover:text-slate-900 text-2xl leading-none px-2" aria-label="閉じる">✕</button>
+        <button @click="closeChart()" class="text-slate-500 hover:text-slate-900 text-2xl leading-none px-2" aria-label="閉じる">✕</button>
       </div>
     </div>
-    <!-- Symbol Info: brief company description + key stats -->
-    <iframe x-show="chartTicker" :src="symbolInfoWidgetUrl" class="w-full" style="height: 170px; min-height: 170px;" frameborder="0" loading="lazy" scrolling="no"></iframe>
     <!-- Main chart (rendered via official tv.js loader for best cross-market support) -->
     <div x-show="chartTicker" class="flex-1 w-full relative">
       <div id="tv-chart-container" class="absolute inset-0"></div>
@@ -277,8 +275,10 @@
   </div>
 </div>
 
-<!-- TradingView widget loader -->
+<!-- TradingView widget loader (used for US chart) -->
 <script src="https://s3.tradingview.com/tv.js"></script>
+<!-- TradingView Lightweight Charts (used for JP chart from self-fetched data) -->
+<script src="https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js"></script>
 
 <footer class="border-t border-slate-200 mt-16 py-8 text-center text-xs text-slate-500">
   <p>
@@ -459,22 +459,44 @@ function momentumApp() {
       return prices[prices.length - 1] >= prices[0] ? '#16a34a' : '#dc2626';
     },
 
+    _lwChart: null,
+    _lwSeries: null,
+
     openChart(ticker) {
       this.chartTicker = ticker;
-      // Defer rendering until DOM updates and modal becomes visible
-      this.$nextTick(() => this.renderTradingViewChart());
+      this.$nextTick(() => this.renderChart());
     },
 
-    renderTradingViewChart() {
+    closeChart() {
+      if (this._lwChart) {
+        try { this._lwChart.remove(); } catch(e) {}
+        this._lwChart = null;
+        this._lwSeries = null;
+      }
+      this.chartTicker = null;
+    },
+
+    renderChart() {
+      // JP: render via TradingView Lightweight Charts using our self-fetched data
+      // (TradingView's free embed widget lacks JP data licensing).
+      // US: render via TradingView Advanced Chart Widget (works for US tickers).
+      if (this.market === 'jp') {
+        this.renderLightweightChart();
+      } else {
+        this.renderTradingViewWidget();
+      }
+    },
+
+    renderTradingViewWidget() {
       const container = document.getElementById('tv-chart-container');
       if (!container || !this.chartTicker) return;
+      // Destroy any prior LWC chart
+      if (this._lwChart) { try { this._lwChart.remove(); } catch(e){} this._lwChart = null; this._lwSeries = null; }
       container.innerHTML = '';
       if (typeof TradingView === 'undefined' || !TradingView.widget) {
-        // tv.js not yet loaded — wait briefly
-        setTimeout(() => this.renderTradingViewChart(), 250);
+        setTimeout(() => this.renderTradingViewWidget(), 250);
         return;
       }
-      // Generate a fresh container id each open so the widget binds correctly
       const innerId = 'tv-chart-inner-' + Date.now();
       const inner = document.createElement('div');
       inner.id = innerId;
@@ -498,6 +520,69 @@ function momentumApp() {
         studies: ['MASimple@tv-basicstudies'],
         container_id: innerId,
       });
+    },
+
+    renderLightweightChart() {
+      const container = document.getElementById('tv-chart-container');
+      if (!container || !this.chartTicker) return;
+      container.innerHTML = '';
+      const row = this.chartTickerRow;
+      const history = row?.chart_history || [];
+      if (!history.length) {
+        container.innerHTML = '<div class="flex items-center justify-center h-full text-slate-500 p-8 text-center">チャートデータが利用できません。<br>「外部で開く ↗」から TradingView で確認してください。</div>';
+        return;
+      }
+      if (typeof LightweightCharts === 'undefined') {
+        setTimeout(() => this.renderLightweightChart(), 250);
+        return;
+      }
+      // Compute 20-day SMA for trend reference
+      const closes = history.map(p => p[1]);
+      const dates = history.map(p => p[0]);
+      const SMA = 20;
+      const smaData = [];
+      for (let i = 0; i < closes.length; i++) {
+        if (i >= SMA - 1) {
+          let sum = 0;
+          for (let j = i - SMA + 1; j <= i; j++) sum += closes[j];
+          smaData.push({ time: dates[i], value: +(sum / SMA).toFixed(2) });
+        }
+      }
+
+      const chart = LightweightCharts.createChart(container, {
+        layout: { background: { color: '#ffffff' }, textColor: '#334155' },
+        grid: { vertLines: { color: '#f1f5f9' }, horzLines: { color: '#f1f5f9' } },
+        rightPriceScale: { borderColor: '#e2e8f0' },
+        timeScale: { borderColor: '#e2e8f0', timeVisible: false },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+        autoSize: true,
+      });
+      const lineSeries = chart.addAreaSeries({
+        lineColor: '#e11d48',
+        topColor: 'rgba(225, 29, 72, 0.25)',
+        bottomColor: 'rgba(225, 29, 72, 0.02)',
+        lineWidth: 2,
+        priceLineVisible: true,
+        lastValueVisible: true,
+      });
+      lineSeries.setData(history.map(p => ({ time: p[0], value: p[1] })));
+      if (smaData.length) {
+        const smaSeries = chart.addLineSeries({
+          color: '#6366f1',
+          lineWidth: 1,
+          priceLineVisible: false,
+          lastValueVisible: false,
+          title: 'SMA20',
+        });
+        smaSeries.setData(smaData);
+      }
+      chart.timeScale().fitContent();
+      this._lwChart = chart;
+      this._lwSeries = lineSeries;
+
+      // Resize handler
+      const resize = () => { if (this._lwChart) this._lwChart.applyOptions({}); };
+      window.addEventListener('resize', resize);
     },
 
     get chartTickerRow() {

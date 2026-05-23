@@ -39,17 +39,22 @@ WINDOWS = {
 # so users can spot recent pullbacks in uptrending stocks at a glance.
 SPARKLINE_DAYS = 21
 
+# Chart history = longer price+date series used for the in-modal chart rendering.
+# Required for JP where TradingView's free embed widget lacks data licensing.
+CHART_HISTORY_DAYS = 90
+
 MARKET_META = {
     "us": {"currency": "USD", "symbol": "$"},
     "jp": {"currency": "JPY", "symbol": "¥"},
 }
 
 
-def compute_returns(prices: pd.DataFrame) -> pd.DataFrame:
+def compute_returns(prices: pd.DataFrame, include_chart_history: bool = False) -> pd.DataFrame:
     prices = prices.sort_values(["ticker", "date"])
     rows: list[dict] = []
     for ticker, group in prices.groupby("ticker", sort=False):
         closes = group["close"].to_numpy()
+        dates = group["date"].to_numpy()
         if len(closes) < 2:
             continue
         record: dict = {"ticker": ticker, "close": float(closes[-1])}
@@ -70,6 +75,15 @@ def compute_returns(prices: pd.DataFrame) -> pd.DataFrame:
         # Sparkline: last SPARKLINE_DAYS closes, rounded for compactness
         sparkline_tail = closes[-SPARKLINE_DAYS:] if len(closes) >= 2 else closes
         record["sparkline"] = [round(float(c), 2) for c in sparkline_tail]
+        if include_chart_history:
+            # Compact tuple format [[date, value], ...] — frontend expands to
+            # the {time, value} format that Lightweight Charts expects.
+            # ~40% smaller than verbose object format.
+            n = min(CHART_HISTORY_DAYS, len(closes))
+            record["chart_history"] = [
+                [str(dates[-n + i]), round(float(closes[-n + i]), 2)]
+                for i in range(n)
+            ]
         rows.append(record)
 
     return pd.DataFrame(rows)
@@ -111,7 +125,9 @@ def main() -> int:
     print(f"[{market.upper()}] Universe: {len(universe)} tickers", file=sys.stderr)
     print(f"[{market.upper()}] Prices:   {len(prices):,} rows, {prices['ticker'].nunique()} tickers", file=sys.stderr)
 
-    returns = compute_returns(prices)
+    # JP charts need self-rendered chart_history because TradingView's free
+    # embed widget lacks JP data licensing.
+    returns = compute_returns(prices, include_chart_history=(market == "jp"))
     merged = returns.merge(universe, on="ticker", how="left")
     merged["name"] = merged["name"].fillna(merged["ticker"])
     if "market_cap" not in merged.columns:
@@ -143,6 +159,9 @@ def main() -> int:
             base["sector17"] = r.get("sector17", "")
             base["sector33"] = r.get("sector33", "")
             base["size_cat"] = r.get("size_cat", "")
+            ch = r.get("chart_history", [])
+            if isinstance(ch, list):
+                base["chart_history"] = ch
         return base
 
     result = {
