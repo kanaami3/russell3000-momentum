@@ -19,6 +19,7 @@
   .gradient-us { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%); }
   .gradient-jp { background: linear-gradient(135deg, #dc2626 0%, #e11d48 50%, #be185d 100%); }
   .gradient-daytrade { background: linear-gradient(135deg, #d97706 0%, #ea580c 50%, #c2410c 100%); }
+  .gradient-indices  { background: linear-gradient(135deg, #0e7490 0%, #0d9488 50%, #047857 100%); }
   .ticker-link { cursor: pointer; text-decoration: none; }
   .ticker-link:hover { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
 </style>
@@ -70,6 +71,12 @@
         :class="market === 'daytrade' ? 'border-amber-600 text-amber-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
         class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
         🎯 朝のデイトレ・ピックアップ
+      </button>
+      <button
+        @click="setMarket('indices')"
+        :class="market === 'indices' ? 'border-teal-600 text-teal-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
+        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
+        📈 指数モニター
       </button>
     </div>
   </div>
@@ -159,6 +166,110 @@
 
   <!-- Daytrade tab: loading state when morning brief not yet loaded -->
   <div x-show="market === 'daytrade' && !morningBrief" class="text-center py-20 text-slate-500">朝のデイトレ・ブリーフを読み込み中...</div>
+
+  <!-- Indices tab: loading state -->
+  <div x-show="market === 'indices' && !indicesData" class="text-center py-20 text-slate-500">指数データを読み込み中...</div>
+
+  <!-- Indices tab: main content -->
+  <template x-if="market === 'indices' && indicesData">
+  <div class="space-y-8">
+    <p class="text-xs text-slate-500">
+      🎯 EA(自動売買)開発を見据えた指数モニター。RSI(14)・MACD(12/26/9)・ボリンジャー(20,2)・ATR(14)・SMA(20/50/200)を計算し、テクニカル状態を可視化。データソース: Yahoo Finance(yfinance)。
+    </p>
+
+    <template x-for="ix in indicesData.indices" :key="ix.id">
+      <section class="bg-white border-2 border-teal-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+        <!-- Hero: name + price + trend -->
+        <div class="flex items-start justify-between mb-4 flex-wrap gap-3">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800" x-text="ix.label"></h2>
+            <div class="text-xs text-slate-500" x-text="ix.yf_symbol + ' · ' + ix.current.date"></div>
+          </div>
+          <div class="text-right">
+            <div class="flex items-baseline gap-2 justify-end">
+              <span class="text-3xl sm:text-4xl font-extrabold num text-slate-900" x-text="ix.current.value.toLocaleString()"></span>
+              <span class="text-base font-bold num" :class="pctClass(ix.current.change_pct)" x-text="(ix.current.change >= 0 ? '+' : '') + ix.current.change.toLocaleString()"></span>
+              <span class="text-base font-bold num" :class="pctClass(ix.current.change_pct)" x-text="fmtPct(ix.current.change_pct)"></span>
+            </div>
+            <span class="inline-block mt-1 px-3 py-1 text-xs font-bold rounded-full" :class="trendBadgeClass(ix.indicators.trend)" x-text="'トレンド: ' + ix.indicators.trend"></span>
+          </div>
+        </div>
+
+        <!-- Indicator dashboard -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-5">
+          <div class="bg-slate-50 rounded-lg p-2 border border-slate-200">
+            <div class="text-[10px] text-slate-500 font-bold">RSI(14)</div>
+            <div class="flex items-baseline gap-1">
+              <span class="text-lg font-extrabold num text-slate-800" x-text="ix.indicators.rsi14 ?? '-'"></span>
+              <span class="text-[9px] px-1 rounded" :class="rsiZone(ix.indicators.rsi14).class" x-text="rsiZone(ix.indicators.rsi14).label"></span>
+            </div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-2 border border-slate-200">
+            <div class="text-[10px] text-slate-500 font-bold">SMA200比</div>
+            <div class="text-lg font-extrabold num" :class="pctClass(ix.indicators.pct_from_sma200)" x-text="fmtPct(ix.indicators.pct_from_sma200 ?? 0)"></div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-2 border border-slate-200">
+            <div class="text-[10px] text-slate-500 font-bold">MACD</div>
+            <div class="text-lg font-extrabold" :class="ix.indicators.macd_bullish ? 'text-emerald-700' : 'text-red-700'" x-text="ix.indicators.macd_bullish ? '強気' : '弱気'"></div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-2 border border-slate-200">
+            <div class="text-[10px] text-slate-500 font-bold">ATR(14)</div>
+            <div class="text-lg font-extrabold num text-slate-800" x-text="ix.indicators.atr14 ? ix.indicators.atr14.toLocaleString() : '-'"></div>
+            <div class="text-[10px] text-slate-500">≒ <span x-text="fmtPct(ix.indicators.atr_pct ?? 0)"></span></div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-2 border border-slate-200">
+            <div class="text-[10px] text-slate-500 font-bold">BB位置</div>
+            <div class="text-lg font-extrabold num text-slate-800" x-text="(ix.indicators.bb_position_pct ?? 0).toFixed(0) + '%'"></div>
+            <div class="text-[10px] text-slate-500">下0/上100</div>
+          </div>
+        </div>
+
+        <!-- Multi-timeframe range buttons -->
+        <div class="flex items-center gap-1 mb-2 flex-wrap text-xs">
+          <span class="text-slate-500 mr-1">期間:</span>
+          <template x-for="opt in indexRangeOptions" :key="opt.days">
+            <button
+              @click="setIndexRange(ix.id, opt.days)"
+              :class="indicesRange[ix.id] === opt.days ? 'bg-teal-600 text-white border-teal-600' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'"
+              class="px-3 py-1 border rounded font-semibold"
+              x-text="opt.label"></button>
+          </template>
+          <span class="ml-auto text-[10px] text-slate-500">
+            SMA: <span class="text-blue-700 font-bold">20</span> / <span class="text-amber-700 font-bold">50</span> / <span class="text-purple-700 font-bold">200</span>
+          </span>
+        </div>
+
+        <!-- Chart -->
+        <div class="relative" style="height: 320px;">
+          <div :id="'index-chart-' + ix.id" class="absolute inset-0"></div>
+        </div>
+      </section>
+    </template>
+
+    <!-- Cross-correlations -->
+    <section x-show="(indicesData.correlations || []).length > 0" class="bg-white border border-slate-200 rounded-2xl p-5">
+      <h2 class="text-lg font-bold text-slate-800 mb-3">📊 30日 相関分析(日次リターン)</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <template x-for="c in indicesData.correlations" :key="c.a + '-' + c.b">
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 flex items-center justify-between gap-3">
+            <div class="text-sm font-bold text-slate-700">
+              <span x-text="c.a"></span>
+              <span class="text-slate-400">↔</span>
+              <span x-text="c.b"></span>
+            </div>
+            <div class="text-right">
+              <div class="text-xl font-extrabold num" :class="corrLabel(c.value).class" x-text="(c.value >= 0 ? '+' : '') + c.value.toFixed(2)"></div>
+              <div class="text-[10px] font-bold" :class="corrLabel(c.value).class" x-text="corrLabel(c.value).label"></div>
+            </div>
+          </div>
+        </template>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-3">
+        +1 に近いほど連動性が高く、-1 に近いほど逆相関。日経↔NDXは通常+0.5前後で連動傾向、日経↔USD/JPYは円安局面では+方向で連動しやすい。
+      </p>
+    </section>
+  </div>
+  </template>
 
   <!-- AI portfolio: virtual ¥10M simulation account -->
   <section x-show="market === 'daytrade' && portfolio" class="bg-white border-2 border-amber-300 rounded-2xl p-5 sm:p-6 mb-8 shadow-md">
@@ -1029,6 +1140,13 @@ const MARKET_CONFIG = {
     docTitle: '朝のデイトレ・ピックアップ | Morning Daytrade Brief',
     defaultSort: 'm3',
   },
+  indices: {
+    file: null,  // uses indices.json only
+    title: '指数モニター',
+    label: 'INDEX MONITOR (NIKKEI 225 / NASDAQ 100 / USD-JPY)',
+    docTitle: '指数モニター | Index Monitor',
+    defaultSort: 'm3',
+  },
 };
 
 function momentumApp() {
@@ -1057,6 +1175,7 @@ function momentumApp() {
 
     get headerGradient() {
       if (this.market === 'daytrade') return 'gradient-daytrade';
+      if (this.market === 'indices')  return 'gradient-indices';
       if (this.market === 'jp') return 'gradient-jp';
       return 'gradient-us';
     },
@@ -1110,6 +1229,132 @@ function momentumApp() {
       if (this.market === 'daytrade') {
         this.loadPortfolio();
       }
+      if (this.market === 'indices') {
+        this.loadIndices();
+      }
+    },
+
+    async loadIndices() {
+      this._destroyIndexCharts();
+      this.indicesData = null;
+      try {
+        const resp = await fetch('./data/indices.json?v=' + Date.now());
+        if (!resp.ok) return;
+        this.indicesData = await resp.json();
+        // Default range = 6 months for each
+        for (const ix of (this.indicesData.indices || [])) {
+          if (this.indicesRange[ix.id] == null) this.indicesRange[ix.id] = 126;
+        }
+        this.$nextTick(() => this.renderAllIndexCharts());
+      } catch (e) {
+        console.warn('indices load failed:', e);
+      }
+    },
+
+    setIndexRange(id, days) {
+      this.indicesRange[id] = days;
+      this.$nextTick(() => this.renderIndexChart(id));
+    },
+
+    _destroyIndexCharts() {
+      for (const id in this._indexCharts) {
+        try { this._indexCharts[id].remove(); } catch(e){}
+      }
+      this._indexCharts = {};
+    },
+
+    renderAllIndexCharts() {
+      if (typeof LightweightCharts === 'undefined') {
+        setTimeout(() => this.renderAllIndexCharts(), 200);
+        return;
+      }
+      for (const ix of (this.indicesData?.indices || [])) {
+        this.renderIndexChart(ix.id);
+      }
+    },
+
+    renderIndexChart(id) {
+      const container = document.getElementById('index-chart-' + id);
+      if (!container) return;
+      if (this._indexCharts[id]) {
+        try { this._indexCharts[id].remove(); } catch(e){}
+        delete this._indexCharts[id];
+      }
+      container.innerHTML = '';
+      const ix = (this.indicesData?.indices || []).find(x => x.id === id);
+      if (!ix || !ix.history) return;
+      const days = this.indicesRange[id] || 126;
+      const sliced = ix.history.slice(-Math.max(days, 5));
+      const closes = sliced.map(r => r[4]);
+      const dates  = sliced.map(r => r[0]);
+      const sma20  = this.sma(closes, 20);
+      const sma50  = this.sma(closes, 50);
+      const sma200 = this.sma(closes, 200);
+
+      const chart = LightweightCharts.createChart(container, {
+        layout: { background: { color: '#ffffff' }, textColor: '#334155', fontFamily: 'Inter, Noto Sans JP, sans-serif', fontSize: 11 },
+        grid: { vertLines: { color: '#f1f5f9' }, horzLines: { color: '#f1f5f9' } },
+        rightPriceScale: { borderColor: '#e2e8f0', scaleMargins: { top: 0.06, bottom: 0.06 } },
+        timeScale: { borderColor: '#e2e8f0', timeVisible: false, secondsVisible: false, rightOffset: 3 },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+        localization: { locale: 'ja-JP' },
+        autoSize: true,
+      });
+
+      const candles = chart.addCandlestickSeries({
+        upColor: '#16a34a', borderUpColor: '#16a34a', wickUpColor: '#16a34a',
+        downColor: '#dc2626', borderDownColor: '#dc2626', wickDownColor: '#dc2626',
+      });
+      candles.setData(sliced.map(r => ({ time: r[0], open: r[1], high: r[2], low: r[3], close: r[4] })));
+
+      // SMA overlays
+      const addLine = (vals, color, title) => {
+        const s = chart.addLineSeries({ color, lineWidth: 1.3, priceLineVisible: false, lastValueVisible: false, title });
+        s.setData(dates.map((d, i) => vals[i] != null ? { time: d, value: vals[i] } : null).filter(Boolean));
+      };
+      if (sma20.some(v => v != null))  addLine(sma20,  '#2563eb', 'SMA20');
+      if (sma50.some(v => v != null))  addLine(sma50,  '#f59e0b', 'SMA50');
+      if (sma200.some(v => v != null)) addLine(sma200, '#7c3aed', 'SMA200');
+
+      chart.timeScale().fitContent();
+      this._indexCharts[id] = chart;
+    },
+
+    indexRangeOptions: [
+      { days: 21,  label: '1ヶ月' },
+      { days: 63,  label: '3ヶ月' },
+      { days: 126, label: '半年' },
+      { days: 252, label: '1年' },
+      { days: 756, label: '3年' },
+    ],
+
+    trendBadgeClass(trend) {
+      const map = {
+        '強い上昇': 'bg-emerald-200 text-emerald-900',
+        '上昇':     'bg-emerald-100 text-emerald-700',
+        '中立':     'bg-slate-200 text-slate-700',
+        '下落':     'bg-red-100 text-red-700',
+        '強い下落': 'bg-red-200 text-red-900',
+      };
+      return map[trend] || 'bg-slate-100 text-slate-600';
+    },
+
+    rsiZone(v) {
+      if (v == null) return { label: '-', class: 'bg-slate-100 text-slate-600' };
+      if (v >= 70)   return { label: '過熱',   class: 'bg-red-100 text-red-700' };
+      if (v >= 55)   return { label: 'やや強', class: 'bg-emerald-100 text-emerald-700' };
+      if (v >= 45)   return { label: '中立',   class: 'bg-slate-100 text-slate-700' };
+      if (v >= 30)   return { label: 'やや弱', class: 'bg-amber-100 text-amber-700' };
+      return            { label: '売られすぎ', class: 'bg-blue-100 text-blue-700' };
+    },
+
+    corrLabel(v) {
+      if (v == null) return { label: '-', class: 'text-slate-500' };
+      const a = Math.abs(v);
+      if (a >= 0.7) return { label: '高相関', class: v > 0 ? 'text-emerald-700' : 'text-red-700' };
+      if (a >= 0.4) return { label: '中相関', class: v > 0 ? 'text-emerald-600' : 'text-red-600' };
+      if (a >= 0.2) return { label: '弱相関', class: 'text-slate-600' };
+      return            { label: '無相関', class: 'text-slate-400' };
     },
 
     async loadMorningBrief() {
@@ -1464,6 +1709,9 @@ function momentumApp() {
     morningBrief: null,
     portfolio: null,
     tradeFilter: 'all',
+    indicesData: null,
+    indicesRange: {},   // {N225: 126, NDX: 126, USDJPY: 126}
+    _indexCharts: {},   // {id: LightweightCharts instance}
     dayTradePanels: [
       { key: 'total_score',     label: '🏆 デイトレ総合スコア',                    text: 'text-rose-700' },
       { key: 'matsui_fitness',  label: '🌟 デイトレ適性(松井証券参考)',            text: 'text-orange-700',

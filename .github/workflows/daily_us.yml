@@ -37,6 +37,9 @@ jobs:
       - name: Compute US momentum metrics
         run: python batch/calc_momentum.py us
 
+      - name: Fetch indices (N225 / NDX / USDJPY with indicators)
+        run: python batch/fetch_indices.py
+
       - name: Generate US market summary (Claude)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -53,7 +56,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Pull any concurrent changes (e.g. from the JP workflow)
           git pull --rebase --autostash origin main || true
-          git add data/universe_us.json web/data/momentum_us.json web/data/chart_data_us.json
+          git add data/universe_us.json web/data/momentum_us.json web/data/chart_data_us.json web/data/indices.json
           if git diff --cached --quiet; then
             echo "No US changes to commit"
           else
