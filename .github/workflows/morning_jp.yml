@@ -2,8 +2,8 @@ name: Morning JP Daytrade Brief
 
 on:
   schedule:
-    # 9:00 JST = 0:00 UTC, weekdays (Mon-Fri)
-    - cron: "0 0 * * 1-5"
+    # 8:00 JST = 23:00 UTC previous-day, runs Sun-Thu UTC = Mon-Fri JST
+    - cron: "0 23 * * 0-4"
   workflow_dispatch: {}
 
 permissions:
