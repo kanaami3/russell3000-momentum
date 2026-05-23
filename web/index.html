@@ -270,10 +270,15 @@
     </div>
     <!-- Symbol Info: brief company description + key stats -->
     <iframe x-show="chartTicker" :src="symbolInfoWidgetUrl" class="w-full" style="height: 170px; min-height: 170px;" frameborder="0" loading="lazy" scrolling="no"></iframe>
-    <!-- Main chart -->
-    <iframe x-show="chartTicker" :src="tradingViewEmbedUrl" class="flex-1 w-full" frameborder="0" allow="fullscreen" loading="lazy"></iframe>
+    <!-- Main chart (rendered via official tv.js loader for best cross-market support) -->
+    <div x-show="chartTicker" class="flex-1 w-full relative">
+      <div id="tv-chart-container" class="absolute inset-0"></div>
+    </div>
   </div>
 </div>
+
+<!-- TradingView widget loader -->
+<script src="https://s3.tradingview.com/tv.js"></script>
 
 <footer class="border-t border-slate-200 mt-16 py-8 text-center text-xs text-slate-500">
   <p>
@@ -456,6 +461,43 @@ function momentumApp() {
 
     openChart(ticker) {
       this.chartTicker = ticker;
+      // Defer rendering until DOM updates and modal becomes visible
+      this.$nextTick(() => this.renderTradingViewChart());
+    },
+
+    renderTradingViewChart() {
+      const container = document.getElementById('tv-chart-container');
+      if (!container || !this.chartTicker) return;
+      container.innerHTML = '';
+      if (typeof TradingView === 'undefined' || !TradingView.widget) {
+        // tv.js not yet loaded — wait briefly
+        setTimeout(() => this.renderTradingViewChart(), 250);
+        return;
+      }
+      // Generate a fresh container id each open so the widget binds correctly
+      const innerId = 'tv-chart-inner-' + Date.now();
+      const inner = document.createElement('div');
+      inner.id = innerId;
+      inner.style.width = '100%';
+      inner.style.height = '100%';
+      container.appendChild(inner);
+      new TradingView.widget({
+        autosize: true,
+        symbol: this.tradingViewSymbol,
+        interval: 'D',
+        timezone: 'Asia/Tokyo',
+        theme: 'light',
+        style: '1',
+        locale: 'ja',
+        toolbar_bg: '#f1f3f6',
+        enable_publishing: false,
+        withdateranges: true,
+        hide_side_toolbar: false,
+        allow_symbol_change: false,
+        save_image: true,
+        studies: ['MASimple@tv-basicstudies'],
+        container_id: innerId,
+      });
     },
 
     get chartTickerRow() {
