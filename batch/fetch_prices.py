@@ -40,27 +40,35 @@ def fetch_batch(tickers: list[str]) -> pd.DataFrame:
         group_by="ticker",
         threads=True,
     )
+    cols = ["ticker", "date", "open", "high", "low", "close", "volume"]
     if df.empty:
-        return pd.DataFrame(columns=["ticker", "date", "close"])
+        return pd.DataFrame(columns=cols)
 
     records: list[dict] = []
+
+    def emit(ticker: str, sub: pd.DataFrame):
+        for date, row in sub.iterrows():
+            close = row.get("Close")
+            if pd.isna(close):
+                continue
+            records.append({
+                "ticker": ticker,
+                "date": date.date().isoformat(),
+                "open": float(row.get("Open", close)) if pd.notna(row.get("Open")) else float(close),
+                "high": float(row.get("High", close)) if pd.notna(row.get("High")) else float(close),
+                "low": float(row.get("Low", close)) if pd.notna(row.get("Low")) else float(close),
+                "close": float(close),
+                "volume": float(row.get("Volume", 0)) if pd.notna(row.get("Volume")) else 0.0,
+            })
+
     if isinstance(df.columns, pd.MultiIndex):
         for ticker in tickers:
             if ticker not in df.columns.get_level_values(0):
                 continue
-            sub = df[ticker].dropna(subset=["Close"])
-            for date, row in sub.iterrows():
-                records.append(
-                    {"ticker": ticker, "date": date.date().isoformat(), "close": float(row["Close"])}
-                )
+            emit(ticker, df[ticker].dropna(subset=["Close"]))
     else:
-        sub = df.dropna(subset=["Close"])
-        ticker = tickers[0]
-        for date, row in sub.iterrows():
-            records.append(
-                {"ticker": ticker, "date": date.date().isoformat(), "close": float(row["Close"])}
-            )
-    return pd.DataFrame.from_records(records)
+        emit(tickers[0], df.dropna(subset=["Close"]))
+    return pd.DataFrame.from_records(records, columns=cols)
 
 
 def main() -> int:

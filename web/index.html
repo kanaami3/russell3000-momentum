@@ -268,7 +268,17 @@
         <button @click="closeChart()" class="text-slate-500 hover:text-slate-900 text-2xl leading-none px-2" aria-label="閉じる">✕</button>
       </div>
     </div>
-    <!-- Main chart (rendered via official tv.js loader for best cross-market support) -->
+    <!-- JP-only chart range buttons -->
+    <div x-show="chartTicker && market === 'jp'" class="flex items-center gap-1 px-3 py-2 border-b border-slate-200 bg-slate-50 text-xs flex-wrap">
+      <span class="text-slate-500 mr-2">期間:</span>
+      <template x-for="opt in rangeOptions" :key="opt.days">
+        <button @click="setChartRange(opt.days)" :class="chartRange === opt.days ? 'bg-rose-600 text-white border-rose-600' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'" class="px-3 py-1 border rounded font-semibold" x-text="opt.label"></button>
+      </template>
+      <span class="ml-auto text-slate-500 text-xs">
+        <span x-text="chartLoading ? 'チャート読込中…' : ''"></span>
+      </span>
+    </div>
+    <!-- Main chart -->
     <div x-show="chartTicker" class="flex-1 w-full relative">
       <div id="tv-chart-container" class="absolute inset-0"></div>
     </div>
@@ -461,6 +471,17 @@ function momentumApp() {
 
     _lwChart: null,
     _lwSeries: null,
+    _lwVolumeSeries: null,
+    _lwSma20: null,
+    _lwSma50: null,
+    _chartDataCache: null,
+    chartLoading: false,
+    chartRange: 63,
+    rangeOptions: [
+      { days: 21,  label: '1ヶ月' },
+      { days: 63,  label: '3ヶ月' },
+      { days: 126, label: '半年' },
+    ],
 
     openChart(ticker) {
       this.chartTicker = ticker;
@@ -522,67 +543,127 @@ function momentumApp() {
       });
     },
 
-    renderLightweightChart() {
+    setChartRange(days) {
+      this.chartRange = days;
+      this.renderLightweightChart();
+    },
+
+    sma(closes, period) {
+      const out = [];
+      for (let i = 0; i < closes.length; i++) {
+        if (i >= period - 1) {
+          let sum = 0;
+          for (let j = i - period + 1; j <= i; j++) sum += closes[j];
+          out.push(+(sum / period).toFixed(2));
+        } else {
+          out.push(null);
+        }
+      }
+      return out;
+    },
+
+    async _ensureChartData() {
+      if (this._chartDataCache) return this._chartDataCache;
+      this.chartLoading = true;
+      try {
+        const resp = await fetch('./data/chart_data_jp.json?v=' + (this.data?.asof || ''));
+        if (!resp.ok) throw new Error('chart_data_jp fetch failed: ' + resp.status);
+        this._chartDataCache = await resp.json();
+        return this._chartDataCache;
+      } finally {
+        this.chartLoading = false;
+      }
+    },
+
+    async renderLightweightChart() {
       const container = document.getElementById('tv-chart-container');
       if (!container || !this.chartTicker) return;
-      container.innerHTML = '';
-      const row = this.chartTickerRow;
-      const history = row?.chart_history || [];
-      if (!history.length) {
-        container.innerHTML = '<div class="flex items-center justify-center h-full text-slate-500 p-8 text-center">チャートデータが利用できません。<br>「外部で開く ↗」から TradingView で確認してください。</div>';
-        return;
-      }
       if (typeof LightweightCharts === 'undefined') {
         setTimeout(() => this.renderLightweightChart(), 250);
         return;
       }
-      // Compute 20-day SMA for trend reference
-      const closes = history.map(p => p[1]);
-      const dates = history.map(p => p[0]);
-      const SMA = 20;
-      const smaData = [];
-      for (let i = 0; i < closes.length; i++) {
-        if (i >= SMA - 1) {
-          let sum = 0;
-          for (let j = i - SMA + 1; j <= i; j++) sum += closes[j];
-          smaData.push({ time: dates[i], value: +(sum / SMA).toFixed(2) });
-        }
+      // Show loading state immediately
+      container.innerHTML = '<div class="flex items-center justify-center h-full text-slate-500">チャート読込中…</div>';
+
+      let dataset;
+      try {
+        dataset = await this._ensureChartData();
+      } catch (e) {
+        container.innerHTML = '<div class="flex items-center justify-center h-full text-red-600 p-8 text-center">チャートデータの読込に失敗しました。<br>「外部で開く ↗」から TradingView でご確認ください。</div>';
+        return;
+      }
+      const fullHistory = dataset[this.chartTicker] || [];
+      if (!fullHistory.length) {
+        container.innerHTML = '<div class="flex items-center justify-center h-full text-slate-500 p-8 text-center">この銘柄のチャートデータがありません。<br>「外部で開く ↗」から TradingView でご確認ください。</div>';
+        return;
       }
 
+      // Slice to selected range. Rows are [date, O, H, L, C, V] or [date, C].
+      const history = fullHistory.slice(-Math.max(this.chartRange, 5));
+      const hasOhlc = Array.isArray(history[0]) && history[0].length >= 6;
+
+      // Compute SMAs on close prices
+      const closes = history.map(r => hasOhlc ? r[4] : r[1]);
+      const dates  = history.map(r => r[0]);
+      const sma20 = this.sma(closes, 20);
+      const sma50 = this.sma(closes, 50);
+
+      container.innerHTML = '';
       const chart = LightweightCharts.createChart(container, {
-        layout: { background: { color: '#ffffff' }, textColor: '#334155' },
+        layout: { background: { color: '#ffffff' }, textColor: '#334155', fontFamily: 'Inter, Noto Sans JP, sans-serif' },
         grid: { vertLines: { color: '#f1f5f9' }, horzLines: { color: '#f1f5f9' } },
-        rightPriceScale: { borderColor: '#e2e8f0' },
-        timeScale: { borderColor: '#e2e8f0', timeVisible: false },
+        rightPriceScale: { borderColor: '#e2e8f0', scaleMargins: { top: 0.08, bottom: 0.28 } },
+        timeScale: { borderColor: '#e2e8f0', timeVisible: false, secondsVisible: false, rightOffset: 4 },
         crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+        localization: { locale: 'ja-JP' },
         autoSize: true,
       });
-      const lineSeries = chart.addAreaSeries({
-        lineColor: '#e11d48',
-        topColor: 'rgba(225, 29, 72, 0.25)',
-        bottomColor: 'rgba(225, 29, 72, 0.02)',
-        lineWidth: 2,
-        priceLineVisible: true,
-        lastValueVisible: true,
-      });
-      lineSeries.setData(history.map(p => ({ time: p[0], value: p[1] })));
-      if (smaData.length) {
-        const smaSeries = chart.addLineSeries({
-          color: '#6366f1',
-          lineWidth: 1,
-          priceLineVisible: false,
-          lastValueVisible: false,
-          title: 'SMA20',
+
+      // Main price series: candlesticks if OHLC available, otherwise line
+      let priceSeries;
+      if (hasOhlc) {
+        priceSeries = chart.addCandlestickSeries({
+          upColor: '#16a34a', borderUpColor: '#16a34a', wickUpColor: '#16a34a',
+          downColor: '#dc2626', borderDownColor: '#dc2626', wickDownColor: '#dc2626',
         });
-        smaSeries.setData(smaData);
+        priceSeries.setData(history.map(r => ({ time: r[0], open: r[1], high: r[2], low: r[3], close: r[4] })));
+      } else {
+        priceSeries = chart.addAreaSeries({
+          lineColor: '#e11d48',
+          topColor: 'rgba(225, 29, 72, 0.25)',
+          bottomColor: 'rgba(225, 29, 72, 0.02)',
+          lineWidth: 2,
+        });
+        priceSeries.setData(history.map(r => ({ time: r[0], value: r[1] })));
       }
+
+      // Moving averages
+      const sma20Series = chart.addLineSeries({ color: '#2563eb', lineWidth: 1.5, priceLineVisible: false, lastValueVisible: true, title: 'SMA20' });
+      sma20Series.setData(dates.map((d, i) => sma20[i] != null ? { time: d, value: sma20[i] } : null).filter(Boolean));
+      const sma50Series = chart.addLineSeries({ color: '#f59e0b', lineWidth: 1.5, priceLineVisible: false, lastValueVisible: true, title: 'SMA50' });
+      sma50Series.setData(dates.map((d, i) => sma50[i] != null ? { time: d, value: sma50[i] } : null).filter(Boolean));
+
+      // Volume pane at bottom (if available)
+      if (hasOhlc) {
+        const volumeSeries = chart.addHistogramSeries({
+          color: 'rgba(99, 102, 241, 0.5)',
+          priceFormat: { type: 'volume' },
+          priceScaleId: '',
+          scaleMargins: { top: 0.78, bottom: 0 },
+        });
+        volumeSeries.setData(history.map(r => ({
+          time: r[0],
+          value: r[5] || 0,
+          color: r[4] >= r[1] ? 'rgba(22, 163, 74, 0.45)' : 'rgba(220, 38, 38, 0.45)',
+        })));
+        this._lwVolumeSeries = volumeSeries;
+      }
+
       chart.timeScale().fitContent();
       this._lwChart = chart;
-      this._lwSeries = lineSeries;
-
-      // Resize handler
-      const resize = () => { if (this._lwChart) this._lwChart.applyOptions({}); };
-      window.addEventListener('resize', resize);
+      this._lwSeries = priceSeries;
+      this._lwSma20 = sma20Series;
+      this._lwSma50 = sma50Series;
     },
 
     get chartTickerRow() {

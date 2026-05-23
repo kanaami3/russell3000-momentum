@@ -39,9 +39,11 @@ WINDOWS = {
 # so users can spot recent pullbacks in uptrending stocks at a glance.
 SPARKLINE_DAYS = 21
 
-# Chart history = longer price+date series used for the in-modal chart rendering.
+# Chart history = OHLCV+date series used for the in-modal chart rendering.
 # Required for JP where TradingView's free embed widget lacks data licensing.
-CHART_HISTORY_DAYS = 90
+# 126 = ~6 months — balance between coverage (supports 1M/3M/6M zoom buttons)
+# and payload size for mobile users.
+CHART_HISTORY_DAYS = 126
 
 MARKET_META = {
     "us": {"currency": "USD", "symbol": "$"},
@@ -49,12 +51,11 @@ MARKET_META = {
 }
 
 
-def compute_returns(prices: pd.DataFrame, include_chart_history: bool = False) -> pd.DataFrame:
+def compute_returns(prices: pd.DataFrame) -> pd.DataFrame:
     prices = prices.sort_values(["ticker", "date"])
     rows: list[dict] = []
     for ticker, group in prices.groupby("ticker", sort=False):
         closes = group["close"].to_numpy()
-        dates = group["date"].to_numpy()
         if len(closes) < 2:
             continue
         record: dict = {"ticker": ticker, "close": float(closes[-1])}
@@ -75,15 +76,6 @@ def compute_returns(prices: pd.DataFrame, include_chart_history: bool = False) -
         # Sparkline: last SPARKLINE_DAYS closes, rounded for compactness
         sparkline_tail = closes[-SPARKLINE_DAYS:] if len(closes) >= 2 else closes
         record["sparkline"] = [round(float(c), 2) for c in sparkline_tail]
-        if include_chart_history:
-            # Compact tuple format [[date, value], ...] — frontend expands to
-            # the {time, value} format that Lightweight Charts expects.
-            # ~40% smaller than verbose object format.
-            n = min(CHART_HISTORY_DAYS, len(closes))
-            record["chart_history"] = [
-                [str(dates[-n + i]), round(float(closes[-n + i]), 2)]
-                for i in range(n)
-            ]
         rows.append(record)
 
     return pd.DataFrame(rows)
@@ -125,9 +117,7 @@ def main() -> int:
     print(f"[{market.upper()}] Universe: {len(universe)} tickers", file=sys.stderr)
     print(f"[{market.upper()}] Prices:   {len(prices):,} rows, {prices['ticker'].nunique()} tickers", file=sys.stderr)
 
-    # JP charts need self-rendered chart_history because TradingView's free
-    # embed widget lacks JP data licensing.
-    returns = compute_returns(prices, include_chart_history=(market == "jp"))
+    returns = compute_returns(prices)
     merged = returns.merge(universe, on="ticker", how="left")
     merged["name"] = merged["name"].fillna(merged["ticker"])
     if "market_cap" not in merged.columns:
@@ -159,9 +149,6 @@ def main() -> int:
             base["sector17"] = r.get("sector17", "")
             base["sector33"] = r.get("sector33", "")
             base["size_cat"] = r.get("size_cat", "")
-            ch = r.get("chart_history", [])
-            if isinstance(ch, list):
-                base["chart_history"] = ch
         return base
 
     result = {
@@ -197,7 +184,49 @@ def main() -> int:
     output_path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
     size_kb = output_path.stat().st_size / 1024
     print(f"[{market.upper()}] Wrote {output_path} ({size_kb:.1f} KB)", file=sys.stderr)
+
+    # Always emit a companion chart_data file with OHLCV history per ticker.
+    # The frontend lazy-loads it only when a user opens a chart modal, so it
+    # doesn't bloat the initial page load.
+    write_chart_data(market, prices)
     return 0
+
+
+def write_chart_data(market: str, prices: pd.DataFrame) -> None:
+    """Emit web/data/chart_data_{market}.json with last ~1 year OHLCV per ticker.
+
+    Compact tuple format per row: [date, open, high, low, close, volume]
+    """
+    out_path = REPO_ROOT / "web" / "data" / f"chart_data_{market}.json"
+    has_ohlc = all(c in prices.columns for c in ("open", "high", "low", "close", "volume"))
+
+    prices = prices.sort_values(["ticker", "date"])
+    chart_data: dict[str, list] = {}
+    for ticker, group in prices.groupby("ticker", sort=False):
+        tail = group.tail(CHART_HISTORY_DAYS)
+        rows: list = []
+        for _, r in tail.iterrows():
+            close = float(r["close"])
+            if has_ohlc:
+                rows.append([
+                    str(r["date"]),
+                    round(float(r.get("open", close)), 2),
+                    round(float(r.get("high", close)), 2),
+                    round(float(r.get("low", close)), 2),
+                    round(close, 2),
+                    int(float(r.get("volume", 0) or 0)),
+                ])
+            else:
+                rows.append([str(r["date"]), round(close, 2)])
+        chart_data[ticker] = rows
+
+    out_path.write_text(json.dumps(chart_data, ensure_ascii=False), encoding="utf-8")
+    size_kb = out_path.stat().st_size / 1024
+    print(
+        f"[{market.upper()}] Wrote {out_path} ({size_kb:.1f} KB, {len(chart_data)} tickers, "
+        f"format={'OHLCV' if has_ohlc else 'close-only'})",
+        file=sys.stderr,
+    )
 
 
 if __name__ == "__main__":
