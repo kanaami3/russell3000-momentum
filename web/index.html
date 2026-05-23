@@ -208,9 +208,10 @@
             <div class="text-[10px] text-slate-500 font-bold">SMA200比</div>
             <div class="text-lg font-extrabold num" :class="pctClass(ix.indicators.pct_from_sma200)" x-text="fmtPct(ix.indicators.pct_from_sma200 ?? 0)"></div>
           </div>
-          <div class="bg-slate-50 rounded-lg p-2 border border-slate-200">
+          <div class="bg-slate-50 rounded-lg p-2 border border-slate-200" :title="macdPhaseHint(ix.indicators.macd_phase)">
             <div class="text-[10px] text-slate-500 font-bold">MACD</div>
-            <div class="text-lg font-extrabold" :class="ix.indicators.macd_bullish ? 'text-emerald-700' : 'text-red-700'" x-text="ix.indicators.macd_bullish ? '強気' : '弱気'"></div>
+            <div class="text-base font-extrabold" :class="macdPhaseClass(ix.indicators.macd_phase)" x-text="ix.indicators.macd_phase ?? '-'"></div>
+            <div class="text-[9px] text-slate-500" x-text="macdPhaseHint(ix.indicators.macd_phase)"></div>
           </div>
           <div class="bg-slate-50 rounded-lg p-2 border border-slate-200">
             <div class="text-[10px] text-slate-500 font-bold">ATR(14)</div>
@@ -1327,6 +1328,25 @@ function momentumApp() {
       { days: 252, label: '1年' },
       { days: 756, label: '3年' },
     ],
+
+    macdPhaseClass(p) {
+      const map = {
+        '強気継続': 'text-emerald-700',
+        '強気転換': 'text-blue-700',
+        '失速':     'text-amber-700',
+        '弱気継続': 'text-red-700',
+      };
+      return map[p] || 'text-slate-500';
+    },
+    macdPhaseHint(p) {
+      const map = {
+        '強気継続': '上昇 + 勢いあり',
+        '強気転換': '底打ち反転シグナル',
+        '失速':     '上昇中だがペース鈍化',
+        '弱気継続': '下落 + 勢いあり',
+      };
+      return map[p] || '';
+    },
 
     trendBadgeClass(trend) {
       const map = {

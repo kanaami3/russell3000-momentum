@@ -71,6 +71,24 @@ def atr(high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14) -> 
     return tr.rolling(period).mean()
 
 
+def macd_phase(macd_line: float, signal: float) -> str:
+    """4-state interpretation of MACD position.
+
+    - 強気継続 : MACD > signal AND MACD > 0    (uptrend momentum intact)
+    - 強気転換 : MACD > signal AND MACD < 0    (bullish crossover, base building)
+    - 失速     : MACD < signal AND MACD > 0    (still positive but losing steam)
+    - 弱気継続 : MACD < signal AND MACD < 0    (downtrend momentum intact)
+    """
+    if pd.isna(macd_line) or pd.isna(signal):
+        return "判定不能"
+    above_signal = macd_line > signal
+    above_zero = macd_line > 0
+    if above_signal and above_zero:    return "強気継続"
+    if above_signal and not above_zero: return "強気転換"
+    if not above_signal and above_zero: return "失速"
+    return "弱気継続"
+
+
 def trend_judgement(close: float, sma20: float, sma50: float, sma200: float) -> str:
     """Combine perfect-order checks with 200-day relationship."""
     if any(pd.isna(v) for v in (sma200, sma50, sma20)):
@@ -149,6 +167,7 @@ def analyze_index(spec: dict) -> dict | None:
         "above_sma50":  bool(close > float(last["sma50"]))  if pd.notna(last["sma50"])  else None,
         "sma20_above_sma50": bool(last["sma20"] > last["sma50"]) if pd.notna(last["sma20"]) and pd.notna(last["sma50"]) else None,
         "macd_bullish": bool(last["macd"] > last["macd_signal"]) if pd.notna(last["macd"]) and pd.notna(last["macd_signal"]) else None,
+        "macd_phase": macd_phase(last["macd"], last["macd_signal"]),
         "pct_from_sma200": _safe((close - float(last["sma200"])) / float(last["sma200"]) * 100) if pd.notna(last["sma200"]) and last["sma200"] > 0 else None,
     }
 
