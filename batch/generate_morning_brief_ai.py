@@ -50,12 +50,14 @@ def build_prompt(data: dict) -> str:
             gap = f" [{r['gap_trigger']}]" if r.get("gap_trigger") else ""
             ret5 = f"{r['ret_5d']:+.1f}%" if r.get('ret_5d') is not None else "-"
             rsi = f"{r['rsi14']:.0f}" if r.get('rsi14') is not None else "-"
+            matsui = r.get('matsui_score', 0)
             lines.append(
                 f"- {r['ticker']} {r['name']} ({r['sector17']}): "
                 f"引け{r['close']:,}円 日次{r['daily_return']:+.2f}% 週次{ret5} "
                 f"出来高×{r['volume_ratio']:.1f} 値幅{r['range_pct']:.1f}% "
                 f"代金{r['turnover_oku']}億円 RSI{rsi} "
                 f"20日高値比{r['pct_from_high_20']:+.1f}% 20日安値比{r['pct_from_low_20']:+.1f}% "
+                f"デイトレ適性{matsui:.1f}(値幅×代金) "
                 f"複数カテゴリ:{cats}{gap}"
             )
         return "\n".join(lines)

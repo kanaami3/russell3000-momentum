@@ -245,6 +245,12 @@ def compute_day_trade_score(df: pd.DataFrame) -> pd.DataFrame:
         + df["z_turnover"] * 0.20
         + df["z_move"] * 0.25
     ).round(3)
+    # Matsui-style "デイトレ適性" composite: range × turnover.
+    # Source inspiration: https://finance.matsui.co.jp/ranking-day-trading-morning/
+    # Intuitive interpretation: "how much price moves" × "how much money trades it"
+    # = an estimate of the tradable opportunity per name.
+    # Turnover is normalized to 億円 so numbers stay readable.
+    df["matsui_score"] = (df["range_pct"] * (df["turnover"] / 1e8)).round(1)
     return df
 
 
@@ -265,6 +271,7 @@ def top_n(df: pd.DataFrame, sort_col: str, n: int = 10, asc: bool = False, extra
             "turnover": int(r["turnover"]),
             "rsi14": r.get("rsi14"),
             "score": float(r.get("score", 0)),
+            "matsui_score": float(r.get("matsui_score", 0)),
         }
         for _, r in sub.iterrows()
     ]
@@ -281,8 +288,9 @@ def _build_ai_input_pool(scored: pd.DataFrame, picks: dict, gap_cands: dict, n: 
     # Build ticker -> set of category labels appearance map
     appears: dict[str, list[str]] = {}
     category_labels = {
-        "total_score": "総合", "volume_surge": "出来高急増", "high_range": "値幅大",
-        "high_turnover": "売買代金", "momentum_long": "続伸", "reversal_long": "反転",
+        "total_score": "総合", "matsui_fitness": "デイトレ適性", "volume_surge": "出来高急増",
+        "high_range": "値幅大", "high_turnover": "売買代金",
+        "momentum_long": "続伸", "reversal_long": "反転",
     }
     for cat, label in category_labels.items():
         for p in picks.get(cat, []):
@@ -317,6 +325,7 @@ def _build_ai_input_pool(scored: pd.DataFrame, picks: dict, gap_cands: dict, n: 
             "high_20": float(r["high_20"]),
             "low_20": float(r["low_20"]),
             "score": float(r["score"]),
+            "matsui_score": float(r["matsui_score"]),
             "appears_in": appears.get(r["ticker"], []),
             "gap_trigger": gap_trigger.get(r["ticker"]),
         })
@@ -402,6 +411,7 @@ def main() -> int:
     # 4. Build pick lists
     picks = {
         "total_score":         top_n(scored, "score", 10),
+        "matsui_fitness":      top_n(scored, "matsui_score", 10),
         "volume_surge":        top_n(scored, "volume_ratio", 10),
         "high_range":          top_n(scored, "range_pct", 10),
         "high_turnover":       top_n(scored, "turnover", 10),
