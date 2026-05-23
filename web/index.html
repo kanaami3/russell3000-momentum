@@ -548,11 +548,14 @@
       </div>
     </div>
 
-    <!-- 6 day-trade pick panels -->
+    <!-- 7 day-trade pick panels -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
       <template x-for="panel in dayTradePanels" :key="panel.key">
         <div class="bg-white rounded-lg p-3 border border-slate-200">
-          <h3 class="text-xs font-bold mb-2 tracking-wider" :class="panel.text" x-text="panel.label"></h3>
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <h3 class="text-xs font-bold tracking-wider" :class="panel.text" x-text="panel.label"></h3>
+            <a x-show="panel.source_url" :href="panel.source_url" target="_blank" rel="noopener" class="text-[9px] text-slate-400 hover:text-slate-700 shrink-0 underline">出典 ↗</a>
+          </div>
           <div class="space-y-0.5">
             <template x-for="p in (morningBrief?.picks?.[panel.key] || []).slice(0, 5)" :key="p.ticker">
               <div class="text-xs py-1 flex items-center justify-between gap-2 border-b border-slate-50 last:border-0">
@@ -1462,13 +1465,14 @@ function momentumApp() {
     portfolio: null,
     tradeFilter: 'all',
     dayTradePanels: [
-      { key: 'total_score',     label: '🏆 デイトレ総合スコア',          text: 'text-rose-700' },
-      { key: 'matsui_fitness',  label: '🌟 デイトレ適性(値幅×代金)',     text: 'text-orange-700' },
-      { key: 'volume_surge',    label: '📈 出来高急増',                 text: 'text-emerald-700' },
-      { key: 'high_range',      label: '🎯 値幅大',                    text: 'text-amber-700' },
-      { key: 'high_turnover',   label: '💰 売買代金',                  text: 'text-blue-700' },
-      { key: 'momentum_long',   label: '🚀 続伸候補',                  text: 'text-green-700' },
-      { key: 'reversal_long',   label: '🔄 反転候補',                  text: 'text-purple-700' },
+      { key: 'total_score',     label: '🏆 デイトレ総合スコア',                    text: 'text-rose-700' },
+      { key: 'matsui_fitness',  label: '🌟 デイトレ適性(松井証券参考)',            text: 'text-orange-700',
+        source_url: 'https://finance.matsui.co.jp/ranking-day-trading-morning/index' },
+      { key: 'volume_surge',    label: '📈 出来高急増',                            text: 'text-emerald-700' },
+      { key: 'high_range',      label: '🎯 値幅大',                                text: 'text-amber-700' },
+      { key: 'high_turnover',   label: '💰 売買代金',                              text: 'text-blue-700' },
+      { key: 'momentum_long',   label: '🚀 続伸候補',                              text: 'text-green-700' },
+      { key: 'reversal_long',   label: '🔄 反転候補',                              text: 'text-purple-700' },
     ],
 
     openChart(ticker) {
