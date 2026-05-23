@@ -35,9 +35,9 @@ WINDOWS = {
     "m12": 252,
 }
 
-# Sparkline = last N trading days of closes (~3 months), shown as a mini chart
-# so users can spot pullbacks in uptrending stocks at a glance.
-SPARKLINE_DAYS = 60
+# Sparkline = last N trading days of closes (~1 month), shown as a mini chart
+# so users can spot recent pullbacks in uptrending stocks at a glance.
+SPARKLINE_DAYS = 21
 
 MARKET_META = {
     "us": {"currency": "USD", "symbol": "$"},
