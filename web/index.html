@@ -268,6 +268,9 @@
         <button @click="chartTicker = null" class="text-slate-500 hover:text-slate-900 text-2xl leading-none px-2" aria-label="閉じる">✕</button>
       </div>
     </div>
+    <!-- Symbol Info: brief company description + key stats -->
+    <iframe x-show="chartTicker" :src="symbolInfoWidgetUrl" class="w-full" style="height: 170px; min-height: 170px;" frameborder="0" loading="lazy" scrolling="no"></iframe>
+    <!-- Main chart -->
     <iframe x-show="chartTicker" :src="tradingViewEmbedUrl" class="flex-1 w-full" frameborder="0" allow="fullscreen" loading="lazy"></iframe>
   </div>
 </div>
@@ -474,6 +477,19 @@ function momentumApp() {
       const ex = (row?.exchange || 'NASDAQ').toUpperCase();
       // TradingView uses AMEX for NYSE American
       return ex + ':' + this.chartTicker;
+    },
+
+    get symbolInfoWidgetUrl() {
+      if (!this.chartTicker) return '';
+      const config = {
+        symbol: this.tradingViewSymbol,
+        width: '100%',
+        locale: 'ja',
+        colorTheme: 'light',
+        isTransparent: false,
+        largeChartUrl: '',
+      };
+      return 'https://s.tradingview.com/embed-widget/symbol-info/?locale=ja#' + encodeURIComponent(JSON.stringify(config));
     },
 
     get tradingViewEmbedUrl() {
