@@ -37,6 +37,9 @@ jobs:
       - name: Compute JP momentum metrics
         run: python batch/calc_momentum.py jp
 
+      - name: Simulate AI paper-trading portfolio
+        run: python batch/trade_simulator.py
+
       - name: Generate JP market summary (Claude)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -52,7 +55,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git pull --rebase --autostash origin main || true
-          git add data/universe_jp.json web/data/momentum_jp.json web/data/chart_data_jp.json
+          git add data/universe_jp.json web/data/momentum_jp.json web/data/chart_data_jp.json web/data/portfolio_jp.json
           if git diff --cached --quiet; then
             echo "No JP changes to commit"
           else

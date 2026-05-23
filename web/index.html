@@ -82,18 +82,158 @@
   <!-- Daytrade tab: loading state when morning brief not yet loaded -->
   <div x-show="market === 'daytrade' && !morningBrief" class="text-center py-20 text-slate-500">朝のデイトレ・ブリーフを読み込み中...</div>
 
-  <!-- Daytrade results report placeholder (top of daytrade view) -->
-  <section x-show="market === 'daytrade' && morningBrief" class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-5 sm:p-6 mb-8">
-    <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-extrabold text-slate-700 mb-3">
-      <span>📊</span>
-      当日の結果報告
-    </h2>
-    <p class="text-sm text-slate-600 leading-relaxed">
-      AIピックがどう動いたか、引け時点で自動集計してここに表示する機能を準備中です。
-      <span class="block mt-2 text-xs text-slate-500">
-        実装予定: 各推奨銘柄について「目標到達 ✓」「損切り ✗」「持ち越し継続 →」を引け後に自動レビュー。
-      </span>
-    </p>
+  <!-- AI portfolio: virtual ¥10M simulation account -->
+  <section x-show="market === 'daytrade' && portfolio" class="bg-white border-2 border-amber-300 rounded-2xl p-5 sm:p-6 mb-8 shadow-md">
+    <div class="flex items-start justify-between flex-wrap gap-2 mb-4">
+      <div>
+        <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-extrabold text-amber-900">
+          <span>💰</span>
+          AI 仮想運用ポートフォリオ <span class="text-xs font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded ml-2">¥1,000万デモ</span>
+        </h2>
+        <p class="text-[11px] text-slate-500 mt-1" x-text="portfolio?.disclaimer"></p>
+      </div>
+      <div class="text-xs text-slate-500 text-right">
+        <div>運用開始: <span x-text="portfolio?.start_date"></span></div>
+        <div>運用日数: <span x-text="portfolio?.stats?.running_days ?? 0"></span>日</div>
+      </div>
+    </div>
+
+    <!-- Key metrics -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+      <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
+        <div class="text-[10px] text-amber-700 font-bold">現在の評価額</div>
+        <div class="text-lg sm:text-2xl font-extrabold text-amber-900 num">¥<span x-text="portfolio?.equity?.toLocaleString() ?? '-'"></span></div>
+      </div>
+      <div class="rounded-lg p-3 border" :class="(portfolio?.total_pnl ?? 0) >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'">
+        <div class="text-[10px] font-bold" :class="(portfolio?.total_pnl ?? 0) >= 0 ? 'text-emerald-700' : 'text-red-700'">通算損益</div>
+        <div class="text-lg sm:text-2xl font-extrabold num" :class="(portfolio?.total_pnl ?? 0) >= 0 ? 'text-emerald-700' : 'text-red-700'">
+          <span x-text="(portfolio?.total_pnl >= 0 ? '+¥' : '-¥') + Math.abs(portfolio?.total_pnl ?? 0).toLocaleString()"></span>
+        </div>
+        <div class="text-xs font-bold num" :class="(portfolio?.total_pnl_pct ?? 0) >= 0 ? 'text-emerald-700' : 'text-red-700'" x-text="fmtPct(portfolio?.total_pnl_pct ?? 0)"></div>
+      </div>
+      <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
+        <div class="text-[10px] text-blue-700 font-bold">取引回数 / 勝率</div>
+        <div class="text-lg sm:text-2xl font-extrabold text-blue-900 num">
+          <span x-text="portfolio?.stats?.trade_count ?? 0"></span>
+          <span class="text-sm text-blue-600" x-show="portfolio?.stats?.trade_count > 0">/ <span x-text="portfolio?.stats?.win_rate"></span>%</span>
+        </div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 border border-slate-200">
+        <div class="text-[10px] text-slate-700 font-bold">現金 / 保有ポジ</div>
+        <div class="text-base sm:text-lg font-extrabold text-slate-800 num">¥<span x-text="Math.floor(portfolio?.cash ?? 0).toLocaleString()"></span></div>
+        <div class="text-xs text-slate-600"><span x-text="portfolio?.open_positions?.length ?? 0"></span> 銘柄保有中</div>
+      </div>
+    </div>
+
+    <!-- Initial state callout when no trades yet -->
+    <div x-show="(portfolio?.stats?.trade_count ?? 0) === 0" class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-5 text-sm text-slate-600">
+      <p class="font-semibold mb-1">📅 取引開始待ち</p>
+      <p class="text-xs leading-relaxed">運用は本日 ¥10,000,000 でスタートしました。AIの朝のピックは「次の取引日」用に生成されるため、最初の自動執行は <strong>次の平日 17:00 JST(東証クローズ後)</strong> に実行されます。</p>
+    </div>
+
+    <!-- Open positions -->
+    <div x-show="(portfolio?.open_positions?.length ?? 0) > 0" class="mb-5">
+      <h3 class="text-sm font-bold text-amber-900 mb-2">📌 保有中ポジション</h3>
+      <div class="bg-white rounded-lg border border-slate-200 overflow-x-auto">
+        <table class="min-w-full text-xs">
+          <thead class="bg-slate-100 text-slate-600 text-[10px] uppercase">
+            <tr>
+              <th class="px-2 py-2 text-left">Ticker</th>
+              <th class="px-2 py-2 text-left">銘柄名</th>
+              <th class="px-2 py-2 text-right">株数</th>
+              <th class="px-2 py-2 text-right">取得</th>
+              <th class="px-2 py-2 text-right">現値</th>
+              <th class="px-2 py-2 text-right">含み損益</th>
+              <th class="px-2 py-2 text-right">損切/利食(翌)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="pos in (portfolio?.open_positions || [])" :key="pos.ticker">
+              <tr class="border-t border-slate-100">
+                <td class="px-2 py-2 font-bold text-rose-700">
+                  <a class="ticker-link" @click="openChart(pos.ticker)" x-text="displayTicker(pos.ticker)"></a>
+                </td>
+                <td class="px-2 py-2 text-slate-700 truncate max-w-[140px]" x-text="shortName(pos.name)"></td>
+                <td class="px-2 py-2 text-right num text-slate-600" x-text="pos.shares.toLocaleString()"></td>
+                <td class="px-2 py-2 text-right num text-slate-600">¥<span x-text="pos.entry_price.toLocaleString()"></span></td>
+                <td class="px-2 py-2 text-right num text-slate-700">¥<span x-text="(pos.current_price ?? pos.entry_price).toLocaleString()"></span></td>
+                <td class="px-2 py-2 text-right num font-bold" :class="pctClass(pos.unrealized_pnl_pct ?? 0)">
+                  <span x-text="(pos.unrealized_pnl >= 0 ? '+¥' : '-¥') + Math.abs(pos.unrealized_pnl ?? 0).toLocaleString()"></span>
+                  <span class="text-[10px] block" x-text="fmtPct(pos.unrealized_pnl_pct ?? 0)"></span>
+                </td>
+                <td class="px-2 py-2 text-right num text-slate-500 text-[10px]">
+                  <span class="text-red-600">¥<span x-text="(pos.stop_price ?? 0).toLocaleString()"></span></span>
+                  <span x-show="pos.target_next"> / <span class="text-emerald-600">¥<span x-text="(pos.target_next ?? 0).toLocaleString()"></span></span></span>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent closed trades -->
+    <div x-show="(portfolio?.trade_history?.length ?? 0) > 0" class="mb-5">
+      <h3 class="text-sm font-bold text-amber-900 mb-2">📜 直近の取引履歴(最新10件)</h3>
+      <div class="bg-white rounded-lg border border-slate-200 overflow-x-auto">
+        <table class="min-w-full text-xs">
+          <thead class="bg-slate-100 text-slate-600 text-[10px] uppercase">
+            <tr>
+              <th class="px-2 py-2 text-left">エントリ</th>
+              <th class="px-2 py-2 text-left">エグジット</th>
+              <th class="px-2 py-2 text-left">銘柄</th>
+              <th class="px-2 py-2 text-right">株数</th>
+              <th class="px-2 py-2 text-right">取得</th>
+              <th class="px-2 py-2 text-right">決済</th>
+              <th class="px-2 py-2 text-right">損益</th>
+              <th class="px-2 py-2 text-left">結果</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="t in [...(portfolio?.trade_history || [])].reverse().slice(0, 10)" :key="t.entry_date + t.ticker">
+              <tr class="border-t border-slate-100">
+                <td class="px-2 py-2 text-slate-600" x-text="t.entry_date"></td>
+                <td class="px-2 py-2 text-slate-600" x-text="t.exit_date"></td>
+                <td class="px-2 py-2">
+                  <a class="font-bold text-rose-700 ticker-link" @click="openChart(t.ticker)" x-text="displayTicker(t.ticker)"></a>
+                  <span class="text-slate-600 ml-1 text-[10px]" x-text="shortName(t.name)"></span>
+                </td>
+                <td class="px-2 py-2 text-right num text-slate-600" x-text="t.shares.toLocaleString()"></td>
+                <td class="px-2 py-2 text-right num text-slate-600">¥<span x-text="t.entry_price.toLocaleString()"></span></td>
+                <td class="px-2 py-2 text-right num text-slate-600">¥<span x-text="t.exit_price.toLocaleString()"></span></td>
+                <td class="px-2 py-2 text-right num font-bold" :class="pctClass(t.pnl_pct)">
+                  <span x-text="(t.pnl >= 0 ? '+¥' : '-¥') + Math.abs(t.pnl).toLocaleString()"></span>
+                  <span class="text-[10px] block" x-text="fmtPct(t.pnl_pct)"></span>
+                </td>
+                <td class="px-2 py-2 text-[10px]">
+                  <span class="inline-block px-1.5 py-0.5 rounded" :class="tradeOutcomeClass(t.outcome)" x-text="tradeOutcomeLabel(t.outcome)"></span>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div x-show="(portfolio?.stats?.trade_count ?? 0) > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+      <div class="bg-emerald-50 rounded p-2 border border-emerald-100">
+        <div class="text-[10px] text-emerald-700 font-bold">平均勝ち幅</div>
+        <div class="text-base font-bold text-emerald-700 num" x-text="fmtPct(portfolio?.stats?.avg_win_pct ?? 0)"></div>
+      </div>
+      <div class="bg-red-50 rounded p-2 border border-red-100">
+        <div class="text-[10px] text-red-700 font-bold">平均負け幅</div>
+        <div class="text-base font-bold text-red-700 num" x-text="fmtPct(portfolio?.stats?.avg_loss_pct ?? 0)"></div>
+      </div>
+      <div class="bg-blue-50 rounded p-2 border border-blue-100">
+        <div class="text-[10px] text-blue-700 font-bold">ベストトレード</div>
+        <div class="text-base font-bold text-blue-700 num" x-text="fmtPct(portfolio?.stats?.best_trade_pct ?? 0)"></div>
+      </div>
+      <div class="bg-purple-50 rounded p-2 border border-purple-100">
+        <div class="text-[10px] text-purple-700 font-bold">最大DD</div>
+        <div class="text-base font-bold text-purple-700 num" x-text="fmtPct(portfolio?.stats?.max_drawdown_pct ?? 0)"></div>
+      </div>
+    </div>
   </section>
 
   <!-- Daytrade tab: morning brief content (moved from JP page) -->
@@ -726,9 +866,12 @@ function momentumApp() {
       } finally {
         this.loading = false;
       }
-      // JP / daytrade: load morning brief (always for daytrade, in background for JP)
+      // JP / daytrade: load morning brief + portfolio
       if (this.isJpDomain) {
         this.loadMorningBrief();
+      }
+      if (this.market === 'daytrade') {
+        this.loadPortfolio();
       }
     },
 
@@ -740,6 +883,37 @@ function momentumApp() {
       } catch (e) {
         console.warn('morning brief load failed:', e);
       }
+    },
+
+    async loadPortfolio() {
+      try {
+        const resp = await fetch('./data/portfolio_jp.json?v=' + Date.now());
+        if (!resp.ok) return;
+        this.portfolio = await resp.json();
+      } catch (e) {
+        console.warn('portfolio load failed:', e);
+      }
+    },
+
+    tradeOutcomeLabel(o) {
+      const map = {
+        target_hit:        '🎯 利食',
+        target_today_hit:  '🎯 利食(当日)',
+        gap_target:        '🎯 ギャップ利食',
+        stop_hit:          '🛑 損切',
+        stop_hit_same_day: '🛑 損切(当日)',
+        gap_stop:          '🛑 ギャップ損切',
+        eod_close:         '📉 引け決済',
+        next_open_close:   '⏭ 翌寄決済',
+      };
+      return map[o] || o;
+    },
+
+    tradeOutcomeClass(o) {
+      if (!o) return 'bg-slate-100 text-slate-600';
+      if (o.startsWith('target') || o === 'gap_target') return 'bg-emerald-100 text-emerald-700';
+      if (o.startsWith('stop') || o === 'gap_stop')     return 'bg-red-100 text-red-700';
+      return 'bg-slate-100 text-slate-600';
     },
 
     aiPickBadgeClass(type) {
@@ -863,6 +1037,7 @@ function momentumApp() {
       { id: '6m', days: 126, label: '半年',  subtitle: '長期トレンド' },
     ],
     morningBrief: null,
+    portfolio: null,
     dayTradePanels: [
       { key: 'total_score',   label: '🏆 デイトレ総合スコア', text: 'text-rose-700' },
       { key: 'volume_surge',  label: '📈 出来高急増',       text: 'text-emerald-700' },
