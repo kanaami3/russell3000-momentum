@@ -236,6 +236,162 @@
     </div>
   </section>
 
+  <!-- Detailed trade reports -->
+  <section x-show="market === 'daytrade' && portfolio && (portfolio?.trade_history?.length ?? 0) > 0" class="space-y-6 mb-8">
+
+    <!-- Daily P&L summary -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <h2 class="text-lg font-bold text-slate-800">📅 日次サマリー</h2>
+        <span class="text-xs text-slate-500" x-text="(portfolio?.daily_equity?.length ?? 0) + '日分'"></span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-xs">
+          <thead class="bg-slate-100 text-slate-600 text-[10px] uppercase">
+            <tr>
+              <th class="px-2 py-2 text-left">日付</th>
+              <th class="px-2 py-2 text-right">評価額</th>
+              <th class="px-2 py-2 text-right">日次P&L (¥)</th>
+              <th class="px-2 py-2 text-right">日次P&L (%)</th>
+              <th class="px-2 py-2 text-right">エントリ</th>
+              <th class="px-2 py-2 text-right">勝</th>
+              <th class="px-2 py-2 text-right">負</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="d in [...(portfolio?.daily_equity || [])].reverse()" :key="d.date">
+              <tr class="border-t border-slate-100 hover:bg-slate-50">
+                <td class="px-2 py-2 text-slate-700" x-text="d.date"></td>
+                <td class="px-2 py-2 text-right num text-slate-800">¥<span x-text="d.equity.toLocaleString()"></span></td>
+                <td class="px-2 py-2 text-right num font-semibold" :class="pctClass(d.daily_pnl_pct)">
+                  <span x-text="(d.daily_pnl >= 0 ? '+¥' : '-¥') + Math.abs(d.daily_pnl).toLocaleString()"></span>
+                </td>
+                <td class="px-2 py-2 text-right num font-semibold" :class="pctClass(d.daily_pnl_pct)" x-text="fmtPct(d.daily_pnl_pct)"></td>
+                <td class="px-2 py-2 text-right num text-slate-600" x-text="dailyTradeStats(d.date).entries"></td>
+                <td class="px-2 py-2 text-right num text-emerald-700" x-text="dailyTradeStats(d.date).wins || '-'"></td>
+                <td class="px-2 py-2 text-right num text-red-700" x-text="dailyTradeStats(d.date).losses || '-'"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Strategy breakdown -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <h2 class="text-lg font-bold text-slate-800 mb-3">📊 戦略タイプ別 成績</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-xs">
+          <thead class="bg-slate-100 text-slate-600 text-[10px] uppercase">
+            <tr>
+              <th class="px-2 py-2 text-left">戦略タイプ</th>
+              <th class="px-2 py-2 text-right">取引数</th>
+              <th class="px-2 py-2 text-right">勝率</th>
+              <th class="px-2 py-2 text-right">平均リターン</th>
+              <th class="px-2 py-2 text-right">合計損益</th>
+              <th class="px-2 py-2 text-right">最高 / 最低</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="s in strategyBreakdown" :key="s.type">
+              <tr class="border-t border-slate-100">
+                <td class="px-2 py-2 text-slate-700" x-text="s.type"></td>
+                <td class="px-2 py-2 text-right num text-slate-600" x-text="s.count"></td>
+                <td class="px-2 py-2 text-right num font-semibold text-blue-700" x-text="s.win_rate + '%'"></td>
+                <td class="px-2 py-2 text-right num font-semibold" :class="pctClass(s.avg_pct)" x-text="fmtPct(s.avg_pct)"></td>
+                <td class="px-2 py-2 text-right num font-semibold" :class="pctClass(s.total_pnl)">
+                  <span x-text="(s.total_pnl >= 0 ? '+¥' : '-¥') + Math.abs(s.total_pnl).toLocaleString()"></span>
+                </td>
+                <td class="px-2 py-2 text-right num text-slate-500 text-[10px]">
+                  <span class="text-emerald-700" x-text="fmtPct(s.best)"></span>
+                  /
+                  <span class="text-red-700" x-text="fmtPct(s.worst)"></span>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Outcome breakdown -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <h2 class="text-lg font-bold text-slate-800 mb-3">🎯 決済結果の内訳</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <template x-for="o in outcomeBreakdown" :key="o.outcome">
+          <div class="rounded-lg p-3 border" :class="tradeOutcomeClass(o.outcome).replace('100', '50').replace('700', '200')">
+            <div class="text-[10px] font-bold" :class="tradeOutcomeClass(o.outcome).split(' ')[1]" x-text="tradeOutcomeLabel(o.outcome)"></div>
+            <div class="text-lg font-extrabold num" x-text="o.count + '件'"></div>
+            <div class="text-xs num" :class="pctClass(o.total_pct)">
+              合計 <span x-text="fmtPct(o.total_pct)"></span>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Full trade history -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <h2 class="text-lg font-bold text-slate-800">📜 全取引履歴 <span class="text-xs text-slate-500 font-normal">(<span x-text="portfolio?.trade_history?.length ?? 0"></span>件)</span></h2>
+        <div class="flex items-center gap-2 text-xs">
+          <select x-model="tradeFilter" class="px-2 py-1 border border-slate-300 rounded">
+            <option value="all">全て</option>
+            <option value="win">勝ちのみ</option>
+            <option value="loss">負けのみ</option>
+            <option value="day_trade">日中決済のみ</option>
+            <option value="overnight_hold">持越しのみ</option>
+          </select>
+          <button @click="downloadTradesCsv()" class="px-3 py-1 border border-slate-300 rounded bg-white hover:bg-slate-50 font-semibold">⬇ CSV</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-xs">
+          <thead class="bg-slate-100 text-slate-600 text-[10px] uppercase">
+            <tr>
+              <th class="px-2 py-2 text-left">#</th>
+              <th class="px-2 py-2 text-left">エントリ</th>
+              <th class="px-2 py-2 text-left">エグジット</th>
+              <th class="px-2 py-2 text-left">銘柄</th>
+              <th class="px-2 py-2 text-left">戦略</th>
+              <th class="px-2 py-2 text-right">株数</th>
+              <th class="px-2 py-2 text-right">取得 ¥</th>
+              <th class="px-2 py-2 text-right">決済 ¥</th>
+              <th class="px-2 py-2 text-right">損益 ¥</th>
+              <th class="px-2 py-2 text-right">損益 %</th>
+              <th class="px-2 py-2 text-left">結果</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="(t, i) in filteredTrades" :key="t.entry_date + t.ticker + i">
+              <tr class="border-t border-slate-100 hover:bg-slate-50">
+                <td class="px-2 py-2 text-slate-400 num" x-text="i + 1"></td>
+                <td class="px-2 py-2 text-slate-600" x-text="t.entry_date"></td>
+                <td class="px-2 py-2 text-slate-600" x-text="t.exit_date"></td>
+                <td class="px-2 py-2">
+                  <a class="font-bold text-rose-700 ticker-link" @click="openChart(t.ticker)" x-text="displayTicker(t.ticker)"></a>
+                  <span class="block text-slate-500 text-[10px]" x-text="shortName(t.name)"></span>
+                </td>
+                <td class="px-2 py-2 text-slate-600 text-[10px]" x-text="t.ai_pick_type"></td>
+                <td class="px-2 py-2 text-right num text-slate-600" x-text="t.shares.toLocaleString()"></td>
+                <td class="px-2 py-2 text-right num text-slate-600" x-text="t.entry_price.toLocaleString()"></td>
+                <td class="px-2 py-2 text-right num text-slate-600" x-text="t.exit_price.toLocaleString()"></td>
+                <td class="px-2 py-2 text-right num font-bold" :class="pctClass(t.pnl_pct)">
+                  <span x-text="(t.pnl >= 0 ? '+' : '-') + Math.abs(t.pnl).toLocaleString()"></span>
+                </td>
+                <td class="px-2 py-2 text-right num font-bold" :class="pctClass(t.pnl_pct)" x-text="fmtPct(t.pnl_pct)"></td>
+                <td class="px-2 py-2 text-[10px]">
+                  <span class="inline-block px-1.5 py-0.5 rounded" :class="tradeOutcomeClass(t.outcome)" x-text="tradeOutcomeLabel(t.outcome)"></span>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
   <!-- Daytrade tab: morning brief content (moved from JP page) -->
   <section x-show="market === 'daytrade' && morningBrief" class="bg-gradient-to-br from-rose-50 to-amber-50 border-2 border-rose-200 rounded-2xl p-5 sm:p-6 shadow-md mb-12">
     <div class="flex items-center justify-between mb-5 flex-wrap gap-2">
@@ -895,6 +1051,86 @@ function momentumApp() {
       }
     },
 
+    dailyTradeStats(date) {
+      const trades = (this.portfolio?.trade_history || []).filter(t => t.exit_date === date);
+      const wins = trades.filter(t => t.pnl > 0).length;
+      const losses = trades.filter(t => t.pnl < 0).length;
+      return { entries: trades.length || '-', wins, losses };
+    },
+
+    get strategyBreakdown() {
+      const trades = this.portfolio?.trade_history || [];
+      const map = {};
+      for (const t of trades) {
+        const key = t.ai_pick_type || '(未分類)';
+        if (!map[key]) map[key] = { type: key, count: 0, wins: 0, total_pnl: 0, pcts: [] };
+        map[key].count++;
+        if (t.pnl > 0) map[key].wins++;
+        map[key].total_pnl += t.pnl;
+        map[key].pcts.push(t.pnl_pct);
+      }
+      return Object.values(map).map(s => ({
+        type: s.type,
+        count: s.count,
+        win_rate: Math.round(s.wins / s.count * 100 * 10) / 10,
+        avg_pct: +(s.pcts.reduce((a, b) => a + b, 0) / s.pcts.length).toFixed(2),
+        total_pnl: Math.round(s.total_pnl),
+        best: Math.max(...s.pcts),
+        worst: Math.min(...s.pcts),
+      })).sort((a, b) => b.count - a.count);
+    },
+
+    get outcomeBreakdown() {
+      const trades = this.portfolio?.trade_history || [];
+      const map = {};
+      for (const t of trades) {
+        const key = t.outcome || 'unknown';
+        if (!map[key]) map[key] = { outcome: key, count: 0, total_pct: 0 };
+        map[key].count++;
+        map[key].total_pct += t.pnl_pct;
+      }
+      return Object.values(map).map(o => ({
+        outcome: o.outcome,
+        count: o.count,
+        total_pct: +o.total_pct.toFixed(2),
+      })).sort((a, b) => b.count - a.count);
+    },
+
+    get filteredTrades() {
+      const all = [...(this.portfolio?.trade_history || [])].reverse();
+      switch (this.tradeFilter) {
+        case 'win':            return all.filter(t => t.pnl > 0);
+        case 'loss':           return all.filter(t => t.pnl < 0);
+        case 'day_trade':      return all.filter(t => t.hold_type === 'day_trade');
+        case 'overnight_hold': return all.filter(t => t.hold_type === 'overnight_hold');
+        default:               return all;
+      }
+    },
+
+    downloadTradesCsv() {
+      const trades = this.portfolio?.trade_history || [];
+      if (!trades.length) return;
+      const headers = ['entry_date', 'exit_date', 'ticker', 'name', 'hold_type', 'ai_pick_type',
+                       'shares', 'entry_price', 'exit_price', 'pnl', 'pnl_pct', 'outcome'];
+      const rows = trades.map(t => headers.map(h => {
+        const v = t[h];
+        if (typeof v === 'string' && (v.includes(',') || v.includes('"'))) {
+          return '"' + v.replace(/"/g, '""') + '"';
+        }
+        return v == null ? '' : v;
+      }).join(','));
+      const csv = '﻿' + headers.join(',') + '\n' + rows.join('\n');  // BOM for Excel
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ai_trades_${this.portfolio?.start_date}_to_${this.portfolio?.last_simulated_date || 'now'}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    },
+
     tradeOutcomeLabel(o) {
       const map = {
         target_hit:        '🎯 利食',
@@ -1038,6 +1274,7 @@ function momentumApp() {
     ],
     morningBrief: null,
     portfolio: null,
+    tradeFilter: 'all',
     dayTradePanels: [
       { key: 'total_score',   label: '🏆 デイトレ総合スコア', text: 'text-rose-700' },
       { key: 'volume_surge',  label: '📈 出来高急増',       text: 'text-emerald-700' },
