@@ -174,7 +174,10 @@
                   <a class="font-bold text-rose-700 ticker-link text-base shrink-0" @click="openChart(pick.ticker)" x-text="displayTicker(pick.ticker)"></a>
                   <span class="text-slate-700 font-semibold truncate" x-text="shortName(pick.name)"></span>
                 </div>
-                <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full shrink-0" :class="aiPickBadgeClass(pick.type)" x-text="pick.type"></span>
+                <div class="flex items-center gap-1 shrink-0">
+                  <span x-show="pick.hold_horizon" class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full" :class="pick.hold_horizon === '翌日持越し可' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'" x-text="pick.hold_horizon"></span>
+                  <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full" :class="aiPickBadgeClass(pick.type)" x-text="pick.type"></span>
+                </div>
               </div>
               <p class="text-xs text-slate-700 leading-relaxed mb-2" x-text="pick.rationale"></p>
               <div class="space-y-1 text-[11px]">
