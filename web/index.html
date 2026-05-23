@@ -18,6 +18,8 @@
   .num { font-variant-numeric: tabular-nums; }
   .gradient-us { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%); }
   .gradient-jp { background: linear-gradient(135deg, #dc2626 0%, #e11d48 50%, #be185d 100%); }
+  .ticker-link { cursor: pointer; text-decoration: none; }
+  .ticker-link:hover { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
 </style>
 </head>
 <body class="bg-slate-50 text-slate-900" x-data="momentumApp()" x-init="init()">
@@ -78,8 +80,9 @@
             <template x-for="row in data.yesterday_top10" :key="row.ticker">
               <div class="flex items-center justify-between text-sm py-1 border-b border-green-100 last:border-0">
                 <div class="flex items-center gap-3 min-w-0 flex-1">
-                  <span class="font-bold text-green-700 w-16 shrink-0" x-text="displayTicker(row.ticker)"></span>
-                  <span class="text-slate-600 truncate" x-text="shortName(row.name)"></span>
+                  <a class="font-bold text-green-700 w-16 shrink-0 ticker-link" @click="openChart(row.ticker)" x-text="displayTicker(row.ticker)"></a>
+                  <span class="text-slate-600 truncate flex-1" x-text="shortName(row.name)"></span>
+                  <span class="shrink-0" x-html="sparklineSvg(row.sparkline, 56, 18, '#16a34a')"></span>
                 </div>
                 <span class="num font-bold text-green-700 ml-2 shrink-0" x-text="fmtPct(row.value)"></span>
               </div>
@@ -95,8 +98,9 @@
             <template x-for="row in data.yesterday_worst10" :key="row.ticker">
               <div class="flex items-center justify-between text-sm py-1 border-b border-red-100 last:border-0">
                 <div class="flex items-center gap-3 min-w-0 flex-1">
-                  <span class="font-bold text-red-700 w-16 shrink-0" x-text="displayTicker(row.ticker)"></span>
-                  <span class="text-slate-600 truncate" x-text="shortName(row.name)"></span>
+                  <a class="font-bold text-red-700 w-16 shrink-0 ticker-link" @click="openChart(row.ticker)" x-text="displayTicker(row.ticker)"></a>
+                  <span class="text-slate-600 truncate flex-1" x-text="shortName(row.name)"></span>
+                  <span class="shrink-0" x-html="sparklineSvg(row.sparkline, 56, 18, '#dc2626')"></span>
                 </div>
                 <span class="num font-bold text-red-700 ml-2 shrink-0" x-text="fmtPct(row.value)"></span>
               </div>
@@ -122,8 +126,9 @@
             <div class="space-y-1.5">
               <template x-for="row in data[panel.key]" :key="row.ticker">
                 <div class="flex items-center justify-between text-sm py-1 border-b last:border-0" :class="panel.divider">
-                  <span :class="'font-bold ' + panel.text" x-text="displayTicker(row.ticker)"></span>
-                  <span :class="'num font-bold ' + panel.text" x-text="fmtPct(row.value)"></span>
+                  <a class="font-bold w-16 shrink-0 ticker-link" :class="panel.text" @click="openChart(row.ticker)" x-text="displayTicker(row.ticker)"></a>
+                  <span class="shrink-0 flex-1 text-center" x-html="sparklineSvg(row.sparkline, 64, 18, panel.sparkColor)"></span>
+                  <span class="num font-bold shrink-0" :class="panel.text" x-text="fmtPct(row.value)"></span>
                 </div>
               </template>
             </div>
@@ -140,9 +145,10 @@
         <div class="px-5 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
           <template x-for="row in data.mom_12_1_top10" :key="row.ticker">
             <div class="flex items-center justify-between text-sm py-1 border-b border-slate-100">
-              <div class="flex items-center gap-3 min-w-0">
-                <span class="font-bold w-16 shrink-0" :class="market === 'jp' ? 'text-rose-700' : 'text-indigo-700'" x-text="displayTicker(row.ticker)"></span>
-                <span class="text-slate-600 truncate" x-text="shortName(row.name)"></span>
+              <div class="flex items-center gap-3 min-w-0 flex-1">
+                <a class="font-bold w-16 shrink-0 ticker-link" :class="market === 'jp' ? 'text-rose-700' : 'text-indigo-700'" @click="openChart(row.ticker)" x-text="displayTicker(row.ticker)"></a>
+                <span class="text-slate-600 truncate flex-1" x-text="shortName(row.name)"></span>
+                <span class="shrink-0" x-html="sparklineSvg(row.sparkline, 50, 16, market === 'jp' ? '#e11d48' : '#6366f1')"></span>
               </div>
               <span class="num font-bold ml-2 shrink-0" :class="market === 'jp' ? 'text-rose-700' : 'text-indigo-700'" x-text="fmtPct(row.value)"></span>
             </div>
@@ -194,6 +200,7 @@
                 <th class="px-3 py-3 text-left">#</th>
                 <th class="px-3 py-3 text-left">Ticker</th>
                 <th class="px-3 py-3 text-left">銘柄名</th>
+                <th class="px-2 py-3 text-center whitespace-nowrap">3M推移</th>
                 <th class="px-3 py-3 text-right"><span x-text="'終値 (' + (data.currency_symbol || '$') + ')'"></span></th>
                 <template x-if="market === 'us'">
                   <th class="px-3 py-3 text-right">時価総額</th>
@@ -212,8 +219,11 @@
               <template x-for="(row, i) in paginated" :key="row.ticker">
                 <tr class="border-t border-slate-100 hover:bg-slate-50">
                   <td class="px-3 py-2 text-slate-400 num" x-text="(page * pageSize) + i + 1"></td>
-                  <td class="px-3 py-2 font-bold" :class="market === 'jp' ? 'text-rose-700' : 'text-indigo-700'" x-text="displayTicker(row.ticker)"></td>
+                  <td class="px-3 py-2 font-bold">
+                    <a class="ticker-link" :class="market === 'jp' ? 'text-rose-700' : 'text-indigo-700'" @click="openChart(row.ticker)" x-text="displayTicker(row.ticker)"></a>
+                  </td>
                   <td class="px-3 py-2 text-slate-700 max-w-xs truncate" :title="row.name" x-text="shortName(row.name)"></td>
+                  <td class="px-2 py-2 text-center" x-html="sparklineSvg(row.sparkline, 70, 22, autoSparkColor(row.sparkline))"></td>
                   <td class="px-3 py-2 text-right num text-slate-600" x-text="row.close ? row.close.toLocaleString() : '-'"></td>
                   <template x-if="market === 'us'">
                     <td class="px-3 py-2 text-right num text-slate-600" x-text="fmtMcap(row.market_cap)"></td>
@@ -244,6 +254,23 @@
   </div>
   </template>
 </main>
+
+<!-- Chart modal (TradingView Advanced Chart Widget) -->
+<div x-show="chartTicker" x-cloak x-transition.opacity @keydown.escape.window="chartTicker = null" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-2 sm:p-4" @click.self="chartTicker = null">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[85vh] flex flex-col overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="font-bold text-lg" :class="market === 'jp' ? 'text-rose-700' : 'text-indigo-700'" x-text="chartTicker ? displayTicker(chartTicker) : ''"></span>
+        <span class="text-slate-600 truncate" x-text="chartTickerName"></span>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <a :href="tradingViewExternalUrl" target="_blank" rel="noopener" class="text-xs text-slate-500 hover:text-slate-900 underline">外部で開く ↗</a>
+        <button @click="chartTicker = null" class="text-slate-500 hover:text-slate-900 text-2xl leading-none px-2" aria-label="閉じる">✕</button>
+      </div>
+    </div>
+    <iframe x-show="chartTicker" :src="tradingViewEmbedUrl" class="flex-1 w-full" frameborder="0" allow="fullscreen" loading="lazy"></iframe>
+  </div>
+</div>
 
 <footer class="border-t border-slate-200 mt-16 py-8 text-center text-xs text-slate-500">
   <p>
@@ -283,10 +310,11 @@ function momentumApp() {
     page: 0,
     pageSize: 50,
     periodPanels: [
-      { key: 'mom_3m_top10', label: '3ヶ月', bg: 'bg-blue-50',    border: 'border-blue-200',    text: 'text-blue-700',    dot: 'bg-blue-500',    divider: 'border-blue-100' },
-      { key: 'mom_1m_top10', label: '1ヶ月', bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', dot: 'bg-emerald-500', divider: 'border-emerald-100' },
-      { key: 'mom_1w_top10', label: '1週間', bg: 'bg-amber-50',   border: 'border-amber-200',   text: 'text-amber-700',   dot: 'bg-amber-500',   divider: 'border-amber-100' },
+      { key: 'mom_3m_top10', label: '3ヶ月', bg: 'bg-blue-50',    border: 'border-blue-200',    text: 'text-blue-700',    dot: 'bg-blue-500',    divider: 'border-blue-100',    sparkColor: '#2563eb' },
+      { key: 'mom_1m_top10', label: '1ヶ月', bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', dot: 'bg-emerald-500', divider: 'border-emerald-100', sparkColor: '#059669' },
+      { key: 'mom_1w_top10', label: '1週間', bg: 'bg-amber-50',   border: 'border-amber-200',   text: 'text-amber-700',   dot: 'bg-amber-500',   divider: 'border-amber-100',   sparkColor: '#d97706' },
     ],
+    chartTicker: null,
 
     get config() { return MARKET_CONFIG[this.market]; },
 
@@ -393,6 +421,82 @@ function momentumApp() {
       if (v >= 1e9) return (v / 1e9).toFixed(2) + 'B';
       if (v >= 1e6) return (v / 1e6).toFixed(0) + 'M';
       return v.toLocaleString();
+    },
+
+    sparklineSvg(prices, width, height, strokeColor) {
+      if (!prices || prices.length < 2) return '';
+      const min = Math.min(...prices);
+      const max = Math.max(...prices);
+      const range = max - min || 1;
+      const padY = 1;
+      const stepX = (width - 2) / (prices.length - 1);
+      const points = prices.map((p, i) => {
+        const x = (1 + i * stepX).toFixed(1);
+        const y = (padY + (height - padY * 2) * (1 - (p - min) / range)).toFixed(1);
+        return `${x},${y}`;
+      }).join(' ');
+      const color = strokeColor || (prices[prices.length - 1] >= prices[0] ? '#16a34a' : '#dc2626');
+      // Fill polygon (subtle area) + stroke polyline
+      const last = `${(1 + (prices.length - 1) * stepX).toFixed(1)},${height}`;
+      const first = `1,${height}`;
+      const areaPoints = `${first} ${points} ${last}`;
+      return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" class="inline-block align-middle">
+        <polygon points="${areaPoints}" fill="${color}" fill-opacity="0.10"/>
+        <polyline points="${points}" fill="none" stroke="${color}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>`;
+    },
+
+    autoSparkColor(prices) {
+      if (!prices || prices.length < 2) return '#94a3b8';
+      return prices[prices.length - 1] >= prices[0] ? '#16a34a' : '#dc2626';
+    },
+
+    openChart(ticker) {
+      this.chartTicker = ticker;
+    },
+
+    get chartTickerRow() {
+      if (!this.chartTicker || !this.data) return null;
+      return this.data.all_tickers.find(r => r.ticker === this.chartTicker) || null;
+    },
+
+    get chartTickerName() {
+      const r = this.chartTickerRow;
+      return r ? this.shortName(r.name) : '';
+    },
+
+    get tradingViewSymbol() {
+      if (!this.chartTicker) return '';
+      if (this.market === 'jp') {
+        return 'TSE:' + this.chartTicker.replace(/\.T$/, '');
+      }
+      const row = this.chartTickerRow;
+      const ex = (row?.exchange || 'NASDAQ').toUpperCase();
+      // TradingView uses AMEX for NYSE American
+      return ex + ':' + this.chartTicker;
+    },
+
+    get tradingViewEmbedUrl() {
+      if (!this.chartTicker) return '';
+      const params = new URLSearchParams({
+        frameElementId: 'tv-chart',
+        symbol: this.tradingViewSymbol,
+        interval: 'D',
+        theme: 'light',
+        style: '1',
+        timezone: 'Asia/Tokyo',
+        locale: 'ja',
+        hide_side_toolbar: '0',
+        save_image: '1',
+        studies: 'MASimple@tv-basicstudies',
+        withdateranges: '1',
+      });
+      return 'https://s.tradingview.com/widgetembed/?' + params.toString();
+    },
+
+    get tradingViewExternalUrl() {
+      if (!this.chartTicker) return '#';
+      return 'https://www.tradingview.com/chart/?symbol=' + encodeURIComponent(this.tradingViewSymbol);
     },
 
     shortName(name) {

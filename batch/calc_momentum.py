@@ -35,6 +35,10 @@ WINDOWS = {
     "m12": 252,
 }
 
+# Sparkline = last N trading days of closes (~3 months), shown as a mini chart
+# so users can spot pullbacks in uptrending stocks at a glance.
+SPARKLINE_DAYS = 60
+
 MARKET_META = {
     "us": {"currency": "USD", "symbol": "$"},
     "jp": {"currency": "JPY", "symbol": "¥"},
@@ -63,6 +67,9 @@ def compute_returns(prices: pd.DataFrame) -> pd.DataFrame:
             record["ret_12_1"] = record["ret_m12"] - record["ret_m1"]
         else:
             record["ret_12_1"] = None
+        # Sparkline: last SPARKLINE_DAYS closes, rounded for compactness
+        sparkline_tail = closes[-SPARKLINE_DAYS:] if len(closes) >= 2 else closes
+        record["sparkline"] = [round(float(c), 2) for c in sparkline_tail]
         rows.append(record)
 
     return pd.DataFrame(rows)
@@ -76,6 +83,7 @@ def top_n(df: pd.DataFrame, col: str, n: int = 10, ascending: bool = False) -> l
             "name": r["name"],
             "value": round(float(r[col]), 2),
             "market_cap": r.get("market_cap", 0),
+            "sparkline": r.get("sparkline", []),
         }
         for _, r in sub.iterrows()
     ]
@@ -125,6 +133,7 @@ def main() -> int:
             "m1": _round(r.get("ret_m1")),
             "m3": _round(r.get("ret_m3")),
             "m12_1": _round(r.get("ret_12_1")),
+            "sparkline": r.get("sparkline", []) if isinstance(r.get("sparkline"), list) else [],
         }
         if market == "us":
             base["exchange"] = r.get("exchange", "")
@@ -151,6 +160,19 @@ def main() -> int:
         "mom_12_1_top10": top_n(merged, "ret_12_1", 10, ascending=False),
         "all_tickers": [make_row(r) for _, r in merged.iterrows()],
     }
+
+    # Preserve previously-generated market summary if asof hasn't advanced.
+    # This avoids losing the LLM-generated commentary when re-running calc
+    # without rerunning generate_summary.py (e.g. during local iteration).
+    if output_path.exists():
+        try:
+            prev = json.loads(output_path.read_text(encoding="utf-8"))
+            if prev.get("asof") == asof and prev.get("market_summary"):
+                result["market_summary"] = prev["market_summary"]
+                if prev.get("market_summary_model"):
+                    result["market_summary_model"] = prev["market_summary_model"]
+        except Exception:
+            pass
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
