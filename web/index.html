@@ -374,19 +374,30 @@
         <button @click="closeChart()" class="text-slate-500 hover:text-slate-900 text-2xl leading-none px-2" aria-label="閉じる">✕</button>
       </div>
     </div>
-    <!-- JP-only chart range buttons -->
-    <div x-show="chartTicker && market === 'jp'" class="flex items-center gap-1 px-3 py-2 border-b border-slate-200 bg-slate-50 text-xs flex-wrap">
-      <span class="text-slate-500 mr-2">期間:</span>
-      <template x-for="opt in rangeOptions" :key="opt.days">
-        <button @click="setChartRange(opt.days)" :class="chartRange === opt.days ? 'bg-rose-600 text-white border-rose-600' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'" class="px-3 py-1 border rounded font-semibold" x-text="opt.label"></button>
-      </template>
-      <span class="ml-auto text-slate-500 text-xs">
-        <span x-text="chartLoading ? 'チャート読込中…' : ''"></span>
-      </span>
+    <!-- JP loading indicator -->
+    <div x-show="chartTicker && market === 'jp' && chartLoading" class="px-3 py-2 border-b border-slate-200 bg-slate-50 text-xs text-slate-500">
+      チャートデータ読込中… (初回約3MB / 数秒)
     </div>
-    <!-- Main chart -->
-    <div x-show="chartTicker" class="flex-1 w-full relative">
-      <div id="tv-chart-container" class="absolute inset-0"></div>
+    <!-- Main chart area: US uses single TradingView, JP uses 3 stacked Lightweight Charts -->
+    <div x-show="chartTicker" class="flex-1 w-full relative overflow-hidden flex flex-col">
+      <!-- US (single TradingView widget) -->
+      <div x-show="market === 'us'" class="flex-1 relative">
+        <div id="tv-chart-container" class="absolute inset-0"></div>
+      </div>
+      <!-- JP (three stacked Lightweight Charts: 1M / 3M / 6M) -->
+      <div x-show="market === 'jp'" class="flex-1 flex flex-col divide-y divide-slate-200">
+        <template x-for="panel in jpChartPanels" :key="panel.days">
+          <div class="flex-1 flex flex-col min-h-0">
+            <div class="px-3 py-1 text-xs font-bold text-slate-600 bg-slate-50 shrink-0 flex items-center justify-between">
+              <span x-text="panel.label + '(' + panel.days + '営業日)'"></span>
+              <span class="text-slate-400 text-[10px]" x-text="panel.subtitle"></span>
+            </div>
+            <div class="flex-1 relative min-h-0">
+              <div :id="'tv-chart-' + panel.id" class="absolute inset-0"></div>
+            </div>
+          </div>
+        </template>
+      </div>
     </div>
   </div>
 </div>
@@ -602,18 +613,13 @@ function momentumApp() {
       return prices[prices.length - 1] >= prices[0] ? '#16a34a' : '#dc2626';
     },
 
-    _lwChart: null,
-    _lwSeries: null,
-    _lwVolumeSeries: null,
-    _lwSma20: null,
-    _lwSma50: null,
+    _lwCharts: [],
     _chartDataCache: null,
     chartLoading: false,
-    chartRange: 63,
-    rangeOptions: [
-      { days: 21,  label: '1ヶ月' },
-      { days: 63,  label: '3ヶ月' },
-      { days: 126, label: '半年' },
+    jpChartPanels: [
+      { id: '1m', days: 21,  label: '1ヶ月', subtitle: '直近の押し目・寄付の地合い' },
+      { id: '3m', days: 63,  label: '3ヶ月', subtitle: '中期トレンド' },
+      { id: '6m', days: 126, label: '半年',  subtitle: '長期トレンド' },
     ],
     morningBrief: null,
     dayTradePanels: [
@@ -631,12 +637,15 @@ function momentumApp() {
     },
 
     closeChart() {
-      if (this._lwChart) {
-        try { this._lwChart.remove(); } catch(e) {}
-        this._lwChart = null;
-        this._lwSeries = null;
-      }
+      this._destroyLwCharts();
       this.chartTicker = null;
+    },
+
+    _destroyLwCharts() {
+      for (const c of this._lwCharts) {
+        try { c.remove(); } catch(e) {}
+      }
+      this._lwCharts = [];
     },
 
     renderChart() {
@@ -653,8 +662,7 @@ function momentumApp() {
     renderTradingViewWidget() {
       const container = document.getElementById('tv-chart-container');
       if (!container || !this.chartTicker) return;
-      // Destroy any prior LWC chart
-      if (this._lwChart) { try { this._lwChart.remove(); } catch(e){} this._lwChart = null; this._lwSeries = null; }
+      this._destroyLwCharts();
       container.innerHTML = '';
       if (typeof TradingView === 'undefined' || !TradingView.widget) {
         setTimeout(() => this.renderTradingViewWidget(), 250);
@@ -685,11 +693,6 @@ function momentumApp() {
       });
     },
 
-    setChartRange(days) {
-      this.chartRange = days;
-      this.renderLightweightChart();
-    },
-
     sma(closes, period) {
       const out = [];
       for (let i = 0; i < closes.length; i++) {
@@ -718,50 +721,64 @@ function momentumApp() {
     },
 
     async renderLightweightChart() {
-      const container = document.getElementById('tv-chart-container');
-      if (!container || !this.chartTicker) return;
       if (typeof LightweightCharts === 'undefined') {
         setTimeout(() => this.renderLightweightChart(), 250);
         return;
       }
-      // Show loading state immediately
-      container.innerHTML = '<div class="flex items-center justify-center h-full text-slate-500">チャート読込中…</div>';
+      // Reset all 3 panels to loading state
+      for (const panel of this.jpChartPanels) {
+        const c = document.getElementById('tv-chart-' + panel.id);
+        if (c) c.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400 text-xs">読込中…</div>';
+      }
+      this._destroyLwCharts();
 
       let dataset;
       try {
         dataset = await this._ensureChartData();
       } catch (e) {
-        container.innerHTML = '<div class="flex items-center justify-center h-full text-red-600 p-8 text-center">チャートデータの読込に失敗しました。<br>「外部で開く ↗」から TradingView でご確認ください。</div>';
+        for (const panel of this.jpChartPanels) {
+          const c = document.getElementById('tv-chart-' + panel.id);
+          if (c) c.innerHTML = '<div class="flex items-center justify-center h-full text-red-600 text-xs p-4 text-center">チャートデータ読込失敗</div>';
+        }
         return;
       }
       const fullHistory = dataset[this.chartTicker] || [];
       if (!fullHistory.length) {
-        container.innerHTML = '<div class="flex items-center justify-center h-full text-slate-500 p-8 text-center">この銘柄のチャートデータがありません。<br>「外部で開く ↗」から TradingView でご確認ください。</div>';
+        for (const panel of this.jpChartPanels) {
+          const c = document.getElementById('tv-chart-' + panel.id);
+          if (c) c.innerHTML = '<div class="flex items-center justify-center h-full text-slate-500 text-xs p-4 text-center">この銘柄のチャートデータがありません</div>';
+        }
         return;
       }
 
-      // Slice to selected range. Rows are [date, O, H, L, C, V] or [date, C].
-      const history = fullHistory.slice(-Math.max(this.chartRange, 5));
-      const hasOhlc = Array.isArray(history[0]) && history[0].length >= 6;
+      for (const panel of this.jpChartPanels) {
+        const container = document.getElementById('tv-chart-' + panel.id);
+        if (!container) continue;
+        container.innerHTML = '';
+        const sliced = fullHistory.slice(-Math.max(panel.days, 5));
+        const chart = this._buildSingleChart(container, sliced, /*showVolume=*/panel.days >= 63);
+        if (chart) this._lwCharts.push(chart);
+      }
+    },
 
-      // Compute SMAs on close prices
+    _buildSingleChart(container, history, showVolume) {
+      if (!history || history.length < 2) return null;
+      const hasOhlc = Array.isArray(history[0]) && history[0].length >= 6;
       const closes = history.map(r => hasOhlc ? r[4] : r[1]);
       const dates  = history.map(r => r[0]);
       const sma20 = this.sma(closes, 20);
       const sma50 = this.sma(closes, 50);
 
-      container.innerHTML = '';
       const chart = LightweightCharts.createChart(container, {
-        layout: { background: { color: '#ffffff' }, textColor: '#334155', fontFamily: 'Inter, Noto Sans JP, sans-serif' },
+        layout: { background: { color: '#ffffff' }, textColor: '#334155', fontFamily: 'Inter, Noto Sans JP, sans-serif', fontSize: 11 },
         grid: { vertLines: { color: '#f1f5f9' }, horzLines: { color: '#f1f5f9' } },
-        rightPriceScale: { borderColor: '#e2e8f0', scaleMargins: { top: 0.08, bottom: 0.28 } },
-        timeScale: { borderColor: '#e2e8f0', timeVisible: false, secondsVisible: false, rightOffset: 4 },
+        rightPriceScale: { borderColor: '#e2e8f0', scaleMargins: { top: 0.06, bottom: showVolume ? 0.30 : 0.06 } },
+        timeScale: { borderColor: '#e2e8f0', timeVisible: false, secondsVisible: false, rightOffset: 3 },
         crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
         localization: { locale: 'ja-JP' },
         autoSize: true,
       });
 
-      // Main price series: candlesticks if OHLC available, otherwise line
       let priceSeries;
       if (hasOhlc) {
         priceSeries = chart.addCandlestickSeries({
@@ -779,14 +796,12 @@ function momentumApp() {
         priceSeries.setData(history.map(r => ({ time: r[0], value: r[1] })));
       }
 
-      // Moving averages
-      const sma20Series = chart.addLineSeries({ color: '#2563eb', lineWidth: 1.5, priceLineVisible: false, lastValueVisible: true, title: 'SMA20' });
+      const sma20Series = chart.addLineSeries({ color: '#2563eb', lineWidth: 1.2, priceLineVisible: false, lastValueVisible: false, title: 'SMA20' });
       sma20Series.setData(dates.map((d, i) => sma20[i] != null ? { time: d, value: sma20[i] } : null).filter(Boolean));
-      const sma50Series = chart.addLineSeries({ color: '#f59e0b', lineWidth: 1.5, priceLineVisible: false, lastValueVisible: true, title: 'SMA50' });
+      const sma50Series = chart.addLineSeries({ color: '#f59e0b', lineWidth: 1.2, priceLineVisible: false, lastValueVisible: false, title: 'SMA50' });
       sma50Series.setData(dates.map((d, i) => sma50[i] != null ? { time: d, value: sma50[i] } : null).filter(Boolean));
 
-      // Volume pane at bottom (if available)
-      if (hasOhlc) {
+      if (hasOhlc && showVolume) {
         const volumeSeries = chart.addHistogramSeries({
           color: 'rgba(99, 102, 241, 0.5)',
           priceFormat: { type: 'volume' },
@@ -798,14 +813,10 @@ function momentumApp() {
           value: r[5] || 0,
           color: r[4] >= r[1] ? 'rgba(22, 163, 74, 0.45)' : 'rgba(220, 38, 38, 0.45)',
         })));
-        this._lwVolumeSeries = volumeSeries;
       }
 
       chart.timeScale().fitContent();
-      this._lwChart = chart;
-      this._lwSeries = priceSeries;
-      this._lwSma20 = sma20Series;
-      this._lwSma50 = sma50Series;
+      return chart;
     },
 
     get chartTickerRow() {
