@@ -1,0 +1,61 @@
+name: Morning JP Daytrade Brief
+
+on:
+  schedule:
+    # 9:00 JST = 0:00 UTC, weekdays (Mon-Fri)
+    - cron: "0 0 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch JP universe (Prime market)
+        run: python batch/fetch_universe_jp.py
+
+      - name: Fetch JP prices (yfinance OHLCV)
+        run: python batch/fetch_prices.py jp
+
+      - name: Build morning brief (picks + overnight signals)
+        run: python batch/build_morning_brief.py
+
+      - name: Generate AI morning brief (Claude)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            python batch/generate_morning_brief_ai.py
+          else
+            echo "ANTHROPIC_API_KEY not set — skipping AI brief"
+          fi
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase --autostash origin main || true
+          git add data/universe_jp.json web/data/morning_brief_jp.json
+          if git diff --cached --quiet; then
+            echo "No morning brief changes to commit"
+          else
+            git commit -m "data(jp morning): daytrade brief $(date -u +%Y-%m-%d)"
+            git push
+          fi
