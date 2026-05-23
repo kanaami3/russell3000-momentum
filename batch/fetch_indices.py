@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import sys
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -24,12 +25,20 @@ import yfinance as yf
 REPO_ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_PATH = REPO_ROOT / "web" / "data" / "indices.json"
 
-# Tracked indices. Add more here if needed.
+# Tracked indices. Each may list fallback symbols tried in order if the
+# primary fails — yfinance occasionally rate-limits GitHub Actions IPs on
+# certain symbols (notably ^N225), so we keep alternates ready.
 INDICES = [
-    {"id": "N225",   "yf": "^N225",  "label": "日経225",    "category": "equity_index"},
-    {"id": "NDX",    "yf": "^NDX",   "label": "NASDAQ100",  "category": "equity_index"},
-    {"id": "USDJPY", "yf": "JPY=X",  "label": "USD/JPY",    "category": "fx"},
+    {"id": "N225",   "yf": "^N225",  "fallbacks": ["NIY=F", "^NKX"],
+     "label": "日経225",    "category": "equity_index"},
+    {"id": "NDX",    "yf": "^NDX",   "fallbacks": ["QQQ"],
+     "label": "NASDAQ100",  "category": "equity_index"},
+    {"id": "USDJPY", "yf": "JPY=X",  "fallbacks": ["USDJPY=X"],
+     "label": "USD/JPY",    "category": "fx"},
 ]
+
+MAX_RETRIES = 3
+RETRY_DELAY_SEC = 5
 
 PERIOD = "3y"        # yfinance history length
 CHART_DAYS = 252 * 3  # roughly 3 years of trading days
@@ -112,15 +121,35 @@ def _safe(v) -> float | None:
 # Per-index analysis
 # ---------------------------------------------------------------------------
 
+def _try_fetch(symbol: str) -> pd.DataFrame | None:
+    """Fetch with retry. Returns None if all attempts fail."""
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            df = yf.Ticker(symbol).history(period=PERIOD, interval="1d", auto_adjust=True)
+            if not df.empty and len(df) >= 50:
+                return df
+            print(f"    {symbol}: attempt {attempt} got {len(df)} rows (need ≥50)", file=sys.stderr)
+        except Exception as e:
+            print(f"    {symbol}: attempt {attempt} ERROR: {e}", file=sys.stderr)
+        if attempt < MAX_RETRIES:
+            time.sleep(RETRY_DELAY_SEC)
+    return None
+
+
 def analyze_index(spec: dict) -> dict | None:
     print(f"  Fetching {spec['label']} ({spec['yf']})...", file=sys.stderr)
-    try:
-        df = yf.Ticker(spec["yf"]).history(period=PERIOD, interval="1d", auto_adjust=True)
-    except Exception as e:
-        print(f"    ERROR: {e}", file=sys.stderr)
-        return None
-    if df.empty or len(df) < 50:
-        print(f"    skipped: insufficient data ({len(df)} rows)", file=sys.stderr)
+    df = _try_fetch(spec["yf"])
+    used_symbol = spec["yf"]
+    if df is None:
+        for alt in spec.get("fallbacks", []):
+            print(f"    Trying fallback {alt}...", file=sys.stderr)
+            df = _try_fetch(alt)
+            if df is not None:
+                used_symbol = alt
+                print(f"    Using fallback {alt}", file=sys.stderr)
+                break
+    if df is None:
+        print(f"    SKIPPED {spec['label']}: all symbols failed", file=sys.stderr)
         return None
 
     df.columns = [c.lower() for c in df.columns]
@@ -194,7 +223,7 @@ def analyze_index(spec: dict) -> dict | None:
         "id": spec["id"],
         "label": spec["label"],
         "category": spec["category"],
-        "yf_symbol": spec["yf"],
+        "yf_symbol": used_symbol,
         "current": {
             "value": round(close, 2),
             "change": round(change, 2),
