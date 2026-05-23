@@ -24,6 +24,8 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+import requests
+import yfinance as yf
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -101,6 +103,81 @@ def _round(v) -> float | None:
     return round(float(v), 2)
 
 
+# ---------------------------------------------------------------------------
+# Market mood indicators: VIX (always) + CNN Fear & Greed (US only)
+# ---------------------------------------------------------------------------
+
+def fetch_vix() -> dict | None:
+    """Latest VIX close and overnight change."""
+    try:
+        h = yf.Ticker("^VIX").history(period="5d", interval="1d", auto_adjust=False)
+        if len(h) < 2:
+            return None
+        last = float(h["Close"].iloc[-1])
+        prev = float(h["Close"].iloc[-2])
+        change_pct = (last - prev) / prev * 100 if prev else 0.0
+        if last < 12:        level = "低い・楽観"
+        elif last < 20:      level = "通常"
+        elif last < 30:      level = "やや警戒"
+        else:                level = "高い・恐怖"
+        return {
+            "value": round(last, 2),
+            "change_pct": round(change_pct, 2),
+            "level": level,
+            "as_of": str(h.index[-1].date()),
+        }
+    except Exception as e:
+        print(f"WARN: fetch_vix failed: {e}", file=sys.stderr)
+        return None
+
+
+def fetch_fear_greed() -> dict | None:
+    """CNN Fear & Greed Index — 0=Extreme Fear, 100=Extreme Greed."""
+    try:
+        resp = requests.get(
+            "https://production.dataviz.cnn.io/index/fearandgreed/graphdata",
+            headers={
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                              "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
+                "Accept": "application/json",
+                "Origin": "https://www.cnn.com",
+                "Referer": "https://www.cnn.com/markets/fear-and-greed",
+            },
+            timeout=20,
+        )
+        resp.raise_for_status()
+        fg = (resp.json() or {}).get("fear_and_greed") or {}
+        score = float(fg.get("score") or 0)
+        rating = (fg.get("rating") or "").lower()
+        if score < 25:    label_ja = "極度の恐怖"
+        elif score < 45:  label_ja = "恐怖"
+        elif score < 55:  label_ja = "中立"
+        elif score < 75:  label_ja = "強欲"
+        else:             label_ja = "極度の強欲"
+        return {
+            "score": round(score, 1),
+            "rating": rating,
+            "label_ja": label_ja,
+            "as_of": (fg.get("timestamp") or "")[:10],
+        }
+    except Exception as e:
+        print(f"WARN: fetch_fear_greed failed: {e}", file=sys.stderr)
+        return None
+
+
+def fetch_market_indicators(market: str) -> dict:
+    """VIX always; Fear & Greed only on US tab."""
+    out: dict = {}
+    vix = fetch_vix()
+    if vix:
+        out["vix"] = vix
+    if market == "us":
+        fg = fetch_fear_greed()
+        if fg:
+            out["fear_greed"] = fg
+    return out
+
+
 def main() -> int:
     market = (sys.argv[1] if len(sys.argv) > 1 else "us").lower()
     if market not in ("us", "jp"):
@@ -151,6 +228,9 @@ def main() -> int:
             base["size_cat"] = r.get("size_cat", "")
         return base
 
+    # Mood indicators: VIX (always) + Fear & Greed (US only)
+    market_indicators = fetch_market_indicators(market)
+
     result = {
         "asof": asof,
         "market": market,
@@ -158,6 +238,7 @@ def main() -> int:
         "currency_symbol": MARKET_META[market]["symbol"],
         "ticker_count": int(merged["ticker"].nunique()),
         "universe_target": int(len(universe)),
+        "market_indicators": market_indicators,
         "yesterday_top10": top_n(merged, "ret_daily", 10, ascending=False),
         "yesterday_worst10": top_n(merged, "ret_daily", 10, ascending=True),
         "mom_1w_top10": top_n(merged, "ret_w1", 10, ascending=False),

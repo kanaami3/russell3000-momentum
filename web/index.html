@@ -79,6 +79,36 @@
 
   <div x-show="loading" class="text-center py-20 text-slate-500">データを読み込み中...</div>
 
+  <!-- Mood indicators bar (US / JP tabs only; daytrade tab has its own dashboard) -->
+  <section x-show="market !== 'daytrade' && data?.market_indicators" class="-mt-2">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <!-- VIX (always shown) -->
+      <div x-show="data?.market_indicators?.vix" class="bg-white border rounded-xl p-4 flex items-center gap-4" :class="vixBorderClass(data?.market_indicators?.vix?.value)">
+        <div class="text-2xl">📊</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[10px] font-bold text-slate-500 tracking-wider">VIX(恐怖指数)</div>
+          <div class="flex items-baseline gap-2 flex-wrap">
+            <span class="text-2xl font-extrabold num" :class="vixTextClass(data?.market_indicators?.vix?.value)" x-text="data?.market_indicators?.vix?.value"></span>
+            <span class="text-xs font-bold num" :class="pctClass(data?.market_indicators?.vix?.change_pct)" x-text="fmtPct(data?.market_indicators?.vix?.change_pct ?? 0)"></span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full" :class="vixLabelClass(data?.market_indicators?.vix?.value)" x-text="data?.market_indicators?.vix?.level"></span>
+          </div>
+        </div>
+      </div>
+      <!-- Fear & Greed (US only) -->
+      <div x-show="data?.market_indicators?.fear_greed" class="bg-white border rounded-xl p-4 flex items-center gap-4" :class="fgBorderClass(data?.market_indicators?.fear_greed?.score)">
+        <div class="text-2xl">😱😀</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[10px] font-bold text-slate-500 tracking-wider">FEAR & GREED INDEX (CNN)</div>
+          <div class="flex items-baseline gap-2 flex-wrap">
+            <span class="text-2xl font-extrabold num" :class="fgTextClass(data?.market_indicators?.fear_greed?.score)" x-text="data?.market_indicators?.fear_greed?.score"></span>
+            <span class="text-xs text-slate-500">/100</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full" :class="fgLabelClass(data?.market_indicators?.fear_greed?.score)" x-text="data?.market_indicators?.fear_greed?.label_ja"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Daytrade tab: loading state when morning brief not yet loaded -->
   <div x-show="market === 'daytrade' && !morningBrief" class="text-center py-20 text-slate-500">朝のデイトレ・ブリーフを読み込み中...</div>
 
@@ -1150,6 +1180,52 @@ function momentumApp() {
       if (o.startsWith('target') || o === 'gap_target') return 'bg-emerald-100 text-emerald-700';
       if (o.startsWith('stop') || o === 'gap_stop')     return 'bg-red-100 text-red-700';
       return 'bg-slate-100 text-slate-600';
+    },
+
+    vixBorderClass(v) {
+      if (v == null) return 'border-slate-200';
+      if (v < 12) return 'border-emerald-300';
+      if (v < 20) return 'border-slate-300';
+      if (v < 30) return 'border-amber-400';
+      return 'border-red-500';
+    },
+    vixTextClass(v) {
+      if (v == null) return 'text-slate-700';
+      if (v < 12) return 'text-emerald-700';
+      if (v < 20) return 'text-slate-800';
+      if (v < 30) return 'text-amber-700';
+      return 'text-red-700';
+    },
+    vixLabelClass(v) {
+      if (v == null) return 'bg-slate-100 text-slate-600';
+      if (v < 12) return 'bg-emerald-100 text-emerald-700';
+      if (v < 20) return 'bg-slate-100 text-slate-700';
+      if (v < 30) return 'bg-amber-100 text-amber-700';
+      return 'bg-red-100 text-red-700';
+    },
+    fgBorderClass(s) {
+      if (s == null) return 'border-slate-200';
+      if (s < 25) return 'border-red-500';
+      if (s < 45) return 'border-amber-400';
+      if (s < 55) return 'border-slate-300';
+      if (s < 75) return 'border-emerald-400';
+      return 'border-emerald-600';
+    },
+    fgTextClass(s) {
+      if (s == null) return 'text-slate-700';
+      if (s < 25) return 'text-red-700';
+      if (s < 45) return 'text-amber-700';
+      if (s < 55) return 'text-slate-800';
+      if (s < 75) return 'text-emerald-700';
+      return 'text-emerald-800';
+    },
+    fgLabelClass(s) {
+      if (s == null) return 'bg-slate-100 text-slate-600';
+      if (s < 25) return 'bg-red-100 text-red-700';
+      if (s < 45) return 'bg-amber-100 text-amber-700';
+      if (s < 55) return 'bg-slate-100 text-slate-700';
+      if (s < 75) return 'bg-emerald-100 text-emerald-700';
+      return 'bg-emerald-200 text-emerald-900';
     },
 
     aiPickBadgeClass(type) {
