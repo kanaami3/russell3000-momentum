@@ -1,0 +1,59 @@
+name: Daily Russell 3000 Momentum Update
+
+on:
+  schedule:
+    # 米国市場終値 (16:00 ET ≈ 21:00 UTC) から 1-2 時間後に実行
+    # 日次データが yfinance に反映されるのを待つため 22:30 UTC = 翌 7:30 JST
+    - cron: "30 22 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch universe (top 3000 by market cap)
+        run: python batch/fetch_universe.py
+
+      - name: Fetch prices (yfinance, ~14 months daily)
+        run: python batch/fetch_prices.py
+
+      - name: Compute momentum metrics
+        run: python batch/calc_momentum.py
+
+      - name: Generate market summary (Claude)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            python batch/generate_summary.py
+          else
+            echo "ANTHROPIC_API_KEY not set — skipping summary generation"
+          fi
+
+      - name: Commit and push data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/universe.json web/data/momentum.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "data: daily update $(date -u +%Y-%m-%d)"
+            git push
+          fi

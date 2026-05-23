@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ラッセル3000 モメンタムランキング | Daily Russell 3000 Momentum Report</title>
+<meta name="description" content="米国ラッセル3000(時価総額上位3000銘柄)の日次モメンタムランキング。1週間/1ヶ月/3ヶ月リターン、上昇TOP10、下落ワースト10を毎日自動更新。" />
+<meta property="og:title" content="ラッセル3000 モメンタムランキング" />
+<meta property="og:description" content="米国株3000銘柄を日次でモメンタムランク付け。上昇/下落TOP、期間別TOPを自動更新。" />
+<meta property="og:type" content="website" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<style>
+  body { font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif; }
+  .num { font-variant-numeric: tabular-nums; }
+  .gradient-header {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
+  }
+  .scroll-shadow {
+    background:
+      linear-gradient(white 30%, rgba(255,255,255,0)),
+      linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,
+      radial-gradient(50% 0, farthest-side, rgba(0,0,0,0.2), rgba(0,0,0,0)),
+      radial-gradient(50% 100%, farthest-side, rgba(0,0,0,0.2), rgba(0,0,0,0)) 0 100%;
+    background-repeat: no-repeat;
+    background-color: white;
+    background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+    background-attachment: local, local, scroll, scroll;
+  }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900" x-data="momentumApp()" x-init="load()">
+
+<!-- Header -->
+<header class="gradient-header text-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+    <div class="text-xs sm:text-sm font-semibold tracking-widest text-indigo-100 mb-2">DAILY RUSSELL 3000 MOMENTUM REPORT</div>
+    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight">ラッセル3000 モメンタムランキング</h1>
+    <div class="mt-3 text-sm sm:text-base text-indigo-50">
+      <span x-text="formatDate(data?.asof)"></span>
+      <span class="mx-2 opacity-60">|</span>
+      <span><span x-text="data?.ticker_count ?? '...'"></span>銘柄対象（自動更新）</span>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-12">
+
+  <!-- Loading state -->
+  <div x-show="!data" class="text-center py-20 text-slate-500">データを読み込み中...</div>
+
+  <template x-if="data">
+  <div class="space-y-12">
+
+    <!-- Section 1: Yesterday gainers/losers -->
+    <section>
+      <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-bold text-slate-800 mb-4">
+        <span class="inline-block w-1.5 h-7 bg-indigo-600 rounded"></span>
+        昨日 上昇・下落ランキング
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Gainers -->
+        <div class="bg-green-50 border border-green-200 rounded-xl p-5 shadow-sm">
+          <div class="text-sm font-bold text-green-700 mb-3 flex items-center gap-2">
+            <span class="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+            昨日 上昇 TOP10
+          </div>
+          <div class="space-y-1.5">
+            <template x-for="row in data.yesterday_top10" :key="row.ticker">
+              <div class="flex items-center justify-between text-sm py-1 border-b border-green-100 last:border-0">
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                  <span class="font-bold text-green-700 w-14 shrink-0" x-text="row.ticker"></span>
+                  <span class="text-slate-600 truncate" x-text="shortName(row.name)"></span>
+                </div>
+                <span class="num font-bold text-green-700 ml-2 shrink-0" x-text="fmtPct(row.value)"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+        <!-- Losers -->
+        <div class="bg-red-50 border border-red-200 rounded-xl p-5 shadow-sm">
+          <div class="text-sm font-bold text-red-700 mb-3 flex items-center gap-2">
+            <span class="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+            昨日 下落 ワースト10
+          </div>
+          <div class="space-y-1.5">
+            <template x-for="row in data.yesterday_worst10" :key="row.ticker">
+              <div class="flex items-center justify-between text-sm py-1 border-b border-red-100 last:border-0">
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                  <span class="font-bold text-red-700 w-14 shrink-0" x-text="row.ticker"></span>
+                  <span class="text-slate-600 truncate" x-text="shortName(row.name)"></span>
+                </div>
+                <span class="num font-bold text-red-700 ml-2 shrink-0" x-text="fmtPct(row.value)"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Period momentum -->
+    <section>
+      <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-bold text-slate-800 mb-4">
+        <span class="inline-block w-1.5 h-7 bg-indigo-600 rounded"></span>
+        期間別 モメンタム TOP10
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <template x-for="panel in periodPanels" :key="panel.key">
+          <div :class="panel.bg + ' ' + panel.border + ' border rounded-xl p-5 shadow-sm'">
+            <div :class="'text-sm font-bold ' + panel.text + ' mb-3 flex items-center gap-2'">
+              <span :class="'inline-block w-2 h-2 ' + panel.dot + ' rounded-full'"></span>
+              <span x-text="panel.label"></span> TOP10
+            </div>
+            <div class="space-y-1.5">
+              <template x-for="row in data[panel.key]" :key="row.ticker">
+                <div class="flex items-center justify-between text-sm py-1 border-b last:border-0" :class="panel.divider">
+                  <span :class="'font-bold ' + panel.text" x-text="row.ticker"></span>
+                  <span :class="'num font-bold ' + panel.text" x-text="fmtPct(row.value)"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+      <div class="mt-3 text-xs text-slate-500 leading-relaxed">
+        ※ <span class="font-semibold">12-1モメンタム</span>(12ヶ月リターン - 直近1ヶ月リターン)もアカデミック標準として参考に提供しています。
+      </div>
+      <!-- 12-1 bonus -->
+      <details class="mt-3 bg-white border border-slate-200 rounded-xl shadow-sm">
+        <summary class="cursor-pointer px-5 py-3 text-sm font-bold text-slate-700">
+          12-1モメンタム TOP10(参考)
+        </summary>
+        <div class="px-5 pb-4 grid grid-cols-2 gap-x-6 gap-y-1.5">
+          <template x-for="row in data.mom_12_1_top10" :key="row.ticker">
+            <div class="flex items-center justify-between text-sm py-1 border-b border-slate-100">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="font-bold text-indigo-700 w-14 shrink-0" x-text="row.ticker"></span>
+                <span class="text-slate-600 truncate" x-text="shortName(row.name)"></span>
+              </div>
+              <span class="num font-bold text-indigo-700 ml-2 shrink-0" x-text="fmtPct(row.value)"></span>
+            </div>
+          </template>
+        </div>
+      </details>
+    </section>
+
+    <!-- Section 3: Market summary (LLM-generated, optional) -->
+    <section x-show="data.market_summary">
+      <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-bold text-slate-800 mb-4">
+        <span class="inline-block w-1.5 h-7 bg-indigo-600 rounded"></span>
+        本日の市場サマリー
+      </h2>
+      <article class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 prose prose-slate max-w-none text-sm leading-relaxed whitespace-pre-line" x-text="data.market_summary"></article>
+    </section>
+
+    <!-- Section 4: Full sortable table -->
+    <section>
+      <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-bold text-slate-800 mb-4">
+        <span class="inline-block w-1.5 h-7 bg-indigo-600 rounded"></span>
+        全銘柄ランキング
+      </h2>
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 mb-3">
+        <div class="flex flex-wrap items-center gap-3 text-sm">
+          <input type="search" x-model="search" placeholder="ティッカー / 銘柄名で検索..." class="flex-1 min-w-[200px] px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <div class="flex items-center gap-2">
+            <label class="text-slate-600">並び替え:</label>
+            <select x-model="sortKey" class="px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="market_cap">時価総額</option>
+              <option value="daily">昨日リターン</option>
+              <option value="w1">1週間リターン</option>
+              <option value="m1">1ヶ月リターン</option>
+              <option value="m3">3ヶ月リターン</option>
+              <option value="m12_1">12-1モメンタム</option>
+            </select>
+            <button @click="sortDesc = !sortDesc" class="px-3 py-2 border border-slate-300 rounded-lg hover:bg-slate-50" x-text="sortDesc ? '降順 ↓' : '昇順 ↑'"></button>
+          </div>
+          <div class="text-slate-500 text-xs">
+            <span x-text="filtered.length.toLocaleString()"></span> / <span x-text="data.all_tickers.length.toLocaleString()"></span> 銘柄
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider">
+              <tr>
+                <th class="px-3 py-3 text-left">#</th>
+                <th class="px-3 py-3 text-left">Ticker</th>
+                <th class="px-3 py-3 text-left">銘柄名</th>
+                <th class="px-3 py-3 text-right">終値 ($)</th>
+                <th class="px-3 py-3 text-right">時価総額</th>
+                <th class="px-3 py-3 text-right">昨日</th>
+                <th class="px-3 py-3 text-right">1週</th>
+                <th class="px-3 py-3 text-right">1ヶ月</th>
+                <th class="px-3 py-3 text-right">3ヶ月</th>
+                <th class="px-3 py-3 text-right">12-1</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="(row, i) in paginated" :key="row.ticker">
+                <tr class="border-t border-slate-100 hover:bg-slate-50">
+                  <td class="px-3 py-2 text-slate-400 num" x-text="(page * pageSize) + i + 1"></td>
+                  <td class="px-3 py-2 font-bold text-indigo-700" x-text="row.ticker"></td>
+                  <td class="px-3 py-2 text-slate-700 max-w-xs truncate" :title="row.name" x-text="shortName(row.name)"></td>
+                  <td class="px-3 py-2 text-right num text-slate-600" x-text="row.close ? row.close.toLocaleString() : '-'"></td>
+                  <td class="px-3 py-2 text-right num text-slate-600" x-text="fmtMcap(row.market_cap)"></td>
+                  <td class="px-3 py-2 text-right num font-semibold" :class="pctClass(row.daily)" x-text="fmtPct(row.daily)"></td>
+                  <td class="px-3 py-2 text-right num font-semibold" :class="pctClass(row.w1)" x-text="fmtPct(row.w1)"></td>
+                  <td class="px-3 py-2 text-right num font-semibold" :class="pctClass(row.m1)" x-text="fmtPct(row.m1)"></td>
+                  <td class="px-3 py-2 text-right num font-semibold" :class="pctClass(row.m3)" x-text="fmtPct(row.m3)"></td>
+                  <td class="px-3 py-2 text-right num font-semibold" :class="pctClass(row.m12_1)" x-text="fmtPct(row.m12_1)"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <!-- Pagination -->
+        <div class="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50 text-sm">
+          <button @click="page = Math.max(0, page-1)" :disabled="page === 0" class="px-3 py-1.5 border border-slate-300 rounded bg-white disabled:opacity-40 hover:bg-slate-100">← 前へ</button>
+          <span class="text-slate-600">
+            <span x-text="page + 1"></span> / <span x-text="totalPages"></span> ページ
+          </span>
+          <button @click="page = Math.min(totalPages - 1, page+1)" :disabled="page >= totalPages - 1" class="px-3 py-1.5 border border-slate-300 rounded bg-white disabled:opacity-40 hover:bg-slate-100">次へ →</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  </template>
+</main>
+
+<footer class="border-t border-slate-200 mt-16 py-8 text-center text-xs text-slate-500">
+  <p>
+    データソース: NASDAQ Stock Screener / Yahoo Finance (yfinance) | 毎営業日米国終値後に自動更新
+  </p>
+  <p class="mt-1">
+    本サイトの情報は投資助言ではなく、教育・参考目的での提供です。投資判断はご自身の責任で行ってください。
+  </p>
+</footer>
+
+<script>
+function momentumApp() {
+  return {
+    data: null,
+    search: '',
+    sortKey: 'market_cap',
+    sortDesc: true,
+    page: 0,
+    pageSize: 50,
+    periodPanels: [
+      { key: 'mom_3m_top10',  label: '3ヶ月', bg: 'bg-blue-50',   border: 'border-blue-200',   text: 'text-blue-700',   dot: 'bg-blue-500',   divider: 'border-blue-100' },
+      { key: 'mom_1m_top10',  label: '1ヶ月', bg: 'bg-emerald-50',border: 'border-emerald-200',text: 'text-emerald-700',dot: 'bg-emerald-500',divider: 'border-emerald-100' },
+      { key: 'mom_1w_top10',  label: '1週間', bg: 'bg-amber-50',  border: 'border-amber-200',  text: 'text-amber-700',  dot: 'bg-amber-500',  divider: 'border-amber-100' },
+    ],
+
+    async load() {
+      try {
+        const resp = await fetch('./data/momentum.json?v=' + Date.now());
+        if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
+        this.data = await resp.json();
+      } catch (e) {
+        console.error(e);
+        document.querySelector('main').innerHTML = '<div class="text-center py-20 text-red-600">データの読み込みに失敗しました: ' + e.message + '</div>';
+      }
+    },
+
+    get filtered() {
+      if (!this.data) return [];
+      const q = this.search.trim().toLowerCase();
+      let list = this.data.all_tickers;
+      if (q) {
+        list = list.filter(r =>
+          r.ticker.toLowerCase().includes(q) ||
+          (r.name || '').toLowerCase().includes(q)
+        );
+      }
+      const key = this.sortKey;
+      const dir = this.sortDesc ? -1 : 1;
+      return [...list].sort((a, b) => {
+        const av = a[key], bv = b[key];
+        if (av == null && bv == null) return 0;
+        if (av == null) return 1;   // nulls always last
+        if (bv == null) return -1;
+        return (av - bv) * dir;
+      });
+    },
+
+    get totalPages() {
+      return Math.max(1, Math.ceil(this.filtered.length / this.pageSize));
+    },
+
+    get paginated() {
+      const start = this.page * this.pageSize;
+      return this.filtered.slice(start, start + this.pageSize);
+    },
+
+    formatDate(iso) {
+      if (!iso) return '...';
+      const [y, m, d] = iso.split('-');
+      const date = new Date(+y, +m - 1, +d);
+      const wd = ['日','月','火','水','木','金','土'][date.getDay()];
+      return `${y}年${m}月${d}日(${wd})`;
+    },
+
+    fmtPct(v) {
+      if (v == null) return '-';
+      const sign = v > 0 ? '+' : '';
+      return `${sign}${v.toFixed(2)}%`;
+    },
+
+    pctClass(v) {
+      if (v == null) return 'text-slate-400';
+      if (v > 0) return 'text-green-600';
+      if (v < 0) return 'text-red-600';
+      return 'text-slate-600';
+    },
+
+    fmtMcap(v) {
+      if (!v) return '-';
+      if (v >= 1e12) return (v / 1e12).toFixed(2) + 'T';
+      if (v >= 1e9) return (v / 1e9).toFixed(2) + 'B';
+      if (v >= 1e6) return (v / 1e6).toFixed(0) + 'M';
+      return v.toLocaleString();
+    },
+
+    shortName(name) {
+      if (!name) return '';
+      return name
+        .replace(' Common Stock', '')
+        .replace(' Ordinary Shares', '')
+        .replace(' Class A', ' A')
+        .replace(' Class C', ' C')
+        .replace(' Capital Stock', '');
+    },
+  };
+}
+</script>
+</body>
+</html>
