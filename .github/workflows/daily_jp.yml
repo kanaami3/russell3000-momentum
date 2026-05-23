@@ -1,0 +1,61 @@
+name: Daily JP (TSE Prime) Momentum Update
+
+on:
+  schedule:
+    # 日本市場終値 (15:00 JST = 06:00 UTC) 後 → 08:00 UTC = 17:00 JST
+    - cron: "0 8 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch JP universe (TSE Prime constituents from JPX)
+        run: python batch/fetch_universe_jp.py
+
+      - name: Fetch JP prices (yfinance, ~14 months daily)
+        run: python batch/fetch_prices.py jp
+
+      - name: Compute JP momentum metrics
+        run: python batch/calc_momentum.py jp
+
+      - name: Generate JP market summary (Claude)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            python batch/generate_summary.py jp
+          else
+            echo "ANTHROPIC_API_KEY not set — skipping summary generation"
+          fi
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase --autostash origin main || true
+          git add data/universe_jp.json web/data/momentum_jp.json
+          if git diff --cached --quiet; then
+            echo "No JP changes to commit"
+          else
+            git commit -m "data(jp): daily update $(date -u +%Y-%m-%d)"
+            git push
+          fi

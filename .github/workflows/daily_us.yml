@@ -1,0 +1,62 @@
+name: Daily US (Russell 3000) Momentum Update
+
+on:
+  schedule:
+    # 米国市場終値 (16:00 ET ≈ 21:00 UTC) 後 → 22:30 UTC = 翌 7:30 JST
+    - cron: "30 22 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch US universe (top 3000 by market cap)
+        run: python batch/fetch_universe.py
+
+      - name: Fetch US prices (yfinance, ~14 months daily)
+        run: python batch/fetch_prices.py us
+
+      - name: Compute US momentum metrics
+        run: python batch/calc_momentum.py us
+
+      - name: Generate US market summary (Claude)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            python batch/generate_summary.py us
+          else
+            echo "ANTHROPIC_API_KEY not set — skipping summary generation"
+          fi
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Pull any concurrent changes (e.g. from the JP workflow)
+          git pull --rebase --autostash origin main || true
+          git add data/universe_us.json web/data/momentum_us.json
+          if git diff --cached --quiet; then
+            echo "No US changes to commit"
+          else
+            git commit -m "data(us): daily update $(date -u +%Y-%m-%d)"
+            git push
+          fi

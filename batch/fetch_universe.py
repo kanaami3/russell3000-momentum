@@ -1,10 +1,10 @@
-"""Fetch Russell 3000 proxy universe from NASDAQ stock screener.
+"""Fetch US Russell 3000 proxy universe from NASDAQ stock screener.
 
 Russell 3000 is effectively the top ~3000 US-listed common stocks by market cap.
 We fetch NASDAQ + NYSE + AMEX listings via NASDAQ.com's public screener API,
 filter to common stocks, sort by market cap, and take the top N.
 
-Output: data/universe.json
+Output: data/universe_us.json
     [{ticker, name, market_cap, exchange}, ...]
 """
 
@@ -18,7 +18,7 @@ from pathlib import Path
 import requests
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-OUTPUT_PATH = REPO_ROOT / "data" / "universe.json"
+OUTPUT_PATH = REPO_ROOT / "data" / "universe_us.json"
 
 SCREENER_URL = "https://api.nasdaq.com/api/screener/stocks"
 EXCHANGES = ["NASDAQ", "NYSE", "AMEX"]
@@ -63,12 +63,10 @@ def is_common_stock(row: dict) -> bool:
 
     if not symbol:
         return False
-    # NASDAQ uses '/' or '^' or spaces for non-common-share variants
     if any(ch in symbol for ch in (" ", "/", "^")):
         return False
-    # Filter out obvious non-common-stock instruments by name
     drop_keywords = (
-        "etf", "etn", "fund", "trust common",  # ETFs and certain trusts
+        "etf", "etn", "fund", "trust common",
         "warrant", "warrants",
         "right ", "rights", " unit", " units",
         "preferred", "depositary",
@@ -90,7 +88,6 @@ def main() -> int:
         except Exception as e:
             print(f"  {ex}: ERROR {e}", file=sys.stderr)
 
-    # Deduplicate by symbol (keep highest market cap occurrence)
     by_symbol: dict[str, dict] = {}
     for row in all_rows:
         symbol = (row.get("symbol") or "").strip()
@@ -103,7 +100,6 @@ def main() -> int:
         if existing is None or mcap > parse_market_cap(existing.get("marketCap")):
             by_symbol[symbol] = row
 
-    # Sort by market cap descending, take top N
     ranked = sorted(
         by_symbol.values(),
         key=lambda r: parse_market_cap(r.get("marketCap")),

@@ -2,6 +2,6 @@
 __pycache__/
 *.pyc
 .DS_Store
-data/prices.csv
-data/fetch.log
+data/prices_*.csv
+data/fetch*.log
 .env
