@@ -110,6 +110,18 @@ def build_snapshot(ticker: str, history: list, momentum_row: dict | None) -> dic
     if m1 is not None and m1 < 0 and pct_below_20d_high and pct_below_20d_high > -10:
         score += 0.5  # short-term pullback within longer uptrend = entry opportunity
 
+    # Average 20-day turnover (¥ or $) — computed from OHLCV when available;
+    # JP momentum data doesn't carry market_cap, so this is our liquidity proxy.
+    avg_turnover_20d = None
+    if has_ohlc:
+        try:
+            recent = history[-20:]
+            tvals = [r[5] * r[4] for r in recent if len(r) >= 6 and r[5] and r[4]]
+            if tvals:
+                avg_turnover_20d = sum(tvals) / len(tvals)
+        except Exception:
+            pass
+
     return {
         "ticker": ticker,
         "name": momentum_row.get("name") if momentum_row else ticker,
@@ -134,6 +146,7 @@ def build_snapshot(ticker: str, history: list, momentum_row: dict | None) -> dic
         "m12_1": momentum_row.get("m12_1") if momentum_row else None,
         "market_cap": momentum_row.get("market_cap") if momentum_row else None,
         "exchange": momentum_row.get("exchange") if momentum_row else None,
+        "avg_turnover_20d": avg_turnover_20d,
         "score": round(score, 2),
     }
 
@@ -147,11 +160,10 @@ def build_prompt(market: str, pool: list[dict]) -> str:
         slope_str = f"{p['sma200_slope_1m_pct']}%/月" if p['sma200_slope_1m_pct'] is not None else "-"
         m3 = f"{p['m3']:+.1f}%" if p["m3"] is not None else "-"
         mcap_str = ""
-        if p.get("market_cap"):
-            if market == "us":
-                mcap_str = f"時価総額${p['market_cap']/1e9:.1f}B"
-            else:
-                mcap_str = f"時価総額¥{p['market_cap']/1e8:.0f}億"
+        if market == "us" and p.get("market_cap"):
+            mcap_str = f"時価総額${p['market_cap']/1e9:.1f}B"
+        elif market == "jp" and p.get("avg_turnover_20d"):
+            mcap_str = f"売買代金{p['avg_turnover_20d']/1e8:.1f}億/日"
         return (
             f"- {p['ticker']} {p['name']} ({p['sector17']}): "
             f"終値{cur_symbol}{p['close']:,} "
@@ -255,8 +267,9 @@ def main() -> int:
             continue
         # Liquidity filter
         if market == "jp":
-            mc = snap.get("market_cap") or 0
-            if mc < 50_000_000_000:  # ¥500億 未満は対象外
+            # JPは momentum data に market_cap が無いので、売買代金 20日平均で判定
+            turnover = snap.get("avg_turnover_20d") or 0
+            if turnover < 1_000_000_000:  # 10億円/日未満は除外
                 continue
         else:
             mc = snap.get("market_cap") or 0
