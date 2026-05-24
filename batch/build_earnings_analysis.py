@@ -25,10 +25,12 @@ import yfinance as yf
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LOOKBACK_DAYS = 7
-TOP_N_BY_MCAP = 500           # 上位 N 銘柄に限定(時価総額順)
+TOP_N_BY_MCAP = 300           # 上位 N 銘柄に限定(時価総額順)
 MAX_ANALYZE = 40              # Claude 投入上限(コスト制御)
-DISCOVERY_THREADS = 12
-DATA_FETCH_THREADS = 6
+DISCOVERY_THREADS = 4         # 低めに(yfinance の rate limit 回避)
+DATA_FETCH_THREADS = 4
+DISCOVERY_RETRIES = 2         # 空応答時のリトライ回数(rate limit対策)
+DISCOVERY_RETRY_DELAY = 4     # 秒
 MODEL = "claude-haiku-4-5-20251001"
 MAX_TOKENS = 1400
 
@@ -85,60 +87,89 @@ def load_universe(market: str) -> list[dict]:
         return out
 
 
-def check_recent_earnings(ticker: str) -> dict | None:
-    """Return earnings event dict if the ticker reported within LOOKBACK_DAYS."""
-    try:
-        t = yf.Ticker(ticker)
-        ed = t.earnings_dates
-        if ed is None or ed.empty:
-            return None
-        # earnings_dates index is tz-aware; convert cutoff to same tz if needed
+def check_recent_earnings(ticker: str) -> tuple[dict | None, str]:
+    """Return (event, status) — status one of: 'hit' / 'no_data' / 'no_recent' / 'error'.
+
+    Retries on empty/error response (Yahoo rate-limits GitHub IPs intermittently).
+    """
+    for attempt in range(1, DISCOVERY_RETRIES + 2):
         try:
-            tz = ed.index.tz
-            cutoff = pd.Timestamp.now(tz=tz) - pd.Timedelta(days=LOOKBACK_DAYS)
-        except Exception:
-            cutoff = pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=LOOKBACK_DAYS)
-        # Reported EPS column may be 'Reported EPS' or 'EPS Reported'
-        reported_col = None
-        for c in ed.columns:
-            if c in ("Reported EPS", "Earnings", "EPS Reported"):
-                reported_col = c
-                break
-        if reported_col is None:
-            return None
-        recent = ed[ed[reported_col].notna() & (ed.index >= cutoff)]
-        if recent.empty:
-            return None
-        # Most recent row
-        last = recent.iloc[0]
-        return {
-            "ticker": ticker,
-            "earnings_date": str(recent.index[0].date()),
-            "eps_actual": float(last[reported_col]) if pd.notna(last[reported_col]) else None,
-            "eps_estimate": float(last.get("EPS Estimate", float("nan"))) if pd.notna(last.get("EPS Estimate", float("nan"))) else None,
-            "surprise_pct": float(last.get("Surprise(%)", float("nan"))) if pd.notna(last.get("Surprise(%)", float("nan"))) else None,
-        }
-    except Exception as e:
-        return None
+            t = yf.Ticker(ticker)
+            ed = t.earnings_dates
+            if ed is None or ed.empty:
+                if attempt <= DISCOVERY_RETRIES:
+                    time.sleep(DISCOVERY_RETRY_DELAY)
+                    continue
+                return None, "no_data"
+            try:
+                tz = ed.index.tz
+                cutoff = pd.Timestamp.now(tz=tz) - pd.Timedelta(days=LOOKBACK_DAYS)
+            except Exception:
+                cutoff = pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=LOOKBACK_DAYS)
+            reported_col = None
+            for c in ed.columns:
+                if c in ("Reported EPS", "Earnings", "EPS Reported"):
+                    reported_col = c
+                    break
+            if reported_col is None:
+                return None, "no_data"
+            recent = ed[ed[reported_col].notna() & (ed.index >= cutoff)]
+            if recent.empty:
+                return None, "no_recent"
+            last = recent.iloc[0]
+            return ({
+                "ticker": ticker,
+                "earnings_date": str(recent.index[0].date()),
+                "eps_actual": float(last[reported_col]) if pd.notna(last[reported_col]) else None,
+                "eps_estimate": float(last.get("EPS Estimate", float("nan"))) if pd.notna(last.get("EPS Estimate", float("nan"))) else None,
+                "surprise_pct": float(last.get("Surprise(%)", float("nan"))) if pd.notna(last.get("Surprise(%)", float("nan"))) else None,
+            }, "hit")
+        except Exception as e:
+            if attempt <= DISCOVERY_RETRIES:
+                time.sleep(DISCOVERY_RETRY_DELAY)
+                continue
+            return None, "error"
+    return None, "error"
 
 
 def discover_recent_earnings(universe: list[dict]) -> list[dict]:
-    """Scan universe in parallel; return stocks with recent earnings."""
+    """Scan universe in parallel; return stocks with recent earnings.
+
+    Tracks per-status counters so rate-limit issues are visible in logs
+    (silent 0-hits previously masked Yahoo throttling GitHub IPs).
+    """
     print(f"  Scanning {len(universe)} tickers for recent earnings...", file=sys.stderr)
     results: list[dict] = []
+    counts = {"hit": 0, "no_data": 0, "no_recent": 0, "error": 0}
     with ThreadPoolExecutor(max_workers=DISCOVERY_THREADS) as ex:
         futs = {ex.submit(check_recent_earnings, u["ticker"]): u for u in universe}
         for i, fut in enumerate(as_completed(futs), 1):
             u = futs[fut]
             try:
-                r = fut.result()
+                r, status = fut.result()
+                counts[status] = counts.get(status, 0) + 1
                 if r:
                     r["name"] = u["name"]
                     results.append(r)
             except Exception:
-                pass
-            if i % 100 == 0:
-                print(f"    {i}/{len(universe)} scanned, {len(results)} hits", file=sys.stderr)
+                counts["error"] = counts.get("error", 0) + 1
+            if i % 50 == 0:
+                print(
+                    f"    {i}/{len(universe)} scanned — "
+                    f"hits:{counts['hit']} no_recent:{counts['no_recent']} "
+                    f"no_data:{counts['no_data']} error:{counts['error']}",
+                    file=sys.stderr,
+                )
+    print(
+        f"  Discovery summary: hits={counts['hit']} no_recent={counts['no_recent']} "
+        f"no_data={counts['no_data']} error={counts['error']}",
+        file=sys.stderr,
+    )
+    if counts["no_data"] > len(universe) * 0.5:
+        print(
+            f"  WARN: {counts['no_data']} tickers returned no_data — likely Yahoo rate-limiting",
+            file=sys.stderr,
+        )
     # Most recent earnings first
     results.sort(key=lambda r: r["earnings_date"], reverse=True)
     return results[:MAX_ANALYZE]
