@@ -1280,20 +1280,37 @@
         <button @click="closeChart()" class="text-slate-500 hover:text-slate-900 text-2xl leading-none px-2" aria-label="閉じる">✕</button>
       </div>
     </div>
-    <!-- JP loading indicator -->
-    <div x-show="chartTicker && market === 'jp' && chartLoading" class="px-3 py-2 border-b border-slate-200 bg-slate-50 text-xs text-slate-500">
-      チャートデータ読込中… (初回約3MB / 数秒)
+    <!-- Tab bar: switch between chart and commentary -->
+    <div x-show="chartTicker" class="flex items-center gap-1 px-2 py-1 border-b border-slate-200 bg-slate-50 shrink-0">
+      <button
+        @click="chartModalView = 'chart'; $nextTick(() => renderChart())"
+        :class="chartModalView === 'chart' ? 'bg-white text-slate-900 border-slate-300 shadow-sm' : 'bg-slate-100 text-slate-500 border-transparent hover:bg-slate-200'"
+        class="px-3 py-1.5 text-xs font-bold rounded border">
+        📊 チャート
+      </button>
+      <button
+        @click="chartModalView = 'commentary'"
+        :class="chartModalView === 'commentary' ? 'bg-white text-amber-800 border-amber-300 shadow-sm' : 'bg-slate-100 text-slate-500 border-transparent hover:bg-slate-200'"
+        class="px-3 py-1.5 text-xs font-bold rounded border">
+        🤖 塾長解説
+        <span x-show="currentStockCommentary?.snapshot?.divergence?.bearish" class="ml-1 text-red-700">🚨</span>
+        <span x-show="currentStockCommentary?.snapshot?.divergence?.bullish" class="ml-1 text-emerald-700">💡</span>
+      </button>
+      <span x-show="chartTicker && market === 'jp' && chartLoading" class="ml-auto text-xs text-slate-500 pr-2">
+        読込中…
+      </span>
     </div>
-    <!-- Main chart + commentary area scrollable -->
-    <div x-show="chartTicker" class="flex-1 w-full relative overflow-y-auto flex flex-col">
+
+    <!-- View 1: Chart -->
+    <div x-show="chartTicker && chartModalView === 'chart'" class="flex-1 w-full relative overflow-hidden flex flex-col">
       <!-- US (single TradingView widget) -->
       <div x-show="market === 'us'" class="flex-1 relative">
         <div id="tv-chart-container" class="absolute inset-0"></div>
       </div>
-      <!-- JP / daytrade / value (all use JP tickers): three stacked Lightweight Charts -->
-      <div x-show="isJpDomain" class="flex-1 flex flex-col divide-y divide-slate-200" style="min-height: 60vh;">
+      <!-- JP / daytrade / value: three stacked Lightweight Charts -->
+      <div x-show="isJpDomain" class="flex-1 flex flex-col divide-y divide-slate-200">
         <template x-for="panel in jpChartPanels" :key="panel.days">
-          <div class="flex-1 flex flex-col min-h-0" style="min-height: 18vh;">
+          <div class="flex-1 flex flex-col min-h-0">
             <div class="px-3 py-1 text-xs font-bold text-slate-600 bg-slate-50 shrink-0 flex items-center justify-between">
               <span x-text="panel.label + '(' + panel.days + '営業日)'"></span>
               <span class="text-slate-400 text-[10px]" x-text="panel.subtitle"></span>
@@ -1306,30 +1323,34 @@
       </div>
     </div>
 
-    <!-- 🤖 塾長スタイル個別銘柄解説 -->
-    <div x-show="chartTicker && currentStockCommentary" class="border-t-2 border-amber-300 bg-amber-50 p-4">
-      <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
-        <h4 class="text-sm font-extrabold text-amber-900 flex items-center gap-2">
-          <span>🤖</span>
-          塾長のスウィング解説(半年〜1年保有・順張り目線)
-        </h4>
-        <!-- Divergence badge -->
-        <template x-if="currentStockCommentary?.snapshot?.divergence?.bearish">
-          <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-200 text-red-800">🚨 弱気ダイバージェンス検出</span>
-        </template>
-        <template x-if="currentStockCommentary?.snapshot?.divergence?.bullish">
-          <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-200 text-emerald-800">💡 強気ダイバージェンス検出</span>
-        </template>
-      </div>
-      <article class="text-sm leading-relaxed text-slate-800 whitespace-pre-line" x-text="currentStockCommentary?.commentary"></article>
-      <p class="text-[10px] text-slate-500 mt-2">
-        解説 asof: <span x-text="currentStockCommentary?.asof"></span> · AIによる自動分析(投資勧誘ではありません)
-      </p>
-    </div>
-
-    <!-- 解説ロード中 / なし表示 -->
-    <div x-show="chartTicker && isJpDomain && !currentStockCommentary" class="border-t border-slate-200 bg-slate-50 p-3 text-xs text-slate-500 text-center">
-      この銘柄の塾長解説は本日生成対象外、または読込中です(対象は朝のAIピック・上昇ランキング上位など)。
+    <!-- View 2: Commentary (scrollable) -->
+    <div x-show="chartTicker && chartModalView === 'commentary'" class="flex-1 w-full overflow-y-auto bg-amber-50 p-4">
+      <template x-if="currentStockCommentary">
+        <div>
+          <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <h4 class="text-sm font-extrabold text-amber-900 flex items-center gap-2">
+              <span>🤖</span>
+              塾長のスウィング解説(半年〜1年保有・順張り目線)
+            </h4>
+            <template x-if="currentStockCommentary?.snapshot?.divergence?.bearish">
+              <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-200 text-red-800">🚨 弱気ダイバージェンス検出</span>
+            </template>
+            <template x-if="currentStockCommentary?.snapshot?.divergence?.bullish">
+              <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-200 text-emerald-800">💡 強気ダイバージェンス検出</span>
+            </template>
+          </div>
+          <article class="text-sm leading-relaxed text-slate-800 whitespace-pre-line" x-text="currentStockCommentary?.commentary"></article>
+          <p class="text-[10px] text-slate-500 mt-3">
+            解説 asof: <span x-text="currentStockCommentary?.asof"></span> · AIによる自動分析(投資勧誘ではありません)
+          </p>
+        </div>
+      </template>
+      <template x-if="!currentStockCommentary">
+        <div class="text-center text-slate-500 text-sm py-12">
+          この銘柄の塾長解説は本日生成対象外、または読込中です。<br>
+          <span class="text-xs">対象は朝のAIピック・上昇ランキング上位など。</span>
+        </div>
+      </template>
     </div>
   </div>
 </div>
@@ -2036,6 +2057,7 @@ function momentumApp() {
     _lwCharts: [],
     _chartDataCache: null,
     chartLoading: false,
+    chartModalView: 'chart',   // 'chart' | 'commentary'
     jpChartPanels: [
       { id: '1m', days: 21,  label: '1ヶ月', subtitle: '直近の押し目・寄付の地合い' },
       { id: '3m', days: 63,  label: '3ヶ月', subtitle: '中期トレンド' },
@@ -2066,6 +2088,7 @@ function momentumApp() {
 
     openChart(ticker) {
       this.chartTicker = ticker;
+      this.chartModalView = 'chart';  // always default to chart view
       this.$nextTick(() => this.renderChart());
       // Lazy-load per-stock AI commentary for this ticker's market
       this.loadStockCommentary();
