@@ -151,11 +151,29 @@ def build_snapshot(ticker: str, history: list[list]) -> dict | None:
             avg20 = sum(vols[-20:]) / 20
             vol_ratio = round(vols[-1] / avg20, 2) if avg20 > 0 else None
 
-    # 20日高値・安値 + 60日高値・安値
+    # Range references — swing-oriented (50d / 200d / 52w windows)
     high20 = max(closes[-20:])
     low20 = min(closes[-20:])
     high60 = max(closes[-60:]) if len(closes) >= 60 else high20
     low60 = min(closes[-60:]) if len(closes) >= 60 else low20
+    high52w = max(closes[-min(252, len(closes)):])
+    low52w  = min(closes[-min(252, len(closes)):])
+
+    sma200_val = sma200[-1]
+    sma75_val = sma75[-1]
+    sma25_val = sma25[-1]
+
+    # 200d slope (rising/flat/falling) — key swing-trend signal
+    sma200_slope = None
+    if sma200_val is not None and len(sma200) >= 21 and sma200[-21] is not None:
+        sma200_slope = round((sma200_val / sma200[-21] - 1) * 100, 2)
+
+    # Distance from 200d MA (overbought / pullback opportunity)
+    pct_from_sma200 = round((cur / sma200_val - 1) * 100, 2) if sma200_val else None
+
+    # Distance from 52w high (gauge how stretched vs how much pullback already)
+    pct_from_52w_high = round((cur / high52w - 1) * 100, 2) if high52w else None
+    pct_from_52w_low  = round((cur / low52w - 1) * 100, 2)  if low52w  else None
 
     snap = {
         "ticker": ticker,
@@ -163,9 +181,11 @@ def build_snapshot(ticker: str, history: list[list]) -> dict | None:
         "close": round(cur, 2),
         "change_pct": round((cur / prev - 1) * 100, 2) if prev else 0.0,
         "sma5": round(sma5[-1], 2) if sma5[-1] is not None else None,
-        "sma25": round(sma25[-1], 2) if sma25[-1] is not None else None,
-        "sma75": round(sma75[-1], 2) if sma75[-1] is not None else None,
-        "sma200": round(sma200[-1], 2) if sma200[-1] is not None else None,
+        "sma25": round(sma25_val, 2) if sma25_val is not None else None,
+        "sma75": round(sma75_val, 2) if sma75_val is not None else None,
+        "sma200": round(sma200_val, 2) if sma200_val is not None else None,
+        "sma200_slope_1m_pct": sma200_slope,           # 200日線の1ヶ月変化率
+        "pct_from_sma200": pct_from_sma200,
         "rsi14": round(rsi14[-1], 1) if rsi14[-1] is not None else None,
         "rsi14_prev5": [round(v, 1) if v is not None else None for v in rsi14[-6:-1]],
         "vol_ratio_vs_20d": vol_ratio,
@@ -173,6 +193,10 @@ def build_snapshot(ticker: str, history: list[list]) -> dict | None:
         "low_20d": round(low20, 2),
         "high_60d": round(high60, 2),
         "low_60d": round(low60, 2),
+        "high_52w": round(high52w, 2),
+        "low_52w": round(low52w, 2),
+        "pct_from_52w_high": pct_from_52w_high,
+        "pct_from_52w_low": pct_from_52w_low,
         "divergence": div,
     }
     return snap
@@ -188,50 +212,75 @@ def build_prompt(name: str, snap: dict) -> str:
     if "bearish" in div:
         d = div["bearish"]
         div_section = (
-            f"\n【⚠️ 弱気ダイバージェンス検出】\n"
+            f"\n【⚠️ 弱気ダイバージェンス検出(中期警戒シグナル)】\n"
             f"  価格: {d['days_ago_earlier']}日前 高値 ¥{d['earlier_price']:,} → "
             f"{d['days_ago_later']}日前 高値 ¥{d['later_price']:,}(高値更新)\n"
-            f"  RSI: {d['earlier_rsi']} → {d['later_rsi']}(高値下落)\n"
-            f"  → 上昇局面ながらモメンタムが減衰、**売りサイン候補**\n"
+            f"  RSI: {d['earlier_rsi']} → {d['later_rsi']}(モメンタム失速)\n"
+            f"  → スウィング保有中なら**利確検討シグナル**、新規買いは見送り推奨\n"
         )
     elif "bullish" in div:
         d = div["bullish"]
         div_section = (
-            f"\n【💡 強気ダイバージェンス検出】\n"
+            f"\n【💡 強気ダイバージェンス検出(底打ち候補)】\n"
             f"  価格: {d['days_ago_earlier']}日前 安値 ¥{d['earlier_price']:,} → "
             f"{d['days_ago_later']}日前 安値 ¥{d['later_price']:,}(安値更新)\n"
-            f"  RSI: {d['earlier_rsi']} → {d['later_rsi']}(安値上昇)\n"
-            f"  → 下落局面ながら売り圧力が減衰、**反転買いサイン候補**\n"
+            f"  RSI: {d['earlier_rsi']} → {d['later_rsi']}(売り圧力減衰)\n"
+            f"  → 下落トレンド終盤の可能性、**反転確認後の押し目買い候補**\n"
         )
 
     vol = f"出来高 平均比×{snap['vol_ratio_vs_20d']}" if snap.get("vol_ratio_vs_20d") else "出来高情報なし"
+    slope = snap.get("sma200_slope_1m_pct")
+    slope_str = (
+        f"上向き(1ヶ月で+{slope}%)" if slope is not None and slope > 0.5 else
+        f"下向き({slope}%/月)" if slope is not None and slope < -0.5 else
+        f"横這い({slope}%/月)" if slope is not None else "判定不能"
+    )
 
-    return f"""あなたは長年の経験を持つ株式投資の塾長です。塾生に向けて、以下の銘柄を**300〜500字で技術分析解説**してください。
+    return f"""あなたはスウィングトレード(6ヶ月〜1年保有)を本業とする投資塾長です。塾生に対し、以下の銘柄を**スウィング・順張り目線**で**300〜500字の解説**を書いてください。
 
-【口調】親しみやすく丁寧、要所要所で「〜だ」「〜だね」「〜は要注意」のような塾長らしい口調を入れてOK。
+【最重要前提】
+- 想定保有期間: **半年〜1年**
+- 戦略バイアス: **順張り(中長期上昇トレンドに乗る)**
+- 短期の値動き(寄付・引け・日中)よりも、**週足相当のトレンド健全性**を主に評価
+- 200日線が最重要、次に75日線、25日線、5日線の順
+- 「押し目買いゾーン」「中期上値抵抗」「保有中の警戒シグナル」の3点が骨格
 
 【必ず含めること】
-1. 移動平均線(5日・25日・75日・200日)の位置関係と意味
-2. RSI(14)の水準と過熱・売られすぎ判定
-3. **ダイバージェンスが検出されている場合、その重要性を強調**(売りサイン or 反転買いサイン)
-4. 直近20日・60日高値からの距離(ブレイクアウト余地 or 過熱警戒)
-5. 出来高/売買代金の状況(信頼度の根拠)
-6. 売買シナリオ(エントリ目安・利食い・損切ライン)
+1. **長期トレンドの健全性**: 200日線の傾き({slope_str})+ 価格と200日線の位置関係 + 25/75/200の並び(パーフェクトオーダーか崩れているか)
+2. RSI 水準の中期解釈(70超は短期過熱だが上昇トレンド中は維持されることも、30以下は中期押し目候補)
+3. **ダイバージェンス検出時**: スウィング目線での意味(保有中なら利確検討 or 反転確認後の押し目買い)
+4. **52週レンジ内のポジション**: 52週高値からの距離(まだ伸び代があるか・過熱か)
+5. **押し目買いゾーンの提示**(25日線・75日線・200日線・直近スイングローを目安に2〜3水準)
+6. **半年〜1年の上値ターゲット**(52週高値ブレイク後の節目、過去レジスタンス、技術的目標値)
+7. **保有中の警戒シグナル**(75日線割れ、長期サポート割れ、週次出来高急減等)
 
 【避けること】
+- デイトレ的な「寄付エントリ」「日中の利食い」「数%の損切」表現は不要
 - 見出し記号(##や**)は使わず、自然な段落で
-- 投資助言にならないよう「観察」「ヒント」レベル
+- 投資助言にならないよう「観察」「シナリオ」レベル
 - 抽象論ではなく具体的な数値を引用
 
 ---銘柄---
 {name} ({snap['ticker']})
 
----テクニカル指標---
+---テクニカル指標(スウィング目線)---
 本日終値: ¥{snap['close']:,} (前日比 {snap['change_pct']:+.2f}%)
-5日線: {snap['sma5']} / 25日線: {snap['sma25']} / 75日線: {snap['sma75']} / 200日線: {snap['sma200']}
+
+【トレンド構造】
+200日線: {snap['sma200']}({slope_str})
+75日線:  {snap['sma75']}
+25日線:  {snap['sma25']}
+5日線:   {snap['sma5']}
+200日線からの乖離: {snap['pct_from_sma200']}%
+
+【レンジ位置】
+52週高値: {snap['high_52w']}({snap['pct_from_52w_high']}%)
+52週安値: {snap['low_52w']}({snap['pct_from_52w_low']}%)
+60日高値: {snap['high_60d']} / 60日安値: {snap['low_60d']}
+20日高値: {snap['high_20d']} / 20日安値: {snap['low_20d']}
+
+【モメンタム】
 RSI(14): {snap['rsi14']}  直近5日推移: {snap['rsi14_prev5']}
-20日高値 ¥{snap['high_20d']:,} / 20日安値 ¥{snap['low_20d']:,}
-60日高値 ¥{snap['high_60d']:,} / 60日安値 ¥{snap['low_60d']:,}
 {vol}
 {div_section}
 """
