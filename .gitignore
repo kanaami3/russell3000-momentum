@@ -3,5 +3,6 @@ __pycache__/
 *.pyc
 .DS_Store
 data/prices_*.csv
+data/value_data_jp.csv
 data/fetch*.log
 .env

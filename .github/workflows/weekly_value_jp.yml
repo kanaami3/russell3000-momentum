@@ -1,0 +1,61 @@
+name: Weekly JP Value Investing Screen
+
+on:
+  schedule:
+    # 毎週日曜 21:00 JST = 12:00 UTC(月曜寄付前に間に合うように)
+    - cron: "0 12 * * 0"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  value:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch JP universe (Prime market)
+        run: python batch/fetch_universe_jp.py
+
+      - name: Fetch fundamentals (yfinance Ticker.info)
+        run: python batch/fetch_value_data.py
+
+      - name: Compute value rankings (6 categories)
+        run: python batch/calc_value_rankings.py
+
+      - name: Generate AI commentary + AI picks (Claude)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            python batch/generate_value_commentary.py
+          else
+            echo "ANTHROPIC_API_KEY not set — skipping value commentary"
+          fi
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase --autostash origin main || true
+          git add data/universe_jp.json web/data/value_jp.json
+          if git diff --cached --quiet; then
+            echo "No value-screen changes to commit"
+          else
+            git commit -m "data(jp value): weekly update $(date -u +%Y-%m-%d)"
+            git push
+          fi

@@ -20,6 +20,7 @@
   .gradient-jp { background: linear-gradient(135deg, #dc2626 0%, #e11d48 50%, #be185d 100%); }
   .gradient-daytrade { background: linear-gradient(135deg, #d97706 0%, #ea580c 50%, #c2410c 100%); }
   .gradient-indices  { background: linear-gradient(135deg, #0e7490 0%, #0d9488 50%, #047857 100%); }
+  .gradient-value    { background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 50%, #2563eb 100%); }
   .ticker-link { cursor: pointer; text-decoration: none; }
   .ticker-link:hover { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
 </style>
@@ -77,6 +78,12 @@
         :class="market === 'indices' ? 'border-teal-600 text-teal-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
         class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
         📈 指数モニター
+      </button>
+      <button
+        @click="setMarket('value')"
+        :class="market === 'value' ? 'border-blue-700 text-blue-800' : 'border-transparent text-slate-500 hover:text-slate-800'"
+        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
+        💎 バリュー投資
       </button>
     </div>
   </div>
@@ -169,6 +176,127 @@
 
   <!-- Indices tab: loading state -->
   <div x-show="market === 'indices' && !indicesData" class="text-center py-20 text-slate-500">指数データを読み込み中...</div>
+
+  <!-- Value tab: loading state -->
+  <div x-show="market === 'value' && !valueData" class="text-center py-20 text-slate-500">バリュー投資データを読み込み中...</div>
+
+  <!-- Value tab: main content -->
+  <template x-if="market === 'value' && valueData">
+  <div class="space-y-8">
+    <p class="text-xs text-slate-500">
+      💎 東証プライム約<span x-text="valueData.universe_size"></span>銘柄から、時価総額500億円以上(<span x-text="valueData.filtered_count"></span>銘柄)を対象にバリュー投資指標でスクリーニング。配当 + 割安 + 売上継続 + 成長見込み の4軸でランキング。データソース: yfinance Ticker.info。週次更新(毎週日曜)。
+    </p>
+
+    <!-- AI Overall commentary -->
+    <section x-show="valueData.overall_commentary" class="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-2xl p-5 sm:p-6">
+      <h2 class="flex items-center gap-3 text-lg font-extrabold text-blue-900 mb-3">
+        <span>🤖</span>
+        AIによる総合解説 — 現在のバリュー局面分析
+      </h2>
+      <article class="text-sm leading-relaxed text-slate-700 whitespace-pre-line" x-text="valueData.overall_commentary"></article>
+    </section>
+
+    <!-- AI Picks: Claude's curated value buys -->
+    <section x-show="(valueData.ai_picks || []).length > 0" class="bg-white border-2 border-blue-300 rounded-2xl p-5 sm:p-6 shadow-md">
+      <h2 class="text-lg font-extrabold text-blue-900 mb-4">🎯 AIが選ぶ高品質バリュー銘柄</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <template x-for="pick in (valueData.ai_picks || [])" :key="pick.ticker">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-center gap-2 mb-2 flex-wrap">
+              <a class="font-bold text-blue-800 ticker-link text-base shrink-0" @click="openChart(pick.ticker)" x-text="displayTicker(pick.ticker)"></a>
+              <span class="text-slate-700 font-semibold truncate" x-text="shortName(pick.name)"></span>
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed mb-2" x-text="pick.appeal"></p>
+            <div class="space-y-1 text-[11px]">
+              <div class="flex items-start gap-2">
+                <span class="font-bold text-emerald-700 shrink-0 w-14">📈 売上根拠</span>
+                <span class="text-slate-700" x-text="pick.growth_evidence"></span>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="font-bold text-amber-700 shrink-0 w-14">📊 観察</span>
+                <span class="text-slate-700" x-text="pick.target_observation"></span>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="font-bold text-red-700 shrink-0 w-14">⚠️ リスク</span>
+                <span class="text-slate-700" x-text="pick.risk"></span>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </section>
+
+    <!-- Category tab + ranking table -->
+    <section class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+      <h2 class="text-lg font-extrabold text-slate-800 mb-3">📊 カテゴリ別ランキング</h2>
+      <div class="flex flex-wrap gap-2 mb-3">
+        <template x-for="cat in valueCategories" :key="cat.key">
+          <button
+            @click="valueActiveCategory = cat.key"
+            :class="valueActiveCategory === cat.key ? 'bg-blue-700 text-white border-blue-700' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'"
+            class="px-3 py-1.5 border rounded-lg text-xs font-semibold flex items-center gap-1"
+          >
+            <span x-text="cat.emoji"></span><span x-text="cat.label"></span>
+          </button>
+        </template>
+      </div>
+
+      <!-- Category commentary -->
+      <div x-show="valueData.category_commentary?.[valueActiveCategory]" class="bg-slate-50 border border-slate-200 rounded-lg p-3 mb-4">
+        <div class="text-[10px] font-bold text-blue-700 mb-1 tracking-wider">🤖 カテゴリ解説</div>
+        <p class="text-xs text-slate-700 leading-relaxed whitespace-pre-line" x-text="valueData.category_commentary?.[valueActiveCategory]"></p>
+      </div>
+
+      <!-- Ranking table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-xs">
+          <thead class="bg-slate-100 text-slate-600 text-[10px] uppercase tracking-wider">
+            <tr>
+              <th class="px-2 py-2 text-left">#</th>
+              <th class="px-2 py-2 text-left">Ticker</th>
+              <th class="px-2 py-2 text-left">銘柄名</th>
+              <th class="px-2 py-2 text-left">業種</th>
+              <th class="px-2 py-2 text-right">時価総額</th>
+              <th class="px-2 py-2 text-right">配当%</th>
+              <th class="px-2 py-2 text-right">配当性向</th>
+              <th class="px-2 py-2 text-right">PER</th>
+              <th class="px-2 py-2 text-right">PBR</th>
+              <th class="px-2 py-2 text-right">ROE%</th>
+              <th class="px-2 py-2 text-right">売上成長%</th>
+              <th class="px-2 py-2 text-right">営業益率%</th>
+              <th class="px-2 py-2 text-right">スコア</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="(r, i) in activeValueRanking" :key="r.ticker">
+              <tr class="border-t border-slate-100 hover:bg-blue-50/40">
+                <td class="px-2 py-2 text-slate-400 num" x-text="i + 1"></td>
+                <td class="px-2 py-2 font-bold">
+                  <a class="text-blue-800 ticker-link" @click="openChart(r.ticker)" x-text="displayTicker(r.ticker)"></a>
+                </td>
+                <td class="px-2 py-2 text-slate-700 max-w-[180px] truncate" :title="r.name" x-text="shortName(r.name)"></td>
+                <td class="px-2 py-2 text-slate-500 text-[10px] whitespace-nowrap" x-text="r.sector17"></td>
+                <td class="px-2 py-2 text-right num text-slate-600" x-text="r.market_cap_oku ? r.market_cap_oku.toLocaleString() + '億' : '-'"></td>
+                <td class="px-2 py-2 text-right num font-bold text-amber-700" x-text="r.dividend_yield ?? '-'"></td>
+                <td class="px-2 py-2 text-right num text-slate-500" x-text="r.payout_ratio ?? '-'"></td>
+                <td class="px-2 py-2 text-right num text-slate-700" x-text="r.trailing_pe ?? '-'"></td>
+                <td class="px-2 py-2 text-right num text-slate-700" x-text="r.price_to_book ?? '-'"></td>
+                <td class="px-2 py-2 text-right num font-bold text-purple-700" x-text="r.return_on_equity ?? '-'"></td>
+                <td class="px-2 py-2 text-right num font-semibold" :class="pctClass(r.revenue_growth)" x-text="r.revenue_growth ?? '-'"></td>
+                <td class="px-2 py-2 text-right num text-slate-700" x-text="r.operating_margins ?? '-'"></td>
+                <td class="px-2 py-2 text-right num font-bold text-blue-700" x-text="r.value_score ?? '-'"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="text-[11px] text-slate-400 leading-relaxed">
+      ※ データは yfinance 経由で取得。配当性向 80% 超・配当利回り 10% 超は減配リスクを考慮し除外。PER 3 未満・売上成長 200% 超はデータ異常・M&A 起因の可能性として除外。本ページの情報は投資勧誘ではなく、銘柄スクリーニングの参考情報です。
+    </p>
+  </div>
+  </template>
 
   <!-- Indices tab: main content -->
   <template x-if="market === 'indices' && indicesData">
@@ -1163,6 +1291,13 @@ const MARKET_CONFIG = {
     docTitle: '指数モニター | Index Monitor',
     defaultSort: 'm3',
   },
+  value: {
+    file: null,  // uses value_jp.json only
+    title: 'バリュー投資(JP)',
+    label: 'JP VALUE INVESTING — DIVIDEND / LOW PE / LOW PBR / ROE / GROWTH',
+    docTitle: 'バリュー投資 | JP Value Investing Screen',
+    defaultSort: 'm3',
+  },
 };
 
 function momentumApp() {
@@ -1185,13 +1320,14 @@ function momentumApp() {
     get config() { return MARKET_CONFIG[this.market]; },
 
     get isJpDomain() {
-      // daytrade is JP data — tickers in morning_brief_jp.json are JP (.T suffix)
-      return this.market === 'jp' || this.market === 'daytrade';
+      // daytrade & value also use JP tickers (.T suffix) for chart modal routing
+      return this.market === 'jp' || this.market === 'daytrade' || this.market === 'value';
     },
 
     get headerGradient() {
       if (this.market === 'daytrade') return 'gradient-daytrade';
       if (this.market === 'indices')  return 'gradient-indices';
+      if (this.market === 'value')    return 'gradient-value';
       if (this.market === 'jp') return 'gradient-jp';
       return 'gradient-us';
     },
@@ -1248,6 +1384,38 @@ function momentumApp() {
       if (this.market === 'indices') {
         this.loadIndices();
       }
+      if (this.market === 'value') {
+        this.loadValue();
+      }
+    },
+
+    async loadValue() {
+      this.valueData = null;
+      try {
+        const resp = await fetch('./data/value_jp.json?v=' + Date.now());
+        if (!resp.ok) return;
+        this.valueData = await resp.json();
+      } catch (e) {
+        console.warn('value data load failed:', e);
+      }
+    },
+
+    valueCategories: [
+      { key: 'composite',     emoji: '🏆', label: '総合バリュースコア', tint: 'blue' },
+      { key: 'high_dividend', emoji: '💰', label: '高配当',            tint: 'amber' },
+      { key: 'low_pe',        emoji: '💎', label: '割安(低PER)',       tint: 'emerald' },
+      { key: 'low_pbr',       emoji: '📉', label: '割安(低PBR)',       tint: 'teal' },
+      { key: 'high_roe',      emoji: '⚡', label: '高ROE',             tint: 'purple' },
+      { key: 'growth',        emoji: '🌱', label: '成長性',            tint: 'green' },
+    ],
+
+    get activeValueRanking() {
+      if (!this.valueData) return [];
+      return this.valueData.rankings?.[this.valueActiveCategory] || [];
+    },
+
+    get activeValueCategoryMeta() {
+      return this.valueCategories.find(c => c.key === this.valueActiveCategory) || this.valueCategories[0];
     },
 
     async loadIndices() {
@@ -1747,6 +1915,8 @@ function momentumApp() {
     indicesData: null,
     indicesRange: {},   // {N225: 126, NDX: 126, USDJPY: 126}
     _indexCharts: {},   // {id: LightweightCharts instance}
+    valueData: null,
+    valueActiveCategory: 'composite',
     dayTradePanels: [
       { key: 'total_score',     label: '🏆 デイトレ総合スコア',                    text: 'text-rose-700' },
       { key: 'matsui_fitness',  label: '🌟 デイトレ適性(松井証券参考)',            text: 'text-orange-700',
