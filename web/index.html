@@ -870,6 +870,67 @@
     </div>
   </section>
 
+  <!-- Swing picks section (JP / US tabs only) -->
+  <section x-show="(market === 'jp' || market === 'us') && currentSwingPicks && (currentSwingPicks.picks || []).length > 0" class="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-2xl p-5 sm:p-6 shadow-md mb-8">
+    <div class="flex items-start justify-between flex-wrap gap-2 mb-4">
+      <div>
+        <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-extrabold text-amber-900">
+          <span>🎯</span>
+          AI スウィングピック
+        </h2>
+        <p class="text-[11px] text-slate-600 mt-1">
+          想定保有 6ヶ月〜1年 · 順張り(中長期トレンドフォロー)目線で AI が選定
+          · 候補プール <span x-text="currentSwingPicks?.candidate_pool_size ?? '-'"></span>銘柄から <span x-text="(currentSwingPicks?.picks || []).length"></span>銘柄
+        </p>
+      </div>
+      <div class="text-xs text-slate-500 text-right">
+        <div>asof <span x-text="currentSwingPicks?.asof"></span></div>
+        <div class="text-[10px]">毎平日朝に自動更新</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <template x-for="pick in (currentSwingPicks?.picks || [])" :key="pick.ticker">
+        <div class="bg-white border border-amber-200 rounded-lg p-4 shadow-sm">
+          <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+            <div class="flex items-center gap-2 min-w-0 flex-1">
+              <a class="font-bold text-amber-800 ticker-link text-base shrink-0" @click="openChart(pick.ticker)" x-text="displayTicker(pick.ticker)"></a>
+              <span class="text-slate-700 font-semibold truncate" x-text="shortName(pick.name)"></span>
+            </div>
+            <span x-show="pick.snapshot?.perfect_order" class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-700 shrink-0">パーフェクトオーダー</span>
+          </div>
+
+          <!-- Mini stats line -->
+          <div class="text-[10px] text-slate-500 mb-2 flex flex-wrap gap-x-3 gap-y-0.5">
+            <span x-show="pick.snapshot?.pct_from_sma200 != null">200日線比 <span class="font-bold" :class="pctClass(pick.snapshot?.pct_from_sma200)" x-text="fmtPct(pick.snapshot?.pct_from_sma200)"></span></span>
+            <span x-show="pick.snapshot?.sma200_slope_1m_pct != null">200日線傾き <span class="font-bold" :class="pctClass(pick.snapshot?.sma200_slope_1m_pct)" x-text="fmtPct(pick.snapshot?.sma200_slope_1m_pct) + '/月'"></span></span>
+            <span x-show="pick.snapshot?.pct_from_52w_high != null">52週高値比 <span class="font-bold" :class="pctClass(pick.snapshot?.pct_from_52w_high)" x-text="fmtPct(pick.snapshot?.pct_from_52w_high)"></span></span>
+            <span x-show="pick.snapshot?.m3 != null">3M <span class="font-bold" :class="pctClass(pick.snapshot?.m3)" x-text="fmtPct(pick.snapshot?.m3)"></span></span>
+          </div>
+
+          <p class="text-xs text-slate-700 leading-relaxed mb-2" x-text="pick.appeal"></p>
+          <div class="space-y-1 text-[11px]">
+            <div class="flex items-start gap-2">
+              <span class="font-bold text-emerald-700 shrink-0 w-14">📍 押し目</span>
+              <span class="text-slate-700" x-text="pick.entry_zone"></span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="font-bold text-blue-700 shrink-0 w-14">🎯 中期</span>
+              <span class="text-slate-700" x-text="pick.mid_target"></span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="font-bold text-red-700 shrink-0 w-14">⚠️ 警戒</span>
+              <span class="text-slate-700" x-text="pick.watch_signals"></span>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+    <p class="text-[10px] text-slate-500 mt-3">
+      ※ AIの自動分析であり、投資勧誘ではありません。保有期間中も75日線割れ・週次出来高急減・パーフェクトオーダー崩壊等の警戒シグナルを併せてご確認ください。
+    </p>
+  </section>
+
   <template x-if="market !== 'daytrade' && data && !loading">
   <div class="space-y-12">
 
@@ -1413,6 +1474,29 @@ function momentumApp() {
       if (this.market === 'value') {
         this.loadValue();
       }
+      if (this.market === 'jp' || this.market === 'us') {
+        this.loadSwingPicks();
+      }
+    },
+
+    async loadSwingPicks() {
+      // Load swing picks for current market (jp or us only)
+      if (this.market !== 'jp' && this.market !== 'us') return;
+      const cacheKey = this.market === 'jp' ? 'swingPicksJp' : 'swingPicksUs';
+      if (this[cacheKey]) return;
+      try {
+        const resp = await fetch('./data/swing_picks_' + this.market + '.json?v=' + Date.now());
+        if (!resp.ok) return;
+        this[cacheKey] = await resp.json();
+      } catch (e) {
+        console.warn('swing picks load failed:', e);
+      }
+    },
+
+    get currentSwingPicks() {
+      if (this.market === 'jp') return this.swingPicksJp;
+      if (this.market === 'us') return this.swingPicksUs;
+      return null;
     },
 
     async loadStockCommentary() {
@@ -1967,6 +2051,8 @@ function momentumApp() {
     valueActiveCategory: 'composite',
     stockCommentaryJp: null,
     stockCommentaryUs: null,
+    swingPicksJp: null,
+    swingPicksUs: null,
     dayTradePanels: [
       { key: 'total_score',     label: '🏆 デイトレ総合スコア',                    text: 'text-rose-700' },
       { key: 'matsui_fitness',  label: '🌟 デイトレ適性(松井証券参考)',            text: 'text-orange-700',

@@ -70,13 +70,23 @@ jobs:
             echo "ANTHROPIC_API_KEY not set — skipping stock commentary"
           fi
 
+      - name: Generate AI swing picks (US, Claude)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            python batch/generate_swing_picks.py us
+          else
+            echo "ANTHROPIC_API_KEY not set — skipping swing picks"
+          fi
+
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Pull any concurrent changes (e.g. from the JP workflow)
           git pull --rebase --autostash origin main || true
-          git add data/universe_us.json web/data/momentum_us.json web/data/chart_data_us.json web/data/indices.json web/data/stock_commentary_us.json
+          git add data/universe_us.json web/data/momentum_us.json web/data/chart_data_us.json web/data/indices.json web/data/stock_commentary_us.json web/data/swing_picks_us.json
           if git diff --cached --quiet; then
             echo "No US changes to commit"
           else
