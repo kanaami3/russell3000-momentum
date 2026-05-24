@@ -23,6 +23,14 @@ from pathlib import Path
 import pandas as pd
 import yfinance as yf
 
+# Use curl_cffi browser-impersonated session to avoid Yahoo rate limits
+# on GitHub Actions IP ranges.
+try:
+    from curl_cffi import requests as creq
+    _YF_SESSION = creq.Session(impersonate="chrome")
+except ImportError:
+    _YF_SESSION = None
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LOOKBACK_DAYS = 7
 TOP_N_BY_MCAP = 300           # 上位 N 銘柄に限定(時価総額順)
@@ -94,7 +102,7 @@ def check_recent_earnings(ticker: str) -> tuple[dict | None, str]:
     """
     for attempt in range(1, DISCOVERY_RETRIES + 2):
         try:
-            t = yf.Ticker(ticker)
+            t = yf.Ticker(ticker, session=_YF_SESSION) if _YF_SESSION else yf.Ticker(ticker)
             ed = t.earnings_dates
             if ed is None or ed.empty:
                 if attempt <= DISCOVERY_RETRIES:
@@ -183,7 +191,7 @@ def fetch_earnings_detail(event: dict) -> dict:
     """Augment a discovery event with quarterly financials, YoY, and price reaction."""
     ticker = event["ticker"]
     try:
-        t = yf.Ticker(ticker)
+        t = yf.Ticker(ticker, session=_YF_SESSION) if _YF_SESSION else yf.Ticker(ticker)
 
         # Quarterly income statement (last 4 quarters typically)
         qfin = t.quarterly_income_stmt
