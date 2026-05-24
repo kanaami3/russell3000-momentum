@@ -24,15 +24,19 @@ import json
 import os
 import re
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import anthropic
+import yfinance as yf
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MODEL = "claude-haiku-4-5-20251001"
 MAX_TOKENS = 3500
-CANDIDATE_POOL_SIZE = 30
+TECHNICAL_PREFILTER = 50          # 候補プール最大(テクニカル絞り後)
+CANDIDATE_POOL_SIZE = 30          # ファンダメンタル取得後の最終プール
 MIN_HISTORY_DAYS = 60
+FUNDAMENTAL_FETCH_THREADS = 6     # yfinance Ticker.info 並列度
 
 
 def sma(values: list[float], period: int) -> float | None:
@@ -151,6 +155,59 @@ def build_snapshot(ticker: str, history: list, momentum_row: dict | None) -> dic
     }
 
 
+def _safe_num(v):
+    if v is None: return None
+    try:
+        f = float(v)
+        if f != f: return None
+        return f
+    except (TypeError, ValueError):
+        return None
+
+
+def fetch_fundamentals_one(ticker: str) -> dict:
+    """Quick fundamentals fetch via yfinance.Ticker.info for one ticker.
+
+    Unit conventions (verified):
+      dividendYield → already % (e.g. 3.35 = 3.35%)
+      ROE / revenueGrowth / earningsGrowth / margins → decimals (×100 → %)
+    """
+    try:
+        info = yf.Ticker(ticker).info or {}
+        def pct(v):
+            x = _safe_num(v)
+            return round(x * 100, 2) if x is not None else None
+        return {
+            "trailing_pe":       _safe_num(info.get("trailingPE")),
+            "forward_pe":        _safe_num(info.get("forwardPE")),
+            "price_to_book":     _safe_num(info.get("priceToBook")),
+            "dividend_yield":    _safe_num(info.get("dividendYield")),  # already %
+            "return_on_equity":  pct(info.get("returnOnEquity")),
+            "revenue_growth":    pct(info.get("revenueGrowth")),
+            "earnings_growth":   pct(info.get("earningsGrowth")),
+            "operating_margins": pct(info.get("operatingMargins")),
+            "profit_margins":    pct(info.get("profitMargins")),
+            "debt_to_equity":    _safe_num(info.get("debtToEquity")),
+            "peg_ratio":         _safe_num(info.get("pegRatio")),
+        }
+    except Exception:
+        return {}
+
+
+def fetch_fundamentals_batch(tickers: list[str]) -> dict[str, dict]:
+    """Parallel fetch for top N candidate tickers."""
+    out: dict[str, dict] = {}
+    with ThreadPoolExecutor(max_workers=FUNDAMENTAL_FETCH_THREADS) as ex:
+        futs = {ex.submit(fetch_fundamentals_one, t): t for t in tickers}
+        for fut in as_completed(futs):
+            t = futs[fut]
+            try:
+                out[t] = fut.result()
+            except Exception:
+                out[t] = {}
+    return out
+
+
 def build_prompt(market: str, pool: list[dict]) -> str:
     label = "東証プライム" if market == "jp" else "米国(NASDAQ/NYSE)"
     cur_symbol = "¥" if market == "jp" else "$"
@@ -159,49 +216,72 @@ def build_prompt(market: str, pool: list[dict]) -> str:
         po = "✓" if p["perfect_order"] else "-"
         slope_str = f"{p['sma200_slope_1m_pct']}%/月" if p['sma200_slope_1m_pct'] is not None else "-"
         m3 = f"{p['m3']:+.1f}%" if p["m3"] is not None else "-"
-        mcap_str = ""
+        liquidity = ""
         if market == "us" and p.get("market_cap"):
-            mcap_str = f"時価総額${p['market_cap']/1e9:.1f}B"
+            liquidity = f"時価総額${p['market_cap']/1e9:.1f}B"
         elif market == "jp" and p.get("avg_turnover_20d"):
-            mcap_str = f"売買代金{p['avg_turnover_20d']/1e8:.1f}億/日"
+            liquidity = f"代金{p['avg_turnover_20d']/1e8:.1f}億/日"
+
+        # Fundamentals (may be None per field)
+        f = p.get("fundamentals") or {}
+        fparts = []
+        if f.get("trailing_pe") is not None:      fparts.append(f"PER{f['trailing_pe']:.1f}")
+        if f.get("forward_pe") is not None:       fparts.append(f"予PER{f['forward_pe']:.1f}")
+        if f.get("price_to_book") is not None:    fparts.append(f"PBR{f['price_to_book']:.2f}")
+        if f.get("return_on_equity") is not None: fparts.append(f"ROE{f['return_on_equity']:.1f}%")
+        if f.get("revenue_growth") is not None:   fparts.append(f"売上成長{f['revenue_growth']:+.1f}%")
+        if f.get("earnings_growth") is not None:  fparts.append(f"利益成長{f['earnings_growth']:+.1f}%")
+        if f.get("dividend_yield") is not None:   fparts.append(f"配当{f['dividend_yield']:.2f}%")
+        if f.get("peg_ratio") is not None:        fparts.append(f"PEG{f['peg_ratio']:.2f}")
+        fundamentals_str = " / ".join(fparts) if fparts else "ファンダ情報なし"
+
         return (
             f"- {p['ticker']} {p['name']} ({p['sector17']}): "
-            f"終値{cur_symbol}{p['close']:,} "
-            f"3M{m3} "
-            f"200日線比{p['pct_from_sma200']}% (傾き{slope_str}) "
-            f"52週高値比{p['pct_from_52w_high']}% "
-            f"20日高値比{p['pct_below_20d_high']}%(押し目目安) "
-            f"パーフェクトオーダー{po} "
-            f"{mcap_str} swing_score={p['score']}"
+            f"終値{cur_symbol}{p['close']:,} 3M{m3}\n"
+            f"    テクニカル: 200日線比{p['pct_from_sma200']}%(傾き{slope_str}) "
+            f"52週高値比{p['pct_from_52w_high']}% 20日高値比{p['pct_below_20d_high']}%(押し目) "
+            f"PO{po} {liquidity}\n"
+            f"    ファンダ: {fundamentals_str}"
         )
 
     return f"""あなたは長年の経験を持つ**スウィングトレード(6ヶ月〜1年保有・順張り)**専門の投資塾長です。
 
-下記の{label}スウィング候補プール(中長期トレンド健全な銘柄を事前選定)から、**今エントリーに最適な銘柄を5〜7個**ピックしてください。
+下記の{label}スウィング候補プールから、**今エントリーに最適な銘柄を5〜7個**ピックしてください。
+**テクニカル(押し目度合い・上昇余地)+ ファンダメンタル(本業の継続性)** の両方を統合的に判断してください。
 
-【選定の最優先基準】
-- 200日線の上にいて、200日線が上向き(傾きプラス)
-- 「パーフェクトオーダー」(価格 > 25日線 > 75日線 > 200日線)が成立している、もしくは崩れる兆候なし
-- 52週高値からの距離が **−12%以内**(まだ上昇余地ある or 直近高値接近で順張り)
-- 20日高値から **−2%〜−10%程度の健全な押し目**(極端な過熱・暴落でない)
-- 3ヶ月モメンタムがプラス(順張りバイアス)
-- 流動性十分(時価総額大きい銘柄優先)
+【選定の3軸 — 全部該当が理想】
+1. **軽い押し目(エントリー機会)**: 20日高値から −2%〜−10%、52週高値から −12%以内
+2. **まだ上昇余地ある**: 52週高値接近 + 業績成長率(売上・利益)プラス + 行き過ぎていない(PER 高すぎ/200日線比 50%超 は減点)
+3. **ファンダメンタル健全**: ROE 5%以上、売上成長プラス、PER 5〜35、PBR 5以下(極端な割高でない)
+
+【テクニカルの必須条件】
+- 200日線の上 + 200日線が下向きでない
+- パーフェクトオーダー(価格 > 25日線 > 75日線 > 200日線)成立
+- 流動性十分
 
 【選定で避けること】
-- パーフェクトオーダーが崩れている(下落トレンド入り)
+- 売上成長マイナス(衰退局面)
+- ROE 0%未満(赤字)
+- PER 50超(高すぎ → 利確売り出やすい)
+- 異常な過熱(20日高値から +5%以上)
 - 200日線が下向き
-- 52週高値から大きく下(−20%以下)= 中期下落トレンド
-- 異常な過熱(20日高値から+5%以上の伸び切り)
 
-【出力形式】 必ず ```json と ``` で囲んだ JSON 配列のみ返してください(narrative不要)。
+【上値ターゲットの考え方】
+- 52週高値ブレイク後の節目
+- 業績成長率を踏まえた forward PER の妥当水準
+- 過去レジスタンス
+- 配当込みリターン目線(高配当銘柄なら配当 + 数%値上がりでも妙味)
+
+【出力形式】 必ず ```json と ``` で囲んだ JSON 配列のみ返してください。
 
 各銘柄の構造:
 - `ticker`: 文字列
 - `name`: 銘柄名
-- `appeal`: 80〜130字の選定理由(具体的な指標数値を引用しスウィング視点で)
-- `entry_zone`: 押し目買いゾーンの提示(25日線・75日線等の水準で2〜3水準、{cur_symbol}単位)
-- `mid_target`: 半年〜1年の上値ターゲット(52週高値ブレイク後の節目・過去レジスタンス等)
-- `watch_signals`: 保有中の警戒シグナル(75日線割れ・週次出来高急減・パーフェクトオーダー崩壊等)
+- `appeal`: 100〜150字の選定理由(テクニカル + ファンダメンタル両方の具体数値を引用)
+- `upside_thesis`: 60〜100字、上値余地の根拠(業績成長・予PER・過去高値ブレイク余地等)
+- `entry_zone`: 押し目買いゾーン(25日線・75日線・200日線等の水準で 2〜3水準、{cur_symbol}単位)
+- `mid_target`: 半年〜1年の上値ターゲット(具体価格、根拠付き)
+- `watch_signals`: 保有中の警戒シグナル(75日線割れ・利益成長鈍化・パーフェクトオーダー崩壊等)
 
 ---スウィング候補プール (composite swing score 順)---
 {chr(10).join(fmt(p) for p in pool)}
@@ -278,11 +358,38 @@ def main() -> int:
         snapshots.append(snap)
 
     snapshots.sort(key=lambda s: s["score"], reverse=True)
-    pool = snapshots[:CANDIDATE_POOL_SIZE]
-    print(f"[{market.upper()}] candidate pool: {len(pool)} (from {len(snapshots)} filtered)", file=sys.stderr)
-    if not pool:
+    # Stage 1: technical pre-filter (top 50 by composite score)
+    technical_pool = snapshots[:TECHNICAL_PREFILTER]
+    print(f"[{market.upper()}] technical pool: {len(technical_pool)} (from {len(snapshots)} filtered)", file=sys.stderr)
+    if not technical_pool:
         print(f"[{market.upper()}] no valid swing candidates", file=sys.stderr)
         return 1
+
+    # Stage 2: fundamentals fetch (yfinance Ticker.info) for the technical pool
+    print(f"[{market.upper()}] Fetching fundamentals for {len(technical_pool)} candidates...", file=sys.stderr)
+    fund = fetch_fundamentals_batch([s["ticker"] for s in technical_pool])
+
+    # Stage 3: enrich + light fundamental filter
+    enriched = []
+    for s in technical_pool:
+        f = fund.get(s["ticker"], {})
+        s["fundamentals"] = f
+        # Hard filters: drop terrible fundamentals
+        pe = f.get("trailing_pe")
+        roe = f.get("return_on_equity")
+        rev_g = f.get("revenue_growth")
+        if pe is not None and (pe <= 0 or pe > 60):  # 赤字 or 極端な過熱
+            continue
+        if roe is not None and roe < 0:  # 赤字経営
+            continue
+        if rev_g is not None and rev_g < -10:  # 大幅減収
+            continue
+        enriched.append(s)
+    pool = enriched[:CANDIDATE_POOL_SIZE]
+    print(f"[{market.upper()}] after fundamental filter: {len(pool)} candidates", file=sys.stderr)
+    if not pool:
+        print(f"[{market.upper()}] no candidates pass fundamental filter, using technical pool", file=sys.stderr)
+        pool = technical_pool[:CANDIDATE_POOL_SIZE]
 
     client = anthropic.Anthropic(api_key=api_key)
     print(f"[{market.upper()}] Calling Claude...", file=sys.stderr)

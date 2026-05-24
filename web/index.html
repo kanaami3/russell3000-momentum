@@ -910,6 +910,10 @@
 
           <p class="text-xs text-slate-700 leading-relaxed mb-2" x-text="pick.appeal"></p>
           <div class="space-y-1 text-[11px]">
+            <div x-show="pick.upside_thesis" class="flex items-start gap-2">
+              <span class="font-bold text-indigo-700 shrink-0 w-14">📈 上値根拠</span>
+              <span class="text-slate-700" x-text="pick.upside_thesis"></span>
+            </div>
             <div class="flex items-start gap-2">
               <span class="font-bold text-emerald-700 shrink-0 w-14">📍 押し目</span>
               <span class="text-slate-700" x-text="pick.entry_zone"></span>
