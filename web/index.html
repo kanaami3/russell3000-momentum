@@ -1223,16 +1223,16 @@
     <div x-show="chartTicker && market === 'jp' && chartLoading" class="px-3 py-2 border-b border-slate-200 bg-slate-50 text-xs text-slate-500">
       チャートデータ読込中… (初回約3MB / 数秒)
     </div>
-    <!-- Main chart area: US uses single TradingView, JP uses 3 stacked Lightweight Charts -->
-    <div x-show="chartTicker" class="flex-1 w-full relative overflow-hidden flex flex-col">
+    <!-- Main chart + commentary area scrollable -->
+    <div x-show="chartTicker" class="flex-1 w-full relative overflow-y-auto flex flex-col">
       <!-- US (single TradingView widget) -->
       <div x-show="market === 'us'" class="flex-1 relative">
         <div id="tv-chart-container" class="absolute inset-0"></div>
       </div>
-      <!-- JP (three stacked Lightweight Charts: 1M / 3M / 6M) -->
-      <div x-show="market === 'jp'" class="flex-1 flex flex-col divide-y divide-slate-200">
+      <!-- JP / daytrade / value (all use JP tickers): three stacked Lightweight Charts -->
+      <div x-show="isJpDomain" class="flex-1 flex flex-col divide-y divide-slate-200" style="min-height: 60vh;">
         <template x-for="panel in jpChartPanels" :key="panel.days">
-          <div class="flex-1 flex flex-col min-h-0">
+          <div class="flex-1 flex flex-col min-h-0" style="min-height: 18vh;">
             <div class="px-3 py-1 text-xs font-bold text-slate-600 bg-slate-50 shrink-0 flex items-center justify-between">
               <span x-text="panel.label + '(' + panel.days + '営業日)'"></span>
               <span class="text-slate-400 text-[10px]" x-text="panel.subtitle"></span>
@@ -1243,6 +1243,32 @@
           </div>
         </template>
       </div>
+    </div>
+
+    <!-- 🤖 塾長スタイル個別銘柄解説 -->
+    <div x-show="chartTicker && currentStockCommentary" class="border-t-2 border-amber-300 bg-amber-50 p-4">
+      <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+        <h4 class="text-sm font-extrabold text-amber-900 flex items-center gap-2">
+          <span>🤖</span>
+          塾長のテクニカル解説
+        </h4>
+        <!-- Divergence badge -->
+        <template x-if="currentStockCommentary?.snapshot?.divergence?.bearish">
+          <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-200 text-red-800">🚨 弱気ダイバージェンス検出</span>
+        </template>
+        <template x-if="currentStockCommentary?.snapshot?.divergence?.bullish">
+          <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-200 text-emerald-800">💡 強気ダイバージェンス検出</span>
+        </template>
+      </div>
+      <article class="text-sm leading-relaxed text-slate-800 whitespace-pre-line" x-text="currentStockCommentary?.commentary"></article>
+      <p class="text-[10px] text-slate-500 mt-2">
+        解説 asof: <span x-text="currentStockCommentary?.asof"></span> · AIによる自動分析(投資勧誘ではありません)
+      </p>
+    </div>
+
+    <!-- 解説ロード中 / なし表示 -->
+    <div x-show="chartTicker && isJpDomain && !currentStockCommentary" class="border-t border-slate-200 bg-slate-50 p-3 text-xs text-slate-500 text-center">
+      この銘柄の塾長解説は本日生成対象外、または読込中です(対象は朝のAIピック・上昇ランキング上位など)。
     </div>
   </div>
 </div>
@@ -1387,6 +1413,28 @@ function momentumApp() {
       if (this.market === 'value') {
         this.loadValue();
       }
+    },
+
+    async loadStockCommentary() {
+      // Load on demand when a chart modal opens (lightweight, cached for session)
+      try {
+        const file = this.isJpDomain ? 'stock_commentary_jp.json' : 'stock_commentary_us.json';
+        const cacheKey = this.isJpDomain ? 'stockCommentaryJp' : 'stockCommentaryUs';
+        if (this[cacheKey]) return this[cacheKey];
+        const resp = await fetch('./data/' + file + '?v=' + Date.now());
+        if (!resp.ok) return null;
+        this[cacheKey] = await resp.json();
+        return this[cacheKey];
+      } catch (e) {
+        console.warn('stock commentary load failed:', e);
+        return null;
+      }
+    },
+
+    get currentStockCommentary() {
+      const src = this.isJpDomain ? this.stockCommentaryJp : this.stockCommentaryUs;
+      if (!src || !this.chartTicker) return null;
+      return (src.commentary || {})[this.chartTicker] || null;
     },
 
     async loadValue() {
@@ -1917,6 +1965,8 @@ function momentumApp() {
     _indexCharts: {},   // {id: LightweightCharts instance}
     valueData: null,
     valueActiveCategory: 'composite',
+    stockCommentaryJp: null,
+    stockCommentaryUs: null,
     dayTradePanels: [
       { key: 'total_score',     label: '🏆 デイトレ総合スコア',                    text: 'text-rose-700' },
       { key: 'matsui_fitness',  label: '🌟 デイトレ適性(松井証券参考)',            text: 'text-orange-700',
@@ -1931,6 +1981,8 @@ function momentumApp() {
     openChart(ticker) {
       this.chartTicker = ticker;
       this.$nextTick(() => this.renderChart());
+      // Lazy-load per-stock AI commentary for this ticker's market
+      this.loadStockCommentary();
     },
 
     closeChart() {

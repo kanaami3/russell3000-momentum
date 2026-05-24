@@ -47,12 +47,25 @@ jobs:
             echo "ANTHROPIC_API_KEY not set — skipping AI brief"
           fi
 
+      - name: Compute JP momentum + chart data (for divergence detection)
+        run: python batch/calc_momentum.py jp
+
+      - name: Generate per-stock 塾長 commentary (JP, Claude)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            python batch/generate_stock_commentary.py jp
+          else
+            echo "ANTHROPIC_API_KEY not set — skipping stock commentary"
+          fi
+
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git pull --rebase --autostash origin main || true
-          git add data/universe_jp.json web/data/morning_brief_jp.json
+          git add data/universe_jp.json web/data/morning_brief_jp.json web/data/stock_commentary_jp.json web/data/momentum_jp.json web/data/chart_data_jp.json
           if git diff --cached --quiet; then
             echo "No morning brief changes to commit"
           else
