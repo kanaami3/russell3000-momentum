@@ -21,6 +21,7 @@
   .gradient-daytrade { background: linear-gradient(135deg, #d97706 0%, #ea580c 50%, #c2410c 100%); }
   .gradient-indices  { background: linear-gradient(135deg, #0e7490 0%, #0d9488 50%, #047857 100%); }
   .gradient-value    { background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 50%, #2563eb 100%); }
+  .gradient-earnings { background: linear-gradient(135deg, #6b21a8 0%, #7e22ce 50%, #581c87 100%); }
   .ticker-link { cursor: pointer; text-decoration: none; }
   .ticker-link:hover { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
 </style>
@@ -84,6 +85,12 @@
         :class="market === 'value' ? 'border-blue-700 text-blue-800' : 'border-transparent text-slate-500 hover:text-slate-800'"
         class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
         💎 バリュー投資
+      </button>
+      <button
+        @click="setMarket('earnings')"
+        :class="market === 'earnings' ? 'border-purple-700 text-purple-800' : 'border-transparent text-slate-500 hover:text-slate-800'"
+        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
+        📊 決算分析
       </button>
     </div>
   </div>
@@ -176,6 +183,185 @@
 
   <!-- Indices tab: loading state -->
   <div x-show="market === 'indices' && !indicesData" class="text-center py-20 text-slate-500">指数データを読み込み中...</div>
+
+  <!-- Earnings tab: loading state -->
+  <div x-show="market === 'earnings' && !earningsData.jp && !earningsData.us" class="text-center py-20 text-slate-500">決算データを読み込み中...</div>
+
+  <!-- Earnings tab: main content -->
+  <template x-if="market === 'earnings' && (earningsData.jp || earningsData.us)">
+  <div class="space-y-6">
+    <p class="text-xs text-slate-500">
+      📊 Claude AI が <strong>earnings-analyzer スキル(Fact / Guidance / Speculation 厳格分離)</strong> で決算を分析。
+      投資勧誘ではありません。
+    </p>
+
+    <!-- 🔍 On-demand search analysis -->
+    <section class="bg-white border-2 border-purple-200 rounded-2xl p-5 shadow-sm">
+      <h2 class="text-base font-extrabold text-purple-900 mb-2 flex items-center gap-2">
+        <span>🔍</span>
+        任意銘柄を AI 決算分析
+      </h2>
+      <p class="text-[11px] text-slate-500 mb-3">
+        ティッカー(例: <code class="bg-slate-100 px-1 rounded">AAPL</code> / <code class="bg-slate-100 px-1 rounded">7203</code> / <code class="bg-slate-100 px-1 rounded">7203.T</code>)を入力 → AI が Fact / Guidance / Speculation で分析。
+      </p>
+      <form @submit.prevent="analyzeOnDemand()" class="flex gap-2 flex-wrap">
+        <input
+          type="text"
+          x-model="earningsSearchQuery"
+          placeholder="ティッカー (AAPL, 7203, NVDA 等)"
+          class="flex-1 min-w-[180px] px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm" />
+        <button
+          type="submit"
+          :disabled="earningsOnDemandLoading || !earningsSearchQuery.trim()"
+          class="px-5 py-2 bg-purple-700 hover:bg-purple-800 disabled:opacity-40 text-white font-bold rounded-lg text-sm">
+          <span x-show="!earningsOnDemandLoading">🤖 AI分析する</span>
+          <span x-show="earningsOnDemandLoading">分析中...(約10秒)</span>
+        </button>
+      </form>
+
+      <!-- On-demand result -->
+      <div x-show="earningsOnDemandError" class="mt-4 bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+        ⚠ エラー: <span x-text="earningsOnDemandError"></span>
+      </div>
+      <template x-if="earningsOnDemandResult">
+        <div class="mt-4 bg-purple-50 border-2 border-purple-300 rounded-xl p-4">
+          <div class="flex items-start justify-between flex-wrap gap-2 mb-3">
+            <div class="min-w-0">
+              <div class="font-extrabold text-purple-900 text-lg" x-text="earningsOnDemandResult.ticker + ' ' + (earningsOnDemandResult.facts?.longName || '')"></div>
+              <div class="text-[10px] text-slate-500" x-text="(earningsOnDemandResult.facts?.sector || '-') + ' · ' + (earningsOnDemandResult.facts?.industry || '-')"></div>
+            </div>
+            <div class="text-right text-xs shrink-0">
+              <div>現在値 <span class="font-bold" x-text="(earningsOnDemandResult.facts?.currency_symbol || '$') + (earningsOnDemandResult.facts?.current_price ?? '-')"></span></div>
+              <div class="text-slate-500">予想PER <span class="font-bold" x-text="earningsOnDemandResult.facts?.forward_pe?.toFixed?.(1) ?? '-'"></span> / 実績PER <span class="font-bold" x-text="earningsOnDemandResult.facts?.trailing_pe?.toFixed?.(1) ?? '-'"></span></div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mb-3">
+            <div class="bg-white rounded p-2 border border-slate-100">
+              <div class="text-[10px] text-slate-500">直近Q EPS実績</div>
+              <div class="font-bold num" x-text="earningsOnDemandResult.facts?.eps_actual ?? '-'"></div>
+            </div>
+            <div class="bg-white rounded p-2 border border-slate-100">
+              <div class="text-[10px] text-slate-500">直近Q EPS予想</div>
+              <div class="font-bold num" x-text="earningsOnDemandResult.facts?.eps_estimate ?? '-'"></div>
+            </div>
+            <div class="bg-white rounded p-2 border border-slate-100">
+              <div class="text-[10px] text-slate-500">売上成長率</div>
+              <div class="font-bold num" :class="pctClass(earningsOnDemandResult.facts?.revenue_growth_pct)" x-text="earningsOnDemandResult.facts?.revenue_growth_pct != null ? fmtPct(earningsOnDemandResult.facts.revenue_growth_pct) : '-'"></div>
+            </div>
+            <div class="bg-white rounded p-2 border border-slate-100">
+              <div class="text-[10px] text-slate-500">アナリスト推奨</div>
+              <div class="font-bold" x-text="earningsOnDemandResult.facts?.recommendation || '-'"></div>
+            </div>
+          </div>
+          <article class="bg-white rounded-lg border border-purple-100 p-3 text-sm leading-relaxed text-slate-800 whitespace-pre-line" x-text="earningsOnDemandResult.analysis"></article>
+          <p class="text-[10px] text-slate-400 mt-2 text-right" x-text="'分析時刻: ' + earningsOnDemandResult.generated_at"></p>
+        </div>
+      </template>
+    </section>
+
+    <!-- 直近決算発表銘柄 (weekly batch) -->
+    <h2 class="text-base font-extrabold text-purple-900 flex items-center gap-2 mt-6">
+      <span>📅</span>
+      直近決算発表銘柄(週次自動更新)
+    </h2>
+
+    <!-- Market toggle -->
+    <div class="flex items-center gap-1 bg-white rounded-xl p-2 border border-slate-200 shadow-sm w-fit">
+      <button
+        @click="earningsMarket = 'us'"
+        :class="earningsMarket === 'us' ? 'bg-indigo-700 text-white' : 'bg-transparent text-slate-700 hover:bg-slate-100'"
+        class="px-4 py-1.5 rounded-lg text-sm font-bold">
+        🇺🇸 米国
+        <span x-show="earningsData.us" class="text-xs opacity-70">(<span x-text="earningsData.us?.analyses?.length ?? 0"></span>件)</span>
+      </button>
+      <button
+        @click="earningsMarket = 'jp'"
+        :class="earningsMarket === 'jp' ? 'bg-rose-700 text-white' : 'bg-transparent text-slate-700 hover:bg-slate-100'"
+        class="px-4 py-1.5 rounded-lg text-sm font-bold">
+        🇯🇵 日本
+        <span x-show="earningsData.jp" class="text-xs opacity-70">(<span x-text="earningsData.jp?.analyses?.length ?? 0"></span>件)</span>
+      </button>
+    </div>
+
+    <!-- Header info -->
+    <div x-show="activeEarnings" class="flex items-center justify-between text-xs text-slate-500 flex-wrap gap-2">
+      <span>過去 <span x-text="activeEarnings?.lookback_days"></span> 日分 · <span x-text="(activeEarnings?.analyses || []).length"></span>銘柄を分析</span>
+      <span>asof: <span x-text="activeEarnings?.asof"></span></span>
+    </div>
+
+    <!-- Empty state -->
+    <div x-show="activeEarnings && (activeEarnings.analyses || []).length === 0" class="bg-white border border-slate-200 rounded-xl p-8 text-center text-slate-500">
+      <p class="text-sm">過去7日以内の決算発表銘柄はありません。</p>
+      <p class="text-xs mt-1">次の発表シーズンまでお待ちください。</p>
+    </div>
+
+    <!-- Earnings cards -->
+    <div class="grid grid-cols-1 gap-4">
+      <template x-for="e in (activeEarnings?.analyses || [])" :key="e.ticker">
+        <article class="bg-white border-2 border-purple-200 rounded-2xl p-5 shadow-sm">
+          <!-- Header row -->
+          <div class="flex items-start justify-between flex-wrap gap-3 mb-3">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <a class="font-bold text-purple-800 ticker-link text-lg shrink-0" @click="openChart(e.ticker)" x-text="displayTicker(e.ticker)"></a>
+              <div class="min-w-0">
+                <div class="font-bold text-slate-800 truncate" x-text="shortName(e.name)"></div>
+                <div class="text-[10px] text-slate-500 truncate" x-text="(e.sector || '-') + ' · ' + (e.industry || '-')"></div>
+              </div>
+            </div>
+            <div class="text-right text-xs shrink-0">
+              <div class="text-slate-500">発表日 <span class="font-bold" x-text="e.earnings_date"></span></div>
+              <div x-show="e.surprise_pct != null">
+                <span class="font-bold" :class="pctClass(e.surprise_pct)">サプライズ <span x-text="fmtPct(e.surprise_pct)"></span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Key numbers strip -->
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs mb-3">
+            <div class="bg-slate-50 rounded p-2 border border-slate-100">
+              <div class="text-[10px] text-slate-500">EPS実績</div>
+              <div class="font-bold num text-slate-800" x-text="e.eps_actual ?? '-'"></div>
+            </div>
+            <div class="bg-slate-50 rounded p-2 border border-slate-100">
+              <div class="text-[10px] text-slate-500">EPS予想</div>
+              <div class="font-bold num text-slate-700" x-text="e.eps_estimate ?? '-'"></div>
+            </div>
+            <div class="bg-slate-50 rounded p-2 border border-slate-100">
+              <div class="text-[10px] text-slate-500">売上 YoY</div>
+              <div class="font-bold num" :class="pctClass(e.yoy_revenue_pct)" x-text="e.yoy_revenue_pct != null ? fmtPct(e.yoy_revenue_pct) : '-'"></div>
+            </div>
+            <div class="bg-slate-50 rounded p-2 border border-slate-100">
+              <div class="text-[10px] text-slate-500">営業利益 YoY</div>
+              <div class="font-bold num" :class="pctClass(e.yoy_op_income_pct)" x-text="e.yoy_op_income_pct != null ? fmtPct(e.yoy_op_income_pct) : '-'"></div>
+            </div>
+            <div class="bg-slate-50 rounded p-2 border border-slate-100">
+              <div class="text-[10px] text-slate-500">株価反応 1日 / 5日</div>
+              <div class="font-bold num text-[11px]">
+                <span :class="pctClass(e.price_reaction?.['1d_pct'])" x-text="e.price_reaction?.['1d_pct'] != null ? fmtPct(e.price_reaction['1d_pct']) : '-'"></span>
+                <span class="text-slate-400 mx-1">/</span>
+                <span :class="pctClass(e.price_reaction?.['5d_pct'])" x-text="e.price_reaction?.['5d_pct'] != null ? fmtPct(e.price_reaction['5d_pct']) : '-'"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI analysis (collapsible) -->
+          <div x-show="e.analysis">
+            <button @click="toggleEarnings(e.ticker)" class="text-xs font-bold text-purple-700 hover:text-purple-900 flex items-center gap-1 mb-1">
+              <span x-text="earningsExpanded[e.ticker] ? '▼' : '▶'"></span>
+              <span>🤖 AI 分析(Fact / Guidance / Speculation)</span>
+            </button>
+            <article x-show="earningsExpanded[e.ticker]" class="bg-purple-50 border border-purple-100 rounded-lg p-3 text-sm leading-relaxed text-slate-800 whitespace-pre-line" x-text="e.analysis"></article>
+          </div>
+          <div x-show="!e.analysis" class="text-xs text-slate-400 italic">AI分析は次回ワークフロー実行時に生成されます</div>
+        </article>
+      </template>
+    </div>
+
+    <p class="text-[11px] text-slate-400 leading-relaxed">
+      ※ データソース: yfinance(EPS実績・予想、四半期業績、ガイダンス). AI分析は Claude が earnings-analyzer スキルの厳格な Fact / Guidance / Speculation 構造で生成。**推測セクションは AI の解釈であり投資勧誘ではありません**。
+    </p>
+  </div>
+  </template>
 
   <!-- Value tab: loading state -->
   <div x-show="market === 'value' && !valueData" class="text-center py-20 text-slate-500">バリュー投資データを読み込み中...</div>
@@ -1413,6 +1599,13 @@ const MARKET_CONFIG = {
     docTitle: 'かな塾長秘書AI投資ナビ | バリュー投資',
     defaultSort: 'm3',
   },
+  earnings: {
+    file: null,  // uses earnings_jp.json + earnings_us.json
+    title: '決算分析',
+    label: 'WEEKLY EARNINGS ANALYSIS (FACT / GUIDANCE / SPECULATION)',
+    docTitle: 'かな塾長秘書AI投資ナビ | 決算分析',
+    defaultSort: 'm3',
+  },
 };
 
 function momentumApp() {
@@ -1443,6 +1636,7 @@ function momentumApp() {
       if (this.market === 'daytrade') return 'gradient-daytrade';
       if (this.market === 'indices')  return 'gradient-indices';
       if (this.market === 'value')    return 'gradient-value';
+      if (this.market === 'earnings') return 'gradient-earnings';
       if (this.market === 'jp') return 'gradient-jp';
       return 'gradient-us';
     },
@@ -1504,6 +1698,65 @@ function momentumApp() {
       }
       if (this.market === 'jp' || this.market === 'us') {
         this.loadSwingPicks();
+      }
+      if (this.market === 'earnings') {
+        this.loadEarnings('jp');
+        this.loadEarnings('us');
+      }
+    },
+
+    async loadEarnings(mkt) {
+      if (this.earningsData[mkt]) return;
+      try {
+        const resp = await fetch('./data/earnings_' + mkt + '.json?v=' + Date.now());
+        if (!resp.ok) return;
+        this.earningsData[mkt] = await resp.json();
+      } catch (e) {
+        console.warn('earnings load failed:', e);
+      }
+    },
+
+    get activeEarnings() {
+      return this.earningsData[this.earningsMarket];
+    },
+
+    toggleEarnings(ticker) {
+      this.earningsExpanded[ticker] = !this.earningsExpanded[ticker];
+    },
+
+    async analyzeOnDemand() {
+      const raw = (this.earningsSearchQuery || '').trim();
+      if (!raw) return;
+      // Normalize: JP 4-digit codes get '.T', US stays as-is, uppercase
+      let ticker = raw.toUpperCase();
+      if (/^\d{4}$/.test(ticker)) ticker = ticker + '.T';
+
+      // Session cache
+      if (this.earningsOnDemandCache[ticker]) {
+        this.earningsOnDemandResult = this.earningsOnDemandCache[ticker];
+        this.earningsOnDemandError = null;
+        return;
+      }
+
+      this.earningsOnDemandLoading = true;
+      this.earningsOnDemandError = null;
+      this.earningsOnDemandResult = null;
+      try {
+        const resp = await fetch('/api/analyze-earnings', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ ticker }),
+        });
+        const body = await resp.json();
+        if (!resp.ok) {
+          throw new Error(body.error || `HTTP ${resp.status}`);
+        }
+        this.earningsOnDemandResult = body;
+        this.earningsOnDemandCache[ticker] = body;
+      } catch (e) {
+        this.earningsOnDemandError = e.message || '不明なエラー';
+      } finally {
+        this.earningsOnDemandLoading = false;
       }
     },
 
@@ -2082,6 +2335,14 @@ function momentumApp() {
     stockCommentaryUs: null,
     swingPicksJp: null,
     swingPicksUs: null,
+    earningsData: { jp: null, us: null },
+    earningsMarket: 'us',         // 'jp' | 'us' toggle within tab
+    earningsExpanded: {},         // {ticker: bool} for expand/collapse
+    earningsSearchQuery: '',      // user input for on-demand analysis
+    earningsOnDemandLoading: false,
+    earningsOnDemandResult: null, // {ticker, facts, analysis, ...}
+    earningsOnDemandError: null,
+    earningsOnDemandCache: {},    // {ticker: result} session cache
     dayTradePanels: [
       { key: 'total_score',     label: '🏆 デイトレ総合スコア',                    text: 'text-rose-700' },
       { key: 'matsui_fitness',  label: '🌟 デイトレ適性(松井証券参考)',            text: 'text-orange-700',

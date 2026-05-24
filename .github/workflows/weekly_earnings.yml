@@ -1,0 +1,52 @@
+name: Weekly Earnings Analysis (JP + US)
+
+on:
+  schedule:
+    # 毎週日曜 22:00 JST = 13:00 UTC (週明けの分析として土曜終了時点まで反映)
+    - cron: "0 13 * * 0"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  earnings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build US earnings analysis
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python batch/build_earnings_analysis.py us
+
+      - name: Build JP earnings analysis
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python batch/build_earnings_analysis.py jp
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase --autostash origin main || true
+          git add web/data/earnings_us.json web/data/earnings_jp.json
+          if git diff --cached --quiet; then
+            echo "No earnings changes to commit"
+          else
+            git commit -m "data(earnings): weekly update $(date -u +%Y-%m-%d)"
+            git push
+          fi
