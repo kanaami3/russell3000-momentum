@@ -1,9 +1,9 @@
-name: Weekly JP Value Investing Screen
+name: Daily JP Value Investing Screen (weekdays)
 
 on:
   schedule:
-    # 毎週日曜 21:00 JST = 12:00 UTC(月曜寄付前に間に合うように)
-    - cron: "0 12 * * 0"
+    # 平日毎日 21:00 JST = 12:00 UTC(東証クローズ後・翌寄付前に更新)
+    - cron: "0 12 * * 1-5"
   workflow_dispatch: {}
 
 permissions:
