@@ -82,9 +82,3 @@ jobs:
             git commit -m "data(jp): daily update $(date -u +%Y-%m-%d)"
             git push
           fi
-
-      - name: Notify Discord (大引け振り返り)
-        if: always()
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: python batch/notify_discord.py daily_jp || true
