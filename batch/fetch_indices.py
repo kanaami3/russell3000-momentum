@@ -22,6 +22,17 @@ from pathlib import Path
 import pandas as pd
 import yfinance as yf
 
+# Yahoo Finance occasionally rate-limits GitHub Actions IPs, returning stale or
+# empty data. Using curl_cffi's browser-impersonated TLS fingerprint (Chrome)
+# bypasses this. Falls back to a normal session if curl_cffi is unavailable.
+try:
+    from curl_cffi import requests as creq
+    _YF_SESSION = creq.Session(impersonate="chrome")
+    print("[fetch_indices] using curl_cffi (Chrome impersonation)", file=sys.stderr)
+except ImportError:
+    _YF_SESSION = None
+    print("[fetch_indices] curl_cffi unavailable — using default session", file=sys.stderr)
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_PATH = REPO_ROOT / "web" / "data" / "indices.json"
 
@@ -125,7 +136,8 @@ def _try_fetch(symbol: str) -> pd.DataFrame | None:
     """Fetch with retry. Returns None if all attempts fail."""
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            df = yf.Ticker(symbol).history(period=PERIOD, interval="1d", auto_adjust=True)
+            ticker = yf.Ticker(symbol, session=_YF_SESSION) if _YF_SESSION else yf.Ticker(symbol)
+            df = ticker.history(period=PERIOD, interval="1d", auto_adjust=True)
             if not df.empty and len(df) >= 50:
                 return df
             print(f"    {symbol}: attempt {attempt} got {len(df)} rows (need ≥50)", file=sys.stderr)
