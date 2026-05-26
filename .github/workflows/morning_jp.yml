@@ -72,3 +72,9 @@ jobs:
             git commit -m "data(jp morning): daytrade brief $(date -u +%Y-%m-%d)"
             git push
           fi
+
+      - name: Notify Discord (朝のAI寄付ピック)
+        if: always()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python batch/notify_discord.py morning_brief || true

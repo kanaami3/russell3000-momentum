@@ -50,3 +50,9 @@ jobs:
             git commit -m "data(earnings): weekly update $(date -u +%Y-%m-%d)"
             git push
           fi
+
+      - name: Notify Discord (決算分析更新)
+        if: always()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python batch/notify_discord.py earnings || true
