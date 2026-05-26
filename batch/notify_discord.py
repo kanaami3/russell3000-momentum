@@ -76,10 +76,23 @@ def _trunc(s: str, n: int) -> str:
 
 def build_morning_brief() -> dict:
     """Posted ~08:00 JST after morning_jp.yml — AI daytrade brief is ready."""
+    import datetime as _dt
     brief = _load("morning_brief_jp.json") or {}
     portfolio = _load("portfolio_jp.json") or {}
 
-    date = brief.get("asof", "")
+    # asof = previous close used for the analysis. The picks themselves are
+    # for the NEXT trading session's open — that's what we show in the title.
+    asof = brief.get("asof", "")
+    try:
+        d = _dt.date.fromisoformat(asof)
+        # Roll forward to next weekday (Mon-Fri)
+        nd = d + _dt.timedelta(days=1)
+        while nd.weekday() >= 5:  # 5=Sat, 6=Sun
+            nd += _dt.timedelta(days=1)
+        date = nd.isoformat()
+    except Exception:
+        date = asof or ""
+
     picks = brief.get("ai_picks", [])[:7]
     macro = brief.get("macro_signals", [])[:3]
 
