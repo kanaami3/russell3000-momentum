@@ -47,21 +47,23 @@ jobs:
             echo "ANTHROPIC_API_KEY not set — skipping value commentary"
           fi
 
+      # Notify FIRST so the state file (data/notify_state.json) is updated
+      # before the commit step picks it up.
+      - name: Notify Discord (新規バリュー銘柄出現時のみ)
+        if: always()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python batch/notify_discord.py value_alert || true
+
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git pull --rebase --autostash origin main || true
-          git add data/universe_jp.json web/data/value_jp.json
+          git add data/universe_jp.json data/notify_state.json web/data/value_jp.json
           if git diff --cached --quiet; then
             echo "No value-screen changes to commit"
           else
-            git commit -m "data(jp value): weekly update $(date -u +%Y-%m-%d)"
+            git commit -m "data(jp value): daily update $(date -u +%Y-%m-%d)"
             git push
           fi
-
-      - name: Notify Discord (バリュー投資更新)
-        if: always()
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: python batch/notify_discord.py value_jp || true

@@ -94,8 +94,8 @@ jobs:
             git push
           fi
 
-      - name: Notify Discord (米国引け + 指数更新)
+      - name: Notify Discord (マーケット急変アラートのみ ±2%)
         if: always()
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: python batch/notify_discord.py daily_us || true
+        run: python batch/notify_discord.py market_alert || true
