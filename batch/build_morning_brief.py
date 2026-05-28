@@ -436,8 +436,20 @@ def main() -> int:
     ai_pool = _build_ai_input_pool(scored, picks, gap_candidates, n=30)
 
     asof_date = str(prices["date"].max())
+
+    # target_date = the trading session these picks are FOR — i.e. the next
+    # weekday after the asof close. This is what users care about ("today's
+    # picks"), so the site shows this rather than the data-basis date.
+    import datetime as _dt
+    _asof_d = pd.Timestamp(asof_date).date()
+    _td = _asof_d + _dt.timedelta(days=1)
+    while _td.weekday() >= 5:  # skip Sat(5)/Sun(6)
+        _td += _dt.timedelta(days=1)
+    target_date = _td.isoformat()
+
     result = {
         "asof": asof_date,                              # data is from this trading day's close
+        "target_date": target_date,                     # picks are for this session's open
         "generated_at_jst": pd.Timestamp.now(tz="Asia/Tokyo").isoformat(),
         "universe_size": int(len(universe)),
         "tradable_count": int(len(filtered)),
