@@ -93,9 +93,5 @@ jobs:
             git commit -m "data(us): daily update $(date -u +%Y-%m-%d)"
             git push
           fi
-
-      - name: Notify Discord (マーケット急変アラートのみ ±2%)
-        if: always()
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: python batch/notify_discord.py market_alert || true
+      # 指数の Discord 通知は 21:00 JST の統合ダイジェスト(weekly_value_jp)に集約。
+      # ここでは送信しない。

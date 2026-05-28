@@ -202,6 +202,102 @@ def build_value_alert() -> dict | None:
     return {"username": "塾長秘書AI", "embeds": [embed]}
 
 
+def build_daily_digest() -> dict:
+    """One combined daily report: デイトレ大引け + 指数 + バリュー. Always posts.
+
+    Fired once a day at 21:00 JST (after the value screen runs), by which point
+    today's indices (07:30), daytrade close + reflection (17:00), and value
+    screen (21:00) are all available.
+    """
+    indices = _load("indices.json") or {}
+    v = _load("value_jp.json") or {}
+    portfolio = _load("portfolio_jp.json") or {}
+    reflections = _load("reflections_jp.json") or {}
+
+    # --- デイトレ大引け ---
+    date = portfolio.get("last_simulated_date", "")
+    equity = portfolio.get("equity", 0)
+    total_pct = portfolio.get("total_pnl_pct", 0)
+    daily_eq = portfolio.get("daily_equity", [])
+    today_row = next((d for d in daily_eq if d.get("date") == date), None)
+    daily_yen = today_row.get("daily_pnl") if today_row else None
+    daily_pct = today_row.get("daily_pnl_pct") if today_row else None
+    closed = [t for t in portfolio.get("trade_history", []) if t.get("exit_date") == date]
+    wins = sum(1 for t in closed if t.get("pnl", 0) > 0)
+    losses = sum(1 for t in closed if t.get("pnl", 0) < 0)
+    open_n = len(portfolio.get("open_positions", []))
+
+    trade_lines = []
+    for t in closed[:6]:
+        emoji = "🟢" if t.get("pnl", 0) > 0 else "🔴"
+        trade_lines.append(
+            f"{emoji} `{t.get('ticker')}` {_trunc(t.get('name',''),10)}: "
+            f"{t.get('pnl_pct',0):+.2f}% ({t.get('outcome','-')})"
+        )
+
+    refl_list = reflections.get("reflections", []) if isinstance(reflections, dict) else []
+    refl_text = ""
+    if refl_list and refl_list[0].get("date") == date:
+        refl_text = _trunc(refl_list[0].get("reflection", ""), 300)
+
+    daily_str = (
+        f"¥{daily_yen:+,} ({daily_pct:+.2f}%)"
+        if daily_yen is not None and daily_pct is not None else "-"
+    )
+    dt_color = COLOR_BULL if (daily_pct or 0) >= 0 else COLOR_BEAR
+    dt_desc = (
+        f"**評価額** ¥{equity:,} / **本日** {daily_str} / **通算** {total_pct:+.2f}%\n"
+        f"約定 {len(closed)}件(勝ち {wins}/負け {losses}) / 持越し {open_n}銘柄"
+    )
+    if trade_lines:
+        dt_desc += "\n\n**本日の決済**\n" + "\n".join(trade_lines)
+    if refl_text:
+        dt_desc += f"\n\n**🪞 振り返り**\n_{refl_text}_"
+
+    # --- 指数モニター ---
+    idx_lines = []
+    for ix in indices.get("indices", []):
+        cur = ix.get("current", {})
+        ind = ix.get("indicators", {})
+        cp = cur.get("change_pct", 0) or 0
+        emoji = "🔴" if cp < 0 else "🟢"
+        idx_lines.append(
+            f"{emoji} **{ix.get('label')}** {cur.get('value',0):,.2f} "
+            f"({cp:+.2f}%) _{ind.get('trend','-')}_"
+        )
+
+    # --- バリュー株 ---
+    val_lines = []
+    for p in (v.get("ai_picks") or [])[:5]:
+        val_lines.append(
+            f"• `{p.get('ticker')}` **{_trunc(p.get('name',''),12)}** — "
+            f"_{_trunc(p.get('appeal',''),60)}_"
+        )
+
+    embeds = [
+        {
+            "title": f"📊 本日のまとめ({date})— デイトレ大引け",
+            "description": dt_desc,
+            "color": dt_color,
+            "url": f"{SITE_URL}/#daytrade",
+        },
+        {
+            "title": "📈 指数モニター",
+            "description": "\n".join(idx_lines) if idx_lines else "_(なし)_",
+            "color": COLOR_INFO,
+            "url": f"{SITE_URL}/#indices",
+        },
+        {
+            "title": "💎 バリュー株 AIピック",
+            "description": "\n".join(val_lines) if val_lines else "_(なし)_",
+            "color": COLOR_GOLD,
+            "url": f"{SITE_URL}/#value",
+            "footer": {"text": "かな塾長秘書AI投資ナビ"},
+        },
+    ]
+    return {"username": "塾長秘書AI", "embeds": embeds}
+
+
 def build_earnings() -> dict:
     """Weekly earnings update — always posts (週1で頻度低いため)."""
     e = _load("earnings_analysis.json") or {}
@@ -242,9 +338,10 @@ def build_earnings() -> dict:
 # ---------------------------------------------------------------------------
 
 BUILDERS = {
-    "market_alert": build_market_alert,
-    "value_alert":  build_value_alert,
-    "earnings":     build_earnings,
+    "daily_digest": build_daily_digest,   # 1日1回の統合ダイジェスト(21:00 JST)
+    "market_alert": build_market_alert,   # (予備) ±2% 急変時のみ
+    "value_alert":  build_value_alert,    # (予備) 新規バリュー銘柄時のみ
+    "earnings":     build_earnings,       # 週次・日曜
 }
 
 
