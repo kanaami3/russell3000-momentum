@@ -40,7 +40,10 @@ OUTPUT_PATH = REPO_ROOT / "web" / "data" / "indices.json"
 # primary fails — yfinance occasionally rate-limits GitHub Actions IPs on
 # certain symbols (notably ^N225), so we keep alternates ready.
 INDICES = [
-    {"id": "N225",   "yf": "^N225",  "fallbacks": ["NIY=F", "^NKX"],
+    # ^N225 (cash index) is the true value but Yahoo lags it 1-2 days; NIY=F
+    # (CME Nikkei futures) tracks it closely (~0.3% basis) and stays current,
+    # so it's the staleness fallback. (^NKX is delisted — removed.)
+    {"id": "N225",   "yf": "^N225",  "fallbacks": ["NIY=F"],
      "label": "日経225",    "category": "equity_index"},
     {"id": "NDX",    "yf": "^NDX",   "fallbacks": ["QQQ"],
      "label": "NASDAQ100",  "category": "equity_index"},
@@ -150,19 +153,35 @@ def _try_fetch(symbol: str) -> pd.DataFrame | None:
 
 def analyze_index(spec: dict) -> dict | None:
     print(f"  Fetching {spec['label']} ({spec['yf']})...", file=sys.stderr)
-    df = _try_fetch(spec["yf"])
-    used_symbol = spec["yf"]
-    if df is None:
-        for alt in spec.get("fallbacks", []):
-            print(f"    Trying fallback {alt}...", file=sys.stderr)
-            df = _try_fetch(alt)
-            if df is not None:
-                used_symbol = alt
-                print(f"    Using fallback {alt}", file=sys.stderr)
-                break
-    if df is None:
+
+    # Fetch the primary AND every fallback, then pick whichever has the most
+    # RECENT latest bar. Yahoo's cash-index tickers (notably ^N225) sometimes
+    # return valid-but-stale data — 1-2 days behind — so a plain "use the first
+    # that succeeds" approach silently shows old prices. Comparing latest dates
+    # and preferring the freshest source fixes that. Ties prefer the primary
+    # (the true cash index) over futures, since the primary is listed first.
+    candidates = [spec["yf"], *spec.get("fallbacks", [])]
+    best_df = None
+    best_symbol = None
+    best_date = None
+    for sym in candidates:
+        df = _try_fetch(sym)
+        if df is None:
+            continue
+        latest = df.index[-1].date()
+        print(f"    {sym}: latest bar {latest}", file=sys.stderr)
+        if best_date is None or latest > best_date:
+            best_df, best_symbol, best_date = df, sym, latest
+
+    if best_df is None:
         print(f"    SKIPPED {spec['label']}: all symbols failed", file=sys.stderr)
         return None
+
+    df = best_df
+    used_symbol = best_symbol
+    if used_symbol != spec["yf"]:
+        print(f"    Using fresher source {used_symbol} (latest {best_date}) "
+              f"instead of stale {spec['yf']}", file=sys.stderr)
 
     df.columns = [c.lower() for c in df.columns]
     df = df[["open", "high", "low", "close", "volume"]].dropna(subset=["close"])
