@@ -4,6 +4,9 @@ on:
   schedule:
     # 8:00 JST = 23:00 UTC previous-day, runs Sun-Thu UTC = Mon-Fri JST
     - cron: "0 23 * * 0-4"
+    # 予備: GitHub が上の予約をドロップした場合の保険 → 23:40 UTC = 08:40 JST
+    # (当日分が既に生成済みなら AI ステップは自動スキップ — 二重課金なし)
+    - cron: "40 23 * * 0-4"
   workflow_dispatch: {}
 
 permissions:
@@ -37,7 +40,30 @@ jobs:
       - name: Build morning brief (picks + overnight signals)
         run: python batch/build_morning_brief.py
 
+      # If the brief's AI picks already target the same session we just built
+      # for (ai_picks present + generated < 6h ago), this is a backup run —
+      # skip the (paid) Claude steps.
+      - name: Check if AI brief already generated for today
+        id: freshness
+        run: |
+          NEED=$(python3 -c "
+          import json
+          from datetime import datetime
+          try:
+              b = json.load(open('web/data/morning_brief_jp.json'))
+              has_picks = bool(b.get('ai_picks'))
+              gen = datetime.fromisoformat(b['generated_at_jst'])
+              now = datetime.now(gen.tzinfo)
+              age_h = (now - gen).total_seconds() / 3600
+              print('false' if has_picks and age_h < 6 else 'true')
+          except Exception:
+              print('true')
+          ")
+          echo "need_ai=$NEED" >> "$GITHUB_OUTPUT"
+          echo "AI brief generation needed: $NEED"
+
       - name: Generate AI morning brief (Claude)
+        if: steps.freshness.outputs.need_ai == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -51,6 +77,7 @@ jobs:
         run: python batch/calc_momentum.py jp
 
       - name: Generate per-stock 塾長 commentary (JP, Claude)
+        if: steps.freshness.outputs.need_ai == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |

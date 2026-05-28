@@ -4,6 +4,9 @@ on:
   schedule:
     # 日本市場終値 (15:00 JST = 06:00 UTC) 後 → 08:00 UTC = 17:00 JST
     - cron: "0 8 * * 1-5"
+    # 予備: GitHub が上の予約をドロップした場合の保険 → 08:40 UTC = 17:40 JST
+    # (当日分が既に生成済みなら AI ステップは自動スキップ — 二重課金なし)
+    - cron: "40 8 * * 1-5"
   workflow_dispatch: {}
 
 permissions:
@@ -40,7 +43,27 @@ jobs:
       - name: Simulate AI paper-trading portfolio
         run: python batch/trade_simulator.py
 
+      # If today's reflection already matches the simulated day, this is a
+      # backup run — skip the (paid) Claude steps. Otherwise generate them.
+      - name: Check if AI already generated for today
+        id: freshness
+        run: |
+          NEED=$(python3 -c "
+          import json
+          try:
+              p = json.load(open('web/data/portfolio_jp.json'))
+              today = p.get('last_simulated_date')
+              r = json.load(open('web/data/reflections_jp.json'))
+              latest = (r.get('reflections') or [{}])[0].get('date')
+              print('false' if latest == today and today else 'true')
+          except Exception:
+              print('true')
+          ")
+          echo "need_ai=$NEED" >> "$GITHUB_OUTPUT"
+          echo "AI generation needed: $NEED"
+
       - name: Generate daily reflection (Claude)
+        if: steps.freshness.outputs.need_ai == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -51,6 +74,7 @@ jobs:
           fi
 
       - name: Generate AI swing picks (JP, Claude)
+        if: steps.freshness.outputs.need_ai == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -61,6 +85,7 @@ jobs:
           fi
 
       - name: Generate JP market summary (Claude)
+        if: steps.freshness.outputs.need_ai == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |

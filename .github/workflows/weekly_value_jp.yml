@@ -4,6 +4,9 @@ on:
   schedule:
     # 平日毎日 21:00 JST = 12:00 UTC(東証クローズ後・翌寄付前に更新)
     - cron: "0 12 * * 1-5"
+    # 予備: GitHub が上の予約をドロップした場合の保険 → 12:40 UTC = 21:40 JST
+    # (当日分が既に生成済みなら全ステップを自動スキップ — 二重課金なし)
+    - cron: "40 12 * * 1-5"
   workflow_dispatch: {}
 
 permissions:
@@ -28,16 +31,40 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # If value_jp.json was generated < 6h ago, this is a backup run after a
+      # successful primary — skip the whole (paid) pipeline.
+      - name: Check if value screen already fresh today
+        id: freshness
+        run: |
+          NEED=$(python3 -c "
+          import json
+          from datetime import datetime
+          try:
+              v = json.load(open('web/data/value_jp.json'))
+              gen = datetime.fromisoformat(v['generated_at_jst'])
+              now = datetime.now(gen.tzinfo)
+              age_h = (now - gen).total_seconds() / 3600
+              print('false' if age_h < 6 else 'true')
+          except Exception:
+              print('true')
+          ")
+          echo "need_run=$NEED" >> "$GITHUB_OUTPUT"
+          echo "Value screen run needed: $NEED"
+
       - name: Fetch JP universe (Prime market)
+        if: steps.freshness.outputs.need_run == 'true'
         run: python batch/fetch_universe_jp.py
 
       - name: Fetch fundamentals (yfinance Ticker.info)
+        if: steps.freshness.outputs.need_run == 'true'
         run: python batch/fetch_value_data.py
 
       - name: Compute value rankings (6 categories)
+        if: steps.freshness.outputs.need_run == 'true'
         run: python batch/calc_value_rankings.py
 
       - name: Generate AI commentary + AI picks (Claude)
+        if: steps.freshness.outputs.need_run == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -50,12 +77,13 @@ jobs:
       # Notify FIRST so the state file (data/notify_state.json) is updated
       # before the commit step picks it up.
       - name: Notify Discord (新規バリュー銘柄出現時のみ)
-        if: always()
+        if: steps.freshness.outputs.need_run == 'true'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python batch/notify_discord.py value_alert || true
 
       - name: Commit and push
+        if: steps.freshness.outputs.need_run == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
