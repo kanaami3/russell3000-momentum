@@ -101,6 +101,64 @@ def parse_targets(text: str) -> tuple[float | None, float | None]:
     return today, nxt
 
 
+def _num_field(pick: dict, key: str) -> float | None:
+    """Read a numeric field from the AI pick, tolerating strings like '5,100円'."""
+    v = pick.get(key)
+    if v is None:
+        return None
+    if isinstance(v, (int, float)):
+        return float(v) if v else None
+    try:
+        return _to_num(str(v).replace("円", "").strip()) or None
+    except (ValueError, AttributeError):
+        return None
+
+
+def resolve_levels(pick: dict, ref_price: float) -> tuple[float | None, float | None, float | None, float | None, float | None]:
+    """Resolve (entry_low, entry_high, stop, target_today, target_next).
+
+    Prefers the AI's explicit numeric fields (entry_low/entry_high/stop/
+    target_today/target_next); falls back to parsing the prose entry/target/
+    risk text only when a numeric field is missing. Any level more than 60%
+    away from ref_price (the day's open) is treated as a parse error and
+    dropped — this rejects bogus values like an RSI (87) or a clock time (30)
+    that the old text parser used to grab as a "price".
+    """
+    def sane(x):
+        if x is None:
+            return None
+        if ref_price > 0 and (x < ref_price * 0.4 or x > ref_price * 1.6):
+            return None
+        return x
+
+    entry_low = sane(_num_field(pick, "entry_low"))
+    entry_high = sane(_num_field(pick, "entry_high"))
+    stop = sane(_num_field(pick, "stop"))
+    target_today = sane(_num_field(pick, "target_today"))
+    target_next = sane(_num_field(pick, "target_next"))
+
+    # Text fallbacks for anything still missing
+    if entry_low is None or entry_high is None:
+        el, eh = parse_entry_range(pick.get("entry", ""))
+        entry_low = entry_low or sane(el)
+        entry_high = entry_high or sane(eh)
+    if target_today is None or target_next is None:
+        tt, tn = parse_targets(pick.get("target", ""))
+        target_today = target_today or sane(tt)
+        target_next = target_next or sane(tn)
+    if stop is None:
+        # Risk text is the least reliable source; only trust it if it lands
+        # in a sane band below entry.
+        stop = sane(parse_first_price(pick.get("risk", "")))
+
+    # Final coherence: entry_low ≤ entry_high
+    if entry_low and entry_high and entry_low > entry_high:
+        entry_low, entry_high = entry_high, entry_low
+    if entry_low and entry_high is None:
+        entry_high = entry_low
+    return entry_low, entry_high, stop, target_today, target_next
+
+
 # ---------------------------------------------------------------------------
 # Portfolio state
 # ---------------------------------------------------------------------------
@@ -285,11 +343,16 @@ def open_today_positions(p: dict, picks: list[dict], prices: pd.DataFrame, today
         if ohlc is None:
             continue
 
-        entry_low, entry_high = parse_entry_range(pick.get("entry", ""))
-        target_today, target_next = parse_targets(pick.get("target", ""))
-        stop = parse_first_price(pick.get("risk", ""))
-        if not entry_low or not stop:
+        # Prefer the AI's explicit numeric fields; fall back to prose parsing.
+        # ref_price = today's open, used to reject bogus levels (RSI, clock
+        # times, percentages) that don't make sense as a share price.
+        entry_low, entry_high, stop, target_today, target_next = resolve_levels(
+            pick, ohlc["open"]
+        )
+        if not entry_low:
             continue
+        if not stop:
+            stop = entry_low * 0.97  # synthetic 3% stop when none given
         # Sanity: stop must be below entry (long-only sim)
         if stop >= entry_low:
             stop = entry_low * 0.97  # fall back to a synthetic 3% stop
