@@ -43,9 +43,3 @@ jobs:
           bash batch/safe_commit_push.sh \
             "data(earnings): weekly update $(date -u +%Y-%m-%d)" \
             web/data/earnings_us.json web/data/earnings_jp.json
-
-      - name: Notify Discord (決算分析更新)
-        if: always()
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: python batch/notify_discord.py earnings || true

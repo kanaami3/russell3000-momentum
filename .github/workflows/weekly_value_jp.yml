@@ -81,13 +81,3 @@ jobs:
           bash batch/safe_commit_push.sh \
             "data(jp value): daily update $(date -u +%Y-%m-%d)" \
             data/universe_jp.json web/data/value_jp.json
-
-      # 1日1回の統合ダイジェスト(指数 + バリュー + デイトレ大引け)を送信。
-      # この時刻には当日の指数(07:30)・大引け(17:00)・バリュー(21:00)が
-      # 全て揃っている。safe_commit_push が直前に origin と同期済みなので
-      # ワークツリーは最新 — 追加の pull は不要。
-      - name: Notify Discord (本日のまとめ・統合ダイジェスト)
-        if: steps.freshness.outputs.need_run == 'true'
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: python batch/notify_discord.py daily_digest || true
