@@ -24,7 +24,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 BRIEF_PATH = REPO_ROOT / "web" / "data" / "morning_brief_jp.json"
 
 MODEL = "claude-haiku-4-5-20251001"
-MAX_TOKENS = 3000
+# 7 picks × (narrative + prose entry/target/risk + 5 numeric fields) can run
+# long; 3000 truncated the trailing ```json``` block (picks parsed as 0).
+MAX_TOKENS = 6000
 
 
 def build_prompt(data: dict) -> str:
