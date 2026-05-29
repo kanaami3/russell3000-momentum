@@ -26,7 +26,9 @@ VALUE_PATH = REPO_ROOT / "web" / "data" / "value_jp.json"
 
 MODEL = "claude-haiku-4-5-20251001"
 MAX_TOKENS_NARRATIVE = 1500
-MAX_TOKENS_PICKS = 2500
+# 7 picks × verbose JP fields (appeal/growth_evidence/risk/target_observation)
+# occasionally exceeded 2500, truncating the ```json``` block → 0 picks parsed.
+MAX_TOKENS_PICKS = 4000
 MAX_TOKENS_CATEGORY = 500
 
 CATEGORY_LABELS = {
