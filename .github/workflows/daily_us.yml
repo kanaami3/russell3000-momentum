@@ -82,16 +82,9 @@ jobs:
 
       - name: Commit and push
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Pull any concurrent changes (e.g. from the JP workflow)
-          git pull --rebase --autostash origin main || true
-          git add data/universe_us.json web/data/momentum_us.json web/data/chart_data_us.json web/data/indices.json web/data/stock_commentary_us.json web/data/swing_picks_us.json
-          if git diff --cached --quiet; then
-            echo "No US changes to commit"
-          else
-            git commit -m "data(us): daily update $(date -u +%Y-%m-%d)"
-            git push
-          fi
+          bash batch/safe_commit_push.sh \
+            "data(us): daily update $(date -u +%Y-%m-%d)" \
+            data/universe_us.json web/data/momentum_us.json web/data/chart_data_us.json \
+            web/data/indices.json web/data/stock_commentary_us.json web/data/swing_picks_us.json
       # 指数の Discord 通知は 21:00 JST の統合ダイジェスト(weekly_value_jp)に集約。
       # ここでは送信しない。

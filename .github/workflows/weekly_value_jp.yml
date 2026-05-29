@@ -77,24 +77,16 @@ jobs:
       - name: Commit and push
         if: steps.freshness.outputs.need_run == 'true'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git pull --rebase --autostash origin main || true
-          git add data/universe_jp.json web/data/value_jp.json
-          if git diff --cached --quiet; then
-            echo "No value-screen changes to commit"
-          else
-            git commit -m "data(jp value): daily update $(date -u +%Y-%m-%d)"
-            git push
-          fi
+          bash batch/safe_commit_push.sh \
+            "data(jp value): daily update $(date -u +%Y-%m-%d)" \
+            data/universe_jp.json web/data/value_jp.json
 
       # 1日1回の統合ダイジェスト(指数 + バリュー + デイトレ大引け)を送信。
       # この時刻には当日の指数(07:30)・大引け(17:00)・バリュー(21:00)が
-      # 全て揃っている。最新データを pull してから送る。
+      # 全て揃っている。safe_commit_push が直前に origin と同期済みなので
+      # ワークツリーは最新 — 追加の pull は不要。
       - name: Notify Discord (本日のまとめ・統合ダイジェスト)
         if: steps.freshness.outputs.need_run == 'true'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: |
-          git pull --rebase --autostash origin main || true
-          python batch/notify_discord.py daily_digest || true
+        run: python batch/notify_discord.py daily_digest || true

@@ -40,16 +40,9 @@ jobs:
 
       - name: Commit and push
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git pull --rebase --autostash origin main || true
-          git add web/data/earnings_us.json web/data/earnings_jp.json
-          if git diff --cached --quiet; then
-            echo "No earnings changes to commit"
-          else
-            git commit -m "data(earnings): weekly update $(date -u +%Y-%m-%d)"
-            git push
-          fi
+          bash batch/safe_commit_push.sh \
+            "data(earnings): weekly update $(date -u +%Y-%m-%d)" \
+            web/data/earnings_us.json web/data/earnings_jp.json
 
       - name: Notify Discord (決算分析更新)
         if: always()
