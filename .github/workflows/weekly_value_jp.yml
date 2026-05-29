@@ -31,8 +31,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # If value_jp.json was generated < 6h ago, this is a backup run after a
-      # successful primary — skip the whole (paid) pipeline.
+      # Skip the (paid) pipeline only if a COMPLETE result already exists:
+      # generated < 6h ago AND ai_picks present. An empty ai_picks means the
+      # prior run failed (e.g. JSON truncation), so we must regenerate.
       - name: Check if value screen already fresh today
         id: freshness
         run: |
@@ -42,9 +43,9 @@ jobs:
           try:
               v = json.load(open('web/data/value_jp.json'))
               gen = datetime.fromisoformat(v['generated_at_jst'])
-              now = datetime.now(gen.tzinfo)
-              age_h = (now - gen).total_seconds() / 3600
-              print('false' if age_h < 6 else 'true')
+              age_h = (datetime.now(gen.tzinfo) - gen).total_seconds() / 3600
+              fresh = age_h < 6 and bool(v.get('ai_picks'))
+              print('false' if fresh else 'true')
           except Exception:
               print('true')
           ")
