@@ -426,7 +426,7 @@
   <template x-if="market === 'indices' && indicesData">
   <div class="space-y-8">
     <p class="text-xs text-slate-500">
-      🎯 EA(自動売買)開発を見据えた指数モニター。RSI(14)・MACD(12/26/9)・ボリンジャー(20,2)・ATR(14)・SMA(20/50/200)を計算し、テクニカル状態を可視化。データソース: Yahoo Finance(yfinance)。
+      🎯 EA(自動売買)開発を見据えた指数モニター。RSI(14)・MACD(12/26/9)・ボリンジャー(20,2)・ATR(14)・SMA(20/50/200)を計算し、テクニカル状態を可視化。データソース: Yahoo Finance(yfinance)。<strong class="text-teal-700">平日毎日 07:30 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="indicesData.asof"></span> (更新 <span x-text="(indicesData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
     </p>
 
     <!-- Overall AI commentary at the top -->
