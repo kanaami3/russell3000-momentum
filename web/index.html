@@ -308,7 +308,7 @@
   <template x-if="market === 'value' && valueData">
   <div class="space-y-8">
     <p class="text-xs text-slate-500">
-      💎 東証プライム約<span x-text="valueData.universe_size"></span>銘柄から、時価総額500億円以上(<span x-text="valueData.filtered_count"></span>銘柄)を対象にバリュー投資指標でスクリーニング。配当 + 割安 + 売上継続 + 成長見込み の4軸でランキング。データソース: yfinance Ticker.info。週次更新(毎週日曜)。
+      💎 東証プライム約<span x-text="valueData.universe_size"></span>銘柄から、時価総額500億円以上(<span x-text="valueData.filtered_count"></span>銘柄)を対象にバリュー投資指標でスクリーニング。配当 + 割安 + 売上継続 + 成長見込み の4軸でランキング。データソース: yfinance Ticker.info。<strong class="text-blue-700">平日毎日 21:00 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="valueData.asof"></span> (更新 <span x-text="(valueData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
     </p>
 
     <!-- AI Overall commentary -->
