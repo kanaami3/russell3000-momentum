@@ -165,7 +165,7 @@
     "name": "ビーアールホールディングス",
     "sector33": "建設業",
     "sector17": "建設・資材",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "-"
   },
   {
     "ticker": "1762.T",
@@ -1432,14 +1432,6 @@
     "size_cat": "TOPIX Small 1"
   },
   {
-    "ticker": "2692.T",
-    "code": "2692",
-    "name": "伊藤忠食品",
-    "sector33": "卸売業",
-    "sector17": "商社・卸売",
-    "size_cat": "TOPIX Small 2"
-  },
-  {
     "ticker": "2695.T",
     "code": "2695",
     "name": "くら寿司",
@@ -1549,7 +1541,7 @@
     "name": "グロービング",
     "sector33": "サービス業",
     "sector17": "情報通信・サービスその他",
-    "size_cat": "-"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "2784.T",
@@ -2624,14 +2616,6 @@
     "size_cat": "TOPIX Mid400"
   },
   {
-    "ticker": "3593.T",
-    "code": "3593",
-    "name": "ホギメディカル",
-    "sector33": "繊維製品",
-    "sector17": "素材・化学",
-    "size_cat": "TOPIX Small 1"
-  },
-  {
     "ticker": "3608.T",
     "code": "3608",
     "name": "ＴＳＩホールディングス",
@@ -2797,7 +2781,7 @@
     "name": "ブイキューブ",
     "sector33": "情報・通信業",
     "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "-"
   },
   {
     "ticker": "3687.T",
@@ -3429,7 +3413,7 @@
     "name": "エア・ウォーター",
     "sector33": "化学",
     "sector17": "素材・化学",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "-"
   },
   {
     "ticker": "4091.T",
@@ -3888,14 +3872,6 @@
     "size_cat": "TOPIX Small 1"
   },
   {
-    "ticker": "4384.T",
-    "code": "4384",
-    "name": "ラクスル",
-    "sector33": "情報・通信業",
-    "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 1"
-  },
-  {
     "ticker": "4385.T",
     "code": "4385",
     "name": "メルカリ",
@@ -4142,14 +4118,6 @@
     "sector33": "医薬品",
     "sector17": "医薬品",
     "size_cat": "TOPIX Mid400"
-  },
-  {
-    "ticker": "4530.T",
-    "code": "4530",
-    "name": "久光製薬",
-    "sector33": "医薬品",
-    "sector17": "医薬品",
-    "size_cat": "-"
   },
   {
     "ticker": "4534.T",
@@ -4816,14 +4784,6 @@
     "size_cat": "TOPIX Small 1"
   },
   {
-    "ticker": "4917.T",
-    "code": "4917",
-    "name": "マンダム",
-    "sector33": "化学",
-    "sector17": "素材・化学",
-    "size_cat": "TOPIX Small 1"
-  },
-  {
     "ticker": "4919.T",
     "code": "4919",
     "name": "ミルボン",
@@ -4941,7 +4901,7 @@
     "name": "タカラバイオ",
     "sector33": "化学",
     "sector17": "素材・化学",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "-"
   },
   {
     "ticker": "4975.T",
@@ -5616,14 +5576,6 @@
     "size_cat": "TOPIX Small 1"
   },
   {
-    "ticker": "5727.T",
-    "code": "5727",
-    "name": "東邦チタニウム",
-    "sector33": "非鉄金属",
-    "sector17": "鉄鋼・非鉄",
-    "size_cat": "TOPIX Small 1"
-  },
-  {
     "ticker": "5741.T",
     "code": "5741",
     "name": "ＵＡＣＪ",
@@ -5952,14 +5904,6 @@
     "size_cat": "TOPIX Small 1"
   },
   {
-    "ticker": "6047.T",
-    "code": "6047",
-    "name": "Ｇｕｎｏｓｙ",
-    "sector33": "サービス業",
-    "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 2"
-  },
-  {
     "ticker": "6050.T",
     "code": "6050",
     "name": "イー・ガーディアン",
@@ -6245,7 +6189,7 @@
     "name": "豊田自動織機",
     "sector33": "輸送用機器",
     "sector17": "自動車・輸送機",
-    "size_cat": "TOPIX Large70"
+    "size_cat": "-"
   },
   {
     "ticker": "6209.T",
@@ -8064,14 +8008,6 @@
     "size_cat": "TOPIX Small 1"
   },
   {
-    "ticker": "7088.T",
-    "code": "7088",
-    "name": "フォーラムエンジニアリング",
-    "sector33": "サービス業",
-    "sector17": "情報通信・サービスその他",
-    "size_cat": "-"
-  },
-  {
     "ticker": "7095.T",
     "code": "7095",
     "name": "Ｍａｃｂｅｅ　Ｐｌａｎｅｔ",
@@ -9325,14 +9261,6 @@
     "name": "ＴＡＫＡＲＡ　＆　ＣＯＭＰＡＮＹ",
     "sector33": "その他製品",
     "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 2"
-  },
-  {
-    "ticker": "7925.T",
-    "code": "7925",
-    "name": "前澤化成工業",
-    "sector33": "化学",
-    "sector17": "素材・化学",
     "size_cat": "TOPIX Small 2"
   },
   {
@@ -11270,14 +11198,6 @@
     "sector33": "陸運業",
     "sector17": "運輸・物流",
     "size_cat": "TOPIX Mid400"
-  },
-  {
-    "ticker": "9046.T",
-    "code": "9046",
-    "name": "神戸電鉄",
-    "sector33": "陸運業",
-    "sector17": "運輸・物流",
-    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "9048.T",
