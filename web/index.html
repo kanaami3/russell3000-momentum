@@ -98,6 +98,29 @@
   </div>
 </nav>
 
+<!-- 本日の更新状況 — 常時表示の鮮度ステータスバー -->
+<div class="bg-slate-50 border-b border-slate-200 text-[11px] sm:text-xs">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex flex-wrap items-center gap-1.5">
+    <span class="font-semibold text-slate-600 mr-1">📡 本日の更新:</span>
+    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(indicesData?.generated_at_jst, 24)">
+      📊 指数 <span x-text="statusBadgeTime(indicesData?.generated_at_jst)"></span>
+    </span>
+    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(morningBrief?.generated_at_jst, 24)">
+      🎯 朝ピック <span x-text="statusBadgeTime(morningBrief?.generated_at_jst)"></span>
+    </span>
+    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(reflections?.generated_at_jst, 30)">
+      📝 大引け <span x-text="statusBadgeTime(reflections?.generated_at_jst)"></span>
+    </span>
+    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(valueData?.generated_at_jst, 30)">
+      💎 バリュー <span x-text="statusBadgeTime(valueData?.generated_at_jst)"></span>
+    </span>
+    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(earningsData?.jp?.generated_at_jst || earningsData?.us?.generated_at_jst, 24*8)">
+      📈 決算 <span x-text="statusBadgeTime(earningsData?.jp?.generated_at_jst || earningsData?.us?.generated_at_jst)"></span>
+    </span>
+    <span class="ml-auto text-slate-400 hidden sm:inline">🟢=新鮮 🟡=やや古 🔴=要再生成</span>
+  </div>
+</div>
+
 <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-12">
 
   <div x-show="loading" class="text-center py-20 text-slate-500">データを読み込み中...</div>
@@ -1636,6 +1659,52 @@ function momentumApp() {
         const h = (location.hash || '').replace('#', '').toLowerCase();
         if (MARKET_CONFIG[h] && h !== this.market) this.setMarket(h, true);
       });
+
+      // Eagerly populate ALL data sources on init so the freshness status bar
+      // can show real timestamps without the user having to click each tab.
+      // ~400KB total — pre-warms every tab so switches become instant.
+      this.loadAllStatusOnInit();
+    },
+
+    async loadAllStatusOnInit() {
+      // Run in parallel; ignore failures so one broken file doesn't block others.
+      const safe = async (fn) => { try { await fn.call(this); } catch (e) { console.warn(e); } };
+      await Promise.allSettled([
+        safe(this.loadMorningBrief),
+        safe(this.loadIndices),
+        safe(this.loadValue),
+        safe(this.loadPortfolio),
+        safe(this.loadReflections),
+        safe(() => this.loadEarnings('jp')),
+        safe(() => this.loadEarnings('us')),
+      ]);
+    },
+
+    // Freshness helpers for the always-visible status bar
+    _ageHours(iso) {
+      if (!iso) return null;
+      const ms = Date.now() - new Date(iso).getTime();
+      return ms / 3600000;
+    },
+    statusBadgeClass(iso, freshH) {
+      const a = this._ageHours(iso);
+      if (a == null) return 'bg-slate-100 text-slate-400 border-slate-200';
+      if (a < freshH)      return 'bg-emerald-50 text-emerald-800 border-emerald-300';
+      if (a < freshH * 2)  return 'bg-amber-50 text-amber-800 border-amber-300';
+      return 'bg-rose-50 text-rose-800 border-rose-300';
+    },
+    statusBadgeTime(iso) {
+      if (!iso) return '未取得';
+      const d = new Date(iso);
+      const now = new Date();
+      const sameDay = d.toDateString() === now.toDateString();
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mm = String(d.getMinutes()).padStart(2,'0');
+      if (sameDay) return `本日 ${hh}:${mm}`;
+      const ms = (now - d);
+      const dayDiff = Math.floor(ms / 86400000);
+      if (dayDiff === 1) return `昨日 ${hh}:${mm}`;
+      return `${d.getMonth()+1}/${d.getDate()} ${hh}:${mm}`;
     },
 
     setMarket(m, replaceUrl) {
