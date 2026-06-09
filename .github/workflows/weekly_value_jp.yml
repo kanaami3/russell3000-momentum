@@ -80,4 +80,4 @@ jobs:
         run: |
           bash batch/safe_commit_push.sh \
             "data(jp value): daily update $(date -u +%Y-%m-%d)" \
-            data/universe_jp.json web/data/value_jp.json
+            data/universe_jp.json data/value_picks_history.json web/data/value_jp.json

@@ -23,6 +23,11 @@ import anthropic
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 VALUE_PATH = REPO_ROOT / "web" / "data" / "value_jp.json"
+# Rotation memory: keep last N runs of picks so the AI can avoid repeating
+# the same handful of "obvious classics" (品川リフラ etc.) every single day.
+HISTORY_PATH = REPO_ROOT / "data" / "value_picks_history.json"
+HISTORY_LOOKBACK = 5  # how many recent runs to show the AI as "already covered"
+HISTORY_KEEP = 14     # how many runs to retain in the file (~2 weeks)
 
 MODEL = "claude-haiku-4-5-20251001"
 MAX_TOKENS_NARRATIVE = 1500
@@ -98,10 +103,68 @@ def build_narrative_prompt(data: dict) -> str:
 """
 
 
-def build_picks_prompt(data: dict) -> str:
+def _load_pick_history() -> list[dict]:
+    """Return [{date, tickers: [..]}, ...] newest-first. Empty on first run."""
+    if not HISTORY_PATH.exists():
+        return []
+    try:
+        h = json.loads(HISTORY_PATH.read_text(encoding="utf-8"))
+        return h.get("runs", []) if isinstance(h, dict) else []
+    except Exception as e:
+        print(f"WARN: history read failed: {e}", file=sys.stderr)
+        return []
+
+
+def _save_pick_history(history: list[dict]) -> None:
+    HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    HISTORY_PATH.write_text(
+        json.dumps({"runs": history[:HISTORY_KEEP]}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+
+def _recent_ticker_summary(history: list[dict]) -> str:
+    """Format the recent runs as 'YYYY-MM-DD: ticker(name), ...' lines for the prompt."""
+    lines = []
+    for run in history[:HISTORY_LOOKBACK]:
+        d = run.get("date", "")
+        items = run.get("picks") or []
+        # Each item: {ticker, name} (we store name too for readability)
+        body = ", ".join(f"{p['ticker']}({p.get('name','')[:6]})" for p in items)
+        lines.append(f"- {d}: {body}")
+    return "\n".join(lines) if lines else "(履歴なし)"
+
+
+def build_picks_prompt(data: dict, history: list[dict] | None = None) -> str:
+    history = history or []
+    # Tickers that appeared in any of the last HISTORY_LOOKBACK runs
+    recent_set: set[str] = set()
+    for run in history[:HISTORY_LOOKBACK]:
+        for p in run.get("picks") or []:
+            t = p.get("ticker")
+            if t:
+                recent_set.add(t)
+
+    rotation_block = ""
+    if history:
+        rotation_block = f"""
+【選定履歴(直近{len(history[:HISTORY_LOOKBACK])}営業日)】 — 同じ顔ぶれの繰り返し回避のため必ず参照すること
+{_recent_ticker_summary(history)}
+
+直近で {len(recent_set)} 銘柄が既に紹介されています。
+
+【ローテーション・ルール(厳守)】
+- **過去{HISTORY_LOOKBACK}営業日に紹介済みの銘柄は最大2銘柄まで**(品川リフラ・住友林業など「常連」を毎回フルで並べるのを禁止)。
+- **新顔(直近{HISTORY_LOOKBACK}営業日に登場していない銘柄)を最低3銘柄含めること**。
+- 上位ランキング(rankings.composite / high_dividend など)から、まだ紹介していない有望株を積極的に発掘する。
+- 「前回も品川リフラが1位だった」のような事実は overall_commentary 側で言及すれば良いので、ai_picks は新規発掘を優先。
+
+"""
+
     return f"""あなたは経験豊富なバリュー投資アナリストです。以下は本日 ({data['asof']}) のバリュー投資スクリーニング結果です。
 
 **配当 + 割安 + 売上継続 + 成長見込み** の4条件にバランス良く該当する銘柄を 5〜7個ピックし、JSON形式で出力してください。
+{rotation_block}
 
 【選定基準(複数該当)】
 - 配当 3%以上(できれば 4%以上)、配当性向 80%以下(無理のない配当)
@@ -187,6 +250,12 @@ def main() -> int:
     data = json.loads(VALUE_PATH.read_text(encoding="utf-8"))
     client = anthropic.Anthropic(api_key=api_key)
 
+    # Load rotation history so we can ask the AI to avoid repeating itself
+    pick_history = _load_pick_history()
+    if pick_history:
+        print(f"  rotation history: {len(pick_history)} runs loaded "
+              f"(showing AI last {min(HISTORY_LOOKBACK, len(pick_history))})", file=sys.stderr)
+
     total_in = 0
     total_out = 0
 
@@ -214,7 +283,7 @@ def main() -> int:
         resp = client.messages.create(
             model=MODEL,
             max_tokens=MAX_TOKENS_PICKS,
-            messages=[{"role": "user", "content": build_picks_prompt(data)}],
+            messages=[{"role": "user", "content": build_picks_prompt(data, pick_history)}],
         )
         text = "".join(b.text for b in resp.content if b.type == "text").strip()
         _, picks = parse_picks(text)
@@ -233,6 +302,24 @@ def main() -> int:
         total_in += resp.usage.input_tokens
         total_out += resp.usage.output_tokens
         print(f"  AI picks: {len(picks)}", file=sys.stderr)
+        # Append today's picks to the rotation-history file (newest first)
+        if picks:
+            recent_set = set()
+            for run in pick_history[:HISTORY_LOOKBACK]:
+                for p in run.get("picks") or []:
+                    if p.get("ticker"):
+                        recent_set.add(p["ticker"])
+            new_count = sum(1 for p in picks if p.get("ticker") not in recent_set)
+            print(f"  rotation: {new_count}/{len(picks)} are new vs last "
+                  f"{min(HISTORY_LOOKBACK, len(pick_history))} runs", file=sys.stderr)
+            today_entry = {
+                "date": data.get("asof", ""),
+                "picks": [{"ticker": p.get("ticker"), "name": p.get("name", "")} for p in picks],
+            }
+            # Replace same-date entry if regenerating, else prepend
+            pick_history = [r for r in pick_history if r.get("date") != today_entry["date"]]
+            pick_history.insert(0, today_entry)
+            _save_pick_history(pick_history)
     except Exception as e:
         print(f"  ERROR picks: {e}", file=sys.stderr)
 
