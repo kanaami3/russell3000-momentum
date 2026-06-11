@@ -2,11 +2,10 @@ name: Morning JP Daytrade Brief
 
 on:
   schedule:
-    # 8:00 JST = 23:00 UTC previous-day, runs Sun-Thu UTC = Mon-Fri JST
-    - cron: "0 23 * * 0-4"
-    # 予備: GitHub が上の予約をドロップした場合の保険 → 23:40 UTC = 08:40 JST
-    # (当日分が既に生成済みなら AI ステップは自動スキップ — 二重課金なし)
-    - cron: "40 23 * * 0-4"
+    # 統一実行時刻: 平日 16:00 JST(翌日寄付向けピックを生成)= 07:00 UTC
+    - cron: "0 7 * * 1-5"
+    # 予備: 16:30 JST
+    - cron: "30 7 * * 1-5"
   workflow_dispatch: {}
 
 permissions:

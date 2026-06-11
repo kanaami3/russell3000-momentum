@@ -2,11 +2,10 @@ name: Daily JP Value Investing Screen (weekdays)
 
 on:
   schedule:
-    # 平日毎日 21:00 JST = 12:00 UTC(東証クローズ後・翌寄付前に更新)
-    - cron: "0 12 * * 1-5"
-    # 予備: GitHub が上の予約をドロップした場合の保険 → 12:40 UTC = 21:40 JST
-    # (当日分が既に生成済みなら全ステップを自動スキップ — 二重課金なし)
-    - cron: "40 12 * * 1-5"
+    # 統一実行時刻: 平日 16:00 JST = 07:00 UTC
+    - cron: "0 7 * * 1-5"
+    # 予備: 16:30 JST
+    - cron: "30 7 * * 1-5"
   workflow_dispatch: {}
 
 permissions:

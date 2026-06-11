@@ -2,8 +2,10 @@ name: Daily US (Russell 3000) Momentum Update
 
 on:
   schedule:
-    # 米国市場終値 (16:00 ET ≈ 21:00 UTC) 後 → 22:30 UTC = 翌 7:30 JST
-    - cron: "30 22 * * 1-5"
+    # 統一実行時刻: 平日 16:00 JST(JP引け後)= 07:00 UTC
+    - cron: "0 7 * * 1-5"
+    # 予備: 16:30 JST(GitHub のスケジュールドロップ保険)
+    - cron: "30 7 * * 1-5"
   workflow_dispatch: {}
 
 permissions:
