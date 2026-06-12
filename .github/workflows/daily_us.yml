@@ -2,10 +2,10 @@ name: Daily US (Russell 3000) Momentum Update
 
 on:
   schedule:
-    # 統一実行時刻: 平日 16:00 JST(JP引け後)= 07:00 UTC
-    - cron: "0 7 * * 1-5"
-    # 予備: 16:30 JST(GitHub のスケジュールドロップ保険)
-    - cron: "30 7 * * 1-5"
+    # 統一実行時刻: 平日 09:00 JST(US引け直後・JP寄付直前)= 00:00 UTC
+    - cron: "0 0 * * 1-5"
+    # 予備: 09:30 JST(GitHub のスケジュールドロップ保険)
+    - cron: "30 0 * * 1-5"
   workflow_dispatch: {}
 
 permissions:

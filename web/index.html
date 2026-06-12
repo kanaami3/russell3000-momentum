@@ -331,7 +331,7 @@
   <template x-if="market === 'value' && valueData">
   <div class="space-y-8">
     <p class="text-xs text-slate-500">
-      💎 東証プライム約<span x-text="valueData.universe_size"></span>銘柄から、時価総額500億円以上(<span x-text="valueData.filtered_count"></span>銘柄)を対象にバリュー投資指標でスクリーニング。配当 + 割安 + 売上継続 + 成長見込み の4軸でランキング。データソース: yfinance Ticker.info。<strong class="text-blue-700">平日毎日 16:00 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="valueData.asof"></span> (更新 <span x-text="(valueData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
+      💎 東証プライム約<span x-text="valueData.universe_size"></span>銘柄から、時価総額500億円以上(<span x-text="valueData.filtered_count"></span>銘柄)を対象にバリュー投資指標でスクリーニング。配当 + 割安 + 売上継続 + 成長見込み の4軸でランキング。データソース: yfinance Ticker.info。<strong class="text-blue-700">平日毎日 09:00 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="valueData.asof"></span> (更新 <span x-text="(valueData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
     </p>
 
     <!-- AI Overall commentary -->
@@ -449,7 +449,7 @@
   <template x-if="market === 'indices' && indicesData">
   <div class="space-y-8">
     <p class="text-xs text-slate-500">
-      🎯 EA(自動売買)開発を見据えた指数モニター。RSI(14)・MACD(12/26/9)・ボリンジャー(20,2)・ATR(14)・SMA(20/50/200)を計算し、テクニカル状態を可視化。データソース: Yahoo Finance(yfinance)。<strong class="text-teal-700">平日毎日 16:00 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="indicesData.asof"></span> (更新 <span x-text="(indicesData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
+      🎯 EA(自動売買)開発を見据えた指数モニター。RSI(14)・MACD(12/26/9)・ボリンジャー(20,2)・ATR(14)・SMA(20/50/200)を計算し、テクニカル状態を可視化。データソース: Yahoo Finance(yfinance)。<strong class="text-teal-700">平日毎日 09:00 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="indicesData.asof"></span> (更新 <span x-text="(indicesData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
     </p>
 
     <!-- Overall AI commentary at the top -->
@@ -955,7 +955,7 @@
     <!-- Initial state callout when no trades yet -->
     <div x-show="(portfolio?.stats?.trade_count ?? 0) === 0" class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-5 text-sm text-slate-600">
       <p class="font-semibold mb-1">📅 取引開始待ち</p>
-      <p class="text-xs leading-relaxed">運用は本日 ¥10,000,000 でスタートしました。AIピックは「次の取引日」用に生成されるため、最初の自動執行は <strong>次の平日 16:00 JST(東証クローズ後)</strong> に実行されます。</p>
+      <p class="text-xs leading-relaxed">運用は本日 ¥10,000,000 でスタートしました。AIピックは「次の取引日」用に生成されるため、最初の自動執行は <strong>次の平日 09:00 JST</strong> に実行されます。</p>
     </div>
 
     <!-- Open positions -->

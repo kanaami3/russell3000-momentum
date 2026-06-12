@@ -2,10 +2,10 @@ name: Morning JP Daytrade Brief
 
 on:
   schedule:
-    # 統一実行時刻: 平日 16:00 JST(翌日寄付向けピックを生成)= 07:00 UTC
-    - cron: "0 7 * * 1-5"
-    # 予備: 16:30 JST
-    - cron: "30 7 * * 1-5"
+    # 統一実行時刻: 平日 09:00 JST(当日寄付向けピックを生成)= 00:00 UTC
+    - cron: "0 0 * * 1-5"
+    # 予備: 09:30 JST
+    - cron: "30 0 * * 1-5"
   workflow_dispatch: {}
 
 permissions:
