@@ -42,6 +42,9 @@ jobs:
       - name: Fetch indices (N225 / NDX / USDJPY with indicators)
         run: python batch/fetch_indices.py
 
+      - name: Fetch Nikkei 225 EPS (official PER → derive EPS)
+        run: python batch/fetch_nikkei_eps.py
+
       - name: Generate index AI commentary (Claude)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -87,6 +90,7 @@ jobs:
           bash batch/safe_commit_push.sh \
             "data(us): daily update $(date -u +%Y-%m-%d)" \
             data/universe_us.json web/data/momentum_us.json web/data/chart_data_us.json \
-            web/data/indices.json web/data/stock_commentary_us.json web/data/swing_picks_us.json
+            web/data/indices.json web/data/stock_commentary_us.json web/data/swing_picks_us.json \
+            web/data/nikkei_eps_history.json
       # 指数の Discord 通知は 21:00 JST の統合ダイジェスト(weekly_value_jp)に集約。
       # ここでは送信しない。
