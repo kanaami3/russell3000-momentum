@@ -72,6 +72,32 @@ def scrape_per_table() -> list[dict]:
     return rows
 
 
+def fetch_topix_proxy() -> dict[str, float]:
+    """Daily TOPIX proxy via 1306.T (NEXT FUNDS TOPIX ETF).
+
+    The TOPIX index itself is no longer scrapeable via Yahoo Finance
+    (^TPX/^TOPX delisted). 1306.T is the largest TOPIX-linked ETF and
+    tracks the index 1:1 (with a small NAV scaling factor), so price
+    direction and YoY changes match TOPIX exactly. Returns {iso_date: close}.
+    """
+    try:
+        import yfinance as yf
+    except ImportError:
+        return {}
+    try:
+        if _SESSION is not None:
+            t = yf.Ticker("1306.T", session=_SESSION)
+        else:
+            t = yf.Ticker("1306.T")
+        df = t.history(period="3y", interval="1d", auto_adjust=True)
+        if df.empty:
+            return {}
+        return {idx.date().isoformat(): float(row["Close"]) for idx, row in df.iterrows()}
+    except Exception as e:
+        print(f"  WARN: 1306.T fetch failed: {e}", file=sys.stderr)
+        return {}
+
+
 def fetch_close_prices() -> dict[str, float]:
     """Return {iso_date: close_float} from Nikkei's daily CSV (2023-)."""
     # The official CSV is Shift-JIS encoded. We don't need the header so any
@@ -98,25 +124,56 @@ def fetch_close_prices() -> dict[str, float]:
     return closes
 
 
+def fetch_topix_proxy() -> dict[str, float]:
+    """Daily TOPIX proxy via 1306.T (NEXT FUNDS TOPIX ETF).
+
+    The TOPIX index itself is no longer scrapeable via Yahoo Finance
+    (^TPX/^TOPX delisted). 1306.T is the largest TOPIX-linked ETF and
+    tracks the index 1:1 (with a small NAV scaling factor), so price
+    direction and YoY changes match TOPIX exactly. Returns {iso_date: close}.
+    """
+    try:
+        import yfinance as yf
+    except ImportError:
+        return {}
+    try:
+        if _SESSION is not None:
+            t = yf.Ticker("1306.T", session=_SESSION)
+        else:
+            t = yf.Ticker("1306.T")
+        df = t.history(period="3y", interval="1d", auto_adjust=True)
+        if df.empty:
+            return {}
+        return {idx.date().isoformat(): float(row["Close"]) for idx, row in df.iterrows()}
+    except Exception as e:
+        print(f"  WARN: 1306.T fetch failed: {e}", file=sys.stderr)
+        return {}
+
+
 # ---------------------------------------------------------------------------
 # Aggregator
 # ---------------------------------------------------------------------------
 
-def merge_history(existing: list[dict], new_rows: list[dict], closes: dict) -> list[dict]:
-    """Update history with the latest PER scrape + ensure close is filled in."""
+def merge_history(existing: list[dict], new_rows: list[dict], closes: dict, topix: dict) -> list[dict]:
+    """Update history with the latest PER scrape + ensure close is filled in.
+
+    `closes` is NK225 daily close, `topix` is the 1306.T close (TOPIX proxy).
+    """
     by_date: dict[str, dict] = {h["date"]: h for h in existing}
     for r in new_rows:
         d = r["date"]
         merged = dict(by_date.get(d, {}))
         merged.update(r)
         merged["close"] = closes.get(d) or merged.get("close")
+        if d in topix:
+            merged["topix_proxy_close"] = round(topix[d], 2)
         if merged.get("close") and merged.get("per_weighted"):
             merged["eps_weighted"] = round(merged["close"] / merged["per_weighted"], 2)
         if merged.get("close") and merged.get("per_index_based"):
             merged["eps_index_based"] = round(merged["close"] / merged["per_index_based"], 2)
         by_date[d] = merged
 
-    # Also ensure existing rows have close filled if missing (CSV catches up later)
+    # Also ensure existing rows have close + topix filled if missing
     for d, h in list(by_date.items()):
         if not h.get("close") and d in closes:
             h["close"] = closes[d]
@@ -124,6 +181,15 @@ def merge_history(existing: list[dict], new_rows: list[dict], closes: dict) -> l
                 h["eps_weighted"] = round(h["close"] / h["per_weighted"], 2)
             if h.get("per_index_based"):
                 h["eps_index_based"] = round(h["close"] / h["per_index_based"], 2)
+        if not h.get("topix_proxy_close") and d in topix:
+            h["topix_proxy_close"] = round(topix[d], 2)
+
+    # Also seed rows that only have topix data (for older history depth)
+    for d, t_close in topix.items():
+        if d not in by_date:
+            by_date[d] = {"date": d, "topix_proxy_close": round(t_close, 2)}
+            if d in closes:
+                by_date[d]["close"] = closes[d]
 
     return sorted(by_date.values(), key=lambda x: x["date"])
 
@@ -180,18 +246,29 @@ def main() -> int:
         print(f"  ERROR CSV: {e}", file=sys.stderr)
         closes = {}
 
+    print("Fetching TOPIX proxy (1306.T NEXT FUNDS ETF)...", file=sys.stderr)
+    topix = fetch_topix_proxy()
+    print(f"  {len(topix)} TOPIX-proxy close rows", file=sys.stderr)
+
     if not per_rows:
         print("ERROR: no PER data; aborting", file=sys.stderr)
         return 1
 
     existing: list[dict] = []
+    preserved: dict = {}  # AI-generated fields to preserve across fetch runs
     if OUTPUT_PATH.exists():
         try:
-            existing = json.loads(OUTPUT_PATH.read_text(encoding="utf-8")).get("history", [])
+            full = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+            existing = full.get("history", [])
+            # Preserve AI-generated commentary so a plain fetch run doesn't wipe
+            # the analysis that generate_macro_commentary.py wrote earlier.
+            for k in ("commentary", "level_judgment", "commentary_model"):
+                if k in full:
+                    preserved[k] = full[k]
         except Exception:
             existing = []
 
-    history = merge_history(existing, per_rows, closes)
+    history = merge_history(existing, per_rows, closes, topix)
     compute_yoy(history)
 
     latest = history[-1] if history else {}
@@ -208,6 +285,8 @@ def main() -> int:
         },
         "history": history,
     }
+    # Re-attach any AI commentary that existed in the previous file
+    output.update(preserved)
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(json.dumps(output, ensure_ascii=False), encoding="utf-8")
