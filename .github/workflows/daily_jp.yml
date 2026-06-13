@@ -3,11 +3,11 @@ name: Daily JP (TSE Prime) Momentum Update
 on:
   schedule:
     # 統一実行時刻: 平日 09:00 JST(前日JP引けデータを処理)= 00:00 UTC
-    - cron: "0 0 * * 1-5"
+    - cron: "0 0 * * *"
     # 多重保険: GitHub Actions の cron ドロップ対策で 3 時間帯に分散
     # (鮮度ガードで当日分が既に処理済みなら AI ステップはスキップ)
-    - cron: "0 3 * * 1-5"  # 12:00 JST
-    - cron: "0 6 * * 1-5"  # 15:00 JST
+    - cron: "0 3 * * *"  # 12:00 JST
+    - cron: "0 6 * * *"  # 15:00 JST
   workflow_dispatch: {}
 
 permissions:
