@@ -71,6 +71,17 @@ jobs:
         if: steps.freshness.outputs.need_run == 'true'
         run: python batch/fetch_nikkei_eps.py
 
+      - name: Generate macro/EPS AI commentary (Claude)
+        if: steps.freshness.outputs.need_run == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            python batch/generate_macro_commentary.py
+          else
+            echo "ANTHROPIC_API_KEY not set — skipping macro commentary"
+          fi
+
       - name: Generate index AI commentary (Claude)
         if: steps.freshness.outputs.need_run == 'true'
         env:
