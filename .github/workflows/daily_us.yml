@@ -34,17 +34,28 @@ jobs:
 
       # 多重 cron で同日に複数回起動するので、当日分が既に揃っていれば
       # 全ステップをスキップして料金を抑える。
+      # 「完成度」の判定は: indices.json が < 6h で生成済み AND 主要な
+      # 派生ファイル(EPS解説など)が揃っていること。
       - name: Check if today's US data already fresh
         id: freshness
         run: |
           NEED=$(python3 -c "
           import json
           from datetime import datetime
-          try:
+          def fresh_indices():
               ix = json.load(open('web/data/indices.json'))
               gen = datetime.fromisoformat(ix['generated_at_jst'])
               age_h = (datetime.now(gen.tzinfo) - gen).total_seconds() / 3600
-              print('false' if age_h < 6 else 'true')
+              return age_h < 6
+          def has_macro_commentary():
+              try:
+                  eps = json.load(open('web/data/nikkei_eps_history.json'))
+                  return bool(eps.get('commentary'))
+              except Exception:
+                  return False
+          try:
+              ok = fresh_indices() and has_macro_commentary()
+              print('false' if ok else 'true')
           except Exception:
               print('true')
           ")
