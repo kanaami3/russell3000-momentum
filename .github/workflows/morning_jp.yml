@@ -4,8 +4,10 @@ on:
   schedule:
     # 統一実行時刻: 平日 09:00 JST(当日寄付向けピックを生成)= 00:00 UTC
     - cron: "0 0 * * 1-5"
-    # 予備: 09:30 JST
-    - cron: "30 0 * * 1-5"
+    # 多重保険: GitHub Actions の cron ドロップ対策で 3 時間帯に分散
+    # (鮮度ガードで当日分が既に生成済みなら全ステップをスキップ)
+    - cron: "0 3 * * 1-5"  # 12:00 JST
+    - cron: "0 6 * * 1-5"  # 15:00 JST
   workflow_dispatch: {}
 
 permissions:
@@ -30,19 +32,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Fetch JP universe (Prime market)
-        run: python batch/fetch_universe_jp.py
-
-      - name: Fetch JP prices (yfinance OHLCV)
-        run: python batch/fetch_prices.py jp
-
-      - name: Build morning brief (picks + overnight signals)
-        run: python batch/build_morning_brief.py
-
-      # If the brief's AI picks already target the same session we just built
-      # for (ai_picks present + generated < 6h ago), this is a backup run —
-      # skip the (paid) Claude steps.
-      - name: Check if AI brief already generated for today
+      # コミット済みのブリーフが新鮮なら全ステップをスキップ。多重 cron 起動
+      # で同日に何度も呼ばれても二重課金が出ない。
+      - name: Check committed brief freshness (before build overwrites)
         id: freshness
         run: |
           NEED=$(python3 -c "
@@ -52,17 +44,28 @@ jobs:
               b = json.load(open('web/data/morning_brief_jp.json'))
               has_picks = bool(b.get('ai_picks'))
               gen = datetime.fromisoformat(b['generated_at_jst'])
-              now = datetime.now(gen.tzinfo)
-              age_h = (now - gen).total_seconds() / 3600
+              age_h = (datetime.now(gen.tzinfo) - gen).total_seconds() / 3600
               print('false' if has_picks and age_h < 6 else 'true')
           except Exception:
               print('true')
           ")
-          echo "need_ai=$NEED" >> "$GITHUB_OUTPUT"
-          echo "AI brief generation needed: $NEED"
+          echo "need_run=$NEED" >> "$GITHUB_OUTPUT"
+          echo "Morning brief run needed: $NEED"
+
+      - name: Fetch JP universe (Prime market)
+        if: steps.freshness.outputs.need_run == 'true'
+        run: python batch/fetch_universe_jp.py
+
+      - name: Fetch JP prices (yfinance OHLCV)
+        if: steps.freshness.outputs.need_run == 'true'
+        run: python batch/fetch_prices.py jp
+
+      - name: Build morning brief (picks + overnight signals)
+        if: steps.freshness.outputs.need_run == 'true'
+        run: python batch/build_morning_brief.py
 
       - name: Generate AI morning brief (Claude)
-        if: steps.freshness.outputs.need_ai == 'true'
+        if: steps.freshness.outputs.need_run == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -73,10 +76,11 @@ jobs:
           fi
 
       - name: Compute JP momentum + chart data (for divergence detection)
+        if: steps.freshness.outputs.need_run == 'true'
         run: python batch/calc_momentum.py jp
 
       - name: Generate per-stock 塾長 commentary (JP, Claude)
-        if: steps.freshness.outputs.need_ai == 'true'
+        if: steps.freshness.outputs.need_run == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -87,6 +91,7 @@ jobs:
           fi
 
       - name: Commit and push
+        if: steps.freshness.outputs.need_run == 'true'
         run: |
           bash batch/safe_commit_push.sh \
             "data(jp morning): daytrade brief $(date -u +%Y-%m-%d)" \

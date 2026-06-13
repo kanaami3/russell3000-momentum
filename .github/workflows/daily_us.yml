@@ -4,8 +4,10 @@ on:
   schedule:
     # 統一実行時刻: 平日 09:00 JST(US引け直後・JP寄付直前)= 00:00 UTC
     - cron: "0 0 * * 1-5"
-    # 予備: 09:30 JST(GitHub のスケジュールドロップ保険)
-    - cron: "30 0 * * 1-5"
+    # 多重保険: GitHub Actions の cron ドロップ対策で 3 時間帯に分散
+    # (鮮度ガードで当日分が既に生成済みなら高コストな AI ステップはスキップ)
+    - cron: "0 3 * * 1-5"  # 12:00 JST
+    - cron: "0 6 * * 1-5"  # 15:00 JST
   workflow_dispatch: {}
 
 permissions:
@@ -30,22 +32,47 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # 多重 cron で同日に複数回起動するので、当日分が既に揃っていれば
+      # 全ステップをスキップして料金を抑える。
+      - name: Check if today's US data already fresh
+        id: freshness
+        run: |
+          NEED=$(python3 -c "
+          import json
+          from datetime import datetime
+          try:
+              ix = json.load(open('web/data/indices.json'))
+              gen = datetime.fromisoformat(ix['generated_at_jst'])
+              age_h = (datetime.now(gen.tzinfo) - gen).total_seconds() / 3600
+              print('false' if age_h < 6 else 'true')
+          except Exception:
+              print('true')
+          ")
+          echo "need_run=$NEED" >> "$GITHUB_OUTPUT"
+          echo "US run needed: $NEED"
+
       - name: Fetch US universe (top 3000 by market cap)
+        if: steps.freshness.outputs.need_run == 'true'
         run: python batch/fetch_universe.py
 
       - name: Fetch US prices (yfinance, ~14 months daily)
+        if: steps.freshness.outputs.need_run == 'true'
         run: python batch/fetch_prices.py us
 
       - name: Compute US momentum metrics
+        if: steps.freshness.outputs.need_run == 'true'
         run: python batch/calc_momentum.py us
 
       - name: Fetch indices (N225 / NDX / USDJPY with indicators)
+        if: steps.freshness.outputs.need_run == 'true'
         run: python batch/fetch_indices.py
 
       - name: Fetch Nikkei 225 EPS (official PER → derive EPS)
+        if: steps.freshness.outputs.need_run == 'true'
         run: python batch/fetch_nikkei_eps.py
 
       - name: Generate index AI commentary (Claude)
+        if: steps.freshness.outputs.need_run == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -56,6 +83,7 @@ jobs:
           fi
 
       - name: Generate US market summary (Claude)
+        if: steps.freshness.outputs.need_run == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -66,6 +94,7 @@ jobs:
           fi
 
       - name: Generate per-stock 塾長 commentary (US, Claude)
+        if: steps.freshness.outputs.need_run == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -76,6 +105,7 @@ jobs:
           fi
 
       - name: Generate AI swing picks (US, Claude)
+        if: steps.freshness.outputs.need_run == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -86,6 +116,7 @@ jobs:
           fi
 
       - name: Commit and push
+        if: steps.freshness.outputs.need_run == 'true'
         run: |
           bash batch/safe_commit_push.sh \
             "data(us): daily update $(date -u +%Y-%m-%d)" \
