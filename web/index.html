@@ -236,27 +236,69 @@
     <section class="bg-white border-2 border-orange-200 rounded-2xl p-5 sm:p-6 shadow-sm">
       <h2 class="text-lg font-extrabold text-orange-900 mb-3">📊 本日の日経225 ファンダ</h2>
       <template x-if="(macroData.history || []).length > 0">
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-          <div class="bg-orange-50 rounded-lg p-3">
-            <div class="text-xs text-slate-500">終値</div>
-            <div class="text-xl font-bold text-slate-800">¥<span x-text="(macroData.history[macroData.history.length-1].close || 0).toLocaleString()"></span></div>
-          </div>
-          <div class="bg-orange-50 rounded-lg p-3">
-            <div class="text-xs text-slate-500">加重平均 PER</div>
-            <div class="text-xl font-bold text-slate-800"><span x-text="macroData.history[macroData.history.length-1].per_weighted || '-'"></span> 倍</div>
-          </div>
-          <div class="bg-orange-50 rounded-lg p-3">
-            <div class="text-xs text-slate-500">予想 EPS</div>
-            <div class="text-xl font-bold text-blue-700">¥<span x-text="(macroData.history[macroData.history.length-1].eps_weighted || 0).toLocaleString()"></span></div>
-          </div>
-          <div class="bg-orange-50 rounded-lg p-3">
-            <div class="text-xs text-slate-500">EPS 前年比</div>
-            <div class="text-xl font-bold" :class="(macroData.history[macroData.history.length-1].eps_weighted_yoy_pct ?? 0) >= 0 ? 'text-emerald-700' : 'text-rose-700'">
-              <span x-text="macroData.history[macroData.history.length-1].eps_weighted_yoy_pct != null ? (macroData.history[macroData.history.length-1].eps_weighted_yoy_pct.toFixed(2) + '%') : '蓄積中'"></span>
+        <div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm mb-4">
+            <div class="bg-orange-50 rounded-lg p-3">
+              <div class="text-xs text-slate-500">終値</div>
+              <div class="text-xl font-bold text-slate-800">¥<span x-text="(macroData.history[macroData.history.length-1].close || 0).toLocaleString()"></span></div>
+            </div>
+            <div class="bg-orange-50 rounded-lg p-3">
+              <div class="text-xs text-slate-500">加重平均 PER</div>
+              <div class="text-xl font-bold text-slate-800"><span x-text="macroData.history[macroData.history.length-1].per_weighted || '-'"></span> 倍</div>
+            </div>
+            <div class="bg-orange-50 rounded-lg p-3">
+              <div class="text-xs text-slate-500">予想 EPS</div>
+              <div class="text-xl font-bold text-blue-700">¥<span x-text="(macroData.history[macroData.history.length-1].eps_weighted || 0).toLocaleString()"></span></div>
+            </div>
+            <div class="bg-orange-50 rounded-lg p-3">
+              <div class="text-xs text-slate-500">EPS 前年比</div>
+              <div class="text-xl font-bold" :class="(macroData.history[macroData.history.length-1].eps_weighted_yoy_pct ?? 0) >= 0 ? 'text-emerald-700' : 'text-rose-700'">
+                <span x-text="macroData.history[macroData.history.length-1].eps_weighted_yoy_pct != null ? (macroData.history[macroData.history.length-1].eps_weighted_yoy_pct.toFixed(2) + '%') : '蓄積中'"></span>
+              </div>
             </div>
           </div>
+
+          <!-- PER水準バンド判定 -->
+          <template x-if="macroData.level_judgment">
+            <div class="border rounded-xl p-4"
+                 :class="{
+                  '割安': 'border-emerald-300 bg-emerald-50',
+                  '極度の割安': 'border-emerald-400 bg-emerald-100',
+                  '中立': 'border-slate-300 bg-slate-50',
+                  'やや割高': 'border-amber-300 bg-amber-50',
+                  '割高': 'border-rose-300 bg-rose-50',
+                  '判定不能': 'border-slate-300 bg-slate-50'
+                 }[macroData.level_judgment.band]">
+              <div class="flex items-baseline gap-3 mb-2 flex-wrap">
+                <span class="text-xs uppercase tracking-wide text-slate-500">PER水準判定</span>
+                <span class="text-lg font-extrabold"
+                      :class="{
+                        '割安': 'text-emerald-800',
+                        '極度の割安': 'text-emerald-900',
+                        '中立': 'text-slate-800',
+                        'やや割高': 'text-amber-800',
+                        '割高': 'text-rose-800',
+                        '判定不能': 'text-slate-500'
+                      }[macroData.level_judgment.band]"
+                      x-text="macroData.level_judgment.label"></span>
+              </div>
+              <p class="text-xs text-slate-700 leading-relaxed" x-text="macroData.level_judgment.explanation"></p>
+            </div>
+          </template>
         </div>
       </template>
+    </section>
+
+    <!-- AI commentary -->
+    <section x-show="macroData.commentary" class="bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-300 rounded-2xl p-5 sm:p-6 shadow-sm">
+      <h2 class="flex items-center gap-3 text-lg font-extrabold text-orange-900 mb-3">
+        <span>🤖</span>
+        AI 解説 ─ 割安 / 割高、トレンド、ファンダ vs センチメント
+      </h2>
+      <article class="text-sm leading-relaxed text-slate-700 whitespace-pre-line" x-text="macroData.commentary"></article>
+      <p class="text-[10px] text-slate-400 mt-3">
+        AIによる観察記録(投資勧誘ではありません)・モデル: <span x-text="macroData.commentary_model || 'claude-haiku'"></span>
+      </p>
     </section>
 
     <!-- Chart -->
