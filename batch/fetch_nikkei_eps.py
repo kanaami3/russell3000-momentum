@@ -293,11 +293,21 @@ def main() -> int:
     size_kb = OUTPUT_PATH.stat().st_size / 1024
     print(f"Wrote {OUTPUT_PATH} ({size_kb:.1f} KB, {len(history)} rows)", file=sys.stderr)
     if latest:
-        print(f"  Latest {latest['date']}: close ¥{latest.get('close',0):,.2f} "
-              f"PER(加重平均) {latest.get('per_weighted','-')} "
-              f"EPS ¥{latest.get('eps_weighted','-')} "
-              f"YoY {latest.get('eps_weighted_yoy_pct','-')}%",
-              file=sys.stderr)
+        # Robust formatting: any field may be None on rate-limited days
+        def _fmt(v, suffix="", template=",.2f"):
+            if v is None:
+                return "-" + suffix
+            try:
+                return format(v, template) + suffix
+            except (ValueError, TypeError):
+                return str(v) + suffix
+        print(
+            f"  Latest {latest['date']}: close ¥{_fmt(latest.get('close'))} "
+            f"PER(加重平均) {latest.get('per_weighted','-')} "
+            f"EPS ¥{_fmt(latest.get('eps_weighted'))} "
+            f"YoY {_fmt(latest.get('eps_weighted_yoy_pct'), '%')}",
+            file=sys.stderr,
+        )
     return 0
 
 
