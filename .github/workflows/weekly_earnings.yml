@@ -1,9 +1,11 @@
-name: Weekly Earnings Analysis (JP + US)
+name: Daily Earnings Analysis (JP + US)
 
 on:
   schedule:
-    # 毎週日曜 22:00 JST = 13:00 UTC (週明けの分析として土曜終了時点まで反映)
-    - cron: "0 13 * * 0"
+    # 統一実行時刻: 平日含む毎日 09:00 / 12:00 / 15:00 JST
+    - cron: "0 0 * * *"
+    - cron: "0 3 * * *"  # 12:00 JST
+    - cron: "0 6 * * *"  # 15:00 JST
   workflow_dispatch: {}
 
 permissions:
@@ -28,18 +30,43 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # 多重 cron 起動の二重課金を防ぐ。Claude API を消費する重い分析が
+      # 当日分既に揃っていれば全ステップをスキップ。
+      - name: Check if today's earnings already fresh
+        id: freshness
+        run: |
+          NEED=$(python3 -c "
+          import json, os
+          from datetime import datetime
+          def fresh(path):
+              if not os.path.exists(path): return False
+              try:
+                  d = json.load(open(path))
+                  gen = datetime.fromisoformat(d['generated_at_jst'])
+                  age_h = (datetime.now(gen.tzinfo) - gen).total_seconds() / 3600
+                  return age_h < 6
+              except Exception:
+                  return False
+          print('false' if (fresh('web/data/earnings_us.json') and fresh('web/data/earnings_jp.json')) else 'true')
+          ")
+          echo "need_run=$NEED" >> "$GITHUB_OUTPUT"
+          echo "Earnings run needed: $NEED"
+
       - name: Build US earnings analysis
+        if: steps.freshness.outputs.need_run == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python batch/build_earnings_analysis.py us
 
       - name: Build JP earnings analysis
+        if: steps.freshness.outputs.need_run == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python batch/build_earnings_analysis.py jp
 
       - name: Commit and push
+        if: steps.freshness.outputs.need_run == 'true'
         run: |
           bash batch/safe_commit_push.sh \
-            "data(earnings): weekly update $(date -u +%Y-%m-%d)" \
+            "data(earnings): daily update $(date -u +%Y-%m-%d)" \
             web/data/earnings_us.json web/data/earnings_jp.json
