@@ -41,7 +41,7 @@
           <span class="mx-2 opacity-60">|</span>
           <span x-text="morningBrief?.asof ? (formatDate(morningBrief.asof) + '終値ベース') : ''"></span>
           <span class="mx-2 opacity-60">|</span>
-          <span>毎平日 8:00 JST 更新</span>
+          <span>毎日 09:00 / 12:00 / 15:00 JST 自動更新</span>
         </span>
       </template>
       <template x-if="market !== 'daytrade'">
@@ -228,7 +228,7 @@
     <p class="text-xs text-slate-500">
       📈 日経225 の <strong>予想EPS</strong>(=終値 ÷ 加重平均PER)と<strong>前年比</strong>を毎日蓄積。
       データソース: <a href="https://indexes.nikkei.co.jp/nkave/index/profile?idx=nk225" target="_blank" class="underline text-orange-700">日経インデックスズ公式ページ</a>。
-      <strong class="text-orange-700">平日毎日 09:00 JST 自動更新</strong> ・
+      <strong class="text-orange-700">毎日 09:00 / 12:00 / 15:00 JST 自動更新</strong> ・
       <span class="text-slate-700">asof <span x-text="macroData.asof"></span> (更新 <span x-text="(macroData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
     </p>
 
@@ -481,7 +481,7 @@
   <template x-if="market === 'value' && valueData">
   <div class="space-y-8">
     <p class="text-xs text-slate-500">
-      💎 東証プライム約<span x-text="valueData.universe_size"></span>銘柄から、時価総額500億円以上(<span x-text="valueData.filtered_count"></span>銘柄)を対象にバリュー投資指標でスクリーニング。配当 + 割安 + 売上継続 + 成長見込み の4軸でランキング。データソース: yfinance Ticker.info。<strong class="text-blue-700">平日毎日 09:00 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="valueData.asof"></span> (更新 <span x-text="(valueData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
+      💎 東証プライム約<span x-text="valueData.universe_size"></span>銘柄から、時価総額500億円以上(<span x-text="valueData.filtered_count"></span>銘柄)を対象にバリュー投資指標でスクリーニング。配当 + 割安 + 売上継続 + 成長見込み の4軸でランキング。データソース: yfinance Ticker.info。<strong class="text-blue-700">毎日 09:00 / 12:00 / 15:00 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="valueData.asof"></span> (更新 <span x-text="(valueData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
     </p>
 
     <!-- AI Overall commentary -->
@@ -599,7 +599,7 @@
   <template x-if="market === 'indices' && indicesData">
   <div class="space-y-8">
     <p class="text-xs text-slate-500">
-      🎯 EA(自動売買)開発を見据えた指数モニター。RSI(14)・MACD(12/26/9)・ボリンジャー(20,2)・ATR(14)・SMA(20/50/200)を計算し、テクニカル状態を可視化。データソース: Yahoo Finance(yfinance)。<strong class="text-teal-700">平日毎日 09:00 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="indicesData.asof"></span> (更新 <span x-text="(indicesData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
+      🎯 EA(自動売買)開発を見据えた指数モニター。RSI(14)・MACD(12/26/9)・ボリンジャー(20,2)・ATR(14)・SMA(20/50/200)を計算し、テクニカル状態を可視化。データソース: Yahoo Finance(yfinance)。<strong class="text-teal-700">毎日 09:00 / 12:00 / 15:00 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="indicesData.asof"></span> (更新 <span x-text="(indicesData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
     </p>
 
     <!-- Overall AI commentary at the top -->
@@ -1228,7 +1228,7 @@
       </div>
       <div class="text-xs text-slate-500 text-right">
         <div>asof <span x-text="currentSwingPicks?.asof"></span></div>
-        <div class="text-[10px]">毎平日朝に自動更新</div>
+        <div class="text-[10px]">毎日 09:00 / 12:00 / 15:00 JST 自動更新</div>
       </div>
     </div>
 
