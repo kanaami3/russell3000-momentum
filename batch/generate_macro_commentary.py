@@ -59,13 +59,23 @@ def build_prompt(data: dict) -> str:
     earliest = history[0]
     n = len(history)
 
-    # Recent 30 days as condensed list
+    # Recent 30 days as condensed list. Use safe formatter so None / '-'
+    # (rate-limited days) don't crash with `Unknown format code 'f' for
+    # object of type 'str'`.
+    def _fmt(v, template=",.2f"):
+        if v is None:
+            return "-"
+        try:
+            return format(v, template)
+        except (ValueError, TypeError):
+            return str(v)
+
     tail = history[-30:]
     timeline_lines = []
     for h in tail:
         timeline_lines.append(
-            f"  {h.get('date')}: close ¥{h.get('close','-'):,.2f}, "
-            f"加重PER {h.get('per_weighted','-')}倍, EPS ¥{h.get('eps_weighted','-'):,.0f}"
+            f"  {h.get('date')}: close ¥{_fmt(h.get('close'))}, "
+            f"加重PER {h.get('per_weighted','-')}倍, EPS ¥{_fmt(h.get('eps_weighted'), ',.0f')}"
         )
 
     latest_per = latest.get("per_weighted")
@@ -95,10 +105,10 @@ def build_prompt(data: dict) -> str:
     return f"""あなたは日本株のシニアアナリストです。日経225の予想EPSと加重平均PERの推移から、現在のマーケット位置を**400〜600字の観察記録**として解説してください。
 
 【最新時点 {latest.get('date')}】
-- 終値: ¥{latest.get('close', 0):,.2f}
+- 終値: ¥{_fmt(latest.get('close'))}
 - 加重平均 PER: {latest.get('per_weighted', '-')}倍
 - 指数ベース PER: {latest.get('per_index_based', '-')}倍
-- 予想 EPS: ¥{latest.get('eps_weighted', '-'):,.0f}
+- 予想 EPS: ¥{_fmt(latest.get('eps_weighted'), ',.0f')}
 - EPS 前年比: {latest.get('eps_weighted_yoy_pct', '蓄積中')}
 
 【蓄積期間】 {earliest.get('date')} 〜 {latest.get('date')}({n}日分)
