@@ -53,6 +53,10 @@ jobs:
           echo "need_run=$NEED" >> "$GITHUB_OUTPUT"
           echo "Value screen run needed: $NEED"
 
+      - name: Fetch JPX margin balance (信用倍率)
+        if: steps.freshness.outputs.need_run == 'true'
+        run: python batch/fetch_margin_balance.py
+
       - name: Fetch JP universe (Prime market)
         if: steps.freshness.outputs.need_run == 'true'
         run: python batch/fetch_universe_jp.py
@@ -81,4 +85,5 @@ jobs:
         run: |
           bash batch/safe_commit_push.sh \
             "data(jp value): daily update $(date -u +%Y-%m-%d)" \
-            data/universe_jp.json data/value_picks_history.json web/data/value_jp.json
+            data/universe_jp.json data/value_picks_history.json \
+            web/data/value_jp.json web/data/margin_balance_history.json
