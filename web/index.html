@@ -327,6 +327,70 @@
       </p>
     </section>
 
+    <!-- Chart 3: JPX 信用倍率 (Margin Balance Ratio) -->
+    <section x-show="marginData" class="bg-white border-2 border-rose-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+      <h2 class="text-lg font-extrabold text-rose-900 mb-3">⚖️ 信用倍率(JPX 公式週次)</h2>
+      <p class="text-xs text-slate-500 mb-3">
+        🔴 信用買残 ÷ 信用売残(金額ベース)。**7倍超は急落リスク要警戒**水準として古くから注目される指標。
+        過去 24 年分(2002年〜)蓄積。データ源: JPX 信用取引現在高。週次更新(毎週金曜申込分)。
+      </p>
+
+      <!-- Latest judgment badge -->
+      <template x-if="marginData?.latest_judgment">
+        <div class="rounded-xl p-4 mb-4 border-2"
+             :class="{
+               'emerald': 'border-emerald-300 bg-emerald-50',
+               'blue':    'border-blue-300 bg-blue-50',
+               'amber':   'border-amber-300 bg-amber-50',
+               'orange':  'border-orange-300 bg-orange-50',
+               'rose':    'border-rose-300 bg-rose-50',
+               'slate':   'border-slate-300 bg-slate-50',
+             }[marginData.latest_judgment.color]">
+          <div class="text-xs uppercase tracking-wide text-slate-500 mb-1">最新判定(<span x-text="marginData.asof"></span>申込分)</div>
+          <div class="text-xl font-extrabold"
+               :class="{
+                 'emerald': 'text-emerald-800',
+                 'blue':    'text-blue-800',
+                 'amber':   'text-amber-800',
+                 'orange':  'text-orange-800',
+                 'rose':    'text-rose-900',
+                 'slate':   'text-slate-700',
+               }[marginData.latest_judgment.color]"
+               x-text="marginData.latest_judgment.label"></div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs mt-3">
+            <div>
+              <div class="text-slate-500">信用倍率(金額)</div>
+              <div class="font-bold text-base" x-text="(marginData.history[marginData.history.length-1].ratio_by_value || 0).toFixed(2) + '倍'"></div>
+            </div>
+            <div>
+              <div class="text-slate-500">信用倍率(株数)</div>
+              <div class="font-bold text-base" x-text="(marginData.history[marginData.history.length-1].ratio_by_shares || 0).toFixed(2) + '倍'"></div>
+            </div>
+            <div>
+              <div class="text-slate-500">買残/売残(百万円)</div>
+              <div class="font-bold text-base">¥<span x-text="(marginData.history[marginData.history.length-1].purchases_value_mil || 0).toLocaleString()"></span> / ¥<span x-text="(marginData.history[marginData.history.length-1].sales_value_mil || 0).toLocaleString()"></span></div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Chart -->
+      <div id="macro-margin-chart" class="w-full" style="height: 380px;"></div>
+
+      <!-- Band guide -->
+      <div class="mt-3 text-[11px] text-slate-600 bg-slate-50 rounded-lg p-3">
+        <div class="font-semibold mb-1">📐 判定バンドの目安</div>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-0.5">
+          <li>🟢 <strong>1倍未満</strong> — 売り方優勢、踏み上げ余地・逆張り環境</li>
+          <li>🔵 <strong>1〜3倍</strong> — 健全</li>
+          <li>🟡 <strong>3〜5倍</strong> — 買い偏重、警戒開始</li>
+          <li>🟠 <strong>5〜7倍</strong> — 過熱、上値が重い</li>
+          <li>🔴 <strong>7倍超</strong> — 極度の過熱、急落リスク要警戒</li>
+        </ul>
+        <div class="mt-2 text-slate-500">過去事例: 2007 サブプライム前 / 2018 VIXショック前 / 2024年7月末</div>
+      </div>
+    </section>
+
     <!-- Recent data table -->
     <section class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
       <h2 class="text-base font-bold text-slate-700 mb-3">📋 直近の日次データ</h2>
@@ -1834,6 +1898,7 @@ function momentumApp() {
         safe(this.loadPortfolio),
         safe(this.loadReflections),
         safe(this.loadMacro),
+        safe(this.loadMargin),
         safe(() => this.loadEarnings('jp')),
         safe(() => this.loadEarnings('us')),
       ]);
@@ -1910,6 +1975,7 @@ function momentumApp() {
       }
       if (this.market === 'macro') {
         this.loadMacro();
+        this.loadMargin();
       }
       if (this.market === 'jp' || this.market === 'us') {
         this.loadSwingPicks();
@@ -2129,6 +2195,57 @@ function momentumApp() {
       this._macroTopixChart = chart;
       window.addEventListener('resize', () => {
         if (this._macroTopixChart && el) this._macroTopixChart.applyOptions({ width: el.clientWidth });
+      }, { once: true });
+    },
+
+    async loadMargin() {
+      try { if (this._macroMarginChart) this._macroMarginChart.remove(); } catch(e){}
+      this._macroMarginChart = null;
+      this.marginData = null;
+      try {
+        const resp = await fetch('./data/margin_balance_history.json?v=' + Date.now());
+        if (!resp.ok) return;
+        this.marginData = await resp.json();
+        this.$nextTick(() => this._renderMarginChart());
+      } catch (e) {
+        console.warn('margin load failed:', e);
+      }
+    },
+
+    _renderMarginChart() {
+      const el = document.getElementById('macro-margin-chart');
+      if (!el || !this.marginData || !window.LightweightCharts) return;
+      try { if (this._macroMarginChart) this._macroMarginChart.remove(); } catch(e){}
+      const chart = LightweightCharts.createChart(el, {
+        width: el.clientWidth,
+        height: 380,
+        layout: { background: { color: '#ffffff' }, textColor: '#334155' },
+        grid: { vertLines: { color: '#f1f5f9' }, horzLines: { color: '#f1f5f9' } },
+        rightPriceScale: { borderColor: '#cbd5e1' },
+        timeScale: { borderColor: '#cbd5e1', timeVisible: false, secondsVisible: false },
+        crosshair: { mode: 1 },
+      });
+      const ratioSeries = chart.addLineSeries({
+        color: '#dc2626',
+        lineWidth: 2,
+        title: '信用倍率(金額)',
+      });
+      const data = [];
+      for (const h of (this.marginData.history || [])) {
+        if (h.ratio_by_value != null) {
+          data.push({ time: h.date, value: h.ratio_by_value });
+        }
+      }
+      ratioSeries.setData(data);
+      // Reference lines at 3, 5, 7 (warning bands)
+      ratioSeries.createPriceLine({ price: 7, color: '#dc2626', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: '7倍(極度の過熱)' });
+      ratioSeries.createPriceLine({ price: 5, color: '#ea580c', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: '5倍(過熱)' });
+      ratioSeries.createPriceLine({ price: 3, color: '#f59e0b', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: '3倍(警戒)' });
+      ratioSeries.createPriceLine({ price: 1, color: '#10b981', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: '1倍(売り方優勢)' });
+      chart.timeScale().fitContent();
+      this._macroMarginChart = chart;
+      window.addEventListener('resize', () => {
+        if (this._macroMarginChart && el) this._macroMarginChart.applyOptions({ width: el.clientWidth });
       }, { once: true });
     },
 
@@ -2637,6 +2754,9 @@ function momentumApp() {
     _macroChart: null,
     _macroChartEps: null,
     _macroChartYoy: null,
+    _macroTopixChart: null,
+    marginData: null,             // JPX 信用倍率 history
+    _macroMarginChart: null,
     reflections: null,            // daily-reflection feed
     reflectionsShowAll: false,    // expand to show history
     dayTradePanels: [
