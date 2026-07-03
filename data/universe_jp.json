@@ -128,6 +128,14 @@
     "size_cat": "TOPIX Small 1"
   },
   {
+    "ticker": "166A.T",
+    "code": "166A",
+    "name": "タスキホールディングス",
+    "sector33": "不動産業",
+    "sector17": "不動産",
+    "size_cat": "-"
+  },
+  {
     "ticker": "167A.T",
     "code": "167A",
     "name": "リョーサン菱洋ホールディングス",
@@ -158,14 +166,6 @@
     "sector33": "建設業",
     "sector17": "建設・資材",
     "size_cat": "TOPIX Mid400"
-  },
-  {
-    "ticker": "1726.T",
-    "code": "1726",
-    "name": "ビーアールホールディングス",
-    "sector33": "建設業",
-    "sector17": "建設・資材",
-    "size_cat": "-"
   },
   {
     "ticker": "1762.T",
@@ -1256,14 +1256,6 @@
     "size_cat": "TOPIX Small 2"
   },
   {
-    "ticker": "2540.T",
-    "code": "2540",
-    "name": "養命酒製造",
-    "sector33": "食料品",
-    "sector17": "食品",
-    "size_cat": "TOPIX Small 2"
-  },
-  {
     "ticker": "256A.T",
     "code": "256A",
     "name": "飛島ホールディングス",
@@ -2176,14 +2168,6 @@
     "size_cat": "TOPIX Mid400"
   },
   {
-    "ticker": "3198.T",
-    "code": "3198",
-    "name": "ＳＦＰホールディングス",
-    "sector33": "小売業",
-    "sector17": "小売",
-    "size_cat": "TOPIX Small 2"
-  },
-  {
     "ticker": "3199.T",
     "code": "3199",
     "name": "綿半ホールディングス",
@@ -2552,28 +2536,12 @@
     "size_cat": "TOPIX Small 1"
   },
   {
-    "ticker": "3546.T",
-    "code": "3546",
-    "name": "アレンザホールディングス",
-    "sector33": "小売業",
-    "sector17": "小売",
-    "size_cat": "TOPIX Small 2"
-  },
-  {
     "ticker": "3548.T",
     "code": "3548",
     "name": "バロックジャパンリミテッド",
     "sector33": "小売業",
     "sector17": "小売",
     "size_cat": "TOPIX Small 2"
-  },
-  {
-    "ticker": "3549.T",
-    "code": "3549",
-    "name": "クスリのアオキホールディングス",
-    "sector33": "小売業",
-    "sector17": "小売",
-    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "3561.T",
@@ -3968,14 +3936,6 @@
     "size_cat": "-"
   },
   {
-    "ticker": "4449.T",
-    "code": "4449",
-    "name": "ギフティ",
-    "sector33": "情報・通信業",
-    "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 2"
-  },
-  {
     "ticker": "4452.T",
     "code": "4452",
     "name": "花王",
@@ -4896,14 +4856,6 @@
     "size_cat": "TOPIX Small 2"
   },
   {
-    "ticker": "4974.T",
-    "code": "4974",
-    "name": "タカラバイオ",
-    "sector33": "化学",
-    "sector17": "素材・化学",
-    "size_cat": "-"
-  },
-  {
     "ticker": "4975.T",
     "code": "4975",
     "name": "ＪＣＵ",
@@ -5592,6 +5544,14 @@
     "size_cat": "TOPIX Small 2"
   },
   {
+    "ticker": "575A.T",
+    "code": "575A",
+    "name": "前澤ホールディングス",
+    "sector33": "機械",
+    "sector17": "機械",
+    "size_cat": "TOPIX Small 2"
+  },
+  {
     "ticker": "5801.T",
     "code": "5801",
     "name": "古河電気工業",
@@ -6182,14 +6142,6 @@
     "sector33": "サービス業",
     "sector17": "情報通信・サービスその他",
     "size_cat": "TOPIX Small 1"
-  },
-  {
-    "ticker": "6201.T",
-    "code": "6201",
-    "name": "豊田自動織機",
-    "sector33": "輸送用機器",
-    "sector17": "自動車・輸送機",
-    "size_cat": "-"
   },
   {
     "ticker": "6209.T",
@@ -11358,6 +11310,14 @@
     "sector33": "空運業",
     "sector17": "運輸・物流",
     "size_cat": "TOPIX Mid400"
+  },
+  {
+    "ticker": "92015.T",
+    "code": "92015",
+    "name": "日本航空株式会社第１回社債型種類株式",
+    "sector33": "空運業",
+    "sector17": "運輸・物流",
+    "size_cat": "-"
   },
   {
     "ticker": "9202.T",
