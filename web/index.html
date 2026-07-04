@@ -14,41 +14,96 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet" />
 <style>
-  body { font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif; }
+  /* ---------- Design layer (Fable pass) ---------- */
+  [x-cloak] { display: none !important; }
+
+  body {
+    font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    background:
+      radial-gradient(1100px 500px at 85% -100px, rgba(99, 102, 241, 0.05), transparent 60%),
+      radial-gradient(900px 420px at 8% 120px, rgba(14, 165, 164, 0.045), transparent 60%),
+      #f6f8fb;
+  }
+  h1, h2, h3 { letter-spacing: -0.015em; }
+  ::selection { background: #c7d2fe; color: #1e1b4b; }
   .num { font-variant-numeric: tabular-nums; }
-  .gradient-us { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%); }
-  .gradient-jp { background: linear-gradient(135deg, #dc2626 0%, #e11d48 50%, #be185d 100%); }
-  .gradient-daytrade { background: linear-gradient(135deg, #d97706 0%, #ea580c 50%, #c2410c 100%); }
-  .gradient-indices  { background: linear-gradient(135deg, #0e7490 0%, #0d9488 50%, #047857 100%); }
-  .gradient-value    { background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 50%, #2563eb 100%); }
-  .gradient-earnings { background: linear-gradient(135deg, #6b21a8 0%, #7e22ce 50%, #581c87 100%); }
-  .gradient-macro    { background: linear-gradient(135deg, #c2410c 0%, #ea580c 50%, #d97706 100%); }
+
+  /* Header themes — deep duotone base + soft radial glows, per tab */
+  header { position: relative; isolation: isolate; overflow: hidden; }
+  header::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(720px 320px at 82% -60px, rgba(255,255,255,0.16), transparent 65%),
+      radial-gradient(560px 300px at 12% 130%, rgba(255,255,255,0.10), transparent 60%),
+      linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size: auto, auto, 44px 44px, 44px 44px;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.35));
+  }
+  .gradient-us       { background: linear-gradient(130deg, #1e1b4b 0%, #3730a3 42%, #6d28d9 100%); }
+  .gradient-jp       { background: linear-gradient(130deg, #4c0519 0%, #9f1239 45%, #e11d48 100%); }
+  .gradient-daytrade { background: linear-gradient(130deg, #431407 0%, #9a3412 45%, #ea580c 100%); }
+  .gradient-indices  { background: linear-gradient(130deg, #042f2e 0%, #0f766e 48%, #0d9488 100%); }
+  .gradient-value    { background: linear-gradient(130deg, #172554 0%, #1e40af 48%, #3b82f6 100%); }
+  .gradient-earnings { background: linear-gradient(130deg, #2e1065 0%, #6b21a8 48%, #9333ea 100%); }
+  .gradient-macro    { background: linear-gradient(130deg, #451a03 0%, #b45309 48%, #ea580c 100%); }
+
+  /* Softer, layered elevation in place of Tailwind's flat shadows */
+  .shadow-sm { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 2px 8px rgba(15, 23, 42, 0.04) !important; }
+  .shadow-md { box-shadow: 0 2px 4px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.07) !important; }
+  .shadow-2xl { box-shadow: 0 8px 16px rgba(15, 23, 42, 0.12), 0 24px 64px rgba(15, 23, 42, 0.22) !important; }
+  main section > .bg-white, main section.bg-white, main > div > section.bg-white {
+    transition: box-shadow 0.25s ease;
+  }
+
+  /* Tables: quieter chrome, calm zebra, sharper header */
+  main table thead th { font-weight: 700; letter-spacing: 0.06em; }
+  main table tbody tr { transition: background-color 0.12s ease; }
+  main table tbody tr:nth-child(even) { background-color: rgba(248, 250, 252, 0.7); }
+
+  /* Interactive polish */
+  button, select, input, summary, a { transition: color .15s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease, opacity .15s ease; }
+  :focus-visible { outline: 2px solid #6366f1; outline-offset: 2px; border-radius: 4px; }
+  details > summary { cursor: pointer; list-style: none; }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary::after { content: "▾"; float: right; color: #94a3b8; transition: transform .2s ease; }
+  details[open] > summary::after { transform: rotate(180deg); }
+
   .ticker-link { cursor: pointer; text-decoration: none; }
   .ticker-link:hover { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+
+  /* Slim, unobtrusive scrollbars */
+  ::-webkit-scrollbar { height: 8px; width: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 </style>
 </head>
-<body class="bg-slate-50 text-slate-900" x-data="momentumApp()" x-init="init()">
+<body class="text-slate-900" x-data="momentumApp()" x-init="init()">
 
 <!-- Header -->
 <header :class="headerGradient + ' text-white'">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-    <div class="text-xs sm:text-sm font-semibold tracking-widest mb-2 opacity-90" x-text="config.label"></div>
-    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight" x-text="config.title"></h1>
-    <div class="mt-3 text-sm sm:text-base opacity-90">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-9 pb-10 sm:pt-12 sm:pb-14">
+    <div class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] mb-4">
+      <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
+      <span x-text="config.label"></span>
+    </div>
+    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight drop-shadow-sm" x-text="config.title"></h1>
+    <div class="mt-4 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
       <template x-if="market === 'daytrade'">
-        <span>
-          <span x-text="morningBrief ? (formatDate(morningBrief.target_date || morningBrief.asof) + ' 寄付向け') : '...'"></span>
-          <span class="mx-2 opacity-60">|</span>
-          <span x-text="morningBrief?.asof ? (formatDate(morningBrief.asof) + '終値ベース') : ''"></span>
-          <span class="mx-2 opacity-60">|</span>
-          <span>毎日 09:00 / 12:00 / 15:00 JST 自動更新</span>
+        <span class="contents">
+          <span class="inline-flex items-center rounded-full bg-white/10 border border-white/20 px-3 py-1 font-medium" x-text="morningBrief ? (formatDate(morningBrief.target_date || morningBrief.asof) + ' 寄付向け') : '...'"></span>
+          <span class="inline-flex items-center rounded-full bg-white/10 border border-white/20 px-3 py-1 font-medium" x-text="morningBrief?.asof ? (formatDate(morningBrief.asof) + '終値ベース') : ''"></span>
+          <span class="inline-flex items-center rounded-full bg-white/10 border border-white/20 px-3 py-1 font-medium">毎日 09:00 / 12:00 / 15:00 JST 自動更新</span>
         </span>
       </template>
       <template x-if="market !== 'daytrade'">
-        <span>
-          <span x-text="formatDate(data?.asof)"></span>
-          <span class="mx-2 opacity-60">|</span>
-          <span><span x-text="data?.ticker_count ?? '...'"></span>銘柄対象（自動更新）</span>
+        <span class="contents">
+          <span class="inline-flex items-center rounded-full bg-white/10 border border-white/20 px-3 py-1 font-medium" x-text="formatDate(data?.asof)"></span>
+          <span class="inline-flex items-center rounded-full bg-white/10 border border-white/20 px-3 py-1 font-medium"><span x-text="data?.ticker_count ?? '...'"></span>銘柄対象（自動更新）</span>
         </span>
       </template>
     </div>
@@ -56,49 +111,49 @@
 </header>
 
 <!-- Market tabs -->
-<nav class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm overflow-x-auto">
+<nav class="bg-white/85 backdrop-blur-lg border-b border-slate-200/80 sticky top-0 z-10 shadow-sm overflow-x-auto">
   <div class="max-w-6xl mx-auto px-4 sm:px-6">
     <div class="flex gap-1 whitespace-nowrap">
       <button
         @click="setMarket('us')"
         :class="market === 'us' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
+        class="px-4 sm:px-5 py-3 sm:py-4 border-b-2 font-semibold text-sm sm:text-[15px] tracking-tight transition-colors shrink-0 hover:bg-slate-50/70">
         🇺🇸 米国 (Russell 3000)
       </button>
       <button
         @click="setMarket('jp')"
         :class="market === 'jp' ? 'border-rose-600 text-rose-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
+        class="px-4 sm:px-5 py-3 sm:py-4 border-b-2 font-semibold text-sm sm:text-[15px] tracking-tight transition-colors shrink-0 hover:bg-slate-50/70">
         🇯🇵 日本 (東証プライム)
       </button>
       <button
         @click="setMarket('daytrade')"
         :class="market === 'daytrade' ? 'border-amber-600 text-amber-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
+        class="px-4 sm:px-5 py-3 sm:py-4 border-b-2 font-semibold text-sm sm:text-[15px] tracking-tight transition-colors shrink-0 hover:bg-slate-50/70">
         🎯 朝のデイトレ・ピックアップ
       </button>
       <button
         @click="setMarket('indices')"
         :class="market === 'indices' ? 'border-teal-600 text-teal-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
+        class="px-4 sm:px-5 py-3 sm:py-4 border-b-2 font-semibold text-sm sm:text-[15px] tracking-tight transition-colors shrink-0 hover:bg-slate-50/70">
         📈 指数モニター
       </button>
       <button
         @click="setMarket('value')"
         :class="market === 'value' ? 'border-blue-700 text-blue-800' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
+        class="px-4 sm:px-5 py-3 sm:py-4 border-b-2 font-semibold text-sm sm:text-[15px] tracking-tight transition-colors shrink-0 hover:bg-slate-50/70">
         💎 バリュー投資
       </button>
       <button
         @click="setMarket('earnings')"
         :class="market === 'earnings' ? 'border-purple-700 text-purple-800' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
+        class="px-4 sm:px-5 py-3 sm:py-4 border-b-2 font-semibold text-sm sm:text-[15px] tracking-tight transition-colors shrink-0 hover:bg-slate-50/70">
         📊 決算分析
       </button>
       <button
         @click="setMarket('macro')"
         :class="market === 'macro' ? 'border-orange-700 text-orange-800' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
+        class="px-4 sm:px-5 py-3 sm:py-4 border-b-2 font-semibold text-sm sm:text-[15px] tracking-tight transition-colors shrink-0 hover:bg-slate-50/70">
         📈 マクロ・ファンダ
       </button>
     </div>
@@ -106,22 +161,22 @@
 </nav>
 
 <!-- 本日の更新状況 — 常時表示の鮮度ステータスバー -->
-<div class="bg-slate-50 border-b border-slate-200 text-[11px] sm:text-xs">
+<div class="bg-white/60 backdrop-blur border-b border-slate-200/70 text-[11px] sm:text-xs">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex flex-wrap items-center gap-1.5">
     <span class="font-semibold text-slate-600 mr-1">📡 本日の更新:</span>
-    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(indicesData?.generated_at_jst, 24)">
+    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border font-medium" :class="statusBadgeClass(indicesData?.generated_at_jst, 24)">
       📊 指数 <span x-text="statusBadgeTime(indicesData?.generated_at_jst)"></span>
     </span>
-    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(morningBrief?.generated_at_jst, 24)">
+    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border font-medium" :class="statusBadgeClass(morningBrief?.generated_at_jst, 24)">
       🎯 朝ピック <span x-text="statusBadgeTime(morningBrief?.generated_at_jst)"></span>
     </span>
-    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(reflections?.generated_at_jst, 30)">
+    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border font-medium" :class="statusBadgeClass(reflections?.generated_at_jst, 30)">
       📝 大引け <span x-text="statusBadgeTime(reflections?.generated_at_jst)"></span>
     </span>
-    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(valueData?.generated_at_jst, 30)">
+    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border font-medium" :class="statusBadgeClass(valueData?.generated_at_jst, 30)">
       💎 バリュー <span x-text="statusBadgeTime(valueData?.generated_at_jst)"></span>
     </span>
-    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(earningsData?.jp?.generated_at_jst || earningsData?.us?.generated_at_jst, 24*8)">
+    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border font-medium" :class="statusBadgeClass(earningsData?.jp?.generated_at_jst || earningsData?.us?.generated_at_jst, 24*8)">
       📈 決算 <span x-text="statusBadgeTime(earningsData?.jp?.generated_at_jst || earningsData?.us?.generated_at_jst)"></span>
     </span>
     <span class="ml-auto text-slate-400 hidden sm:inline">🟢=新鮮 🟡=やや古 🔴=要再生成</span>
@@ -1771,7 +1826,7 @@
 <!-- TradingView Lightweight Charts (used for JP chart from self-fetched data) -->
 <script src="https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js"></script>
 
-<footer class="border-t border-slate-200 mt-16 py-8 text-center text-xs text-slate-500">
+<footer class="border-t border-slate-200/80 bg-white/70 backdrop-blur mt-16 py-10 text-center text-xs text-slate-500">
   <p>
     データソース: NASDAQ Stock Screener / JPX 東証上場銘柄一覧 / Yahoo Finance (yfinance) | 毎営業日の終値後に自動更新
   </p>
