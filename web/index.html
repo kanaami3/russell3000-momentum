@@ -829,6 +829,74 @@
         +1 に近いほど連動性が高く、-1 に近いほど逆相関。日経↔NDXは通常+0.5前後で連動傾向、日経↔USD/JPYは円安局面では+方向で連動しやすい。
       </p>
     </section>
+
+    <!-- AI-side early-warning watchlist: memory demand drivers (LLM structure → memory) -->
+    <section x-show="aiWatch" class="bg-white border-2 border-indigo-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+      <div class="flex items-start justify-between flex-wrap gap-2 mb-1">
+        <h2 class="flex items-center gap-2 text-lg sm:text-xl font-extrabold text-slate-800">
+          🧠 AI側 早期警戒ウォッチリスト
+        </h2>
+        <span class="text-[11px] text-slate-500" x-show="aiWatch?.asof">asof <span x-text="aiWatch?.asof"></span> · 手動更新</span>
+      </div>
+      <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+        メモリー需給表は<span class="font-semibold">"結果"</span>、LLMのアーキテクチャが<span class="font-semibold">"原因"</span>。需要側(推論量)と効率化側(量子化・MoE・アーキ転換)を監視し、半導体・メモリー相場の転換を需給より先に察知する。
+      </p>
+
+      <!-- Current read banner -->
+      <div class="rounded-xl border-2 bg-gradient-to-br p-4 mb-4" :class="aiWatchReadClass(aiWatch?.current_read?.level)">
+        <div class="flex items-baseline gap-2 flex-wrap mb-1">
+          <span class="text-xs font-bold text-slate-500 tracking-wider">現在の傾き</span>
+          <span class="text-base sm:text-lg font-extrabold text-slate-800" x-text="aiWatch?.current_read?.tilt"></span>
+        </div>
+        <p class="text-sm text-slate-700 leading-relaxed" x-text="aiWatch?.current_read?.summary"></p>
+      </div>
+
+      <!-- Framework formula -->
+      <div class="bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 mb-4 text-center">
+        <div class="text-[11px] text-slate-500 mb-1">構造式</div>
+        <div class="text-sm sm:text-base font-bold text-slate-800">
+          メモリー需要 ≒ <span class="text-emerald-700">(モデルサイズ × コンテキスト長 × 推論量)</span> ÷ <span class="text-amber-700">アルゴリズム効率</span>
+        </div>
+        <div class="text-[11px] text-slate-500 mt-1">分子が勝てば強気 / 分母(効率化)が勝てば弱気</div>
+      </div>
+
+      <!-- Signals table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-100 text-slate-600 text-xs">
+            <tr>
+              <th class="px-3 py-2 text-left">区分</th>
+              <th class="px-3 py-2 text-left">監視シグナル</th>
+              <th class="px-3 py-2 text-center whitespace-nowrap">状態</th>
+              <th class="px-3 py-2 text-left">メモ(点灯条件)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="sig in (aiWatch?.signals || [])" :key="sig.name">
+              <tr class="border-t border-slate-100">
+                <td class="px-3 py-2 text-slate-500 text-xs whitespace-nowrap" x-text="sig.category"></td>
+                <td class="px-3 py-2 font-semibold text-slate-800" x-text="sig.name"></td>
+                <td class="px-3 py-2 text-center">
+                  <span class="inline-block px-2 py-0.5 rounded-full border text-[11px] font-bold whitespace-nowrap" :class="aiWatchDirClass(sig.direction)">
+                    <span x-text="aiWatchDirLabel(sig.direction)"></span>
+                  </span>
+                  <div class="text-[10px] text-slate-500 mt-0.5" x-text="sig.status"></div>
+                </td>
+                <td class="px-3 py-2 text-slate-600 text-xs" x-text="sig.note"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Shock-risk callout -->
+      <div x-show="aiWatch?.shock_note" class="mt-4 bg-rose-50 border border-rose-200 rounded-lg p-3 text-xs text-rose-800 leading-relaxed">
+        <span class="font-bold">⚠ テールリスク:</span> <span x-text="aiWatch?.shock_note"></span>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-3 leading-relaxed">
+        ※ 本パネルは自動計算ではなく、AI・半導体の技術動向に基づく手動キュレーション。教育・参考目的であり投資助言ではありません。
+      </p>
+    </section>
   </div>
   </template>
 
@@ -1956,6 +2024,7 @@ function momentumApp() {
         safe(this.loadReflections),
         safe(this.loadMacro),
         safe(this.loadMargin),
+        safe(this.loadAiWatch),
         safe(() => this.loadEarnings('jp')),
         safe(() => this.loadEarnings('us')),
       ]);
@@ -2148,6 +2217,35 @@ function momentumApp() {
       } catch (e) {
         console.warn('indices load failed:', e);
       }
+    },
+
+    async loadAiWatch() {
+      this.aiWatch = null;
+      try {
+        const resp = await fetch('./data/ai_memory_watch.json?v=' + Date.now());
+        if (!resp.ok) return;
+        this.aiWatch = await resp.json();
+      } catch (e) {
+        console.warn('ai_memory_watch load failed:', e);
+      }
+    },
+    aiWatchDirClass(d) {
+      return ({
+        bull:  'bg-emerald-50 text-emerald-800 border-emerald-300',
+        watch: 'bg-amber-50 text-amber-800 border-amber-300',
+        calm:  'bg-slate-50 text-slate-600 border-slate-300',
+        risk:  'bg-rose-50 text-rose-800 border-rose-300',
+      })[d] || 'bg-slate-50 text-slate-600 border-slate-300';
+    },
+    aiWatchDirLabel(d) {
+      return ({ bull:'需要↑', watch:'注視', calm:'静穏', risk:'⚠ リスク' })[d] || d;
+    },
+    aiWatchReadClass(level) {
+      return ({
+        bull:  'from-emerald-50 to-teal-50 border-emerald-300',
+        neutral:'from-slate-50 to-slate-100 border-slate-300',
+        bear:  'from-rose-50 to-orange-50 border-rose-300',
+      })[level] || 'from-slate-50 to-slate-100 border-slate-300';
     },
 
     setIndexRange(id, days) {
@@ -2798,6 +2896,7 @@ function momentumApp() {
     indicesData: null,
     indicesRange: {},   // {N225: 126, NDX: 126, USDJPY: 126}
     _indexCharts: {},   // {id: LightweightCharts instance}
+    aiWatch: null,      // AI-side early-warning watchlist (memory demand drivers)
     valueData: null,
     valueActiveCategory: 'composite',
     stockCommentaryJp: null,

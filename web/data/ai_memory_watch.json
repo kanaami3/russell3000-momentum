@@ -1,0 +1,22 @@
+{
+  "asof": "2026-07-05",
+  "generated_at_jst": "2026-07-05T18:00:00+09:00",
+  "current_read": {
+    "level": "bull",
+    "tilt": "需要側が優勢",
+    "summary": "推論量の指数的増加(エージェント・思考モデル、Claude Code の急成長に象徴)が効率化を上回る局面。近い1〜2年は需要が効率化を食い尽くす(ジェボンズのパラドックス)。ただし記録的マージンは山の頂上付近であり、出口シグナルの監視は継続。"
+  },
+  "shock_note": "最大の一発退場トリガーは緩やかな効率化ではなく『不連続な効率化ショック』。2025年1月のDeepSeekショックのように、桁違いに安い同等モデルの登場は一夜でAIハード複合体を再評価する。サイクル(供給増)は緩やかに来るが、ショックは一晩で来る。",
+  "signals": [
+    { "category": "需要(分子)", "name": "推論量・エージェント普及", "direction": "bull", "status": "急拡大", "note": "Claude Code は WAU 倍増・年換算売上 $25億超。推論の物理量が指数増" },
+    { "category": "需要(分子)", "name": "コンテキスト長・思考モデル", "direction": "bull", "status": "拡大中", "note": "長文脈・推論モデルで KVキャッシュが膨張。いま需要を押し上げる主因" },
+    { "category": "需要(分子)", "name": "データセンター外の需要", "direction": "bull", "status": "始動", "note": "ロボティクス・オンデバイス等、裾野が広がりメモリー需要が多様化" },
+    { "category": "需給(結果)", "name": "HBM/メモリー契約価格", "direction": "bull", "status": "上昇継続", "note": "頭打ち・反落が最重要の出口シグナル" },
+    { "category": "需給(結果)", "name": "EPS予想修正の方向", "direction": "bull", "status": "上方修正継続", "note": "長い上方修正の後の『初の下方修正』で黄信号" },
+    { "category": "需給(結果)", "name": "NAND 書込耐久(消耗需要)", "direction": "bull", "status": "浮上", "note": "AI推論の高頻度書込でサーバSSD寿命が短縮=交換需要。見落とされがちな下支え" },
+    { "category": "効率化(分母)", "name": "FP4/低精度推論の標準化", "direction": "watch", "status": "進行中・織込内", "note": "緩やかなら需要が吸収。急な標準化で必要HBMが減る" },
+    { "category": "効率化(分母)", "name": "MoE・実効パラメータ削減", "direction": "watch", "status": "進展", "note": "一部の専門家だけ起動しメモリー効率が上がる" },
+    { "category": "効率化(分母)", "name": "非Transformer(Mamba等)", "direction": "calm", "status": "限定的", "note": "本番採用が進むと KVキャッシュ由来の HBM 需要が構造変化" },
+    { "category": "ショック(テール)", "name": "DeepSeek型 効率ブレイクスルー", "direction": "risk", "status": "常時警戒", "note": "『桁違いに安い同等モデル』の登場。一夜で複合体を再評価する唯一の一発退場要因" }
+  ]
+}
