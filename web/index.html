@@ -849,6 +849,9 @@
           <span class="text-base sm:text-lg font-extrabold text-slate-800" x-text="aiWatch?.current_read?.tilt"></span>
         </div>
         <p class="text-sm text-slate-700 leading-relaxed" x-text="aiWatch?.current_read?.summary"></p>
+        <p x-show="aiWatch?.current_read?.power_theme" class="text-xs text-slate-600 leading-relaxed mt-2 pt-2 border-t border-slate-200/70">
+          <span class="font-bold text-amber-700">⚡ 次のテーマ:</span> <span x-text="aiWatch?.current_read?.power_theme"></span>
+        </p>
       </div>
 
       <!-- Framework formula -->
