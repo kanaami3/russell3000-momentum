@@ -75,8 +75,6 @@ jobs:
 
       - name: Generate AI commentary + AI picks (Claude)
         if: steps.freshness.outputs.need_run == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
             python batch/generate_value_commentary.py

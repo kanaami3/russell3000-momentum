@@ -84,8 +84,6 @@ jobs:
 
       - name: Generate macro/EPS AI commentary (Claude)
         if: steps.freshness.outputs.need_run == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
             python batch/generate_macro_commentary.py
@@ -95,8 +93,6 @@ jobs:
 
       - name: Generate index AI commentary (Claude)
         if: steps.freshness.outputs.need_run == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
             python batch/generate_index_commentary.py
@@ -106,8 +102,6 @@ jobs:
 
       - name: Generate US market summary (Claude)
         if: steps.freshness.outputs.need_run == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
             python batch/generate_summary.py us
@@ -117,8 +111,6 @@ jobs:
 
       - name: Generate per-stock 塾長 commentary (US, Claude)
         if: steps.freshness.outputs.need_run == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
             python batch/generate_stock_commentary.py us
@@ -128,8 +120,6 @@ jobs:
 
       - name: Generate AI swing picks (US, Claude)
         if: steps.freshness.outputs.need_run == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
             python batch/generate_swing_picks.py us

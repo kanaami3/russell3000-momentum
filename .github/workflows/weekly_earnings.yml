@@ -54,14 +54,10 @@ jobs:
 
       - name: Build US earnings analysis
         if: steps.freshness.outputs.need_run == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python batch/build_earnings_analysis.py us
 
       - name: Build JP earnings analysis
         if: steps.freshness.outputs.need_run == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python batch/build_earnings_analysis.py jp
 
       - name: Commit and push

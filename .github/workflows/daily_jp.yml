@@ -65,8 +65,6 @@ jobs:
 
       - name: Generate daily reflection (Claude)
         if: steps.freshness.outputs.need_ai == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
             python batch/generate_daily_reflection.py
@@ -76,8 +74,6 @@ jobs:
 
       - name: Generate AI swing picks (JP, Claude)
         if: steps.freshness.outputs.need_ai == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
             python batch/generate_swing_picks.py jp
@@ -87,8 +83,6 @@ jobs:
 
       - name: Generate JP market summary (Claude)
         if: steps.freshness.outputs.need_ai == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
             python batch/generate_summary.py jp
