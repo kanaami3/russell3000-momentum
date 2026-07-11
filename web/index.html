@@ -391,6 +391,65 @@
       </div>
     </section>
 
+    <!-- Chart 4: JPX 投資部門別売買動向 (Investor-Type Flows: Foreign vs Individual) -->
+    <section x-show="investorFlowsData" class="bg-white border-2 border-indigo-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+      <h2 class="text-lg font-extrabold text-indigo-900 mb-3">🌐 海外勢 vs 個人 売買動向(JPX 投資部門別・週次)</h2>
+      <p class="text-xs text-slate-500 mb-3">
+        差引き(買い−売り)の週次ネット。**プラス=買い越し / マイナス=売り越し**。単位: 億円。
+        海外投資家が相場を主導、個人はしばしば逆張り。データ源: JPX 投資部門別売買状況(東証プライム・委託内訳)。週次更新。
+      </p>
+
+      <!-- Latest judgment badge -->
+      <template x-if="investorFlowsData?.latest_judgment">
+        <div class="rounded-xl p-4 mb-4 border-2"
+             :class="{
+               'emerald': 'border-emerald-300 bg-emerald-50',
+               'rose':    'border-rose-300 bg-rose-50',
+               'slate':   'border-slate-300 bg-slate-50',
+             }[investorFlowsData.latest_judgment.color]">
+          <div class="text-xs uppercase tracking-wide text-slate-500 mb-1">最新判定(<span x-text="investorFlowsData.asof"></span>週)</div>
+          <div class="text-lg sm:text-xl font-extrabold"
+               :class="{
+                 'emerald': 'text-emerald-800',
+                 'rose':    'text-rose-900',
+                 'slate':   'text-slate-700',
+               }[investorFlowsData.latest_judgment.color]"
+               x-text="investorFlowsData.latest_judgment.label"></div>
+          <!-- All categories for the latest week -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-3">
+            <template x-for="[k,v] in Object.entries(investorFlowsData.history[investorFlowsData.history.length-1].flows)" :key="k">
+              <div class="rounded-lg px-2 py-1.5"
+                   :class="v.net_oku >= 0 ? 'bg-emerald-50' : 'bg-rose-50'">
+                <div class="text-slate-500" x-text="v.name"></div>
+                <div class="font-bold"
+                     :class="v.net_oku >= 0 ? 'text-emerald-700' : 'text-rose-700'"
+                     x-text="(v.net_oku >= 0 ? '+' : '') + v.net_oku.toLocaleString() + '億'"></div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+
+      <!-- Chart -->
+      <div id="macro-flows-chart" class="w-full" style="height: 340px;"></div>
+      <div class="mt-2 text-[11px] text-slate-500 flex gap-4">
+        <span><span class="inline-block w-3 h-0.5 align-middle" style="background:#2563eb"></span> 海外投資家</span>
+        <span><span class="inline-block w-3 h-0.5 align-middle" style="background:#ea580c"></span> 個人</span>
+        <span>ゼロ線 = 中立(買いと売りが拮抗)</span>
+      </div>
+
+      <!-- Read guide -->
+      <div class="mt-3 text-[11px] text-slate-600 bg-slate-50 rounded-lg p-3">
+        <div class="font-semibold mb-1">📐 読み方</div>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-0.5">
+          <li>🟢 <strong>海外買い越し</strong> — 上昇トレンド主導、順張り環境</li>
+          <li>🔴 <strong>海外売り越し</strong> — 調整・警戒、需給の重し</li>
+          <li>🔵 <strong>個人買い越し</strong> — 逆張り、下落局面での押し目買いが多い</li>
+          <li>⚖️ <strong>海外売り × 個人買い</strong> — 下げ止まり探る需給、信用倍率上昇に注意</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- Recent data table -->
     <section class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
       <h2 class="text-base font-bold text-slate-700 mb-3">📋 直近の日次データ</h2>
@@ -1899,6 +1958,7 @@ function momentumApp() {
         safe(this.loadReflections),
         safe(this.loadMacro),
         safe(this.loadMargin),
+        safe(this.loadFlows),
         safe(() => this.loadEarnings('jp')),
         safe(() => this.loadEarnings('us')),
       ]);
@@ -1976,6 +2036,7 @@ function momentumApp() {
       if (this.market === 'macro') {
         this.loadMacro();
         this.loadMargin();
+        this.loadFlows();
       }
       if (this.market === 'jp' || this.market === 'us') {
         this.loadSwingPicks();
@@ -2246,6 +2307,52 @@ function momentumApp() {
       this._macroMarginChart = chart;
       window.addEventListener('resize', () => {
         if (this._macroMarginChart && el) this._macroMarginChart.applyOptions({ width: el.clientWidth });
+      }, { once: true });
+    },
+
+    async loadFlows() {
+      try { if (this._macroFlowsChart) this._macroFlowsChart.remove(); } catch(e){}
+      this._macroFlowsChart = null;
+      this.investorFlowsData = null;
+      try {
+        const resp = await fetch('./data/investor_flows_jp.json?v=' + Date.now());
+        if (!resp.ok) return;
+        this.investorFlowsData = await resp.json();
+        this.$nextTick(() => this._renderFlowsChart());
+      } catch (e) {
+        console.warn('flows load failed:', e);
+      }
+    },
+
+    _renderFlowsChart() {
+      const el = document.getElementById('macro-flows-chart');
+      if (!el || !this.investorFlowsData || !window.LightweightCharts) return;
+      try { if (this._macroFlowsChart) this._macroFlowsChart.remove(); } catch(e){}
+      const chart = LightweightCharts.createChart(el, {
+        width: el.clientWidth,
+        height: 340,
+        layout: { background: { color: '#ffffff' }, textColor: '#334155' },
+        grid: { vertLines: { color: '#f1f5f9' }, horzLines: { color: '#f1f5f9' } },
+        rightPriceScale: { borderColor: '#cbd5e1' },
+        timeScale: { borderColor: '#cbd5e1', timeVisible: false, secondsVisible: false },
+        crosshair: { mode: 1 },
+      });
+      const foreignSeries = chart.addLineSeries({ color: '#2563eb', lineWidth: 2, title: '海外' });
+      const indivSeries   = chart.addLineSeries({ color: '#ea580c', lineWidth: 2, title: '個人' });
+      const fData = [], iData = [];
+      for (const h of (this.investorFlowsData.history || [])) {
+        const fo = h.flows?.foreign?.net_oku;
+        const ind = h.flows?.individual?.net_oku;
+        if (fo != null)  fData.push({ time: h.date, value: fo });
+        if (ind != null) iData.push({ time: h.date, value: ind });
+      }
+      foreignSeries.setData(fData);
+      indivSeries.setData(iData);
+      foreignSeries.createPriceLine({ price: 0, color: '#94a3b8', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: '中立' });
+      chart.timeScale().fitContent();
+      this._macroFlowsChart = chart;
+      window.addEventListener('resize', () => {
+        if (this._macroFlowsChart && el) this._macroFlowsChart.applyOptions({ width: el.clientWidth });
       }, { once: true });
     },
 
@@ -2756,6 +2863,7 @@ function momentumApp() {
     _macroChartYoy: null,
     _macroTopixChart: null,
     marginData: null,             // JPX 信用倍率 history
+    investorFlowsData: null,      // JPX 投資部門別売買動向 (海外/個人)
     _macroMarginChart: null,
     reflections: null,            // daily-reflection feed
     reflectionsShowAll: false,    // expand to show history
