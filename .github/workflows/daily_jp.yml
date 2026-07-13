@@ -69,15 +69,6 @@ jobs:
             echo "ANTHROPIC_API_KEY not set — skipping swing picks"
           fi
 
-      - name: Generate JP market summary (Claude)
-        if: steps.freshness.outputs.need_ai == 'true'
-        run: |
-          if [ -n "$ANTHROPIC_API_KEY" ]; then
-            python batch/generate_summary.py jp
-          else
-            echo "ANTHROPIC_API_KEY not set — skipping summary generation"
-          fi
-
       - name: Commit and push
         run: |
           bash batch/safe_commit_push.sh \

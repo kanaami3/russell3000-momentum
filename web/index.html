@@ -286,18 +286,6 @@
       </template>
     </section>
 
-    <!-- AI commentary -->
-    <section x-show="macroData.commentary" class="bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-300 rounded-2xl p-5 sm:p-6 shadow-sm">
-      <h2 class="flex items-center gap-3 text-lg font-extrabold text-orange-900 mb-3">
-        <span>🤖</span>
-        AI 解説 ─ 割安 / 割高、トレンド、ファンダ vs センチメント
-      </h2>
-      <article class="text-sm leading-relaxed text-slate-700 whitespace-pre-line" x-text="macroData.commentary"></article>
-      <p class="text-[10px] text-slate-400 mt-3">
-        AIによる観察記録(投資勧誘ではありません)・モデル: <span x-text="macroData.commentary_model || 'claude-haiku'"></span>
-      </p>
-    </section>
-
     <!-- Chart 1: NK225 EPS + YoY -->
     <section class="bg-white border-2 border-orange-200 rounded-2xl p-5 sm:p-6 shadow-sm">
       <h2 class="text-lg font-extrabold text-orange-900 mb-3">📈 日経225 EPS推移と前年比</h2>
@@ -604,15 +592,6 @@
       💎 東証プライム約<span x-text="valueData.universe_size"></span>銘柄から、時価総額500億円以上(<span x-text="valueData.filtered_count"></span>銘柄)を対象にバリュー投資指標でスクリーニング。配当 + 割安 + 売上継続 + 成長見込み の4軸でランキング。データソース: yfinance Ticker.info。<strong class="text-blue-700">毎日 09:00 / 12:00 / 15:00 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="valueData.asof"></span> (更新 <span x-text="(valueData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
     </p>
 
-    <!-- AI Overall commentary -->
-    <section x-show="valueData.overall_commentary" class="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-2xl p-5 sm:p-6">
-      <h2 class="flex items-center gap-3 text-lg font-extrabold text-blue-900 mb-3">
-        <span>🤖</span>
-        AIによる総合解説 — 現在のバリュー局面分析
-      </h2>
-      <article class="text-sm leading-relaxed text-slate-700 whitespace-pre-line" x-text="valueData.overall_commentary"></article>
-    </section>
-
     <!-- AI Picks: Claude's curated value buys -->
     <section x-show="(valueData.ai_picks || []).length > 0" class="bg-white border-2 border-blue-300 rounded-2xl p-5 sm:p-6 shadow-md">
       <h2 class="text-lg font-extrabold text-blue-900 mb-4">🎯 AIが選ぶ高品質バリュー銘柄</h2>
@@ -656,12 +635,6 @@
             <span x-text="cat.emoji"></span><span x-text="cat.label"></span>
           </button>
         </template>
-      </div>
-
-      <!-- Category commentary -->
-      <div x-show="valueData.category_commentary?.[valueActiveCategory]" class="bg-slate-50 border border-slate-200 rounded-lg p-3 mb-4">
-        <div class="text-[10px] font-bold text-blue-700 mb-1 tracking-wider">🤖 カテゴリ解説</div>
-        <p class="text-xs text-slate-700 leading-relaxed whitespace-pre-line" x-text="valueData.category_commentary?.[valueActiveCategory]"></p>
       </div>
 
       <!-- Ranking table -->
@@ -721,15 +694,6 @@
     <p class="text-xs text-slate-500">
       🎯 EA(自動売買)開発を見据えた指数モニター。RSI(14)・MACD(12/26/9)・ボリンジャー(20,2)・ATR(14)・SMA(20/50/200)を計算し、テクニカル状態を可視化。データソース: Yahoo Finance(yfinance)。<strong class="text-teal-700">毎日 09:00 / 12:00 / 15:00 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="indicesData.asof"></span> (更新 <span x-text="(indicesData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
     </p>
-
-    <!-- Overall AI commentary at the top -->
-    <section x-show="indicesData.overall_commentary" class="bg-gradient-to-br from-teal-50 to-emerald-50 border-2 border-teal-300 rounded-2xl p-5 sm:p-6">
-      <h2 class="flex items-center gap-3 text-lg font-extrabold text-teal-900 mb-3">
-        <span>🤖</span>
-        AIによる総合解説(日経225 + NASDAQ100 + USD/JPY)
-      </h2>
-      <article class="text-sm leading-relaxed text-slate-700 whitespace-pre-line" x-text="indicesData.overall_commentary"></article>
-    </section>
 
     <template x-for="ix in indicesData.indices" :key="ix.id">
       <section class="bg-white border-2 border-teal-200 rounded-2xl p-5 sm:p-6 shadow-sm">
@@ -799,11 +763,6 @@
           <div :id="'index-chart-' + ix.id" class="absolute inset-0"></div>
         </div>
 
-        <!-- Per-index AI commentary -->
-        <div x-show="ix.commentary" class="mt-4 bg-slate-50 border border-slate-200 rounded-lg p-4">
-          <div class="text-[10px] font-bold text-teal-700 tracking-wider mb-1">🤖 テクニカル解説</div>
-          <article class="text-sm leading-relaxed text-slate-700 whitespace-pre-line" x-text="ix.commentary"></article>
-        </div>
       </section>
     </template>
 
@@ -970,11 +929,6 @@
       </div>
     </div>
 
-    <!-- AI narrative brief -->
-    <div x-show="morningBrief?.ai_brief">
-      <h3 class="text-xs font-bold text-rose-900 mb-2 tracking-wider">🤖 本日のAIモーニングブリーフ</h3>
-      <article class="bg-white rounded-lg border border-slate-200 p-4 text-sm leading-relaxed whitespace-pre-line" x-text="morningBrief?.ai_brief"></article>
-    </div>
   </section>
 
   <!-- Swing picks section (JP / US tabs only) -->
@@ -1180,11 +1134,6 @@
         </div>
       </div>
 
-      <!-- AI narrative brief -->
-      <div x-show="morningBrief?.ai_brief">
-        <h3 class="text-xs font-bold text-rose-900 mb-2 tracking-wider">🤖 本日のAIモーニングブリーフ</h3>
-        <article class="bg-white rounded-lg border border-slate-200 p-4 text-sm leading-relaxed whitespace-pre-line" x-text="morningBrief?.ai_brief"></article>
-      </div>
     </section>
 
     <!-- Section 1: Yesterday gainers/losers -->
@@ -1278,15 +1227,6 @@
           </template>
         </div>
       </details>
-    </section>
-
-    <!-- Section 3: Market summary -->
-    <section x-show="data.market_summary">
-      <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-bold text-slate-800 mb-4">
-        <span class="inline-block w-1.5 h-7 rounded" :class="market === 'jp' ? 'bg-rose-600' : 'bg-indigo-600'"></span>
-        本日の市場サマリー
-      </h2>
-      <article class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 text-sm leading-relaxed whitespace-pre-line" x-text="data.market_summary"></article>
     </section>
 
     <!-- Section 4: Full sortable table -->
@@ -1391,29 +1331,13 @@
         <button @click="closeChart()" class="text-slate-500 hover:text-slate-900 text-2xl leading-none px-2" aria-label="閉じる">✕</button>
       </div>
     </div>
-    <!-- Tab bar: switch between chart and commentary -->
-    <div x-show="chartTicker" class="flex items-center gap-1 px-2 py-1 border-b border-slate-200 bg-slate-50 shrink-0">
-      <button
-        @click="chartModalView = 'chart'; $nextTick(() => renderChart())"
-        :class="chartModalView === 'chart' ? 'bg-white text-slate-900 border-slate-300 shadow-sm' : 'bg-slate-100 text-slate-500 border-transparent hover:bg-slate-200'"
-        class="px-3 py-1.5 text-xs font-bold rounded border">
-        📊 チャート
-      </button>
-      <button
-        @click="chartModalView = 'commentary'"
-        :class="chartModalView === 'commentary' ? 'bg-white text-amber-800 border-amber-300 shadow-sm' : 'bg-slate-100 text-slate-500 border-transparent hover:bg-slate-200'"
-        class="px-3 py-1.5 text-xs font-bold rounded border">
-        🤖 塾長解説
-        <span x-show="currentStockCommentary?.snapshot?.divergence?.bearish" class="ml-1 text-red-700">🚨</span>
-        <span x-show="currentStockCommentary?.snapshot?.divergence?.bullish" class="ml-1 text-emerald-700">💡</span>
-      </button>
-      <span x-show="chartTicker && market === 'jp' && chartLoading" class="ml-auto text-xs text-slate-500 pr-2">
-        読込中…
-      </span>
+    <!-- Loading indicator (JP self-fetched chart data) -->
+    <div x-show="chartTicker && market === 'jp' && chartLoading" class="px-3 py-1 border-b border-slate-200 bg-slate-50 shrink-0 text-xs text-slate-500 text-right">
+      読込中…
     </div>
 
-    <!-- View 1: Chart -->
-    <div x-show="chartTicker && chartModalView === 'chart'" class="flex-1 w-full relative overflow-hidden flex flex-col">
+    <!-- Chart -->
+    <div x-show="chartTicker" class="flex-1 w-full relative overflow-hidden flex flex-col">
       <!-- US (single TradingView widget) -->
       <div x-show="market === 'us'" class="flex-1 relative">
         <div id="tv-chart-container" class="absolute inset-0"></div>
@@ -1432,36 +1356,6 @@
           </div>
         </template>
       </div>
-    </div>
-
-    <!-- View 2: Commentary (scrollable) -->
-    <div x-show="chartTicker && chartModalView === 'commentary'" class="flex-1 w-full overflow-y-auto bg-amber-50 p-4">
-      <template x-if="currentStockCommentary">
-        <div>
-          <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-            <h4 class="text-sm font-extrabold text-amber-900 flex items-center gap-2">
-              <span>🤖</span>
-              塾長のスウィング解説(半年〜1年保有・順張り目線)
-            </h4>
-            <template x-if="currentStockCommentary?.snapshot?.divergence?.bearish">
-              <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-200 text-red-800">🚨 弱気ダイバージェンス検出</span>
-            </template>
-            <template x-if="currentStockCommentary?.snapshot?.divergence?.bullish">
-              <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-200 text-emerald-800">💡 強気ダイバージェンス検出</span>
-            </template>
-          </div>
-          <article class="text-sm leading-relaxed text-slate-800 whitespace-pre-line" x-text="currentStockCommentary?.commentary"></article>
-          <p class="text-[10px] text-slate-500 mt-3">
-            解説 asof: <span x-text="currentStockCommentary?.asof"></span> · AIによる自動分析(投資勧誘ではありません)
-          </p>
-        </div>
-      </template>
-      <template x-if="!currentStockCommentary">
-        <div class="text-center text-slate-500 text-sm py-12">
-          この銘柄の塾長解説は本日生成対象外、または読込中です。<br>
-          <span class="text-xs">対象は朝のAIピック・上昇ランキング上位など。</span>
-        </div>
-      </template>
     </div>
   </div>
 </div>
@@ -1720,28 +1614,6 @@ function momentumApp() {
       if (this.market === 'jp') return this.swingPicksJp;
       if (this.market === 'us') return this.swingPicksUs;
       return null;
-    },
-
-    async loadStockCommentary() {
-      // Load on demand when a chart modal opens (lightweight, cached for session)
-      try {
-        const file = this.isJpDomain ? 'stock_commentary_jp.json' : 'stock_commentary_us.json';
-        const cacheKey = this.isJpDomain ? 'stockCommentaryJp' : 'stockCommentaryUs';
-        if (this[cacheKey]) return this[cacheKey];
-        const resp = await fetch('./data/' + file + '?v=' + Date.now());
-        if (!resp.ok) return null;
-        this[cacheKey] = await resp.json();
-        return this[cacheKey];
-      } catch (e) {
-        console.warn('stock commentary load failed:', e);
-        return null;
-      }
-    },
-
-    get currentStockCommentary() {
-      const src = this.isJpDomain ? this.stockCommentaryJp : this.stockCommentaryUs;
-      if (!src || !this.chartTicker) return null;
-      return (src.commentary || {})[this.chartTicker] || null;
     },
 
     async loadValue() {
@@ -2346,7 +2218,6 @@ function momentumApp() {
     _lwCharts: [],
     _chartDataCache: null,
     chartLoading: false,
-    chartModalView: 'chart',   // 'chart' | 'commentary'
     jpChartPanels: [
       { id: '1m', days: 21,  label: '1ヶ月', subtitle: '直近の押し目・寄付の地合い' },
       { id: '3m', days: 63,  label: '3ヶ月', subtitle: '中期トレンド' },
@@ -2358,8 +2229,6 @@ function momentumApp() {
     _indexCharts: {},   // {id: LightweightCharts instance}
     valueData: null,
     valueActiveCategory: 'composite',
-    stockCommentaryJp: null,
-    stockCommentaryUs: null,
     swingPicksJp: null,
     swingPicksUs: null,
     earningsData: { jp: null, us: null },
@@ -2386,10 +2255,7 @@ function momentumApp() {
 
     openChart(ticker) {
       this.chartTicker = ticker;
-      this.chartModalView = 'chart';  // always default to chart view
       this.$nextTick(() => this.renderChart());
-      // Lazy-load per-stock AI commentary for this ticker's market
-      this.loadStockCommentary();
     },
 
     closeChart() {

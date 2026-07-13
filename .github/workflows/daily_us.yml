@@ -33,29 +33,19 @@ jobs:
         run: pip install -r requirements.txt
 
       # 多重 cron で同日に複数回起動するので、当日分が既に揃っていれば
-      # 全ステップをスキップして料金を抑える。
-      # 「完成度」の判定は: indices.json が < 6h で生成済み AND 主要な
-      # 派生ファイル(EPS解説など)が揃っていること。
+      # 全ステップをスキップして無駄なデータ取得を抑える。
+      # 判定は indices.json が < 6h で生成済みかどうか。
       - name: Check if today's US data already fresh
         id: freshness
         run: |
           NEED=$(python3 -c "
           import json
           from datetime import datetime
-          def fresh_indices():
+          try:
               ix = json.load(open('web/data/indices.json'))
               gen = datetime.fromisoformat(ix['generated_at_jst'])
               age_h = (datetime.now(gen.tzinfo) - gen).total_seconds() / 3600
-              return age_h < 6
-          def has_macro_commentary():
-              try:
-                  eps = json.load(open('web/data/nikkei_eps_history.json'))
-                  return bool(eps.get('commentary'))
-              except Exception:
-                  return False
-          try:
-              ok = fresh_indices() and has_macro_commentary()
-              print('false' if ok else 'true')
+              print('false' if age_h < 6 else 'true')
           except Exception:
               print('true')
           ")
@@ -82,42 +72,6 @@ jobs:
         if: steps.freshness.outputs.need_run == 'true'
         run: python batch/fetch_nikkei_eps.py
 
-      - name: Generate macro/EPS AI commentary (Claude)
-        if: steps.freshness.outputs.need_run == 'true'
-        run: |
-          if [ -n "$ANTHROPIC_API_KEY" ]; then
-            python batch/generate_macro_commentary.py
-          else
-            echo "ANTHROPIC_API_KEY not set — skipping macro commentary"
-          fi
-
-      - name: Generate index AI commentary (Claude)
-        if: steps.freshness.outputs.need_run == 'true'
-        run: |
-          if [ -n "$ANTHROPIC_API_KEY" ]; then
-            python batch/generate_index_commentary.py
-          else
-            echo "ANTHROPIC_API_KEY not set — skipping index commentary"
-          fi
-
-      - name: Generate US market summary (Claude)
-        if: steps.freshness.outputs.need_run == 'true'
-        run: |
-          if [ -n "$ANTHROPIC_API_KEY" ]; then
-            python batch/generate_summary.py us
-          else
-            echo "ANTHROPIC_API_KEY not set — skipping summary generation"
-          fi
-
-      - name: Generate per-stock 塾長 commentary (US, Claude)
-        if: steps.freshness.outputs.need_run == 'true'
-        run: |
-          if [ -n "$ANTHROPIC_API_KEY" ]; then
-            python batch/generate_stock_commentary.py us
-          else
-            echo "ANTHROPIC_API_KEY not set — skipping stock commentary"
-          fi
-
       - name: Generate AI swing picks (US, Claude)
         if: steps.freshness.outputs.need_run == 'true'
         run: |
@@ -133,7 +87,7 @@ jobs:
           bash batch/safe_commit_push.sh \
             "data(us): daily update $(date -u +%Y-%m-%d)" \
             data/universe_us.json web/data/momentum_us.json web/data/chart_data_us.json \
-            web/data/indices.json web/data/stock_commentary_us.json web/data/swing_picks_us.json \
+            web/data/indices.json web/data/swing_picks_us.json \
             web/data/nikkei_eps_history.json
       # 指数の Discord 通知は 21:00 JST の統合ダイジェスト(weekly_value_jp)に集約。
       # ここでは送信しない。
