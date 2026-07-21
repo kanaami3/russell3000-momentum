@@ -66,6 +66,8 @@ jobs:
 
       - name: Generate AI morning brief (Claude)
         if: steps.freshness.outputs.need_run == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
             python batch/generate_morning_brief_ai.py
