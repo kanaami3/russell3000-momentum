@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f46e5"/>
+      <stop offset="0.5" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#9333ea"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#g)"/>
+  <!-- momentum bars -->
+  <rect x="14" y="34" width="7" height="16" rx="2" fill="#ffffff" opacity="0.55"/>
+  <rect x="25" y="26" width="7" height="24" rx="2" fill="#ffffff" opacity="0.75"/>
+  <rect x="36" y="18" width="7" height="32" rx="2" fill="#ffffff" opacity="0.9"/>
+  <!-- upward arrow -->
+  <path d="M13 40 L27 30 L37 36 L50 20" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M43 18 L52 17 L51 26 Z" fill="#ffffff"/>
+</svg>
