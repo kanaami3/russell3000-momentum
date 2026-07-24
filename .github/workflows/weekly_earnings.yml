@@ -2,10 +2,10 @@ name: Daily Earnings Analysis (JP + US)
 
 on:
   schedule:
-    # 統一実行時刻: 平日含む毎日 09:00 / 12:00 / 15:00 JST
-    - cron: "0 0 * * *"
-    - cron: "0 3 * * *"  # 12:00 JST
-    - cron: "0 6 * * *"  # 15:00 JST
+    # concurrency 衝突回避のため :38 にズラす。毎日 09:38 / 12:38 / 15:38 JST
+    - cron: "38 0 * * *"  # 09:38 JST
+    - cron: "38 3 * * *"  # 12:38 JST
+    - cron: "38 6 * * *"  # 15:38 JST
   workflow_dispatch: {}
 
 permissions:

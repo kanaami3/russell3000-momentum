@@ -3,11 +3,12 @@ name: Morning JP Daytrade Brief
 on:
   schedule:
     # 統一実行時刻: 平日 09:00 JST(当日寄付向けピックを生成)= 00:00 UTC
-    - cron: "0 0 * * *"
+    # concurrency 衝突回避のため :26 にズラす
+    - cron: "26 0 * * *"  # 09:26 JST
     # 多重保険: GitHub Actions の cron ドロップ対策で 3 時間帯に分散
     # (鮮度ガードで当日分が既に生成済みなら全ステップをスキップ)
-    - cron: "0 3 * * *"  # 12:00 JST
-    - cron: "0 6 * * *"  # 15:00 JST
+    - cron: "26 3 * * *"  # 12:26 JST
+    - cron: "26 6 * * *"  # 15:26 JST
   workflow_dispatch: {}
 
 permissions:
