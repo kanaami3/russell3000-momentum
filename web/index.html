@@ -300,20 +300,6 @@
       </p>
     </section>
 
-    <!-- Chart 2: TOPIX proxy via 1306.T ETF -->
-    <section class="bg-white border-2 border-violet-200 rounded-2xl p-5 sm:p-6 shadow-sm">
-      <h2 class="text-lg font-extrabold text-violet-900 mb-3">📊 TOPIX 推移(1306.T ETF 代理)</h2>
-      <p class="text-xs text-slate-500 mb-3">
-        🟣 TOPIX 連動ETF(1306.T NEXT FUNDS TOPIX)の終値。TOPIX 指数を 1:1 で追従するため、トレンドは TOPIX そのもの。
-        過去 3 年分(2023年〜)を即時表示。
-      </p>
-      <div id="macro-topix-chart" class="w-full" style="height: 380px;"></div>
-      <p class="text-xs text-slate-400 mt-2">
-        TOPIX 指数値(2,800台)を直接取得できる無料API がないため ETF 価格(¥400台)で代用。
-        絶対水準ではなく、上下動・トレンドの比較用。
-      </p>
-    </section>
-
     <!-- Chart 2b: TOPIX EPS (monthly, multi-year) -->
     <template x-if="topixEpsData">
     <section class="bg-white border-2 border-violet-200 rounded-2xl p-5 sm:p-6 shadow-sm">
@@ -491,7 +477,6 @@
               <th class="px-3 py-2 text-right">指数ベースPER(倍)</th>
               <th class="px-3 py-2 text-right">EPS(円)</th>
               <th class="px-3 py-2 text-right">前年比(%)</th>
-              <th class="px-3 py-2 text-right">TOPIX代理(1306.T 円)</th>
             </tr>
           </thead>
           <tbody>
@@ -503,7 +488,6 @@
                 <td class="px-3 py-2 text-right" x-text="h.per_index_based ?? '-'"></td>
                 <td class="px-3 py-2 text-right font-medium" x-text="h.eps_weighted != null ? h.eps_weighted.toLocaleString() : '-'"></td>
                 <td class="px-3 py-2 text-right" :class="(h.eps_weighted_yoy_pct ?? 0) >= 0 ? 'text-emerald-700' : 'text-rose-700'" x-text="h.eps_weighted_yoy_pct != null ? (h.eps_weighted_yoy_pct.toFixed(2) + '%') : '-'"></td>
-                <td class="px-3 py-2 text-right text-violet-700" x-text="h.topix_proxy_close ?? '-'"></td>
               </tr>
             </template>
           </tbody>
@@ -1726,19 +1710,21 @@ function momentumApp() {
 
     _destroyMacroChart() {
       try { if (this._macroChart) this._macroChart.remove(); } catch (e) {}
-      try { if (this._macroTopixChart) this._macroTopixChart.remove(); } catch (e) {}
       try { if (this._topixEpsChart) this._topixEpsChart.remove(); } catch (e) {}
       this._macroChart = null;
       this._macroChartEps = null;
       this._macroChartYoy = null;
-      this._macroTopixChart = null;
       this._topixEpsChart = null;
     },
 
     renderMacroChart() {
-      this._renderTopixChart();
       const el = document.getElementById('macro-eps-chart');
       if (!el || !this.macroData || !window.LightweightCharts) return;
+      // Idempotent: loadMacro can fire multiple times (eager pre-warm + tab
+      // activation), so clear any prior chart(s) to avoid stacking duplicates.
+      try { if (this._macroChart) this._macroChart.remove(); } catch (e) {}
+      el.innerHTML = '';
+      this._macroChart = null;
       const chart = LightweightCharts.createChart(el, {
         width: el.clientWidth,
         height: 380,
@@ -1782,37 +1768,6 @@ function momentumApp() {
       }, { once: true });
     },
 
-    _renderTopixChart() {
-      const el = document.getElementById('macro-topix-chart');
-      if (!el || !this.macroData || !window.LightweightCharts) return;
-      const chart = LightweightCharts.createChart(el, {
-        width: el.clientWidth,
-        height: 380,
-        layout: { background: { color: '#ffffff' }, textColor: '#334155' },
-        grid: { vertLines: { color: '#f1f5f9' }, horzLines: { color: '#f1f5f9' } },
-        rightPriceScale: { borderColor: '#cbd5e1' },
-        timeScale: { borderColor: '#cbd5e1', timeVisible: false, secondsVisible: false },
-        crosshair: { mode: 1 },
-      });
-      const topixSeries = chart.addLineSeries({
-        color: '#7c3aed',
-        lineWidth: 2,
-        title: 'TOPIX 代理(1306.T ETF 終値・円)',
-      });
-      const data = [];
-      for (const h of (this.macroData.history || [])) {
-        if (h.topix_proxy_close != null) {
-          data.push({ time: h.date, value: h.topix_proxy_close });
-        }
-      }
-      topixSeries.setData(data);
-      chart.timeScale().fitContent();
-      this._macroTopixChart = chart;
-      window.addEventListener('resize', () => {
-        if (this._macroTopixChart && el) this._macroTopixChart.applyOptions({ width: el.clientWidth });
-      }, { once: true });
-    },
-
     async loadTopixEps() {
       try { if (this._topixEpsChart) this._topixEpsChart.remove(); } catch (e) {}
       this._topixEpsChart = null;
@@ -1836,6 +1791,8 @@ function momentumApp() {
       const el = document.getElementById('macro-topix-eps-chart');
       if (!el || !this.topixEpsData || !window.LightweightCharts) return;
       try { if (this._topixEpsChart) this._topixEpsChart.remove(); } catch (e) {}
+      el.innerHTML = '';
+      this._topixEpsChart = null;
       const chart = LightweightCharts.createChart(el, {
         width: el.clientWidth,
         height: 380,
@@ -2338,7 +2295,6 @@ function momentumApp() {
     _macroChart: null,
     _macroChartEps: null,
     _macroChartYoy: null,
-    _macroTopixChart: null,
     topixEpsData: null,           // TOPIX EPS history (月次・数年)
     _topixEpsChart: null,
     marginData: null,             // JPX 信用倍率 history
