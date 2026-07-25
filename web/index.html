@@ -314,6 +314,47 @@
       </p>
     </section>
 
+    <!-- Chart 2b: TOPIX EPS (monthly, multi-year) -->
+    <template x-if="topixEpsData">
+    <section class="bg-white border-2 border-violet-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+      <h2 class="text-lg font-extrabold text-violet-900 mb-1">📈 TOPIX EPS推移(月次・数年)</h2>
+      <p class="text-xs text-slate-500 mb-3">
+        🟣 TOPIX EPS(右目盛・円)= TOPIX月末終値 ÷ 加重平均PER(連結) / 🟠 前年比(左目盛・%)。
+        <span x-show="topixEpsData.asof">asof <span x-text="topixEpsData.asof"></span> 月末。</span>
+      </p>
+
+      <!-- Latest snapshot -->
+      <template x-if="topixEpsLatest">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm mb-4">
+          <div class="bg-violet-50 rounded-lg p-3">
+            <div class="text-xs text-slate-500">TOPIX 終値</div>
+            <div class="text-xl font-bold text-slate-800"><span x-text="(topixEpsLatest.topix_close || 0).toLocaleString()"></span></div>
+          </div>
+          <div class="bg-violet-50 rounded-lg p-3">
+            <div class="text-xs text-slate-500">加重平均 PER</div>
+            <div class="text-xl font-bold text-slate-800"><span x-text="topixEpsLatest.per_weighted ?? '-'"></span> 倍</div>
+          </div>
+          <div class="bg-violet-50 rounded-lg p-3">
+            <div class="text-xs text-slate-500">TOPIX EPS</div>
+            <div class="text-xl font-bold text-violet-700">¥<span x-text="(topixEpsLatest.eps || 0).toLocaleString()"></span></div>
+          </div>
+          <div class="bg-violet-50 rounded-lg p-3">
+            <div class="text-xs text-slate-500">EPS 前年比</div>
+            <div class="text-xl font-bold" :class="(topixEpsLatest.eps_yoy_pct ?? 0) >= 0 ? 'text-emerald-700' : 'text-rose-700'">
+              <span x-text="topixEpsLatest.eps_yoy_pct != null ? (topixEpsLatest.eps_yoy_pct.toFixed(2) + '%') : '蓄積中'"></span>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <div id="macro-topix-eps-chart" class="w-full" style="height: 380px;"></div>
+      <p class="text-xs text-slate-400 mt-2">
+        データ源: JPX「規模別・業種別PER・PBR(連結)」加重平均PER × TOPIX月末終値(当月=JPX公式 / 過去=WSJ・JPX一致)。
+        母集団はプライム市場(2022/04〜)/市場一部(〜2022/03)の総合で、TOPIX の代理。月次更新。
+      </p>
+    </section>
+    </template>
+
     <!-- Chart 3: JPX 信用倍率 (Margin Balance Ratio) -->
     <section x-show="marginData" class="bg-white border-2 border-rose-200 rounded-2xl p-5 sm:p-6 shadow-sm">
       <h2 class="text-lg font-extrabold text-rose-900 mb-3">⚖️ 信用倍率(JPX 公式週次)</h2>
@@ -1567,6 +1608,7 @@ function momentumApp() {
       }
       if (this.market === 'macro') {
         this.loadMacro();
+        this.loadTopixEps();
         this.loadMargin();
         this.loadFlows();
       }
@@ -1685,10 +1727,12 @@ function momentumApp() {
     _destroyMacroChart() {
       try { if (this._macroChart) this._macroChart.remove(); } catch (e) {}
       try { if (this._macroTopixChart) this._macroTopixChart.remove(); } catch (e) {}
+      try { if (this._topixEpsChart) this._topixEpsChart.remove(); } catch (e) {}
       this._macroChart = null;
       this._macroChartEps = null;
       this._macroChartYoy = null;
       this._macroTopixChart = null;
+      this._topixEpsChart = null;
     },
 
     renderMacroChart() {
@@ -1766,6 +1810,60 @@ function momentumApp() {
       this._macroTopixChart = chart;
       window.addEventListener('resize', () => {
         if (this._macroTopixChart && el) this._macroTopixChart.applyOptions({ width: el.clientWidth });
+      }, { once: true });
+    },
+
+    async loadTopixEps() {
+      try { if (this._topixEpsChart) this._topixEpsChart.remove(); } catch (e) {}
+      this._topixEpsChart = null;
+      this.topixEpsData = null;
+      try {
+        const resp = await fetch('./data/topix_eps_history.json?v=' + Date.now());
+        if (!resp.ok) return;
+        this.topixEpsData = await resp.json();
+        this.$nextTick(() => this._renderTopixEpsChart());
+      } catch (e) {
+        console.warn('topix eps load failed:', e);
+      }
+    },
+
+    get topixEpsLatest() {
+      const h = this.topixEpsData?.history || [];
+      return h.length ? h[h.length - 1] : null;
+    },
+
+    _renderTopixEpsChart() {
+      const el = document.getElementById('macro-topix-eps-chart');
+      if (!el || !this.topixEpsData || !window.LightweightCharts) return;
+      try { if (this._topixEpsChart) this._topixEpsChart.remove(); } catch (e) {}
+      const chart = LightweightCharts.createChart(el, {
+        width: el.clientWidth,
+        height: 380,
+        layout: { background: { color: '#ffffff' }, textColor: '#334155' },
+        grid: { vertLines: { color: '#f1f5f9' }, horzLines: { color: '#f1f5f9' } },
+        rightPriceScale: { borderColor: '#cbd5e1', scaleMargins: { top: 0.1, bottom: 0.4 } },
+        leftPriceScale:  { borderColor: '#cbd5e1', visible: true, scaleMargins: { top: 0.55, bottom: 0.1 } },
+        timeScale: { borderColor: '#cbd5e1', timeVisible: false, secondsVisible: false },
+        crosshair: { mode: 1 },
+      });
+      const epsSeries = chart.addLineSeries({
+        priceScaleId: 'right', color: '#7c3aed', lineWidth: 2, title: 'TOPIX EPS(円)',
+      });
+      const yoySeries = chart.addLineSeries({
+        priceScaleId: 'left', color: '#ea580c', lineWidth: 2, title: '前年比(%)',
+      });
+      const epsData = [];
+      const yoyData = [];
+      for (const h of (this.topixEpsData.history || [])) {
+        if (h.eps != null) epsData.push({ time: h.date, value: h.eps });
+        if (h.eps_yoy_pct != null) yoyData.push({ time: h.date, value: h.eps_yoy_pct });
+      }
+      epsSeries.setData(epsData);
+      yoySeries.setData(yoyData);
+      chart.timeScale().fitContent();
+      this._topixEpsChart = chart;
+      window.addEventListener('resize', () => {
+        if (this._topixEpsChart && el) this._topixEpsChart.applyOptions({ width: el.clientWidth });
       }, { once: true });
     },
 
@@ -2241,6 +2339,8 @@ function momentumApp() {
     _macroChartEps: null,
     _macroChartYoy: null,
     _macroTopixChart: null,
+    topixEpsData: null,           // TOPIX EPS history (月次・数年)
+    _topixEpsChart: null,
     marginData: null,             // JPX 信用倍率 history
     investorFlowsData: null,      // JPX 投資部門別売買動向 (海外/個人)
     _macroMarginChart: null,

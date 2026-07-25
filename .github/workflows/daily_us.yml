@@ -73,6 +73,10 @@ jobs:
         if: steps.freshness.outputs.need_run == 'true'
         run: python batch/fetch_nikkei_eps.py
 
+      - name: Fetch TOPIX EPS (JPX monthly PER × TOPIX close, multi-year)
+        if: steps.freshness.outputs.need_run == 'true'
+        run: python batch/fetch_topix_eps.py
+
       - name: Generate AI swing picks (US, Claude)
         if: steps.freshness.outputs.need_run == 'true'
         env:
@@ -91,6 +95,6 @@ jobs:
             "data(us): daily update $(date -u +%Y-%m-%d)" \
             data/universe_us.json web/data/momentum_us.json web/data/chart_data_us.json \
             web/data/indices.json web/data/swing_picks_us.json \
-            web/data/nikkei_eps_history.json
+            web/data/nikkei_eps_history.json web/data/topix_eps_history.json
       # 指数の Discord 通知は 21:00 JST の統合ダイジェスト(weekly_value_jp)に集約。
       # ここでは送信しない。
