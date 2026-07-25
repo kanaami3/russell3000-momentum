@@ -290,9 +290,9 @@
 
     <!-- Chart 1: NK225 EPS + YoY -->
     <section class="bg-white border-2 border-orange-200 rounded-2xl p-5 sm:p-6 shadow-sm">
-      <h2 class="text-lg font-extrabold text-orange-900 mb-3">📈 日経225 EPS推移と前年比</h2>
+      <h2 class="text-lg font-extrabold text-orange-900 mb-3">📈 日経225 EPS推移と前年比(直近半年)</h2>
       <p class="text-xs text-slate-500 mb-3">
-        🔵 EPS(右目盛・円) / 🟠 前年比(左目盛・%)。EPS は加重平均PER から導出。前年比は1年分のデータが揃った時点で表示されます。
+        🔵 EPS(右目盛・円) / 🟠 前年比(左目盛・%)。EPS は加重平均PER から導出。直近6ヶ月表示。前年比は1年分のデータが揃った時点で表示されます。
       </p>
       <div id="macro-eps-chart" class="w-full" style="height: 380px;"></div>
       <p class="text-xs text-slate-400 mt-2">
@@ -303,9 +303,9 @@
     <!-- Chart 2b: TOPIX EPS (monthly, multi-year) -->
     <template x-if="topixEpsData">
     <section class="bg-white border-2 border-violet-200 rounded-2xl p-5 sm:p-6 shadow-sm">
-      <h2 class="text-lg font-extrabold text-violet-900 mb-1">📈 TOPIX EPS推移(月次・数年)</h2>
+      <h2 class="text-lg font-extrabold text-violet-900 mb-1">📈 TOPIX EPS推移(月次・直近半年)</h2>
       <p class="text-xs text-slate-500 mb-3">
-        🟣 TOPIX EPS(右目盛・円)= TOPIX月末終値 ÷ 加重平均PER(連結) / 🟠 前年比(左目盛・%)。
+        🟣 TOPIX EPS(右目盛・円)= TOPIX月末終値 ÷ 加重平均PER(連結) / 🟠 前年比(左目盛・%)。直近6ヶ月表示。
         <span x-show="topixEpsData.asof">asof <span x-text="topixEpsData.asof"></span> 月末。</span>
       </p>
 
@@ -1717,6 +1717,18 @@ function momentumApp() {
       this._topixEpsChart = null;
     },
 
+    // Keep only rows whose date is within the last `months` months of the
+    // series' latest date. Used to cap EPS charts to a recent window.
+    _recentByMonths(history, months) {
+      const h = history || [];
+      if (!h.length) return h;
+      const last = new Date(h[h.length - 1].date);
+      const cutoff = new Date(last);
+      cutoff.setMonth(cutoff.getMonth() - months);
+      const cut = cutoff.toISOString().slice(0, 10);
+      return h.filter(r => r.date >= cut);
+    },
+
     renderMacroChart() {
       const el = document.getElementById('macro-eps-chart');
       if (!el || !this.macroData || !window.LightweightCharts) return;
@@ -1749,7 +1761,8 @@ function momentumApp() {
       });
       const epsData = [];
       const yoyData = [];
-      for (const h of (this.macroData.history || [])) {
+      // 直近6ヶ月(半年)のみ表示
+      for (const h of this._recentByMonths(this.macroData.history, 6)) {
         if (h.eps_weighted != null) {
           epsData.push({ time: h.date, value: h.eps_weighted });
         }
@@ -1811,7 +1824,8 @@ function momentumApp() {
       });
       const epsData = [];
       const yoyData = [];
-      for (const h of (this.topixEpsData.history || [])) {
+      // 直近6ヶ月(半年)のみ表示。前年比は full history から算出済み
+      for (const h of this._recentByMonths(this.topixEpsData.history, 6)) {
         if (h.eps != null) epsData.push({ time: h.date, value: h.eps });
         if (h.eps_yoy_pct != null) yoyData.push({ time: h.date, value: h.eps_yoy_pct });
       }
