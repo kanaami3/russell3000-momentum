@@ -637,8 +637,9 @@
                 <td class="px-2 py-1.5 text-right" :class="r.pbr!=null && r.pbr<1 ? 'text-emerald-700 font-medium':''" x-text="r.pbr ?? '-'"></td>
                 <td class="px-2 py-1.5 text-right" x-text="r.roe!=null ? r.roe.toFixed(1)+'%' : '-'"></td>
                 <td class="px-2 py-1.5 text-center whitespace-nowrap"
-                    :class="r.rev==null?'text-slate-300':r.rev<=-10?'text-rose-700 font-bold':r.rev<0?'text-amber-600':'text-emerald-600'"
-                    x-text="r.rev==null?'-':(r.rev<=-10?'▼減額 '+r.rev.toFixed(0)+'%':(r.rev>=0?'+'+r.rev.toFixed(0)+'%':r.rev.toFixed(0)+'%'))"></td>
+                    :class="r.rev==null?'text-slate-300':!r.revOk?'text-slate-400':r.rev<=-10?'text-rose-700 font-bold':r.rev<0?'text-amber-600':'text-emerald-600'"
+                    :title="!r.revOk && r.rev!=null ? '予想EPSが実績と桁違い(データ要確認)のため判定には未使用' : ''"
+                    x-text="r.rev==null?'-':(!r.revOk?'? '+r.rev.toFixed(0)+'%':(r.rev<=-10?'▼減額 '+r.rev.toFixed(0)+'%':(r.rev>=0?'+'+r.rev.toFixed(0)+'%':r.rev.toFixed(0)+'%')))"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.overall)" x-text="divMark(r.judge.overall)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.value)" x-text="divMark(r.judge.value)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.dividend)" x-text="divMark(r.judge.dividend)"></td>

@@ -91,6 +91,13 @@ def eps_revision(fwd, trail):
     return fwd / trail - 1
 
 
+def revision_reliable(rev):
+    """改定率が現実的な範囲か。yfinanceの予想EPSは日本の中小型株で
+    実績と桁違いの異常値になることがある(例 -82%)。極端な値は
+    データ異常とみなし、業績判定には使わない。"""
+    return rev is not None and -0.55 <= rev <= 1.50
+
+
 def overall(vals):
     got = [v for v in vals if v is not None]
     return round(sum(got) / len(got)) if got else None
@@ -120,9 +127,11 @@ def main() -> int:
                 continue
 
             rev = eps_revision(fwd_eps, trail_eps)   # 予想EPS改定の方向
+            rev_ok = revision_reliable(rev)          # 現実的な範囲か
+            rev_eff = rev if rev_ok else None        # 判定に使うのは信頼できる時のみ
             j_val = judge_value(per, pbr)
             j_div = judge_dividend(yld, payout)
-            j_ern = judge_earnings(roe, eg, rg, rev)
+            j_ern = judge_earnings(roe, eg, rg, rev_eff)
             j_all = overall([j_val, j_div, j_ern])
 
             code = (r.get("ticker") or "").replace(".T", "")
@@ -138,6 +147,7 @@ def main() -> int:
                 "roe": round(roe, 1) if roe is not None else None,            # 既に%
                 "mcap": round(mcap / 1e8) if mcap is not None else None,  # 億円
                 "rev": round(rev * 100, 1) if rev is not None else None,  # 予想EPS改定 %
+                "revOk": rev_ok,  # 改定率が現実的な範囲か(判定に使ったか)
                 "judge": {"overall": j_all, "value": j_val, "dividend": j_div, "earnings": j_ern},
             })
 
