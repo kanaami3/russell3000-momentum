@@ -231,6 +231,58 @@
       <span class="text-slate-700">asof <span x-text="macroData.asof"></span> (更新 <span x-text="(macroData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
     </p>
 
+    <!-- Weekly PER outlook (client-side computed from TOPIX PER/EPS + margin) -->
+    <template x-if="weeklyOutlook">
+    <section class="bg-gradient-to-br from-indigo-50 to-violet-50 border-2 border-indigo-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+      <div class="flex items-baseline gap-3 mb-3 flex-wrap">
+        <h2 class="text-lg font-extrabold text-indigo-900">📅 今週のPER見通し</h2>
+        <span class="text-xs text-slate-500" x-show="weeklyOutlook.asof">TOPIX asof <span x-text="weeklyOutlook.asof"></span> 月末基準</span>
+      </div>
+
+      <!-- Valuation band badge + percentile -->
+      <div class="flex flex-wrap items-center gap-3 mb-4">
+        <span class="px-3 py-1 rounded-full text-sm font-extrabold"
+              :class="{
+                'emerald':'bg-emerald-100 text-emerald-800','teal':'bg-teal-100 text-teal-800',
+                'slate':'bg-slate-200 text-slate-700','amber':'bg-amber-100 text-amber-800',
+                'rose':'bg-rose-100 text-rose-800'
+              }[weeklyOutlook.color]"
+              x-text="'PER水準: ' + weeklyOutlook.band"></span>
+        <span class="text-sm text-slate-700">
+          加重PER <b x-text="weeklyOutlook.per"></b> 倍 —
+          過去<span x-text="weeklyOutlook.n"></span>ヶ月中で下位<b x-text="weeklyOutlook.pct"></b>%点
+          <span class="text-slate-400">(中央値 <span x-text="weeklyOutlook.median"></span> / 範囲 <span x-text="weeklyOutlook.lo"></span>〜<span x-text="weeklyOutlook.hi"></span>)</span>
+        </span>
+      </div>
+
+      <!-- Earnings momentum -->
+      <div class="flex flex-wrap items-center gap-2 mb-4 text-sm">
+        <span class="text-slate-500">業績モメンタム(EPS前年比):</span>
+        <span class="font-bold"
+              :class="{
+                'strong':'text-emerald-700','mild':'text-teal-700',
+                'down':'text-rose-700','unknown':'text-slate-500'
+              }[weeklyOutlook.mom.key]"
+              x-text="weeklyOutlook.mom.label"></span>
+      </div>
+
+      <!-- Combined read -->
+      <div class="rounded-xl p-4 border-2 bg-white/70"
+           :class="{
+             'emerald':'border-emerald-300','teal':'border-teal-300','amber':'border-amber-300',
+             'rose':'border-rose-300','slate':'border-slate-300'
+           }[weeklyOutlook.tone]">
+        <div class="text-xs uppercase tracking-wide text-slate-500 mb-1">総合読み筋</div>
+        <p class="text-sm text-slate-800 leading-relaxed" x-text="weeklyOutlook.read"></p>
+        <p class="text-sm text-rose-700 font-medium mt-2" x-show="weeklyOutlook.marginNote" x-text="'⚠️ ' + weeklyOutlook.marginNote"></p>
+      </div>
+
+      <p class="text-xs text-slate-400 mt-3">
+        ※ TOPIX加重PERの過去分布上の位置とEPS前年比から機械的に整理したもの。投資勧誘ではありません。判断はご自身の責任で。
+      </p>
+    </section>
+    </template>
+
     <!-- Latest snapshot -->
     <section class="bg-white border-2 border-orange-200 rounded-2xl p-5 sm:p-6 shadow-sm">
       <h2 class="text-lg font-extrabold text-orange-900 mb-3">📊 本日の日経225 ファンダ</h2>
@@ -1799,6 +1851,85 @@ function momentumApp() {
     get topixEpsLatest() {
       const h = this.topixEpsData?.history || [];
       return h.length ? h[h.length - 1] : null;
+    },
+
+    // 週次PER見通し: TOPIX加重PERのヒストリカル位置 × EPSモメンタム × 信用リスク
+    // を合成したルールベースの見通し(投資助言ではなく状況整理)。
+    // 既読の JSON からクライアント側で算出するのでデータ更新に自動追従。
+    get weeklyOutlook() {
+      const th = this.topixEpsData?.history || [];
+      if (!th.length) return null;
+      const latest = th[th.length - 1];
+      const cur = latest.per_weighted;
+      if (cur == null) return null;
+
+      // PERのパーセンタイル順位(全期間)
+      const pers = th.map(h => h.per_weighted).filter(v => v != null).sort((a, b) => a - b);
+      const below = pers.filter(v => v < cur).length;
+      const pct = pers.length ? Math.round((below / pers.length) * 100) : null;
+      const median = pers[Math.floor(pers.length / 2)];
+      const lo = pers[0], hi = pers[pers.length - 1];
+
+      // バリュエーション・バンド(パーセンタイル基準)
+      let band, color;
+      if (pct == null)      { band = '判定不能'; color = 'slate'; }
+      else if (pct < 20)    { band = '割安';     color = 'emerald'; }
+      else if (pct < 40)    { band = 'やや割安'; color = 'teal'; }
+      else if (pct < 60)    { band = '中立';     color = 'slate'; }
+      else if (pct < 80)    { band = 'やや割高'; color = 'amber'; }
+      else                  { band = '割高';     color = 'rose'; }
+
+      // EPSモメンタム(前年比)
+      const yoy = latest.eps_yoy_pct;
+      let mom;
+      if (yoy == null)      mom = { key: 'unknown', label: '蓄積中' };
+      else if (yoy >= 8)    mom = { key: 'strong',  label: `力強い増益 (+${yoy.toFixed(1)}%)` };
+      else if (yoy >= 0)    mom = { key: 'mild',    label: `緩やかな増益 (+${yoy.toFixed(1)}%)` };
+      else                  mom = { key: 'down',    label: `減益 (${yoy.toFixed(1)}%)` };
+
+      // バリュエーション × 業績モメンタムの合成コメント
+      const cheap = (band === '割安' || band === 'やや割安');
+      const rich  = (band === '割高' || band === 'やや割高');
+      let read, tone;
+      if (mom.key === 'unknown') {
+        read = 'EPS前年比は1年分のデータ蓄積後に判定。現状はPER水準のみで評価。';
+        tone = 'slate';
+      } else if (cheap && (mom.key === 'strong' || mom.key === 'mild')) {
+        read = 'PERは過去比で低め、かつ企業業績(EPS)は拡大中。バリュエーションの余地と業績の追い風が重なる局面。';
+        tone = 'emerald';
+      } else if (band === '中立' && (mom.key === 'strong' || mom.key === 'mild')) {
+        read = 'PERは概ね平均圏で、EPSは増益。過度な割高感はなく、上値は業績の伸び次第。';
+        tone = 'teal';
+      } else if (rich && mom.key === 'strong') {
+        read = 'PERは過去比で高めだが、力強い増益がそれを支える構図。業績鈍化の兆しに注意。';
+        tone = 'amber';
+      } else if (rich && (mom.key === 'mild')) {
+        read = 'PERは高め、EPSの伸びは緩やか。株価はPER主導の側面が強く、割高修正リスクに留意。';
+        tone = 'amber';
+      } else if (rich && mom.key === 'down') {
+        read = '高PER × 業績鈍化(減益)。バリュエーションの支えが弱く、下振れに警戒したい局面。';
+        tone = 'rose';
+      } else if (cheap && mom.key === 'down') {
+        read = 'PERは低いが業績は減益。割安に見えても業績底打ちの確認が先。';
+        tone = 'slate';
+      } else {
+        read = 'PERは中立圏で業績は減益。方向感が出にくく、業績トレンドの反転待ち。';
+        tone = 'slate';
+      }
+
+      // 信用倍率リスク(あれば付記)
+      let marginNote = null;
+      const mj = this.marginData?.latest_judgment;
+      if (mj && (mj.color === 'rose' || mj.color === 'orange')) {
+        marginNote = `信用倍率は「${mj.label}」— 需給の過熱感あり、急落リスクに留意。`;
+      }
+
+      return {
+        asof: this.topixEpsData?.asof,
+        per: cur, pct, median, lo, hi, band, color,
+        yoy, mom, read, tone, marginNote,
+        n: pers.length,
+      };
     },
 
     _renderTopixEpsChart() {
