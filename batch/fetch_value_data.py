@@ -44,6 +44,8 @@ FIELDS = [
     "profit_margins",       # %
     "debt_to_equity",       # ratio
     "beta",
+    "trailing_eps",         # 実績EPS
+    "forward_eps",          # 予想EPS(改定方向の検知に使う)
 ]
 
 # Concurrency settings
@@ -85,6 +87,8 @@ def fetch_one(spec: dict) -> dict:
         "profit_margins": None,
         "debt_to_equity": None,
         "beta": None,
+        "trailing_eps": None,
+        "forward_eps": None,
     }
     try:
         info = yf.Ticker(ticker).info or {}
@@ -113,6 +117,8 @@ def fetch_one(spec: dict) -> dict:
         row["profit_margins"]    = _pct(info.get("profitMargins"))
         row["debt_to_equity"]    = _safe_num(info.get("debtToEquity"))
         row["beta"]              = _safe_num(info.get("beta"))
+        row["trailing_eps"]      = _safe_num(info.get("trailingEps"))
+        row["forward_eps"]       = _safe_num(info.get("forwardEps"))
     except Exception as e:
         # Swallow per-ticker errors; many smaller Prime names will lack data.
         pass

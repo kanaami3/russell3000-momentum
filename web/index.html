@@ -617,6 +617,7 @@
               <th class="px-2 py-2 text-right cursor-pointer hover:text-teal-700" @click="setDivSort('per')">PER</th>
               <th class="px-2 py-2 text-right cursor-pointer hover:text-teal-700" @click="setDivSort('pbr')">PBR</th>
               <th class="px-2 py-2 text-right cursor-pointer hover:text-teal-700" @click="setDivSort('roe')">ROE</th>
+              <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('rev')" title="予想EPS ÷ 実績EPS − 1">予想改定</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('overall')">総合</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('value')">割安</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('dividend')">配当</th>
@@ -635,6 +636,9 @@
                 <td class="px-2 py-1.5 text-right" x-text="r.per ?? '-'"></td>
                 <td class="px-2 py-1.5 text-right" :class="r.pbr!=null && r.pbr<1 ? 'text-emerald-700 font-medium':''" x-text="r.pbr ?? '-'"></td>
                 <td class="px-2 py-1.5 text-right" x-text="r.roe!=null ? r.roe.toFixed(1)+'%' : '-'"></td>
+                <td class="px-2 py-1.5 text-center whitespace-nowrap"
+                    :class="r.rev==null?'text-slate-300':r.rev<=-10?'text-rose-700 font-bold':r.rev<0?'text-amber-600':'text-emerald-600'"
+                    x-text="r.rev==null?'-':(r.rev<=-10?'▼減額 '+r.rev.toFixed(0)+'%':(r.rev>=0?'+'+r.rev.toFixed(0)+'%':r.rev.toFixed(0)+'%'))"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.overall)" x-text="divMark(r.judge.overall)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.value)" x-text="divMark(r.judge.value)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.dividend)" x-text="divMark(r.judge.dividend)"></td>
@@ -646,7 +650,7 @@
       </div>
     </div>
     <div class="flex items-center justify-between flex-wrap gap-2">
-      <p class="text-xs text-slate-400">列見出し(利回り/PER/PBR/ROE/各判定)をクリックで並べ替え。毎営業日更新。</p>
+      <p class="text-xs text-slate-400">列見出しをクリックで並べ替え。<b>予想改定</b>=予想EPS÷実績EPS−1(▼減額は今期下方修正=業績判定を減点)。毎営業日更新。</p>
       <div class="flex items-center gap-3 text-sm" x-show="divTotalPages > 1">
         <button @click="divPage=Math.max(0,divPage-1)" :disabled="divPage===0" class="px-3 py-1 rounded border disabled:opacity-40">前へ</button>
         <span class="text-slate-600" x-text="(divPage+1)+' / '+divTotalPages"></span>

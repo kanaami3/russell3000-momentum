@@ -26,11 +26,17 @@ OUTPUT_PATH = REPO_ROOT / "web" / "data" / "dividend_screener.json"
 MARKS = {4: "◎", 3: "○", 2: "△", 1: "×"}
 
 
+import math
+
+
 def _f(v):
     try:
         if v in (None, "", "None"):
             return None
-        return float(v)
+        f = float(v)
+        if math.isnan(f) or math.isinf(f):  # JSではJSON.parse不可 → None
+            return None
+        return f
     except (TypeError, ValueError):
         return None
 
@@ -57,17 +63,32 @@ def judge_dividend(yld, payout):
     return 1
 
 
-def judge_earnings(roe, eg, rg):
+def judge_earnings(roe, eg, rg, fwd_rev):
     # roe / eg / rg は既に%(例 ROE 8.88, 増益 31.4)。
-    if roe is None and eg is None:
+    # fwd_rev = 予想EPS ÷ 実績EPS − 1(会社予想の改定方向。マイナス=減額)。
+    if roe is None and eg is None and fwd_rev is None:
         return None
+    # フォワード(今期予想)を最優先: 大幅減額は過去がよくても評価を下げる。
+    if fwd_rev is not None and fwd_rev <= -0.25:  # 大幅減額
+        return 1
     growth_pos = (eg is not None and eg > 0) or (rg is not None and rg > 0)
     growth_neg = (eg is not None and eg < -20)
-    if roe is not None and roe >= 10 and growth_pos:    return 4
-    if roe is not None and roe >= 7 and not growth_neg: return 3
-    if roe is not None and roe >= 3:                    return 2
-    if growth_pos:                                    return 2
-    return 1
+    if roe is not None and roe >= 10 and growth_pos:    base = 4
+    elif roe is not None and roe >= 7 and not growth_neg: base = 3
+    elif roe is not None and roe >= 3:                    base = 2
+    elif growth_pos:                                    base = 2
+    else:                                              base = 1
+    # 減額基調(予想EPSが実績比 -10%以下)なら △ 止まり。
+    if fwd_rev is not None and fwd_rev <= -0.10:
+        base = min(base, 2)
+    return base
+
+
+def eps_revision(fwd, trail):
+    """予想EPS改定の方向。None/赤字は判定不能。"""
+    if fwd is None or trail is None or trail <= 0:
+        return None
+    return fwd / trail - 1
 
 
 def overall(vals):
@@ -92,13 +113,16 @@ def main() -> int:
             eg = _f(r.get("earnings_growth"))
             rg = _f(r.get("revenue_growth"))
             mcap = _f(r.get("market_cap"))
+            fwd_eps = _f(r.get("forward_eps"))
+            trail_eps = _f(r.get("trailing_eps"))
             # 価格が無い＝データ取得失敗行はスキップ
             if price is None:
                 continue
 
+            rev = eps_revision(fwd_eps, trail_eps)   # 予想EPS改定の方向
             j_val = judge_value(per, pbr)
             j_div = judge_dividend(yld, payout)
-            j_ern = judge_earnings(roe, eg, rg)
+            j_ern = judge_earnings(roe, eg, rg, rev)
             j_all = overall([j_val, j_div, j_ern])
 
             code = (r.get("ticker") or "").replace(".T", "")
@@ -113,6 +137,7 @@ def main() -> int:
                 "pbr": round(pbr, 2) if pbr is not None else None,
                 "roe": round(roe, 1) if roe is not None else None,            # 既に%
                 "mcap": round(mcap / 1e8) if mcap is not None else None,  # 億円
+                "rev": round(rev * 100, 1) if rev is not None else None,  # 予想EPS改定 %
                 "judge": {"overall": j_all, "value": j_val, "dividend": j_div, "earnings": j_ern},
             })
 
@@ -129,7 +154,7 @@ def main() -> int:
         "criteria": {
             "value": "割安: PER<12&PBR<1.0=◎ / <15&<1.5=○ / <20&<2.5=△ / それ以上=×",
             "dividend": "配当: 利回り≥3.5%&性向≤60%=◎ / ≥2.5%&≤70%=○ / ≥1.5%&≤100%=△ / それ以下=×",
-            "earnings": "業績: ROE≥10%&増益=◎ / ≥7%=○ / ≥3%=△ / それ以下=×",
+            "earnings": "業績: ROE≥10%&増益=◎ / ≥7%=○ / ≥3%=△。予想EPSが実績比-25%以下(大幅減額)は×、-10%以下は△止まり",
             "overall": "総合: 3軸の平均",
         },
         "stocks": rows,
