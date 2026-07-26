@@ -562,26 +562,44 @@
   <template x-if="market === 'dividend' && dividendData">
   <div class="space-y-4">
     <p class="text-xs text-slate-500">
-      🏆 高配当・バリュー系 <strong x-text="(dividendData.stocks||[]).length"></strong> 銘柄を
-      <strong>割安・配当・業績</strong>の3軸＋総合で機械判定(◎○△×)。
-      データ源: yfinance ・ asof <span x-text="dividendData.asof"></span>。
+      🏆 東証 <strong x-text="(dividendData.universe_size||0).toLocaleString()"></strong> 銘柄から、条件に合う銘柄を自動抽出。
+      <strong>割安・配当・業績</strong>の3軸＋総合で機械判定(◎○△×)。データ源: yfinance ・ asof <span x-text="dividendData.asof"></span>。
       <span class="text-slate-400">※情報整理であり投資勧誘ではありません。</span>
     </p>
 
-    <!-- criteria legend -->
-    <div class="bg-white border border-slate-200 rounded-xl p-3 text-xs text-slate-600 space-y-1">
-      <div><b class="text-slate-700">判定基準</b>(しきい値は調整可)</div>
-      <div>🟢◎ 良い / 🔵○ 妥当 / 🟠△ 注意 / 🔴× 不利</div>
-      <div><b>割安</b>: PER・PBRが低いほど良い / <b>配当</b>: 高利回り×無理のない配当性向 / <b>業績</b>: ROE・増益率 / <b>総合</b>: 3軸の平均</div>
-    </div>
-
-    <!-- sector filter -->
-    <div class="flex items-center gap-2 flex-wrap text-sm">
-      <span class="text-slate-500">業種:</span>
-      <button @click="divSectorFilter=''" :class="divSectorFilter===''?'bg-teal-600 text-white':'bg-white text-slate-600 border'" class="px-3 py-1 rounded-full text-xs">全て</button>
-      <template x-for="s in divSectors" :key="s">
-        <button @click="divSectorFilter=s" :class="divSectorFilter===s?'bg-teal-600 text-white':'bg-white text-slate-600 border'" class="px-3 py-1 rounded-full text-xs" x-text="s"></button>
-      </template>
+    <!-- condition controls -->
+    <div class="bg-white border-2 border-teal-200 rounded-2xl p-4">
+      <div class="flex items-baseline justify-between mb-3 flex-wrap gap-2">
+        <h2 class="font-extrabold text-teal-900">🔎 抽出条件</h2>
+        <button @click="divResetFilters()" class="text-xs text-slate-500 underline">条件クリア</button>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-sm">
+        <label class="block"><span class="text-xs text-slate-500">利回り ≥ (%)</span>
+          <input type="number" step="0.5" x-model.number="divF.yieldMin" @input="resetDivPage()" placeholder="例 3.5" class="w-full border rounded-lg px-2 py-1.5"></label>
+        <label class="block"><span class="text-xs text-slate-500">PBR ≤ (倍)</span>
+          <input type="number" step="0.1" x-model.number="divF.pbrMax" @input="resetDivPage()" placeholder="例 1.0" class="w-full border rounded-lg px-2 py-1.5"></label>
+        <label class="block"><span class="text-xs text-slate-500">PER ≤ (倍)</span>
+          <input type="number" step="1" x-model.number="divF.perMax" @input="resetDivPage()" placeholder="例 15" class="w-full border rounded-lg px-2 py-1.5"></label>
+        <label class="block"><span class="text-xs text-slate-500">配当性向 ≤ (%)</span>
+          <input type="number" step="5" x-model.number="divF.payoutMax" @input="resetDivPage()" placeholder="例 70" class="w-full border rounded-lg px-2 py-1.5"></label>
+        <label class="block"><span class="text-xs text-slate-500">ROE ≥ (%)</span>
+          <input type="number" step="1" x-model.number="divF.roeMin" @input="resetDivPage()" placeholder="例 8" class="w-full border rounded-lg px-2 py-1.5"></label>
+        <label class="block"><span class="text-xs text-slate-500">総合判定</span>
+          <select x-model="divJudge" @change="resetDivPage()" class="w-full border rounded-lg px-2 py-1.5">
+            <option value="">すべて</option><option value="4">◎のみ</option><option value="34">◎○</option>
+          </select></label>
+      </div>
+      <div class="mt-3 flex items-center gap-2 flex-wrap text-xs">
+        <span class="text-slate-500">業種:</span>
+        <button @click="divSectorFilter=''; resetDivPage()" :class="divSectorFilter===''?'bg-teal-600 text-white':'bg-white text-slate-600 border'" class="px-2.5 py-1 rounded-full">全て</button>
+        <template x-for="s in divSectors" :key="s">
+          <button @click="divSectorFilter=s; resetDivPage()" :class="divSectorFilter===s?'bg-teal-600 text-white':'bg-white text-slate-600 border'" class="px-2.5 py-1 rounded-full" x-text="s"></button>
+        </template>
+      </div>
+      <div class="mt-3 text-sm text-slate-700">
+        該当: <b class="text-teal-700 text-lg" x-text="divFiltered.length"></b> 銘柄
+        <span class="text-xs text-slate-400 ml-2">🟢◎良い / 🔵○妥当 / 🟠△注意 / 🔴×不利</span>
+      </div>
     </div>
 
     <!-- table -->
@@ -594,12 +612,11 @@
               <th class="px-2 py-2 text-left">コード</th>
               <th class="px-2 py-2 text-left">銘柄名</th>
               <th class="px-2 py-2 text-right cursor-pointer hover:text-teal-700" @click="setDivSort('yield')">利回り</th>
-              <th class="px-2 py-2 text-right">予想配当</th>
               <th class="px-2 py-2 text-right">株価</th>
               <th class="px-2 py-2 text-right cursor-pointer hover:text-teal-700" @click="setDivSort('payout')">配当性向</th>
               <th class="px-2 py-2 text-right cursor-pointer hover:text-teal-700" @click="setDivSort('per')">PER</th>
               <th class="px-2 py-2 text-right cursor-pointer hover:text-teal-700" @click="setDivSort('pbr')">PBR</th>
-              <th class="px-2 py-2 text-center">決算</th>
+              <th class="px-2 py-2 text-right cursor-pointer hover:text-teal-700" @click="setDivSort('roe')">ROE</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('overall')">総合</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('value')">割安</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('dividend')">配当</th>
@@ -613,12 +630,11 @@
                 <td class="px-2 py-1.5 font-mono" x-text="r.code"></td>
                 <td class="px-2 py-1.5 font-medium" x-text="r.name"></td>
                 <td class="px-2 py-1.5 text-right text-emerald-700 font-medium" x-text="r.yield!=null ? r.yield.toFixed(2)+'%' : '-'"></td>
-                <td class="px-2 py-1.5 text-right" x-text="r.dividend ?? '-'"></td>
                 <td class="px-2 py-1.5 text-right" x-text="r.price!=null ? r.price.toLocaleString() : '-'"></td>
                 <td class="px-2 py-1.5 text-right" x-text="r.payout!=null ? r.payout.toFixed(1)+'%' : '-'"></td>
                 <td class="px-2 py-1.5 text-right" x-text="r.per ?? '-'"></td>
                 <td class="px-2 py-1.5 text-right" :class="r.pbr!=null && r.pbr<1 ? 'text-emerald-700 font-medium':''" x-text="r.pbr ?? '-'"></td>
-                <td class="px-2 py-1.5 text-center text-slate-500" x-text="r.fmonth ? r.fmonth+'月' : '-'"></td>
+                <td class="px-2 py-1.5 text-right" x-text="r.roe!=null ? r.roe.toFixed(1)+'%' : '-'"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.overall)" x-text="divMark(r.judge.overall)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.value)" x-text="divMark(r.judge.value)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.dividend)" x-text="divMark(r.judge.dividend)"></td>
@@ -629,7 +645,14 @@
         </table>
       </div>
     </div>
-    <p class="text-xs text-slate-400">列見出し(利回り/PER/PBR/各判定)をクリックで並べ替え。毎営業日更新。</p>
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <p class="text-xs text-slate-400">列見出し(利回り/PER/PBR/ROE/各判定)をクリックで並べ替え。毎営業日更新。</p>
+      <div class="flex items-center gap-3 text-sm" x-show="divTotalPages > 1">
+        <button @click="divPage=Math.max(0,divPage-1)" :disabled="divPage===0" class="px-3 py-1 rounded border disabled:opacity-40">前へ</button>
+        <span class="text-slate-600" x-text="(divPage+1)+' / '+divTotalPages"></span>
+        <button @click="divPage=Math.min(divTotalPages-1,divPage+1)" :disabled="divPage>=divTotalPages-1" class="px-3 py-1 rounded border disabled:opacity-40">次へ</button>
+      </div>
+    </div>
   </div>
   </template>
 
@@ -1827,20 +1850,36 @@ function momentumApp() {
       const s = new Set((this.dividendData?.stocks || []).map(r => r.sector));
       return [...s];
     },
-    get divRows() {
+    get divFiltered() {
       let rows = [...(this.dividendData?.stocks || [])];
+      const f = this.divF;
       if (this.divSectorFilter) rows = rows.filter(r => r.sector === this.divSectorFilter);
+      if (f.yieldMin != null && f.yieldMin !== '') rows = rows.filter(r => (r.yield ?? -1) >= f.yieldMin);
+      if (f.pbrMax != null && f.pbrMax !== '')     rows = rows.filter(r => r.pbr != null && r.pbr <= f.pbrMax);
+      if (f.perMax != null && f.perMax !== '')     rows = rows.filter(r => r.per != null && r.per > 0 && r.per <= f.perMax);
+      if (f.payoutMax != null && f.payoutMax !== '') rows = rows.filter(r => r.payout != null && r.payout <= f.payoutMax);
+      if (f.roeMin != null && f.roeMin !== '')     rows = rows.filter(r => r.roe != null && r.roe >= f.roeMin);
+      if (this.divJudge === '4')  rows = rows.filter(r => r.judge.overall === 4);
+      if (this.divJudge === '34') rows = rows.filter(r => (r.judge.overall ?? 0) >= 3);
       const k = this.divSort;
-      const val = (r) => {
-        if (['overall','value','dividend','earnings'].includes(k)) return r.judge[k] ?? -1;
-        return r[k] ?? -Infinity;
-      };
+      const val = (r) => ['overall','value','dividend','earnings'].includes(k) ? (r.judge[k] ?? -1) : (r[k] ?? -Infinity);
       rows.sort((a, b) => this.divSortDesc ? (val(b) - val(a)) : (val(a) - val(b)));
       return rows;
+    },
+    get divRows() {
+      const start = this.divPage * this.divPageSize;
+      return this.divFiltered.slice(start, start + this.divPageSize);
+    },
+    get divTotalPages() { return Math.max(1, Math.ceil(this.divFiltered.length / this.divPageSize)); },
+    resetDivPage() { this.divPage = 0; },
+    divResetFilters() {
+      this.divF = { yieldMin: null, pbrMax: null, perMax: null, payoutMax: null, roeMin: null };
+      this.divJudge = ''; this.divSectorFilter = ''; this.divPage = 0;
     },
     setDivSort(k) {
       if (this.divSort === k) this.divSortDesc = !this.divSortDesc;
       else { this.divSort = k; this.divSortDesc = true; }
+      this.divPage = 0;
     },
 
     valueCategories: [
@@ -2573,10 +2612,14 @@ function momentumApp() {
     earningsMarket: 'us',         // 'jp' | 'us' toggle within tab
     earningsExpanded: {},         // {ticker: bool} for expand/collapse
     macroData: null,              // Nikkei EPS history
-    dividendData: null,           // 配当スクリーナー
+    dividendData: null,           // 配当スクリーナー(全銘柄)
     divSort: 'overall',           // ソート列
     divSortDesc: true,
     divSectorFilter: '',          // 業種フィルタ
+    divF: { yieldMin: 3.0, pbrMax: null, perMax: null, payoutMax: null, roeMin: null },
+    divJudge: '',                 // '' | '4'(◎) | '34'(◎○)
+    divPage: 0,
+    divPageSize: 50,
     _macroChart: null,
     _macroChartEps: null,
     _macroChartYoy: null,

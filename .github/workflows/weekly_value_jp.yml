@@ -74,9 +74,9 @@ jobs:
         if: steps.freshness.outputs.need_run == 'true'
         run: python batch/calc_value_rankings.py
 
-      - name: Dividend screener (割安/配当/業績 judgments)
+      - name: Dividend screener (全銘柄・割安/配当/業績 judgments)
         if: steps.freshness.outputs.need_run == 'true'
-        run: python batch/fetch_dividend_screener.py
+        run: python batch/build_dividend_screener.py
 
       - name: Generate AI commentary + AI picks (Claude)
         if: steps.freshness.outputs.need_run == 'true'
