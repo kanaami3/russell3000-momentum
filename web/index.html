@@ -25,6 +25,7 @@
   .gradient-value    { background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 50%, #2563eb 100%); }
   .gradient-earnings { background: linear-gradient(135deg, #6b21a8 0%, #7e22ce 50%, #581c87 100%); }
   .gradient-macro    { background: linear-gradient(135deg, #c2410c 0%, #ea580c 50%, #d97706 100%); }
+  .gradient-dividend { background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%); }
   .ticker-link { cursor: pointer; text-decoration: none; }
   .ticker-link:hover { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
 </style>
@@ -90,6 +91,12 @@
         :class="market === 'value' ? 'border-blue-700 text-blue-800' : 'border-transparent text-slate-500 hover:text-slate-800'"
         class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
         💎 バリュー投資
+      </button>
+      <button
+        @click="setMarket('dividend')"
+        :class="market === 'dividend' ? 'border-teal-700 text-teal-800' : 'border-transparent text-slate-500 hover:text-slate-800'"
+        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
+        🏆 配当スクリーナー
       </button>
       <button
         @click="setMarket('earnings')"
@@ -547,6 +554,82 @@
         </table>
       </div>
     </section>
+  </div>
+  </template>
+
+  <!-- Dividend screener tab -->
+  <div x-show="market === 'dividend' && !dividendData" class="text-center py-20 text-slate-500">配当スクリーナーを読み込み中...</div>
+  <template x-if="market === 'dividend' && dividendData">
+  <div class="space-y-4">
+    <p class="text-xs text-slate-500">
+      🏆 高配当・バリュー系 <strong x-text="(dividendData.stocks||[]).length"></strong> 銘柄を
+      <strong>割安・配当・業績</strong>の3軸＋総合で機械判定(◎○△×)。
+      データ源: yfinance ・ asof <span x-text="dividendData.asof"></span>。
+      <span class="text-slate-400">※情報整理であり投資勧誘ではありません。</span>
+    </p>
+
+    <!-- criteria legend -->
+    <div class="bg-white border border-slate-200 rounded-xl p-3 text-xs text-slate-600 space-y-1">
+      <div><b class="text-slate-700">判定基準</b>(しきい値は調整可)</div>
+      <div>🟢◎ 良い / 🔵○ 妥当 / 🟠△ 注意 / 🔴× 不利</div>
+      <div><b>割安</b>: PER・PBRが低いほど良い / <b>配当</b>: 高利回り×無理のない配当性向 / <b>業績</b>: ROE・増益率 / <b>総合</b>: 3軸の平均</div>
+    </div>
+
+    <!-- sector filter -->
+    <div class="flex items-center gap-2 flex-wrap text-sm">
+      <span class="text-slate-500">業種:</span>
+      <button @click="divSectorFilter=''" :class="divSectorFilter===''?'bg-teal-600 text-white':'bg-white text-slate-600 border'" class="px-3 py-1 rounded-full text-xs">全て</button>
+      <template x-for="s in divSectors" :key="s">
+        <button @click="divSectorFilter=s" :class="divSectorFilter===s?'bg-teal-600 text-white':'bg-white text-slate-600 border'" class="px-3 py-1 rounded-full text-xs" x-text="s"></button>
+      </template>
+    </div>
+
+    <!-- table -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs whitespace-nowrap">
+          <thead class="bg-slate-50 text-slate-600">
+            <tr>
+              <th class="px-2 py-2 text-left">業種</th>
+              <th class="px-2 py-2 text-left">コード</th>
+              <th class="px-2 py-2 text-left">銘柄名</th>
+              <th class="px-2 py-2 text-right cursor-pointer hover:text-teal-700" @click="setDivSort('yield')">利回り</th>
+              <th class="px-2 py-2 text-right">予想配当</th>
+              <th class="px-2 py-2 text-right">株価</th>
+              <th class="px-2 py-2 text-right cursor-pointer hover:text-teal-700" @click="setDivSort('payout')">配当性向</th>
+              <th class="px-2 py-2 text-right cursor-pointer hover:text-teal-700" @click="setDivSort('per')">PER</th>
+              <th class="px-2 py-2 text-right cursor-pointer hover:text-teal-700" @click="setDivSort('pbr')">PBR</th>
+              <th class="px-2 py-2 text-center">決算</th>
+              <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('overall')">総合</th>
+              <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('value')">割安</th>
+              <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('dividend')">配当</th>
+              <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('earnings')">業績</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="r in divRows" :key="r.code">
+              <tr class="border-t border-slate-100 hover:bg-slate-50">
+                <td class="px-2 py-1.5 text-slate-500" x-text="r.sector"></td>
+                <td class="px-2 py-1.5 font-mono" x-text="r.code"></td>
+                <td class="px-2 py-1.5 font-medium" x-text="r.name"></td>
+                <td class="px-2 py-1.5 text-right text-emerald-700 font-medium" x-text="r.yield!=null ? r.yield.toFixed(2)+'%' : '-'"></td>
+                <td class="px-2 py-1.5 text-right" x-text="r.dividend ?? '-'"></td>
+                <td class="px-2 py-1.5 text-right" x-text="r.price!=null ? r.price.toLocaleString() : '-'"></td>
+                <td class="px-2 py-1.5 text-right" x-text="r.payout!=null ? r.payout.toFixed(1)+'%' : '-'"></td>
+                <td class="px-2 py-1.5 text-right" x-text="r.per ?? '-'"></td>
+                <td class="px-2 py-1.5 text-right" :class="r.pbr!=null && r.pbr<1 ? 'text-emerald-700 font-medium':''" x-text="r.pbr ?? '-'"></td>
+                <td class="px-2 py-1.5 text-center text-slate-500" x-text="r.fmonth ? r.fmonth+'月' : '-'"></td>
+                <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.overall)" x-text="divMark(r.judge.overall)"></td>
+                <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.value)" x-text="divMark(r.judge.value)"></td>
+                <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.dividend)" x-text="divMark(r.judge.dividend)"></td>
+                <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.earnings)" x-text="divMark(r.judge.earnings)"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="text-xs text-slate-400">列見出し(利回り/PER/PBR/各判定)をクリックで並べ替え。毎営業日更新。</p>
   </div>
   </template>
 
@@ -1494,6 +1577,13 @@ const MARKET_CONFIG = {
     docTitle: 'かな塾長秘書AI投資ナビ | バリュー投資',
     defaultSort: 'm3',
   },
+  dividend: {
+    file: null,  // uses dividend_screener.json only
+    title: '配当スクリーナー',
+    label: 'JP DIVIDEND SCREENER — 割安 / 配当 / 業績 の機械判定',
+    docTitle: 'かな塾長秘書AI投資ナビ | 配当スクリーナー',
+    defaultSort: 'm3',
+  },
   earnings: {
     file: null,  // uses earnings_jp.json + earnings_us.json
     title: '決算分析',
@@ -1539,6 +1629,7 @@ function momentumApp() {
       if (this.market === 'indices')  return 'gradient-indices';
       if (this.market === 'value')    return 'gradient-value';
       if (this.market === 'earnings') return 'gradient-earnings';
+      if (this.market === 'dividend') return 'gradient-dividend';
       if (this.market === 'macro')    return 'gradient-macro';
       if (this.market === 'jp') return 'gradient-jp';
       return 'gradient-us';
@@ -1649,6 +1740,9 @@ function momentumApp() {
         this.loadMargin();
         this.loadFlows();
       }
+      if (this.market === 'dividend') {
+        this.loadDividendScreener();
+      }
       if (this.market === 'jp' || this.market === 'us') {
         this.loadSwingPicks();
       }
@@ -1706,6 +1800,47 @@ function momentumApp() {
       } catch (e) {
         console.warn('value data load failed:', e);
       }
+    },
+
+    async loadDividendScreener() {
+      if (this.dividendData) return;
+      try {
+        const resp = await fetch('./data/dividend_screener.json?v=' + Date.now());
+        if (!resp.ok) return;
+        this.dividendData = await resp.json();
+      } catch (e) {
+        console.warn('dividend screener load failed:', e);
+      }
+    },
+
+    // 判定記号とセル色
+    divMark(v) { return v == null ? '-' : ({4:'◎',3:'○',2:'△',1:'×'})[v]; },
+    divCellClass(v) {
+      return ({
+        4: 'bg-emerald-100 text-emerald-800',
+        3: 'bg-sky-100 text-sky-800',
+        2: 'bg-amber-100 text-amber-800',
+        1: 'bg-rose-200 text-rose-800',
+      })[v] || 'bg-slate-50 text-slate-400';
+    },
+    get divSectors() {
+      const s = new Set((this.dividendData?.stocks || []).map(r => r.sector));
+      return [...s];
+    },
+    get divRows() {
+      let rows = [...(this.dividendData?.stocks || [])];
+      if (this.divSectorFilter) rows = rows.filter(r => r.sector === this.divSectorFilter);
+      const k = this.divSort;
+      const val = (r) => {
+        if (['overall','value','dividend','earnings'].includes(k)) return r.judge[k] ?? -1;
+        return r[k] ?? -Infinity;
+      };
+      rows.sort((a, b) => this.divSortDesc ? (val(b) - val(a)) : (val(a) - val(b)));
+      return rows;
+    },
+    setDivSort(k) {
+      if (this.divSort === k) this.divSortDesc = !this.divSortDesc;
+      else { this.divSort = k; this.divSortDesc = true; }
     },
 
     valueCategories: [
@@ -2438,6 +2573,10 @@ function momentumApp() {
     earningsMarket: 'us',         // 'jp' | 'us' toggle within tab
     earningsExpanded: {},         // {ticker: bool} for expand/collapse
     macroData: null,              // Nikkei EPS history
+    dividendData: null,           // 配当スクリーナー
+    divSort: 'overall',           // ソート列
+    divSortDesc: true,
+    divSectorFilter: '',          // 業種フィルタ
     _macroChart: null,
     _macroChartEps: null,
     _macroChartYoy: null,

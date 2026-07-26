@@ -74,6 +74,10 @@ jobs:
         if: steps.freshness.outputs.need_run == 'true'
         run: python batch/calc_value_rankings.py
 
+      - name: Dividend screener (割安/配当/業績 judgments)
+        if: steps.freshness.outputs.need_run == 'true'
+        run: python batch/fetch_dividend_screener.py
+
       - name: Generate AI commentary + AI picks (Claude)
         if: steps.freshness.outputs.need_run == 'true'
         env:
@@ -92,4 +96,4 @@ jobs:
             "data(jp value): daily update $(date -u +%Y-%m-%d)" \
             data/universe_jp.json data/value_picks_history.json \
             web/data/value_jp.json web/data/margin_balance_history.json \
-            web/data/investor_flows_jp.json
+            web/data/investor_flows_jp.json web/data/dividend_screener.json
