@@ -57,10 +57,21 @@ def judge_dividend(yld, payout):
     if yld is None:
         return None
     p = payout
+    # 配当性向>100%(利益超の配当)は持続性に難 → 上限△。
+    if p is not None and p > 100:
+        return min(2, 2 if yld >= 1.5 else 1)
+    # 超高利回り>8%は特別配当/減配リスク(罠)の可能性 → ◎にはせず○上限。
+    if yld > 8:
+        return 3 if (p is None or p <= 80) else 2
     if yld >= 3.5 and (p is None or p <= 60):   return 4
     if yld >= 2.5 and (p is None or p <= 70):   return 3
     if yld >= 1.5 and (p is None or p <= 100):  return 2
     return 1
+
+
+def yield_caution(yld):
+    """高利回りの注意フラグ(特別配当/減配リスクの可能性)。"""
+    return yld is not None and yld > 8
 
 
 def judge_earnings(roe, eg, rg, fwd_rev):
@@ -148,6 +159,9 @@ def main() -> int:
                 "mcap": round(mcap / 1e8) if mcap is not None else None,  # 億円
                 "rev": round(rev * 100, 1) if rev is not None else None,  # 予想EPS改定 %
                 "revOk": rev_ok,  # 改定率が現実的な範囲か(判定に使ったか)
+                "yieldWarn": yield_caution(yld),  # 超高利回り(要確認)
+                # 予想EPSが異常 or 欠損 → 業績判定は過去ベースのみ(予想を織り込めず)
+                "fwdWeak": (fwd_eps is None) or (not rev_ok and rev is not None),
                 "judge": {"overall": j_all, "value": j_val, "dividend": j_div, "earnings": j_ern},
             })
 

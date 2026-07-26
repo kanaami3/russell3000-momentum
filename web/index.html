@@ -630,7 +630,10 @@
                 <td class="px-2 py-1.5 text-slate-500" x-text="r.sector"></td>
                 <td class="px-2 py-1.5 font-mono" x-text="r.code"></td>
                 <td class="px-2 py-1.5 font-medium" x-text="r.name"></td>
-                <td class="px-2 py-1.5 text-right text-emerald-700 font-medium" x-text="r.yield!=null ? r.yield.toFixed(2)+'%' : '-'"></td>
+                <td class="px-2 py-1.5 text-right text-emerald-700 font-medium whitespace-nowrap">
+                  <span x-text="r.yield!=null ? r.yield.toFixed(2)+'%' : '-'"></span>
+                  <span x-show="r.yieldWarn" class="text-amber-500" title="超高利回り(8%超): 特別配当・減配リスクの可能性。要確認">⚠</span>
+                </td>
                 <td class="px-2 py-1.5 text-right" x-text="r.price!=null ? r.price.toLocaleString() : '-'"></td>
                 <td class="px-2 py-1.5 text-right" x-text="r.payout!=null ? r.payout.toFixed(1)+'%' : '-'"></td>
                 <td class="px-2 py-1.5 text-right" x-text="r.per ?? '-'"></td>
@@ -643,7 +646,9 @@
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.overall)" x-text="divMark(r.judge.overall)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.value)" x-text="divMark(r.judge.value)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.dividend)" x-text="divMark(r.judge.dividend)"></td>
-                <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.earnings)" x-text="divMark(r.judge.earnings)"></td>
+                <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.earnings)">
+                  <span x-text="divMark(r.judge.earnings)"></span><span x-show="r.fwdWeak" class="text-[9px] align-super text-slate-500" title="予想EPSが欠損/異常のため、業績判定は過去業績のみ(今期予想は未反映)">*</span>
+                </td>
               </tr>
             </template>
           </tbody>
@@ -651,7 +656,7 @@
       </div>
     </div>
     <div class="flex items-center justify-between flex-wrap gap-2">
-      <p class="text-xs text-slate-400">列見出しをクリックで並べ替え。<b>予想改定</b>=予想EPS÷実績EPS−1(▼減額は今期下方修正=業績判定を減点)。毎営業日更新。</p>
+      <p class="text-xs text-slate-400">列見出しをクリックで並べ替え。<b>予想改定</b>=予想EPS÷実績EPS−1(▼減額=今期下方修正で業績を減点/? =予想が異常で判定未使用)。<b>⚠</b>=超高利回り(要確認)、業績の<b>*</b>=予想未反映(過去業績のみ)。毎営業日更新。</p>
       <div class="flex items-center gap-3 text-sm" x-show="divTotalPages > 1">
         <button @click="divPage=Math.max(0,divPage-1)" :disabled="divPage===0" class="px-3 py-1 rounded border disabled:opacity-40">前へ</button>
         <span class="text-slate-600" x-text="(divPage+1)+' / '+divTotalPages"></span>
