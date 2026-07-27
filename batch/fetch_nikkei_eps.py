@@ -264,7 +264,10 @@ def compute_yoy(history: list[dict]) -> None:
         # 1-year-ago target = same calendar date 1 year ago; fall back to
         # the closest prior date with EPS data.
         d = datetime.strptime(h["date"], "%Y-%m-%d")
-        target = d.replace(year=d.year - 1)
+        try:
+            target = d.replace(year=d.year - 1)
+        except ValueError:  # 2/29 は前年に存在しないため 2/28 に丸める
+            target = d.replace(year=d.year - 1, day=28)
         # Walk backward to find nearest available date
         prior = None
         for delta in range(0, 31):
