@@ -1,0 +1,76 @@
+name: Weekly Market Outlook (来週の展望)
+
+on:
+  schedule:
+    # 土曜 11:26 JST = 02:26 UTC(daily_us の土曜朝更新が完了した後に実行)
+    # concurrency 衝突回避のため他ワークフローと分の位置をズラす(:26)
+    - cron: "26 2 * * 6"   # 土曜 11:26 JST
+    # 多重保険: GitHub Actions の cron ドロップ対策(鮮度ガードで二重生成は防ぐ)
+    - cron: "26 5 * * 6"   # 土曜 14:26 JST
+    - cron: "26 2 * * 0"   # 日曜 11:26 JST(土曜分が失敗した場合のバックアップ)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  outlook:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # 鮮度ガード: 対象週(week_start)が同じ完全な展望が既にあればスキップ
+      - name: Check if this week's outlook already generated
+        id: freshness
+        run: |
+          NEED=$(python3 -c "
+          import json
+          from datetime import datetime, timedelta, timezone
+          try:
+              o = json.load(open('web/data/weekly_outlook.json'))
+              jst = timezone(timedelta(hours=9))
+              now = datetime.now(jst)
+              # 次の月曜(土日実行) or 当週月曜(平日実行)
+              if now.weekday() >= 5:
+                  monday = now + timedelta(days=7 - now.weekday())
+              else:
+                  monday = now - timedelta(days=now.weekday())
+              target = monday.strftime('%Y-%m-%d')
+              complete = bool(o.get('us', {}).get('outlook')) and bool(o.get('jp', {}).get('outlook'))
+              print('false' if (o.get('week_start') == target and complete) else 'true')
+          except Exception:
+              print('true')
+          ")
+          echo "need_run=$NEED" >> "$GITHUB_OUTPUT"
+          echo "Weekly outlook run needed: $NEED"
+
+      - name: Generate weekly outlook (Claude)
+        if: steps.freshness.outputs.need_run == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            python batch/generate_weekly_outlook.py
+          else
+            echo "ANTHROPIC_API_KEY not set — skipping weekly outlook"
+          fi
+
+      - name: Commit and push
+        if: steps.freshness.outputs.need_run == 'true'
+        run: |
+          bash batch/safe_commit_push.sh \
+            "data(outlook): weekly outlook $(date -u +%Y-%m-%d)" \
+            web/data/weekly_outlook.json

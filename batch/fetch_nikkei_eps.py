@@ -38,6 +38,7 @@ OUTPUT_PATH = REPO_ROOT / "web" / "data" / "nikkei_eps_history.json"
 
 PER_URL   = "https://indexes.nikkei.co.jp/nkave/archives/data?list=per"
 DAILY_CSV = "https://indexes.nikkei.co.jp/nkave/historical/nikkei_stock_average_daily_jp.csv"
+DATALOAD_URL = "https://indexes.nikkei.co.jp/nkave/statistics/dataload"
 
 
 def _get(url: str) -> str:
@@ -50,9 +51,7 @@ def _get(url: str) -> str:
 # Scrapers
 # ---------------------------------------------------------------------------
 
-def scrape_per_table() -> list[dict]:
-    """Returns [{date: 'YYYY-MM-DD', per_weighted: float, per_index_based: float}, ...]"""
-    html = _get(PER_URL)
+def _parse_per_rows(html: str) -> list[dict]:
     rows: list[dict] = []
     for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.DOTALL):
         cells = re.findall(r"<t[hd][^>]*>(.*?)</t[hd]>", tr, re.DOTALL)
@@ -69,6 +68,63 @@ def scrape_per_table() -> list[dict]:
             })
         except ValueError:
             continue
+    return rows
+
+
+def scrape_per_table() -> list[dict]:
+    """Returns [{date: 'YYYY-MM-DD', per_weighted: float, per_index_based: float}, ...]"""
+    return _parse_per_rows(_get(PER_URL))
+
+
+def scrape_per_month(year: int, month: int) -> list[dict]:
+    """Historical daily PER for a given month via the dataload endpoint.
+
+    https://indexes.nikkei.co.jp/nkave/statistics/dataload?list=per&year=YYYY&month=M
+    returns the same table markup as the archives page but for any past month
+    (data available back to 2004).
+    """
+    url = f"{DATALOAD_URL}?list=per&year={year}&month={month}"
+    return _parse_per_rows(_get(url))
+
+
+def backfill_missing_months(existing: list[dict], start: str = "2023-07") -> list[dict]:
+    """Fetch historical PER for months not yet present in the history.
+
+    A month counts as covered if the history has at least 5 rows with
+    per_weighted in it (a fresh month may legitimately have fewer — always
+    refetch the current and previous month is unnecessary since the daily
+    table covers ~10 sessions). Bounded politely with a short sleep.
+    """
+    import time as _time
+    have: dict[str, int] = {}
+    for h in existing:
+        if h.get("per_weighted"):
+            have[h["date"][:7]] = have.get(h["date"][:7], 0) + 1
+
+    today = datetime.now()
+    y, m = int(start[:4]), int(start[5:7])
+    rows: list[dict] = []
+    fetched_months = 0
+    while (y, m) <= (today.year, today.month):
+        key = f"{y:04d}-{m:02d}"
+        # current month is covered by the daily table scrape; historical months
+        # with ≥5 rows are considered done
+        is_current = (y == today.year and m == today.month)
+        if not is_current and have.get(key, 0) < 5:
+            try:
+                got = scrape_per_month(y, m)
+                got = [r for r in got if r["date"][:7] == key]
+                rows.extend(got)
+                fetched_months += 1
+                print(f"  backfill {key}: {len(got)} rows", file=sys.stderr)
+            except Exception as e:
+                print(f"  WARN backfill {key} failed: {e}", file=sys.stderr)
+            _time.sleep(0.8)
+        m += 1
+        if m > 12:
+            m, y = 1, y + 1
+    if fetched_months:
+        print(f"  backfilled {fetched_months} month(s)", file=sys.stderr)
     return rows
 
 
@@ -267,6 +323,13 @@ def main() -> int:
                     preserved[k] = full[k]
         except Exception:
             existing = []
+
+    # 過去月の日次PERをバックフィル(初回のみ大量取得、以降は差分なし)
+    print("Backfilling historical PER months (if missing)...", file=sys.stderr)
+    try:
+        per_rows.extend(backfill_missing_months(existing))
+    except Exception as e:
+        print(f"  WARN: backfill failed: {e}", file=sys.stderr)
 
     history = merge_history(existing, per_rows, closes, topix)
     compute_yoy(history)

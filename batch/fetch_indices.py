@@ -154,34 +154,46 @@ def _try_fetch(symbol: str) -> pd.DataFrame | None:
 def analyze_index(spec: dict) -> dict | None:
     print(f"  Fetching {spec['label']} ({spec['yf']})...", file=sys.stderr)
 
-    # Fetch the primary AND every fallback, then pick whichever has the most
-    # RECENT latest bar. Yahoo's cash-index tickers (notably ^N225) sometimes
-    # return valid-but-stale data — 1-2 days behind — so a plain "use the first
-    # that succeeds" approach silently shows old prices. Comparing latest dates
-    # and preferring the freshest source fixes that. Ties prefer the primary
-    # (the true cash index) over futures, since the primary is listed first.
+    # Fetch the primary AND every fallback. The primary (true cash index) is
+    # ALWAYS the base history when available — its bars carry real OHLC.
+    # Fallbacks (e.g. NIY=F futures) are appended ONLY for dates newer than the
+    # primary's last bar, to cover Yahoo's 1-2 day staleness on cash tickers.
+    #
+    # 旧実装は「最新バーが新しい方のシンボルを丸ごと採用」だったため、週末や
+    # 朝のバッチで NIY=F(先物)が全履歴に採用され、OHLC の無い「終値のみの行」
+    # (o=h=l=c) が3年分混入 → ローソク足が点線状に崩れる問題があった。
     candidates = [spec["yf"], *spec.get("fallbacks", [])]
-    best_df = None
-    best_symbol = None
-    best_date = None
+    fetched = {}
     for sym in candidates:
-        df = _try_fetch(sym)
-        if df is None:
-            continue
-        latest = df.index[-1].date()
-        print(f"    {sym}: latest bar {latest}", file=sys.stderr)
-        if best_date is None or latest > best_date:
-            best_df, best_symbol, best_date = df, sym, latest
+        d = _try_fetch(sym)
+        if d is not None:
+            fetched[sym] = d
+            print(f"    {sym}: latest bar {d.index[-1].date()}", file=sys.stderr)
 
-    if best_df is None:
+    if not fetched:
         print(f"    SKIPPED {spec['label']}: all symbols failed", file=sys.stderr)
         return None
 
-    df = best_df
-    used_symbol = best_symbol
-    if used_symbol != spec["yf"]:
-        print(f"    Using fresher source {used_symbol} (latest {best_date}) "
-              f"instead of stale {spec['yf']}", file=sys.stderr)
+    primary_sym = spec["yf"]
+    if primary_sym in fetched:
+        df = fetched[primary_sym]
+        used_symbol = primary_sym
+        primary_last = df.index[-1]
+        # Top up with fresher fallback bars (dates strictly after primary's last)
+        for sym in spec.get("fallbacks", []):
+            fb = fetched.get(sym)
+            if fb is None:
+                continue
+            newer = fb[fb.index > primary_last]
+            if len(newer):
+                df = pd.concat([df, newer])
+                used_symbol = f"{primary_sym}+{sym}"
+                print(f"    topped up {len(newer)} recent bar(s) from {sym}", file=sys.stderr)
+                primary_last = df.index[-1]
+    else:
+        # Primary failed entirely — fall back to the freshest available source.
+        used_symbol, df = max(fetched.items(), key=lambda kv: kv[1].index[-1])
+        print(f"    primary {primary_sym} failed — using {used_symbol} wholesale", file=sys.stderr)
 
     df.columns = [c.lower() for c in df.columns]
     df = df[["open", "high", "low", "close", "volume"]].dropna(subset=["close"])

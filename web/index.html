@@ -360,6 +360,19 @@
       </p>
     </section>
 
+    <!-- Chart 1b: NK225 PER -->
+    <section class="bg-white border-2 border-emerald-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+      <h2 class="text-lg font-extrabold text-emerald-900 mb-3">📈 日経平均PER × 株価 長期推移</h2>
+      <p class="text-xs text-slate-500 mb-3">
+        🟢 日経平均PER=加重平均(左軸・倍) / 🔴 日経平均株価(右軸・円) / ⬛ 黒破線=期間平均PER。
+        PERが平均線より上=業績対比で割高寄り、下=割安寄りの目安。株価上昇にPER上昇が伴う局面は「期待先行」、PER横ばいでの株価上昇は「業績相応」と読み分けられます。
+      </p>
+      <div id="macro-per-chart" class="w-full" style="height: 380px;"></div>
+      <p class="text-xs text-slate-400 mt-2">
+        データソース: 日経公表の加重平均PER(2023年7月以降の日次・公式アーカイブからバックフィル)+日経平均公式日次終値。
+      </p>
+    </section>
+
     <!-- Chart 2b: TOPIX EPS (monthly, multi-year) -->
     <template x-if="topixEpsData">
     <section class="bg-white border-2 border-violet-200 rounded-2xl p-5 sm:p-6 shadow-sm">
@@ -1127,6 +1140,84 @@
 
   </section>
 
+  <!-- Weekly outlook section (来週の展望, JP / US tabs only) -->
+  <section x-show="(market === 'jp' || market === 'us') && weeklyOutlook && outlookMarketBody" class="bg-gradient-to-br from-sky-50 to-indigo-50 border-2 border-sky-300 rounded-2xl p-5 sm:p-6 shadow-md mb-8">
+    <div class="flex items-start justify-between flex-wrap gap-2 mb-3">
+      <div>
+        <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-extrabold text-sky-900">
+          <span>🔭</span>
+          来週の展望
+          <span class="text-sm font-bold text-sky-700" x-text="fmtWeekRange(weeklyOutlook)"></span>
+        </h2>
+        <p class="text-sm font-semibold text-slate-700 mt-2" x-text="weeklyOutlook?.one_liner"></p>
+      </div>
+      <div class="text-xs text-slate-500 text-right">
+        <div>asof <span x-text="weeklyOutlook?.asof"></span></div>
+        <div class="text-[10px]">毎週土曜 11:30 JST 頃 自動更新</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
+      <div class="bg-white border border-sky-200 rounded-lg p-4 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-500 mb-1">今週の振り返り</h3>
+        <p class="text-sm leading-relaxed text-slate-800 whitespace-pre-line" x-text="outlookMarketBody?.review"></p>
+      </div>
+      <div class="bg-white border border-sky-200 rounded-lg p-4 shadow-sm">
+        <h3 class="text-sm font-bold text-sky-700 mb-1">来週の見通し</h3>
+        <p class="text-sm leading-relaxed text-slate-800 whitespace-pre-line" x-text="outlookMarketBody?.outlook"></p>
+      </div>
+    </div>
+
+    <div class="bg-white border border-sky-200 rounded-lg p-4 shadow-sm mb-3" x-show="(outlookMarketBody?.watch_points || []).length > 0">
+      <h3 class="text-sm font-bold text-sky-700 mb-2">📌 注目ポイント</h3>
+      <ul class="space-y-1.5">
+        <template x-for="(wp, i) in (outlookMarketBody?.watch_points || [])" :key="i">
+          <li class="text-sm text-slate-800 leading-relaxed flex gap-2">
+            <span class="text-sky-500 shrink-0">▸</span><span x-text="wp"></span>
+          </li>
+        </template>
+      </ul>
+    </div>
+
+    <details class="bg-white border border-sky-200 rounded-lg shadow-sm">
+      <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-slate-700">
+        📅 来週の主要イベント / 💱 為替 / ⚠️ リスク要因
+      </summary>
+      <div class="px-4 pb-4 space-y-3">
+        <div x-show="(weeklyOutlook?.key_events || []).length > 0">
+          <h4 class="text-xs font-bold text-slate-500 mb-1.5">主要イベント</h4>
+          <div class="space-y-1">
+            <template x-for="(ev, i) in (weeklyOutlook?.key_events || [])" :key="i">
+              <div class="text-sm text-slate-800 flex flex-wrap gap-x-2">
+                <span class="font-bold text-sky-800 shrink-0" x-text="ev.timing"></span>
+                <span class="font-semibold" x-text="ev.event"></span>
+                <span class="text-slate-500" x-text="ev.note"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div x-show="weeklyOutlook?.fx?.outlook">
+          <h4 class="text-xs font-bold text-slate-500 mb-1">ドル円の見方</h4>
+          <p class="text-sm leading-relaxed text-slate-800 whitespace-pre-line" x-text="weeklyOutlook?.fx?.outlook"></p>
+        </div>
+        <div x-show="(weeklyOutlook?.risks || []).length > 0">
+          <h4 class="text-xs font-bold text-slate-500 mb-1.5">リスク要因</h4>
+          <ul class="space-y-1">
+            <template x-for="(r, i) in (weeklyOutlook?.risks || [])" :key="i">
+              <li class="text-sm text-slate-800 leading-relaxed flex gap-2">
+                <span class="text-rose-500 shrink-0">⚠</span><span x-text="r"></span>
+              </li>
+            </template>
+          </ul>
+        </div>
+      </div>
+    </details>
+
+    <p class="text-[10px] text-slate-400 mt-3">
+      ※ AI(<span x-text="weeklyOutlook?.model"></span>)がサイト内の実データをもとに毎週自動生成。投資勧誘ではなく教育・参考目的です。イベント日程は変更される場合があります。
+    </p>
+  </section>
+
   <!-- Swing picks section (JP / US tabs only) -->
   <section x-show="(market === 'jp' || market === 'us') && currentSwingPicks && (currentSwingPicks.picks || []).length > 0" class="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-2xl p-5 sm:p-6 shadow-md mb-8">
     <div class="flex items-start justify-between flex-wrap gap-2 mb-4">
@@ -1778,6 +1869,7 @@ function momentumApp() {
       }
       if (this.market === 'jp' || this.market === 'us') {
         this.loadSwingPicks();
+        this.loadWeeklyOutlook();
       }
       if (this.market === 'earnings') {
         this.loadEarnings('jp');
@@ -1822,6 +1914,30 @@ function momentumApp() {
       if (this.market === 'jp') return this.swingPicksJp;
       if (this.market === 'us') return this.swingPicksUs;
       return null;
+    },
+
+    async loadWeeklyOutlook() {
+      if (this.weeklyOutlook) return;
+      try {
+        const resp = await fetch('./data/weekly_outlook.json?v=' + Date.now());
+        if (!resp.ok) return;
+        this.weeklyOutlook = await resp.json();
+      } catch (e) {
+        console.warn('weekly outlook load failed:', e);
+      }
+    },
+
+    get outlookMarketBody() {
+      // 現在のタブ(us / jp)に対応する展望本文
+      if (!this.weeklyOutlook) return null;
+      return this.market === 'jp' ? this.weeklyOutlook.jp : this.weeklyOutlook.us;
+    },
+
+    fmtWeekRange(o) {
+      if (!o?.week_start) return '';
+      // 'YYYY-MM-DD' を文字列のまま分解(タイムゾーン変換による日付ズレを防ぐ)
+      const f = (s) => { const p = String(s).split('-'); return parseInt(p[1], 10) + '/' + parseInt(p[2], 10); };
+      return f(o.week_start) + '〜' + f(o.week_end);
     },
 
     async loadValue() {
@@ -1948,10 +2064,12 @@ function momentumApp() {
     _destroyMacroChart() {
       try { if (this._macroChart) this._macroChart.remove(); } catch (e) {}
       try { if (this._topixEpsChart) this._topixEpsChart.remove(); } catch (e) {}
+      try { if (this._macroPerChart) this._macroPerChart.remove(); } catch (e) {}
       this._macroChart = null;
       this._macroChartEps = null;
       this._macroChartYoy = null;
       this._topixEpsChart = null;
+      this._macroPerChart = null;
     },
 
     // Keep only rows whose date is within the last `months` months of the
@@ -2015,6 +2133,64 @@ function momentumApp() {
       this._macroChartYoy = yoySeries;
       window.addEventListener('resize', () => {
         if (this._macroChart && el) this._macroChart.applyOptions({ width: el.clientWidth });
+      }, { once: true });
+      this.renderMacroPerChart();
+    },
+
+    renderMacroPerChart() {
+      const el = document.getElementById('macro-per-chart');
+      if (!el || !this.macroData || !window.LightweightCharts) return;
+      // Idempotent: clear any prior chart to avoid stacking duplicates.
+      try { if (this._macroPerChart) this._macroPerChart.remove(); } catch (e) {}
+      el.innerHTML = '';
+      this._macroPerChart = null;
+      // 投資の森スタイル: 🟢 PER(左軸) + 🔴 日経平均(右軸) + 平均線(黒破線)
+      const chart = LightweightCharts.createChart(el, {
+        width: el.clientWidth,
+        height: 380,
+        layout: { background: { color: '#ffffff' }, textColor: '#334155' },
+        grid: { vertLines: { color: '#f1f5f9' }, horzLines: { color: '#f1f5f9' } },
+        rightPriceScale: { borderColor: '#cbd5e1', visible: true, scaleMargins: { top: 0.08, bottom: 0.08 } },
+        leftPriceScale:  { borderColor: '#cbd5e1', visible: true, scaleMargins: { top: 0.08, bottom: 0.08 } },
+        timeScale: { borderColor: '#cbd5e1', timeVisible: false, secondsVisible: false },
+        crosshair: { mode: 1 },
+      });
+      const perSeries = chart.addLineSeries({
+        priceScaleId: 'left',
+        color: '#16a34a',
+        lineWidth: 2,
+        title: '日経平均PER(倍)',
+      });
+      const priceSeries = chart.addLineSeries({
+        priceScaleId: 'right',
+        color: '#dc2626',
+        lineWidth: 2,
+        title: '日経平均(円)',
+      });
+      const perData = [];
+      const priceData = [];
+      for (const h of (this.macroData.history || [])) {
+        if (h.per_weighted != null) perData.push({ time: h.date, value: h.per_weighted });
+        if (h.close != null) priceData.push({ time: h.date, value: h.close });
+      }
+      perSeries.setData(perData);
+      priceSeries.setData(priceData);
+      // 全期間平均のPER水準線(黒破線)— 割高/割安の目安
+      if (perData.length > 1) {
+        const avg = perData.reduce((s, p) => s + p.value, 0) / perData.length;
+        perSeries.createPriceLine({
+          price: Math.round(avg * 100) / 100,
+          color: '#0f172a',
+          lineWidth: 1,
+          lineStyle: LightweightCharts.LineStyle.Dashed,
+          axisLabelVisible: true,
+          title: '期間平均PER',
+        });
+      }
+      chart.timeScale().fitContent();
+      this._macroPerChart = chart;
+      window.addEventListener('resize', () => {
+        if (this._macroPerChart && el) this._macroPerChart.applyOptions({ width: el.clientWidth });
       }, { once: true });
     },
 
@@ -2296,11 +2472,23 @@ function momentumApp() {
         autoSize: true,
       });
 
-      const candles = chart.addCandlestickSeries({
-        upColor: '#16a34a', borderUpColor: '#16a34a', wickUpColor: '#16a34a',
-        downColor: '#dc2626', borderDownColor: '#dc2626', wickDownColor: '#dc2626',
-      });
-      candles.setData(sliced.map(r => ({ time: r[0], open: r[1], high: r[2], low: r[3], close: r[4] })));
+      // データ品質フォールバック: OHLC の無い行(始値=高値=安値=終値)が
+      // 表示範囲の 3割 を超える場合、ローソク足は点線状に崩れるため
+      // 終値ラインチャートに切り替える。
+      const flatCount = sliced.filter(r => r[1] === r[2] && r[2] === r[3] && r[3] === r[4]).length;
+      if (flatCount > sliced.length * 0.3) {
+        const lineSeries = chart.addAreaSeries({
+          lineColor: '#0f766e', lineWidth: 2,
+          topColor: 'rgba(15, 118, 110, 0.15)', bottomColor: 'rgba(15, 118, 110, 0.0)',
+        });
+        lineSeries.setData(sliced.map(r => ({ time: r[0], value: r[4] })));
+      } else {
+        const candles = chart.addCandlestickSeries({
+          upColor: '#16a34a', borderUpColor: '#16a34a', wickUpColor: '#16a34a',
+          downColor: '#dc2626', borderDownColor: '#dc2626', wickDownColor: '#dc2626',
+        });
+        candles.setData(sliced.map(r => ({ time: r[0], open: r[1], high: r[2], low: r[3], close: r[4] })));
+      }
 
       // SMA overlays
       const addLine = (vals, color, title) => {
@@ -2618,6 +2806,8 @@ function momentumApp() {
     valueActiveCategory: 'composite',
     swingPicksJp: null,
     swingPicksUs: null,
+    weeklyOutlook: null,          // 来週の展望 (weekly_outlook.json)
+    outlookExpanded: false,       // モバイル向け折りたたみ
     earningsData: { jp: null, us: null },
     earningsMarket: 'us',         // 'jp' | 'us' toggle within tab
     earningsExpanded: {},         // {ticker: bool} for expand/collapse
