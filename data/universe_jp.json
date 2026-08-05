@@ -133,7 +133,7 @@
     "name": "タスキホールディングス",
     "sector33": "不動産業",
     "sector17": "不動産",
-    "size_cat": "-"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "167A.T",
@@ -1218,7 +1218,7 @@
   {
     "ticker": "2501.T",
     "code": "2501",
-    "name": "サッポロホールディングス",
+    "name": "サッポロビール",
     "sector33": "食料品",
     "sector17": "食品",
     "size_cat": "TOPIX Mid400"
@@ -2114,7 +2114,7 @@
   {
     "ticker": "3182.T",
     "code": "3182",
-    "name": "オイシックス・ラ・大地",
+    "name": "オイシックス",
     "sector33": "小売業",
     "sector17": "小売",
     "size_cat": "TOPIX Small 1"
@@ -2602,7 +2602,7 @@
   {
     "ticker": "3626.T",
     "code": "3626",
-    "name": "ＴＩＳ",
+    "name": "ＴＩＳＩ",
     "sector33": "情報・通信業",
     "sector17": "情報通信・サービスその他",
     "size_cat": "TOPIX Mid400"
@@ -2744,14 +2744,6 @@
     "size_cat": "TOPIX Small 2"
   },
   {
-    "ticker": "3681.T",
-    "code": "3681",
-    "name": "ブイキューブ",
-    "sector33": "情報・通信業",
-    "sector17": "情報通信・サービスその他",
-    "size_cat": "-"
-  },
-  {
     "ticker": "3687.T",
     "code": "3687",
     "name": "フィックスターズ",
@@ -2762,7 +2754,7 @@
   {
     "ticker": "368A.T",
     "code": "368A",
-    "name": "北里コーポレーション",
+    "name": "北里",
     "sector33": "精密機器",
     "sector17": "電機・精密",
     "size_cat": "TOPIX Small 2"
@@ -3926,14 +3918,6 @@
     "sector33": "情報・通信業",
     "sector17": "情報通信・サービスその他",
     "size_cat": "TOPIX Small 1"
-  },
-  {
-    "ticker": "4446.T",
-    "code": "4446",
-    "name": "Ｌｉｎｋ－Ｕグループ",
-    "sector33": "情報・通信業",
-    "sector17": "情報通信・サービスその他",
-    "size_cat": "-"
   },
   {
     "ticker": "4452.T",
@@ -5680,6 +5664,14 @@
     "size_cat": "TOPIX Small 2"
   },
   {
+    "ticker": "590A.T",
+    "code": "590A",
+    "name": "ギフティグループ",
+    "sector33": "情報・通信業",
+    "sector17": "情報通信・サービスその他",
+    "size_cat": "TOPIX Small 2"
+  },
+  {
     "ticker": "5911.T",
     "code": "5911",
     "name": "横河ブリッジホールディングス",
@@ -6133,7 +6125,7 @@
     "name": "ソラスト",
     "sector33": "サービス業",
     "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "-"
   },
   {
     "ticker": "6200.T",
@@ -6682,7 +6674,7 @@
   {
     "ticker": "6420.T",
     "code": "6420",
-    "name": "ガリレイ",
+    "name": "ガリレイホールディングス",
     "sector33": "機械",
     "sector17": "機械",
     "size_cat": "TOPIX Small 1"
@@ -6770,7 +6762,7 @@
   {
     "ticker": "6459.T",
     "code": "6459",
-    "name": "大和冷機工業",
+    "name": "だいわ",
     "sector33": "機械",
     "sector17": "機械",
     "size_cat": "TOPIX Small 2"
@@ -10141,7 +10133,7 @@
     "name": "ＰＡＬＴＡＣ",
     "sector33": "卸売業",
     "sector17": "商社・卸売",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "-"
   },
   {
     "ticker": "8303.T",
