@@ -2,11 +2,16 @@
 
 Deliberately separate from build_dividend_screener.py, which is a no-network
 script by design. Dividend history changes at most twice a year per company,
-so refetching it daily would spend 800+ API calls to learn nothing. This runs
+so refetching it daily would spend 1,500+ API calls to learn nothing. This runs
 weekly and leaves a CSV that the daily build reads for free.
 
-Input:  data/value_data_jp.csv          (the universe the value pipeline builds)
-Output: data/dividend_history_jp.csv    long format: code, ex_date, amount
+Universe source is data/universe_jp.json, which IS committed to the repo.
+An earlier version read data/value_data_jp.csv — that file is gitignored and
+only exists mid-run inside the daily job, so this script died instantly when
+run on its own. Read something that is actually there.
+
+Input:  data/universe_jp.json          (committed; 1,558 TSE Prime names)
+Output: data/dividend_history_jp.csv   long format: code, ex_date, amount
 
 Failures are tolerated per ticker. A stock we cannot fetch simply has no rows,
 and the screener reports it as 判定なし rather than as a dividend cut — telling
@@ -16,6 +21,7 @@ the two apart matters more here than coverage.
 from __future__ import annotations
 
 import csv
+import json
 import os
 import sys
 import time
@@ -25,7 +31,8 @@ import pandas as pd
 import yfinance as yf
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-INPUT_CSV = REPO_ROOT / "data" / "value_data_jp.csv"
+UNIVERSE_JSON = REPO_ROOT / "data" / "universe_jp.json"
+FALLBACK_CSV = REPO_ROOT / "data" / "value_data_jp.csv"
 OUTPUT_CSV = REPO_ROOT / "data" / "dividend_history_jp.csv"
 
 BATCH_SIZE = int(os.getenv("DIV_BATCH_SIZE", "40"))
@@ -36,18 +43,39 @@ BATCH_PAUSE_SEC = float(os.getenv("DIV_BATCH_PAUSE_SEC", "2.0"))
 YEARS_BACK = int(os.getenv("DIV_YEARS_BACK", "40"))
 
 
+def _clean(code: str) -> str:
+    return str(code).strip().replace(".T", "")
+
+
 def read_universe() -> list[str]:
-    if not INPUT_CSV.exists():
-        print(f"{INPUT_CSV} がありません。fetch_value_data.py を先に流してください。",
-              file=sys.stderr)
-        return []
+    """コミット済みの universe_jp.json を主ソースにする。
+
+    value_data_jp.csv があればそちらも取り込むが、gitignore されているので
+    単独実行時には存在しない。無いことを前提に組む。
+    """
     codes: list[str] = []
-    with INPUT_CSV.open(encoding="utf-8-sig", newline="") as fh:
-        for row in csv.DictReader(fh):
-            code = (row.get("code") or row.get("Code") or row.get("ticker") or "").strip()
-            code = code.replace(".T", "")
-            if code:
-                codes.append(code)
+
+    if UNIVERSE_JSON.exists():
+        try:
+            data = json.loads(UNIVERSE_JSON.read_text(encoding="utf-8"))
+            rows = data if isinstance(data, list) else data.get("stocks", [])
+            for row in rows:
+                code = _clean(row.get("code") or row.get("ticker") or "")
+                if code:
+                    codes.append(code)
+        except (json.JSONDecodeError, OSError, AttributeError) as exc:
+            print(f"universe_jp.json を読めません: {exc}", file=sys.stderr)
+
+    if not codes and FALLBACK_CSV.exists():
+        with FALLBACK_CSV.open(encoding="utf-8-sig", newline="") as fh:
+            for row in csv.DictReader(fh):
+                code = _clean(row.get("code") or row.get("Code") or row.get("ticker") or "")
+                if code:
+                    codes.append(code)
+
+    if not codes:
+        print(f"銘柄リストが見つかりません（{UNIVERSE_JSON}）。", file=sys.stderr)
+
     return list(dict.fromkeys(codes))   # 重複除去（順序は維持）
 
 
@@ -68,6 +96,7 @@ def main() -> int:
     codes = read_universe()
     if not codes:
         return 1
+    print(f"対象 {len(codes)} 銘柄", flush=True)
 
     rows: list[tuple[str, str, float]] = []
     failed: list[str] = []
