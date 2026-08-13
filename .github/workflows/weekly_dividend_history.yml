@@ -1,0 +1,49 @@
+name: weekly_dividend_history
+
+# 配当履歴は年2回しか変わらないので、日次で取りに行く必要がない。
+# 週1回まとめて取得し、CSV に残す。日次の build_dividend_screener.py は
+# その CSV を読むだけなので、ネットワークアクセスなしのまま増配判定ができる。
+#
+# 土曜 02:00 UTC = 土曜 11:00 JST。週次のバリュー系ジョブと時間帯をずらしてある。
+on:
+  schedule:
+    - cron: "0 2 * * 6"
+  workflow_dispatch:
+
+concurrency:
+  group: weekly-dividend-history
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch dividend history
+        run: python batch/fetch_dividend_history.py
+
+      - name: Commit CSV
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/dividend_history_jp.csv
+          if git diff --cached --quiet; then
+            echo "変更なし。"
+          else
+            git commit -m "data: 配当履歴を更新"
+            git push
+          fi
