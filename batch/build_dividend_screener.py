@@ -24,6 +24,13 @@ INPUT_CSV = REPO_ROOT / "data" / "value_data_jp.csv"
 OUTPUT_PATH = REPO_ROOT / "web" / "data" / "dividend_screener.json"
 HISTORY_CSV = REPO_ROOT / "data" / "dividend_history_jp.csv"
 
+# 同じ batch/ 配下のモジュール。週次で貯めた配当履歴を読むだけで通信しないので、
+# このスクリプトの「ネットワークアクセスをしない」という前提は保たれる。
+import dividend_streak
+import dividend_judge
+import dividend_growth_screen
+HISTORY_CSV = REPO_ROOT / "data" / "dividend_history_jp.csv"
+
 # 同じ batch/ 配下のモジュール。週次で貯めた配当履歴から増配判定を足す。
 # いずれも通信しない（履歴CSVを読むだけ）ので、このスクリプトの
 # 「ネットワークアクセスをしない」という前提は保たれる。
@@ -174,6 +181,20 @@ def main() -> int:
             })
 
     # 総合判定の高い順に並べておく(デフォルト表示用)
+    # --- 増配判定（配当履歴CSVを読むだけ。通信しない） ---
+    history = dividend_streak.load_history(HISTORY_CSV)
+    dividend_streak.attach(rows, lambda c: history.get(str(c)))
+
+    # 年次DPSの明細は落とす。25年 x 857銘柄で2万件を超え、毎日コミットする
+    # JSON が無駄に膨らむ。期数とラベルがあれば画面には足りる。
+    for _r in rows:
+        if _r.get("streak"):
+            _r["streak"].pop("history", None)
+
+    dividend_judge.apply(rows)          # judge に growth を足し overall を4軸平均に
+    growth_screen = dividend_growth_screen.screen(rows, history)
+
+    # overall が変わったので並べ直す
     rows.sort(key=lambda x: (x["judge"]["overall"] or 0, x["yield"] or 0), reverse=True)
 
     now_jst = datetime.now(timezone(timedelta(hours=9)))
@@ -187,7 +208,14 @@ def main() -> int:
             "value": "割安: PER<12&PBR<1.0=◎ / <15&<1.5=○ / <20&<2.5=△ / それ以上=×",
             "dividend": "配当: 利回り≥3.5%&性向≤60%=◎ / ≥2.5%&≤70%=○ / ≥1.5%&≤100%=△ / それ以下=×",
             "earnings": "業績: ROE≥10%&増益=◎ / ≥7%=○ / ≥3%=△。予想EPSが実績比-25%以下(大幅減額)は×、-10%以下は△止まり",
-            "overall": "総合: 3軸の平均",
+            "overall": "総合: 4軸の平均", "growth": dividend_judge.CRITERIA_GROWTH,
+        },
+        "growth_screen": {
+            "market_medians": growth_screen["market_medians"],
+            "criteria": growth_screen["criteria"],
+            "qualified_count": growth_screen["qualified_count"],
+            "qualified": growth_screen["qualified"],
+            "unimplemented": growth_screen["unimplemented"],
         },
         "stocks": rows,
     }

@@ -33,7 +33,7 @@ except ImportError:
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LOOKBACK_DAYS = 7
-TOP_N_BY_MCAP = 300           # 上位 N 銘柄に限定(時価総額順)
+TOP_N_BY_MCAP = 800           # 上位 N 銘柄(時価総額順)。中小型株の決算を拾うため 300 から拡大
 MAX_ANALYZE = 40              # Claude 投入上限(コスト制御)
 DISCOVERY_THREADS = 4         # 低めに(yfinance の rate limit 回避)
 DATA_FETCH_THREADS = 4
