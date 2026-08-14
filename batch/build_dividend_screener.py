@@ -194,6 +194,20 @@ def main() -> int:
     dividend_judge.apply(rows)          # judge に growth を足し overall を4軸平均に
     growth_screen = dividend_growth_screen.screen(rows, history)
 
+    # 条件フラグを各銘柄に持たせる。合格79銘柄だけを別リストで出すと、
+    # 「あと1条件」の銘柄が見えず、条件を緩めた場合の当たりも確認できない。
+    # 画面側で時価総額100億以上・pass_count>=5 などを自由に絞れるようにする。
+    _by_code = {r["code"]: r for r in growth_screen["all"]}
+    for _r in rows:
+        _ev = _by_code.get(_r["code"])
+        if _ev:
+            _r["screen"] = {
+                "ok": _ev["qualified"],
+                "pass": _ev["pass_count"],
+                "ng": _ev["failed"],
+                "unk": _ev["unknown"],
+            }
+
     # overall が変わったので並べ直す
     rows.sort(key=lambda x: (x["judge"]["overall"] or 0, x["yield"] or 0), reverse=True)
 
@@ -214,7 +228,13 @@ def main() -> int:
             "market_medians": growth_screen["market_medians"],
             "criteria": growth_screen["criteria"],
             "qualified_count": growth_screen["qualified_count"],
-            "qualified": growth_screen["qualified"],
+            # 銘柄ごとの判定は stocks[].screen に入れてあるので、ここでは重複させない
+            "condition_labels": {
+                "c1_per_cheap": "PERが市場中央値未満", "c2_pbr_cheap": "PBRが市場中央値未満",
+                "c3_roe": "ROEが下限以上", "c5_yield": "配当利回りが下限以上",
+                "c7_mcap": "時価総額が下限以上", "c11_few_cuts": "減配が10期中1回以下",
+                "c12_no_zero": "10期で無配転落なし",
+            },
             "unimplemented": growth_screen["unimplemented"],
         },
         "stocks": rows,
