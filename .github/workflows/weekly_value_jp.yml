@@ -9,7 +9,12 @@ on:
     # (鮮度ガードで当日分が既に生成済みなら全ステップをスキップ)
     - cron: "50 3 * * *"  # 12:50 JST
     - cron: "50 6 * * *"  # 15:50 JST
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "当日分が生成済みでも作り直す（コード変更後の確認用）"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -55,31 +60,31 @@ jobs:
           echo "Value screen run needed: $NEED"
 
       - name: Fetch JPX margin balance (信用倍率)
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         run: python batch/fetch_margin_balance.py
 
       - name: Fetch JPX investor-type flows (海外/個人 売買動向)
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         run: python batch/fetch_investor_flows.py
 
       - name: Fetch JP universe (Prime market)
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         run: python batch/fetch_universe_jp.py
 
       - name: Fetch fundamentals (yfinance Ticker.info)
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         run: python batch/fetch_value_data.py
 
       - name: Compute value rankings (6 categories)
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         run: python batch/calc_value_rankings.py
 
       - name: Dividend screener (全銘柄・割安/配当/業績 judgments)
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         run: python batch/build_dividend_screener.py
 
       - name: Generate AI commentary + AI picks (Claude)
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -90,7 +95,7 @@ jobs:
           fi
 
       - name: Commit and push
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         run: |
           bash batch/safe_commit_push.sh \
             "data(jp value): daily update $(date -u +%Y-%m-%d)" \
