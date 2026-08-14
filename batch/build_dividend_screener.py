@@ -22,6 +22,14 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INPUT_CSV = REPO_ROOT / "data" / "value_data_jp.csv"
 OUTPUT_PATH = REPO_ROOT / "web" / "data" / "dividend_screener.json"
+HISTORY_CSV = REPO_ROOT / "data" / "dividend_history_jp.csv"
+
+# 同じ batch/ 配下のモジュール。週次で貯めた配当履歴から増配判定を足す。
+# いずれも通信しない（履歴CSVを読むだけ）ので、このスクリプトの
+# 「ネットワークアクセスをしない」という前提は保たれる。
+import dividend_streak
+import dividend_judge
+import dividend_growth_screen
 
 MARKS = {4: "◎", 3: "○", 2: "△", 1: "×"}
 
