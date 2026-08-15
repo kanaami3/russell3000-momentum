@@ -121,8 +121,8 @@
     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(indicesData?.generated_at_jst, 24)">
       📊 指数 <span x-text="statusBadgeTime(indicesData?.generated_at_jst)"></span>
     </span>
-    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(morningBrief?.generated_at_jst, 24)">
-      🎯 朝ピック <span x-text="statusBadgeTime(morningBrief?.generated_at_jst)"></span>
+    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="briefBadgeClass(morningBrief)">
+      🎯 朝ピック <span x-text="briefBadgeTime(morningBrief)"></span>
     </span>
     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(valueData?.generated_at_jst, 30)">
       💎 バリュー <span x-text="statusBadgeTime(valueData?.generated_at_jst)"></span>
@@ -1798,7 +1798,47 @@ function momentumApp() {
       const ms = Date.now() - new Date(iso).getTime();
       return ms / 3600000;
     },
-    statusBadgeClass(iso, freshH) {
+    // 朝ピックだけ判定基準が違う。他の3つは「どれくらい前の情報か」が問題なので
+// 経過時間で測るのが正しいが、朝ピックは「次にどの寄付で使うものか」が
+// 決まっているため、古さではなく宛先(target_date)が合っているかで判定する。
+// 時間ベースだと、金曜16時に生成した月曜寄付向けが月曜朝に経過64時間で
+// 🔴になる(誤検知)。逆に生成が失敗して宛先が古いまま残ってもファイルさえ
+// 新しければ🟢になる(見逃し)。target_dateを見ればどちらも起きない。
+jstDay(d = new Date()) {
+  return new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(d);
+},
+nextSessionDay() {
+  const hour = Number(new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Tokyo', hour: '2-digit', hour12: false,
+  }).format(new Date()));
+  const d = new Date();
+  if (hour >= 15) d.setDate(d.getDate() + 1);          // 引け後は翌日へ
+  for (let i = 0; i < 3; i++) {                         // 土日を送る
+    const wd = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Tokyo', weekday: 'short',
+    }).format(d);
+    if (wd !== 'Sat' && wd !== 'Sun') break;
+    d.setDate(d.getDate() + 1);
+  }
+  return this.jstDay(d);
+},
+briefBadgeClass(brief) {
+  if (!brief || !brief.target_date) return 'bg-slate-100 text-slate-400 border-slate-200';
+  // 宛先が未来 = 引け後に翌営業日分が先に出ている。正常。
+  if (brief.target_date >= this.nextSessionDay())
+    return 'bg-emerald-50 text-emerald-800 border-emerald-300';
+  return 'bg-rose-50 text-rose-800 border-rose-300';
+},
+briefBadgeTime(brief) {
+  if (!brief || !brief.target_date) return '未取得';
+  const expected = this.nextSessionDay();
+  if (brief.target_date < expected) return brief.target_date + ' 向け(' + expected + ' 分が未生成)';
+  const p = brief.target_date.split('-');
+  return Number(p[1]) + '/' + Number(p[2]) + ' 寄付向け';
+},
+statusBadgeClass(iso, freshH) {
       const a = this._ageHours(iso);
       if (a == null) return 'bg-slate-100 text-slate-400 border-slate-200';
       if (a < freshH)      return 'bg-emerald-50 text-emerald-800 border-emerald-300';
