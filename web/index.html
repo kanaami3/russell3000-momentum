@@ -635,6 +635,7 @@
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('value')">割安</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('dividend')">配当</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('earnings')">業績</th>
+              <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('growth')" title="連続増配にもとづく評価">増配</th>
             </tr>
           </thead>
           <tbody>
@@ -659,6 +660,13 @@
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.overall)" x-text="divMark(r.judge.overall)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.value)" x-text="divMark(r.judge.value)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.dividend)" x-text="divMark(r.judge.dividend)"></td>
+                <td class="px-1 py-1.5 text-center font-bold" :class="growthCellClass(r)" :title="growthNote(r)">
+                  <span x-text="growthMark(r)"></span>
+                  <span x-show="r.streak && r.streak.years>0" class="block text-[9px] font-normal opacity-75"
+                        x-text="r.streak ? (r.streak.capped ? r.streak.years+'期+' : r.streak.years+'期') : ''"></span>
+                  <span x-show="r.streak && r.streak.had_special" class="text-[9px] align-super text-amber-600"
+                        title="過去に一過性の増配あり(記念配当の可能性)">*</span>
+                </td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.earnings)">
                   <span x-text="divMark(r.judge.earnings)"></span><span x-show="r.fwdWeak" class="text-[9px] align-super text-slate-500" title="予想EPSが欠損/異常のため、業績判定は過去業績のみ(今期予想は未反映)">*</span>
                 </td>
@@ -2004,6 +2012,30 @@ statusBadgeClass(iso, freshH) {
 
     // 判定記号とセル色
     divMark(v) { return v == null ? '-' : ({4:'◎',3:'○',2:'△',1:'×'})[v]; },
+    // 増配列。判定なし(null)を × と混ぜないことが最重要。
+    // growth が null になるのは確定履歴3期未満の銘柄で、減配したわけではない。
+    // × と同じ赤で描くと、上場が新しいだけの会社が減配企業と同じ見た目になり、
+    // 塾生が真逆の判断をしうる。灰色のダッシュにして理由をホバーで出す。
+    growthMark(r) {
+      const g = r.judge && r.judge.growth;
+      if (g == null) return '–';
+      return { 4:'◎', 3:'○', 2:'△', 1:'×' }[g] || '–';
+    },
+    growthCellClass(r) {
+      const g = r.judge && r.judge.growth;
+      if (g == null) return 'bg-slate-50 text-slate-400';
+      return { 4:'bg-emerald-50 text-emerald-800', 3:'bg-sky-50 text-sky-800',
+               2:'bg-amber-50 text-amber-800', 1:'bg-rose-50 text-rose-800' }[g] || '';
+    },
+    growthNote(r) {
+      const s = r.streak;
+      if (!s) return '配当履歴なし';
+      if (r.judge && r.judge.growth == null) return '確定履歴' + s.complete_years + '期のみ(判定不能)';
+      const p = [s.label, '連続非減配 ' + s.non_decreasing + '期',
+                 '直近確定 FY' + s.latest_fy + '(1株 ' + s.latest_dps + '円)'];
+      if (s.had_special) p.push('※過去に一過性の増配あり(記念配当の可能性)');
+      return p.join(' / ');
+    },
     divCellClass(v) {
       return ({
         4: 'bg-emerald-100 text-emerald-800',
