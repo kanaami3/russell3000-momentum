@@ -41,6 +41,25 @@ import dividend_growth_screen
 MARKS = {4: "◎", 3: "○", 2: "△", 1: "×"}
 
 
+def last_trading_day(now):
+    """直近の東証営業日を返す。
+
+    asof に実行日を入れると、日曜に生成したとき「8/23時点」と表示されるのに
+    中身は金曜終値で、2日古いデータが当日のものとして出てしまう。
+    寄付前の平日も同じことが起きる。
+
+    15:00 JST 前は前日から数え始める（取引時間中の株価は未確定のため）。
+    ＊祝日は考慮していない。祝日の翌営業日に1日ずれる可能性はあるが、
+      週末に必ず2日ずれる従来の挙動よりは実態に近い。
+    """
+    d = now.date()
+    if now.hour < 15:
+        d -= timedelta(days=1)
+    while d.weekday() >= 5:          # 5=土, 6=日
+        d -= timedelta(days=1)
+    return d
+
+
 import math
 
 
@@ -213,7 +232,7 @@ def main() -> int:
 
     now_jst = datetime.now(timezone(timedelta(hours=9)))
     out = {
-        "asof": now_jst.date().isoformat(),
+        "asof": last_trading_day(now_jst).isoformat(),
         "generated_at_jst": now_jst.isoformat(),
         "source": "yfinance (JP universe via value pipeline)",
         "universe_size": len(rows),
