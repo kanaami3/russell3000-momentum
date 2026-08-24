@@ -292,6 +292,14 @@ def main() -> int:
         if _r.get("streak"):
             _r["streak"].pop("history", None)
 
+    # 増配余地は streak を参照するので、明細を落とす前に判定しておく。
+    # rev は % 単位で入っているので比率に戻して渡す。
+    for _r in rows:
+        _rev = _r.get("rev")
+        _rev = (_rev / 100.0) if isinstance(_rev, (int, float)) else None
+        _r["headroom"] = judge_headroom(_r.get("payout"), _rev, _r.get("revOk"), _r.get("streak"))
+        _r["headroomNote"] = headroom_note(_r.get("payout"), _rev, _r.get("revOk"), _r.get("streak"))
+
     dividend_judge.apply(rows)          # judge に growth を足し overall を4軸平均に
     growth_screen = dividend_growth_screen.screen(rows, history)
 
@@ -324,6 +332,7 @@ def main() -> int:
             "dividend": "配当: 利回り≥3.5%&性向≤60%=◎ / ≥2.5%&≤70%=○ / ≥1.5%&≤100%=△ / それ以下=×",
             "earnings": "業績: ROE≥10%&増益=◎ / ≥7%=○ / ≥3%=△。予想EPSが実績比-25%以下(大幅減額)は×、-10%以下は△止まり",
             "overall": "総合: 4軸の平均", "growth": dividend_judge.CRITERIA_GROWTH,
+            "headroom": CRITERIA_HEADROOM,
         },
         "growth_screen": {
             "market_medians": growth_screen["market_medians"],
