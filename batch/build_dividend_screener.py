@@ -41,6 +41,88 @@ import dividend_growth_screen
 MARKS = {4: "◎", 3: "○", 2: "△", 1: "×"}
 
 
+# --- 増配余地 -------------------------------------------------------------
+# 増配が続くかは3つの掛け算で決まる。配当性向が低い(回す余地)、利益が伸びている
+# (原資が増える)、増配実績がある(還元する意思)。性向だけを見ると「利益が減って
+# 性向が下がった」会社を、実績だけを見ると「性向90%でこれ以上増やせない」会社を
+# 拾ってしまう。
+# なお性向の分母は純利益であって現金ではない。本当の余力はフリーCFだが、
+# このスクリプトが持つデータの範囲では性向が最も近い代用指標になる。
+HR_EXCELLENT_PAYOUT = 40.0
+HR_GOOD_PAYOUT = 50.0
+HR_FAIR_PAYOUT = 60.0
+HR_TIGHT_PAYOUT = 80.0
+HR_OVER_PAYOUT = 100.0
+HR_DECLINE_TOLERANCE = 0.10
+
+
+def _hr_has_record(streak):
+    if not streak:
+        return False
+    return streak.get("years", 0) >= 1 or streak.get("non_decreasing", 0) >= 5
+
+
+def judge_headroom(payout, rev, rev_ok, streak):
+    """増配余地を 1(×)〜4(◎) で返す。判定できなければ None。"""
+    if not isinstance(payout, (int, float)):
+        return None
+    # 赤字で配当を出すと性向は負になる。余地が大きいのではなく最も危うい。
+    if payout < 0:
+        return 1
+    if payout > HR_OVER_PAYOUT:
+        return 1
+
+    growing = bool(rev_ok) and isinstance(rev, (int, float)) and rev > 0
+    record = _hr_has_record(streak)
+
+    # 明確な減益は余地を実質的に食う。配当据え置きでも分母が縮むため、
+    # 性向45%で20%減益なら翌期は約56%になる。実績があっても△止まりにする。
+    shrinking = (bool(rev_ok) and isinstance(rev, (int, float))
+                 and rev < -HR_DECLINE_TOLERANCE)
+    if shrinking:
+        return 2 if payout < HR_FAIR_PAYOUT else 1
+
+    if payout < HR_EXCELLENT_PAYOUT and growing and record:
+        return 4
+    if payout < HR_GOOD_PAYOUT and (growing or record):
+        return 3
+    if payout < HR_FAIR_PAYOUT:
+        return 2
+    if payout > HR_TIGHT_PAYOUT:
+        return 1
+    return 2
+
+
+def headroom_note(payout, rev, rev_ok, streak):
+    """判定理由を1行で。ホバー表示用。"""
+    if not isinstance(payout, (int, float)):
+        return "配当性向が取得できず判定不能"
+    if payout < 0:
+        return f"赤字で配当を継続（性向 {payout:.0f}%）"
+    if payout > HR_OVER_PAYOUT:
+        return f"配当性向 {payout:.0f}% — 利益以上に払っており内部留保の取り崩し"
+    parts = [f"配当性向 {payout:.0f}%"]
+    if rev_ok and isinstance(rev, (int, float)):
+        parts.append(("増益予想 +" if rev > 0 else "減益予想 ") + f"{rev * 100:.0f}%")
+    elif rev is not None:
+        parts.append("予想増益率は異常値のため判定除外")
+    else:
+        parts.append("予想増益率なし")
+    if streak and streak.get("years", 0) >= 1:
+        parts.append(f"連続増配 {streak['years']}期")
+    elif streak and streak.get("non_decreasing", 0) >= 5:
+        parts.append(f"連続非減配 {streak['non_decreasing']}期")
+    else:
+        parts.append("増配実績なし")
+    return " / ".join(parts)
+
+
+CRITERIA_HEADROOM = (
+    "増配余地: 配当性向40%未満＋増益＋増配実績=◎ / 50%未満＋増益または増配実績=○ / "
+    "60%未満=△ / 80%超・100%超・赤字配当=× / 10%超の減益予想は△以下に抑制"
+)
+
+
 def last_trading_day(now):
     """直近の東証営業日を返す。
 
