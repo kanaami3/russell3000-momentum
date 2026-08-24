@@ -633,6 +633,7 @@
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('rev')" title="今期の会社予想EPSが前期実績から何%増減するか（予想EPS ÷ 実績EPS − 1）。予想の上方修正・下方修正の履歴ではありません">予想増益率</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('overall')">総合</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('growth')" title="連続増配にもとづく評価">増配</th>
+              <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('headroom')" title="配当性向・予想増益率・増配実績から見た、これから増配できる余地">増配余地</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('dividend')">配当</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('value')">割安</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('earnings')">業績</th>
@@ -664,6 +665,8 @@
                   <span x-show="r.streak && r.streak.had_special" class="text-[9px] align-super text-amber-600"
                         title="過去に一過性の増配あり(記念配当の可能性)">*</span>
                 </td>
+                <td class="px-1 py-1.5 text-center font-bold" :class="headroomClass(r)" :title="r.headroomNote || ''"
+                    x-text="headroomMark(r)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.dividend)" x-text="divMark(r.judge.dividend)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.value)" x-text="divMark(r.judge.value)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.earnings)">
@@ -2011,6 +2014,19 @@ statusBadgeClass(iso, freshH) {
 
     // 判定記号とセル色
     divMark(v) { return v == null ? '-' : ({4:'◎',3:'○',2:'△',1:'×'})[v]; },
+    // 増配余地。配当性向・予想増益率・増配実績の3要素をPython側で合成した判定。
+    // 判定なし(null)は配当性向が取れなかった銘柄で、×とは別物。
+    headroomMark(r) {
+      const h = r.headroom;
+      if (h == null) return '–';
+      return { 4:'◎', 3:'○', 2:'△', 1:'×' }[h] || '–';
+    },
+    headroomClass(r) {
+      const h = r.headroom;
+      if (h == null) return 'bg-slate-50 text-slate-400';
+      return { 4:'bg-emerald-50 text-emerald-800', 3:'bg-sky-50 text-sky-800',
+               2:'bg-amber-50 text-amber-800', 1:'bg-rose-50 text-rose-800' }[h] || '';
+    },
     // 「何期連続で増配したか」を主役に出す。◎○△×だけでは継続期数が伝わらない。
     growthHeadline(r) {
       const s = r.streak;
