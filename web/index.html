@@ -632,10 +632,10 @@
               <th class="px-2 py-2 text-right cursor-pointer hover:text-teal-700" @click="setDivSort('roe')">ROE</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('rev')" title="予想EPS ÷ 実績EPS − 1">予想改定</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('overall')">総合</th>
-              <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('growth')" title="連続増配にもとづく評価">増配</th>
-              <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('dividend')">配当</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('value')">割安</th>
+              <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('dividend')">配当</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('earnings')">業績</th>
+              <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('growth')" title="連続増配にもとづく評価">増配</th>
             </tr>
           </thead>
           <tbody>
@@ -658,14 +658,15 @@
                     :title="!r.revOk && r.rev!=null ? '予想EPSが実績と桁違い(データ要確認)のため判定には未使用' : ''"
                     x-text="r.rev==null?'-':(!r.revOk?'? '+r.rev.toFixed(0)+'%':(r.rev<=-10?'▼減額 '+r.rev.toFixed(0)+'%':(r.rev>=0?'+'+r.rev.toFixed(0)+'%':r.rev.toFixed(0)+'%')))"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.overall)" x-text="divMark(r.judge.overall)"></td>
-                <td class="px-1 py-1.5 text-center leading-tight" :class="growthCellClass(r)" :title="growthNote(r)">
-                  <span class="font-bold text-[11px] whitespace-nowrap" x-text="growthHeadline(r)"></span>
-                  <span class="block text-[9px] opacity-70" x-text="growthMark(r)"></span>
+                <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.value)" x-text="divMark(r.judge.value)"></td>
+                <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.dividend)" x-text="divMark(r.judge.dividend)"></td>
+                <td class="px-1 py-1.5 text-center font-bold" :class="growthCellClass(r)" :title="growthNote(r)">
+                  <span x-text="growthMark(r)"></span>
+                  <span x-show="r.streak && r.streak.years>0" class="block text-[9px] font-normal opacity-75"
+                        x-text="r.streak ? (r.streak.capped ? r.streak.years+'期+' : r.streak.years+'期') : ''"></span>
                   <span x-show="r.streak && r.streak.had_special" class="text-[9px] align-super text-amber-600"
                         title="過去に一過性の増配あり(記念配当の可能性)">*</span>
                 </td>
-                <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.dividend)" x-text="divMark(r.judge.dividend)"></td>
-                <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.value)" x-text="divMark(r.judge.value)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.earnings)">
                   <span x-text="divMark(r.judge.earnings)"></span><span x-show="r.fwdWeak" class="text-[9px] align-super text-slate-500" title="予想EPSが欠損/異常のため、業績判定は過去業績のみ(今期予想は未反映)">*</span>
                 </td>
@@ -2016,15 +2017,6 @@ statusBadgeClass(iso, freshH) {
     // × と同じ赤で描くと、上場が新しいだけの会社が減配企業と同じ見た目になり、
     // 塾生が真逆の判断をしうる。灰色のダッシュにして理由をホバーで出す。
     growthMark(r) {
-    // 「継続して増配したか」を主役に出す。◎○△×だけだと何期続いたかが伝わらない。
-    growthHeadline(r) {
-      const s = r.streak;
-      if (!s) return '履歴なし';
-      if (r.judge && r.judge.growth == null) return '履歴不足';
-      if (s.years > 0) return s.years + '期連続' + (s.capped ? '+' : '');
-      if (s.non_decreasing > 0) return '非減配' + s.non_decreasing + '期';
-      return '減配あり';
-    },
       const g = r.judge && r.judge.growth;
       if (g == null) return '–';
       return { 4:'◎', 3:'○', 2:'△', 1:'×' }[g] || '–';
