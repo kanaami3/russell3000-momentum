@@ -103,14 +103,37 @@ def rank_high_roe(df: pd.DataFrame, n: int = 30) -> list[dict]:
     return [_row_dict(r) for _, r in sub.iterrows()]
 
 
+# 成長バリュー(GARP)のしきい値。緩めると件数は増えるが割安性が薄れる。
+GROWTH_MAX_PE = 20.0
+GROWTH_MAX_PBR = 2.0
+GROWTH_MAX_ROE = 40.0
+
+
 def rank_growth(df: pd.DataFrame, n: int = 30) -> list[dict]:
     sub = df.dropna(subset=["revenue_growth"]).copy()
     # 200%超は M&A/会計変更 起因の異常値が多いので除外
     sub = sub[(sub["revenue_growth"] >= 5) & (sub["revenue_growth"] <= 200)]
-    # Prefer with positive earnings growth too
-    sub = sub[sub["earnings_growth"].fillna(0) >= 0]
-    # Filter out crazy PE (avoid speculative growth)
-    sub = sub[sub["trailing_pe"].fillna(999) <= 40]
+    # 増益は条件にするが、並べ替えには使わない。増益率で並べると
+    # 「前期が悪すぎた会社」が上位を独占する（実測: 出光興産 +4,095%、
+    # 森永乳業は増収2.4%で増益+299%）。回復であって成長ではない。
+    # 売上はゼロ割れが起きにくく比率が爆発しないので、増収率を主軸にする。
+    sub = sub[sub["earnings_growth"].fillna(-1) > 0]
+
+    # 割安な成長株(GARP)に絞る。配当は配当スクリーナー側の役割なので見ない。
+    pe = sub["trailing_pe"]
+    sub = sub[(pe > 0) & (pe <= GROWTH_MAX_PE)]
+    pbr = sub["price_to_book"]
+    sub = sub[(pbr > 0) & (pbr <= GROWTH_MAX_PBR)]
+
+    # ROE 40%超はデータ異常が混じりやすい（実測 ARCHION ROE50.8% / PER1.9倍）
+    if "return_on_equity" in sub.columns:
+        sub = sub[sub["return_on_equity"].fillna(0) <= GROWTH_MAX_ROE]
+
+    # 銀行は経常収益の大半が受取利息で、金利が上がるだけで増収率が跳ねる。
+    # 貸出が増えたわけではないため、他業種と同じ物差しでは並べられない。
+    if "sector17" in sub.columns:
+        sub = sub[sub["sector17"] != "銀行"]
+
     sub = sub.sort_values("revenue_growth", ascending=False).head(n)
     return [_row_dict(r) for _, r in sub.iterrows()]
 
