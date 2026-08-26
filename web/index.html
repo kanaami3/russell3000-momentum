@@ -665,8 +665,10 @@
                   <span x-show="r.streak && r.streak.had_special" class="text-[9px] align-super text-amber-600"
                         title="過去に一過性の増配あり(記念配当の可能性)">*</span>
                 </td>
-                <td class="px-1 py-1.5 text-center font-bold" :class="headroomClass(r)" :title="r.headroomNote || ''"
-                    x-text="headroomMark(r)"></td>
+                <td class="px-1 py-1.5 text-center leading-tight" :class="headroomClass(r)" :title="headroomFullNote(r)">
+                  <span class="font-bold" x-text="headroomMark(r)"></span>
+                  <span class="block text-[9px] font-normal opacity-75 whitespace-nowrap" x-text="headroomYield(r)"></span>
+                </td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.dividend)" x-text="divMark(r.judge.dividend)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.value)" x-text="divMark(r.judge.value)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.earnings)">
@@ -2014,6 +2016,25 @@ statusBadgeClass(iso, freshH) {
 
     // 判定記号とセル色
     divMark(v) { return v == null ? '-' : ({4:'◎',3:'○',2:'△',1:'×'})[v]; },
+    // 増配余地を数値で示す。配当性向を目標水準まで引き上げたと仮定したときの利回り。
+    // 利益が1円も増えなくても方針変更だけでここまで届く、という上限の目安。
+    // あくまで仮定計算で、会社の配当方針によっては実現しない。
+    HR_TARGET_PAYOUT: 50,
+    headroomYield(r) {
+      const p = r.payout, y = r.yield;
+      if (typeof p !== 'number' || typeof y !== 'number') return '';
+      if (p <= 0 || p >= this.HR_TARGET_PAYOUT) return '';   // 余地なし
+      return '→' + (y * this.HR_TARGET_PAYOUT / p).toFixed(1) + '%';
+    },
+    headroomFullNote(r) {
+      const base = r.headroomNote || '';
+      const p = r.payout, y = r.yield;
+      if (typeof p !== 'number' || typeof y !== 'number' || p <= 0 || p >= this.HR_TARGET_PAYOUT) return base;
+      const mult = this.HR_TARGET_PAYOUT / p;
+      return base + ' ／ 配当性向を' + this.HR_TARGET_PAYOUT + '%まで引き上げた場合: 配当 +'
+           + ((mult - 1) * 100).toFixed(0) + '%、利回り ' + (y * mult).toFixed(1)
+           + '%（仮定計算。会社の配当方針により実現しない場合があります）';
+    },
     // 増配余地。配当性向・予想増益率・増配実績の3要素をPython側で合成した判定。
     // 判定なし(null)は配当性向が取れなかった銘柄で、×とは別物。
     headroomMark(r) {
