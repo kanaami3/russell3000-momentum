@@ -30,7 +30,7 @@ SCREENER_PATH = REPO_ROOT / "web" / "data" / "dividend_screener.json"
 HISTORY_PATH = REPO_ROOT / "data" / "growth_dividend_picks_history.json"
 
 MODEL = "claude-haiku-4-5-20251001"
-MAX_TOKENS = 3000
+MAX_TOKENS = 4000
 HISTORY_LOOKBACK = 5
 HISTORY_KEEP = 14
 
@@ -161,7 +161,7 @@ def build_prompt(candidates: list[dict], runs: list[dict]) -> str:
 注意:
 - 候補リストにない銘柄を選ばないこと
 - 「買い推奨」ではなく「注目に値する理由」として書くこと
-- watch は必ず書くこと。良い面だけを並べないこと
+- watch は必ず書くこと。良い面だけを並べないこと\n- JSON以外の文章を前後に書かないこと。文字列内に改行を入れないこと
 """
 
 def extract_json(text: str) -> dict | None:
@@ -180,7 +180,7 @@ def main() -> int:
         return 0
     if not SCREENER_PATH.exists():
         print(f"{SCREENER_PATH} がありません。", file=sys.stderr)
-        return 1
+        return 0
 
     data = json.loads(SCREENER_PATH.read_text(encoding="utf-8"))
     candidates = select_candidates(data.get("stocks", []))
@@ -197,10 +197,15 @@ def main() -> int:
         max_tokens=MAX_TOKENS,
         messages=[{"role": "user", "content": build_prompt(candidates, runs)}],
     )
-    parsed = extract_json("".join(b.text for b in resp.content if b.type == "text"))
+    raw_text = "".join(b.text for b in resp.content if b.type == "text")
+    parsed = extract_json(raw_text)
     if not parsed or not parsed.get("picks"):
+        # AI生成の失敗でパイプライン全体を落とさない。既存の内容を維持して
+        # 正常終了させる。ここで exit 1 を返すと後続の commit まで巻き添えになり、
+        # 他のスクリプトが正しく作った出力まで反映されなくなる。
         print("JSONを解釈できませんでした。既存の内容を維持します。", file=sys.stderr)
-        return 1
+        print("応答冒頭: " + raw_text[:300].replace(chr(10), " "), file=sys.stderr)
+        return 0
 
     # 候補外の銘柄が混ざっていないか検証する。モデルが候補リストにない
     # 銘柄を返すことがあり、その場合は選定基準が説明できなくなる。
@@ -210,7 +215,8 @@ def main() -> int:
     if dropped:
         print(f"候補外の {dropped} 銘柄を除外しました。", file=sys.stderr)
     if not picks:
-        return 1
+        print("有効な銘柄が残りませんでした。", file=sys.stderr)
+        return 0
 
     # 数値は元データで上書きする。モデルの転記ミスを画面に出さないため。
     by_code = {str(s.get("code")): s for s in candidates}
