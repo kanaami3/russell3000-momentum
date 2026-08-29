@@ -165,12 +165,38 @@ def build_prompt(candidates: list[dict], runs: list[dict]) -> str:
 """
 
 def extract_json(text: str) -> dict | None:
+    """応答からJSONを取り出す。段階的に緩めて試す。
+
+    モデルは指示しても前後に文章を付けたり、コードフェンスの書き方が
+    揺れたりする。1つの方法だけに頼ると、内容は正しいのに解釈できず
+    生成が丸ごと無駄になる。
+    """
+    candidates = []
+
     m = JSON_BLOCK_RE.search(text)
-    raw = m.group(1) if m else text
-    try:
-        return json.loads(raw)
-    except json.JSONDecodeError:
-        return None
+    if m:
+        candidates.append(m.group(1))
+
+    # フェンスの言語指定なし（``` だけ）にも対応
+    m2 = re.search(r"```\s*([\s\S]+?)\s*```", text)
+    if m2:
+        candidates.append(m2.group(1))
+
+    # 最初の { から最後の } まで。前後の文章を落とす。
+    first, last = text.find("{"), text.rfind("}")
+    if first >= 0 and last > first:
+        candidates.append(text[first:last + 1])
+
+    candidates.append(text)
+
+    for raw in candidates:
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(parsed, dict):
+            return parsed
+    return None
 
 
 def main() -> int:
