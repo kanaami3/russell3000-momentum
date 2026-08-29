@@ -4,32 +4,32 @@
       "date": "2026-08-29",
       "picks": [
         {
-          "ticker": "5714.T",
-          "name": "DOWAホールディングス"
+          "ticker": "3245.T",
+          "name": "ディア・ライフ"
         },
         {
-          "ticker": "5857.T",
-          "name": "AREホールディングス"
+          "ticker": "5445.T",
+          "name": "東京鐵鋼"
         },
         {
-          "ticker": "3156.T",
-          "name": "レスター"
+          "ticker": "5970.T",
+          "name": "ジーテクト"
         },
         {
-          "ticker": "5857.T",
-          "name": "AREホールディングス"
+          "ticker": "1518.T",
+          "name": "三井松島ホールディングス"
         },
         {
-          "ticker": "6143.T",
-          "name": "ソディック"
+          "ticker": "2288.T",
+          "name": "丸大食品"
         },
         {
-          "ticker": "4507.T",
-          "name": "塩野義製薬"
+          "ticker": "4506.T",
+          "name": "住友ファーマ"
         },
         {
-          "ticker": "2121.T",
-          "name": "MIXI"
+          "ticker": "166A.T",
+          "name": "タスキホールディングス"
         }
       ]
     },
