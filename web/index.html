@@ -580,6 +580,43 @@
       <span class="text-slate-400">※情報整理であり投資勧誘ではありません。</span>
     </p>
 
+    <!-- AI が選ぶ増配バリュー銘柄 -->
+    <div x-show="dividendData.ai_growth_dividend" class="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-300 rounded-2xl p-4">
+      <div class="flex items-baseline justify-between flex-wrap gap-2 mb-1">
+        <h2 class="font-extrabold text-amber-900">🎯 AIが選ぶ増配バリュー銘柄</h2>
+        <span class="text-[11px] text-slate-500"
+              x-text="'候補 ' + (dividendData.ai_growth_dividend?.candidate_count||0) + ' 銘柄から選定'"></span>
+      </div>
+      <p class="text-[11px] text-slate-500 mb-3" x-text="dividendData.ai_growth_dividend?.criteria || ''"></p>
+      <p class="text-xs text-slate-700 mb-3" x-text="dividendData.ai_growth_dividend?.summary || ''"></p>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <template x-for="p in (dividendData.ai_growth_dividend?.picks || [])" :key="p.code">
+          <div class="bg-white border border-amber-200 rounded-xl p-3">
+            <div class="flex items-baseline gap-2 flex-wrap">
+              <span class="font-mono text-[11px] text-slate-500" x-text="p.code"></span>
+              <span class="font-bold text-slate-900 text-sm" x-text="p.name"></span>
+              <span class="text-[10px] text-slate-400" x-text="p.sector"></span>
+            </div>
+            <div class="text-[11px] font-semibold text-amber-800 mt-1" x-text="p.headline"></div>
+            <div class="text-[11px] text-slate-600 mt-1 flex flex-wrap gap-x-2">
+              <span x-text="'利回り ' + p.yield + '%'"></span>
+              <span x-text="'PER ' + p.per"></span>
+              <span x-text="'性向 ' + p.payout + '%'"></span>
+              <span class="font-semibold text-emerald-700" x-text="p.streak_label"></span>
+            </div>
+            <p class="text-[11px] text-slate-700 mt-2 leading-relaxed" x-text="p.reason"></p>
+            <p class="text-[11px] text-rose-700 mt-1.5 leading-relaxed" x-show="p.watch"
+               x-text="'⚠ ' + p.watch"></p>
+          </div>
+        </template>
+      </div>
+      <p class="text-[10px] text-slate-400 mt-3">
+        機械的な条件で絞った候補からAIが選定したものです。推奨銘柄ではありません。
+        投資判断はご自身の責任でお願いします。
+        <span x-text="'（' + (dividendData.ai_growth_dividend?.model||'') + '）'"></span>
+      </p>
+    </div>
+
     <!-- condition controls -->
     <div class="bg-white border-2 border-teal-200 rounded-2xl p-4">
       <div class="flex items-baseline justify-between mb-3 flex-wrap gap-2">
