@@ -90,8 +90,11 @@ jobs:
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
             python batch/generate_value_commentary.py
+            # 増配バリューのAIピックは配当スクリーナーの出力を読むので、
+            # build_dividend_screener.py の後でなければならない。
+            python batch/generate_growth_dividend_picks.py
           else
-            echo "ANTHROPIC_API_KEY not set — skipping value commentary"
+            echo "ANTHROPIC_API_KEY not set — skipping AI steps"
           fi
 
       - name: Commit and push
