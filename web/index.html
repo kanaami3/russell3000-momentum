@@ -2143,7 +2143,7 @@ statusBadgeClass(iso, freshH) {
       if (this.divJudge === '34') rows = rows.filter(r => (r.judge.overall ?? 0) >= 3);
       const k = this.divSort;
       const val = (r) => ['overall','value','dividend','earnings'].includes(k) ? (r.judge[k] ?? -1) : (r[k] ?? -Infinity);
-      rows.sort((a, b) => this.divSortDesc ? (val(b) - val(a)) : (val(a) - val(b)));
+      rows.sort((a, b) => { const diff = this.divSortDesc ? (val(b) - val(a)) : (val(a) - val(b)); if (diff !== 0 || k !== 'headroom') return diff; return (b.yield ?? -Infinity) - (a.yield ?? -Infinity); });
       return rows;
     },
     get divRows() {
@@ -2967,7 +2967,7 @@ statusBadgeClass(iso, freshH) {
     earningsExpanded: {},         // {ticker: bool} for expand/collapse
     macroData: null,              // Nikkei EPS history
     dividendData: null,           // 配当・増配余力スクリーナー(全銘柄)
-    divSort: 'overall',           // ソート列
+    divSort: 'headroom',          // ソート列(デフォルト=増配余地ランキング)
     divSortDesc: true,
     divSectorFilter: '',          // 業種フィルタ
     divF: { yieldMin: 3.0, pbrMax: null, perMax: null, payoutMax: null, roeMin: null },
