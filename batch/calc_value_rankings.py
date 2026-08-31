@@ -9,13 +9,23 @@ from __future__ import annotations
 
 import json
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
 import pandas as pd
 
+import dividend_streak
+from build_dividend_screener import (
+    eps_revision,
+    headroom_note,
+    judge_headroom,
+    revision_reliable,
+)
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INPUT_PATH = REPO_ROOT / "data" / "value_data_jp.csv"
 OUTPUT_PATH = REPO_ROOT / "web" / "data" / "value_jp.json"
+HISTORY_CSV = REPO_ROOT / "data" / "dividend_history_jp.csv"
 
 # Common filters across all rankings (avoid micro caps, illiquid, distressed)
 MIN_MARKET_CAP = 50_000_000_000      # ¥500億 以上(中小型避け)
@@ -67,14 +77,54 @@ def _safe(v):
 # ---------------------------------------------------------------------------
 
 def rank_high_dividend(df: pd.DataFrame, n: int = 30) -> list[dict]:
+    """高配当かつ「増配余力」の大きい順に選ぶ。
+
+    単純な利回り降順だと、伸びしろの無い(あるいは減配リスクを抱えた)
+    高利回り銘柄が上位を占めやすい。会社に増配を続ける財務的な余力が
+    あるかどうか — 配当性向が低い・増益基調・増配実績がある — を
+    build_dividend_screener.judge_headroom() で判定し、それを主軸に
+    並べ替える(判定ロジックは配当スクリーナーと共有し、二重実装しない)。
+    """
     sub = df.dropna(subset=["dividend_yield"]).copy()
     sub = sub[
         (sub["dividend_yield"] >= 3)
         & (sub["dividend_yield"] <= MAX_DIV_YIELD)
         & ((sub["payout_ratio"].isna()) | (sub["payout_ratio"] <= MAX_PAYOUT_RATIO))
     ]
-    sub = sub.sort_values("dividend_yield", ascending=False).head(n)
-    return [_row_dict(r) for _, r in sub.iterrows()]
+    if sub.empty:
+        return []
+
+    history = dividend_streak.load_history(HISTORY_CSV)
+
+    def _headroom_row(row: pd.Series) -> pd.Series:
+        code = str(row.get("ticker") or "").replace(".T", "")
+        streak_dict = None
+        div = history.get(code)
+        if div is not None and len(div) > 0:
+            streak_dict = asdict(dividend_streak.compute_streak(div))
+        # eps_revision は既に比率(fraction)を返すので judge_headroom にそのまま渡せる。
+        rev = eps_revision(row.get("forward_eps"), row.get("trailing_eps"))
+        rev_ok = revision_reliable(rev)
+        rev_eff = rev if rev_ok else None
+        payout = row.get("payout_ratio")
+        return pd.Series({
+            "headroom": judge_headroom(payout, rev_eff, rev_ok, streak_dict),
+            "headroom_note": headroom_note(payout, rev_eff, rev_ok, streak_dict),
+        })
+
+    sub[["headroom", "headroom_note"]] = sub.apply(_headroom_row, axis=1)
+    # 判定不能(None)は最下位扱いにする。合格扱いにしない three-valued logic の原則を踏襲。
+    sub["_hr_sort"] = sub["headroom"].fillna(0)
+    sub = sub.sort_values(["_hr_sort", "dividend_yield"], ascending=[False, False]).head(n)
+    sub = sub.drop(columns=["_hr_sort"])
+    return [
+        {
+            **_row_dict(r),
+            "headroom": (None if pd.isna(r["headroom"]) else int(r["headroom"])),
+            "headroom_note": r["headroom_note"],
+        }
+        for _, r in sub.iterrows()
+    ]
 
 
 def rank_low_pe(df: pd.DataFrame, n: int = 30) -> list[dict]:
