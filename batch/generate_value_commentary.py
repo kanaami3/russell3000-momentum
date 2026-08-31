@@ -37,7 +37,7 @@ MAX_TOKENS_PICKS = 4000
 MAX_TOKENS_CATEGORY = 500
 
 CATEGORY_LABELS = {
-    "【高配当・増配余力TOP10】": "💰 高配当・増配余力 TOP30",
+    "high_dividend": "💰 高配当・増配余力 TOP30",
     "low_pe":        "💎 低PER TOP30",
     "low_pbr":       "📉 低PBR TOP30",
     "high_roe":      "⚡ 高ROE TOP30",
