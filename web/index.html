@@ -906,7 +906,7 @@
               <th class="px-2 py-2 text-left">業種</th>
               <th class="px-2 py-2 text-right">時価総額</th>
               <th class="px-2 py-2 text-right">配当%</th>
-              <th class="px-2 py-2 text-right">配当性向</th>
+              <th class="px-2 py-2 text-right">配当性向</th><th class="px-2 py-2 text-center" x-show="valueActiveCategory === 'high_dividend'" title="配当性向・予想増益率・連続増配実績から見た増配余地(◎>○>△>×)">増配余地</th>
               <th class="px-2 py-2 text-right">PER</th>
               <th class="px-2 py-2 text-right">PBR</th>
               <th class="px-2 py-2 text-right">ROE%</th>
@@ -926,7 +926,7 @@
                 <td class="px-2 py-2 text-slate-500 text-[10px] whitespace-nowrap" x-text="r.sector17"></td>
                 <td class="px-2 py-2 text-right num text-slate-600" x-text="r.market_cap_oku ? r.market_cap_oku.toLocaleString() + '億' : '-'"></td>
                 <td class="px-2 py-2 text-right num font-bold text-amber-700" x-text="r.dividend_yield ?? '-'"></td>
-                <td class="px-2 py-2 text-right num text-slate-500" x-text="r.payout_ratio ?? '-'"></td>
+                <td class="px-2 py-2 text-right num text-slate-500" x-text="r.payout_ratio ?? '-'"></td><td class="px-2 py-2 text-center leading-tight" x-show="valueActiveCategory === 'high_dividend'" :class="headroomClass(r)" :title="r.headroom_note || ''"><span class="font-bold" x-text="headroomMark(r)"></span></td>
                 <td class="px-2 py-2 text-right num text-slate-700" x-text="r.trailing_pe ?? '-'"></td>
                 <td class="px-2 py-2 text-right num text-slate-700" x-text="r.price_to_book ?? '-'"></td>
                 <td class="px-2 py-2 text-right num font-bold text-purple-700" x-text="r.return_on_equity ?? '-'"></td>
