@@ -9,7 +9,12 @@ on:
     # (鮮度ガードで当日分が既に生成済みなら全ステップをスキップ)
     - cron: "26 3 * * *"  # 12:26 JST
     - cron: "26 6 * * *"  # 15:26 JST
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "当日分が生成済みでも作り直す（コード変更後の確認用）"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -54,19 +59,19 @@ jobs:
           echo "Morning brief run needed: $NEED"
 
       - name: Fetch JP universe (Prime market)
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         run: python batch/fetch_universe_jp.py
 
       - name: Fetch JP prices (yfinance OHLCV)
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         run: python batch/fetch_prices.py jp
 
       - name: Build morning brief (picks + overnight signals)
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         run: python batch/build_morning_brief.py
 
       - name: Generate AI morning brief (Claude)
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -77,11 +82,11 @@ jobs:
           fi
 
       - name: Compute JP momentum + chart data (for divergence detection)
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         run: python batch/calc_momentum.py jp
 
       - name: Commit and push
-        if: steps.freshness.outputs.need_run == 'true'
+        if: steps.freshness.outputs.need_run == 'true' || inputs.force
         run: |
           bash batch/safe_commit_push.sh \
             "data(jp morning): daytrade brief $(date -u +%Y-%m-%d)" \
