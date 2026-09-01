@@ -185,6 +185,21 @@ def main() -> int:
     text = "".join(b.text for b in resp.content if b.type == "text").strip()
     narrative, picks = parse_ai_picks(text)
 
+    # 同じ銘柄が複数回返ることがある。画面は :key="pick.ticker" で描画しており、
+    # key が重複すると Alpine が描画を中断し、セクションごと表示されなくなる。
+    # 実際 2026-09-01 にスクウェア・エニックスが2回選ばれ、デイトレ推奨が消えた。
+    seen = set()
+    deduped = []
+    for p in picks:
+        key = p.get("ticker")
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        deduped.append(p)
+    if len(deduped) != len(picks):
+        print(f"重複を除去: {len(picks)} -> {len(deduped)} 銘柄", file=sys.stderr)
+    picks = deduped
+
     data["ai_brief"] = narrative
     data["ai_picks"] = picks
     data["ai_brief_model"] = MODEL
