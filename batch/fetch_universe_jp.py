@@ -25,7 +25,7 @@ OUTPUT_PATH = REPO_ROOT / "data" / "universe_jp.json"
 
 JPX_XLS_URL = (
     "https://www.jpx.co.jp/markets/statistics-equities/misc/"
-    "tvdivq0000001vg2-att/data_j.xls"
+    "tvdivq0000001vg2-att/data_j.xlsx"
 )
 TARGET_SEGMENT = "プライム（内国株式）"
 
