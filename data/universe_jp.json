@@ -2477,7 +2477,7 @@
     "name": "ジェイ・エス・ビー",
     "sector33": "不動産業",
     "sector17": "不動産",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "-"
   },
   {
     "ticker": "3482.T",
@@ -6118,14 +6118,6 @@
     "sector33": "サービス業",
     "sector17": "情報通信・サービスその他",
     "size_cat": "TOPIX Small 1"
-  },
-  {
-    "ticker": "6197.T",
-    "code": "6197",
-    "name": "ソラスト",
-    "sector33": "サービス業",
-    "sector17": "情報通信・サービスその他",
-    "size_cat": "-"
   },
   {
     "ticker": "6200.T",
@@ -10126,14 +10118,6 @@
     "sector33": "小売業",
     "sector17": "小売",
     "size_cat": "TOPIX Mid400"
-  },
-  {
-    "ticker": "8283.T",
-    "code": "8283",
-    "name": "ＰＡＬＴＡＣ",
-    "sector33": "卸売業",
-    "sector17": "商社・卸売",
-    "size_cat": "-"
   },
   {
     "ticker": "8303.T",
