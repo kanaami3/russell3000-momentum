@@ -63,7 +63,8 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
-            python batch/generate_weekly_outlook.py
+            # AI生成は付加価値。失敗しても数値データのコミットは止めない。
+            python batch/generate_weekly_outlook.py || echo "⚠ 週次展望の生成に失敗（継続）"
           else
             echo "ANTHROPIC_API_KEY not set — skipping weekly outlook"
           fi
