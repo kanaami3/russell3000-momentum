@@ -217,12 +217,22 @@ def main() -> int:
         return 0
 
     runs = _load_history()
-    client = anthropic.Anthropic(api_key=key)
-    resp = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS,
-        messages=[{"role": "user", "content": build_prompt(candidates, runs)}],
-    )
+    # API障害（残高不足・レート制限・ネットワーク）で例外が出ると、この
+    # スクリプトが異常終了し、同じシェル行で先に走った他のスクリプトの成果も
+    # 含めて後続の Commit and push がスキップされる。実際 2026-09-13 以降
+    # クレジット切れで株価もランキングも5日間更新が止まった。
+    # AI生成は付加価値であって、数値データの更新を人質に取ってはいけない。
+    try:
+        client = anthropic.Anthropic(api_key=key)
+        resp = client.messages.create(
+            model=MODEL,
+            max_tokens=MAX_TOKENS,
+            messages=[{"role": "user", "content": build_prompt(candidates, runs)}],
+        )
+    except Exception as e:
+        print(f"API呼び出しに失敗しました: {e}", file=sys.stderr)
+        print("既存の内容を維持して正常終了します。", file=sys.stderr)
+        return 0
     raw_text = "".join(b.text for b in resp.content if b.type == "text")
     parsed = extract_json(raw_text)
     if not parsed or not parsed.get("picks"):
