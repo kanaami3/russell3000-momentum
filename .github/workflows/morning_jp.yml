@@ -76,7 +76,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
-            python batch/generate_morning_brief_ai.py
+            # AI生成は付加価値。失敗しても数値データのコミットは止めない。
+            # クレジット切れでこのステップが落ち、後続のコミットまで
+            # スキップされて更新が数日止まった事例がある。
+            python batch/generate_morning_brief_ai.py || echo "⚠ morning brief AI 失敗（継続）"
           else
             echo "ANTHROPIC_API_KEY not set — skipping AI brief"
           fi
