@@ -67,7 +67,8 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ]; then
-            python batch/generate_swing_picks.py jp
+            # AI生成は付加価値。失敗しても数値データのコミットは止めない。
+            python batch/generate_swing_picks.py jp || echo "⚠ swing picks 失敗（継続）"
           else
             echo "ANTHROPIC_API_KEY not set — skipping swing picks"
           fi
