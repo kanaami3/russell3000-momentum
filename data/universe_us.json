@@ -5532,12 +5532,6 @@
     "exchange": "NASDAQ"
   },
   {
-    "ticker": "EDU",
-    "name": "New Oriental Education & Technology Group, Inc. Sponsored ADR representing 10 Ordinary Share (Cayman Islands)",
-    "market_cap": 8924893492.0,
-    "exchange": "NYSE"
-  },
-  {
     "ticker": "EAI",
     "name": "Entergy Arkansas, LLC First Mortgage Bonds, 4.875% Series Due September 1, 2066",
     "market_cap": 8903328982.0,
@@ -5619,6 +5613,12 @@
     "ticker": "SPXC",
     "name": "SPX Technologies, Inc.",
     "market_cap": 8694905296.0,
+    "exchange": "NYSE"
+  },
+  {
+    "ticker": "EDU",
+    "name": "New Oriental Education & Technology Group, Inc. Sponsored ADR representing 10 Ordinary Share (Cayman Islands)",
+    "market_cap": 8694058846.0,
     "exchange": "NYSE"
   },
   {
@@ -8952,12 +8952,6 @@
     "exchange": "NYSE"
   },
   {
-    "ticker": "THO",
-    "name": "Thor Industries, Inc.",
-    "market_cap": 3764268642.0,
-    "exchange": "NYSE"
-  },
-  {
     "ticker": "IPAR",
     "name": "Interparfums, Inc.",
     "market_cap": 3759826689.0,
@@ -8998,6 +8992,12 @@
     "name": "Avis Budget Group, Inc.",
     "market_cap": 3732872425.0,
     "exchange": "NASDAQ"
+  },
+  {
+    "ticker": "THO",
+    "name": "Thor Industries, Inc.",
+    "market_cap": 3732234444.0,
+    "exchange": "NYSE"
   },
   {
     "ticker": "SMR",
@@ -15036,12 +15036,6 @@
     "exchange": "NASDAQ"
   },
   {
-    "ticker": "TBPH",
-    "name": "Theravance Biopharma, Inc. Ordinary Shares",
-    "market_cap": 884176381.0,
-    "exchange": "NASDAQ"
-  },
-  {
     "ticker": "TTI",
     "name": "Tetra Technologies, Inc.",
     "market_cap": 883994491.0,
@@ -17998,5 +17992,11 @@
     "name": "Natural Gas Services Group, Inc.",
     "market_cap": 427965096.0,
     "exchange": "NYSE"
+  },
+  {
+    "ticker": "PHOE",
+    "name": "Phoenix Asia Holdings Limited Ordinary Shares",
+    "market_cap": 427896000.0,
+    "exchange": "NASDAQ"
   }
 ]
