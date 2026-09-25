@@ -350,7 +350,7 @@
   {
     "ticker": "KLAC",
     "name": "KLA Corporation",
-    "market_cap": 245447878654.0,
+    "market_cap": 245158519587.0,
     "exchange": "NASDAQ"
   },
   {
@@ -954,16 +954,16 @@
     "exchange": "NYSE"
   },
   {
-    "ticker": "ADBE",
-    "name": "Adobe Inc.",
-    "market_cap": 95674275000.0,
-    "exchange": "NASDAQ"
-  },
-  {
     "ticker": "HCA",
     "name": "HCA Healthcare, Inc.",
     "market_cap": 94498574720.0,
     "exchange": "NYSE"
+  },
+  {
+    "ticker": "ADBE",
+    "name": "Adobe Inc.",
+    "market_cap": 93676548000.0,
+    "exchange": "NASDAQ"
   },
   {
     "ticker": "PWR",
@@ -13866,6 +13866,12 @@
     "exchange": "NASDAQ"
   },
   {
+    "ticker": "PSEC",
+    "name": "Prospect Capital Corporation",
+    "market_cap": 1158382562.0,
+    "exchange": "NASDAQ"
+  },
+  {
     "ticker": "BRAI",
     "name": "Braiin Limited",
     "market_cap": 1158215841.0,
@@ -13965,12 +13971,6 @@
     "ticker": "SPTX",
     "name": "Seaport Therapeutics, Inc.",
     "market_cap": 1139665410.0,
-    "exchange": "NASDAQ"
-  },
-  {
-    "ticker": "PSEC",
-    "name": "Prospect Capital Corporation",
-    "market_cap": 1138886516.0,
     "exchange": "NASDAQ"
   },
   {
@@ -15996,12 +15996,6 @@
     "exchange": "NYSE"
   },
   {
-    "ticker": "IBO",
-    "name": "Impact BioMedical, Inc.",
-    "market_cap": 714854762.0,
-    "exchange": "AMEX"
-  },
-  {
     "ticker": "AAC",
     "name": "Ares Acquisition Corporation III Class A Ordinary Shares",
     "market_cap": 711690941.0,
@@ -17997,6 +17991,12 @@
     "ticker": "PHOE",
     "name": "Phoenix Asia Holdings Limited Ordinary Shares",
     "market_cap": 427896000.0,
+    "exchange": "NASDAQ"
+  },
+  {
+    "ticker": "DGXX",
+    "name": "Digi Power X Inc. Subordinate Voting Shares",
+    "market_cap": 427879958.0,
     "exchange": "NASDAQ"
   }
 ]
