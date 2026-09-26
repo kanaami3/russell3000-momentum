@@ -62,6 +62,12 @@ jobs:
         if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
         run: python batch/fetch_ipo_jp.py
 
+      # 会社プロフィールは Ticker.info を1銘柄ずつ叩くので、取得済みは
+      # 飛ばして1回50件まで。失敗しても業種が出ないだけなので継続する。
+      - name: Fetch company profiles (incremental)
+        if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
+        run: python batch/fetch_ipo_profiles.py || echo "⚠ 会社プロフィール取得 失敗（継続）"
+
       - name: Build IPO page data (prices / charts)
         if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
         run: python batch/build_ipo_page.py
@@ -84,5 +90,6 @@ jobs:
           bash batch/safe_commit_push.sh \
             "data(ipo): daily update $(TZ=Asia/Tokyo date +%F)" \
             data/ipo_jp.json \
+            data/ipo_profiles_jp.json \
             web/data/ipo_jp.json \
             web/data/chart_data_ipo.json
