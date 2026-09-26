@@ -1,86 +1,14 @@
 @@OLD_CARD@@
-          <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
-            <span x-text="r.market || '—'"></span>
-            <span x-text="'上場 ' + ipoDate(r.listing_date)"></span>
-          </div>
-@@NEW_CARD@@
-          <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
-            <span x-text="r.market || '—'"></span>
-            <span x-text="'上場 ' + ipoDate(r.listing_date)"></span>
-            <span x-show="r.technical" class="px-1 rounded bg-slate-100 text-slate-500"
-              title="持株会社化やテクニカル上場。公募を伴わないため初値の意味が通常のIPOと異なります">※</span>
-          </div>
           <div x-show="ipoSectorLine(r)" class="text-[11px] text-slate-600 mt-0.5 truncate"
             x-text="ipoSectorLine(r)"></div>
+@@NEW_CARD@@
+          <div x-show="ipoSectorLine(r)" class="text-[11px] text-slate-500 mt-0.5 truncate"
+            x-text="ipoSectorLine(r)"></div>
+          <div x-show="r.biz_ja" class="text-[11px] text-slate-700 mt-0.5 leading-snug"
+            x-text="r.biz_ja"></div>
 @@OLD_MODAL@@
-        <div id="ipo-chart-panel" class="w-full" style="height:360px"></div>
-@@NEW_MODAL@@
-        <div id="ipo-chart-panel" class="w-full" style="height:360px"></div>
         <div x-show="ipoHasProfile()" class="mt-3 border-t border-slate-200 pt-3">
-          <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
-            <template x-for="f in ipoProfileFacts()" :key="f.label">
-              <span><span class="text-slate-400" x-text="f.label"></span>
-                <span class="font-semibold" x-text="f.value"></span></span>
-            </template>
-            <a x-show="ipoChart?.website" :href="ipoChart?.website" target="_blank" rel="noopener"
-              class="text-blue-600 hover:underline">公式サイト ↗</a>
-          </div>
-          <p x-show="ipoChart?.summary_en" class="text-xs text-slate-500 leading-relaxed mt-2">
-            <span class="text-slate-400">会社概要（英文・Yahoo Finance）</span><br>
-            <span x-text="ipoChart?.summary_en"></span>
-          </p>
-        </div>
-@@OLD_JS@@
-      ipoModalSub() {
-@@NEW_JS@@
-      // 業種の行。日本語訳があるセクターは日本語、無ければ英語のまま出す。
-      // 業種(industry)は訳語が定まらないものが多いので英語で出し、
-      // 何の会社かは事業内容の説明で補う。
-      ipoSectorLine(r) {
-        const parts = [r.sector_ja || r.sector_en, r.industry_en].filter(Boolean);
-        return parts.join(' / ');
-      },
-
-      ipoHasProfile() {
-        const r = this.ipoChart;
-        return !!(r && (r.sector_ja || r.sector_en || r.summary_en || r.employees || r.market_cap));
-      },
-
-      ipoMcap(v) {
-        if (typeof v !== 'number' || v <= 0) return null;
-        const oku = v / 1e8;
-        if (oku >= 10000) return (oku / 10000).toFixed(1) + '兆円';
-        return Math.round(oku).toLocaleString() + '億円';
-      },
-
-      ipoProfileFacts() {
-        const r = this.ipoChart;
-        if (!r) return [];
-        const out = [];
-        const sector = this.ipoSectorLine(r);
-        if (sector) out.push({ label: '業種', value: sector });
-        const mc = this.ipoMcap(r.market_cap);
-        // 時価総額はプロフィール取得時点の値。毎日は取り直していない。
-        if (mc) out.push({ label: '時価総額', value: mc + '（取得時点）' });
-        if (typeof r.employees === 'number' && r.employees > 0) {
-          out.push({ label: '従業員', value: r.employees.toLocaleString() + '人' });
-        }
-        if (r.city) out.push({ label: '本社', value: r.city });
-        return out;
-      },
-
-      ipoModalSub() {
-@@OLD_SP@@
-        const w = 240 / bars.length;
-        const bw = Math.max(1, Math.min(6, w * 0.65));
-@@NEW_SP@@
-        // 本数が少ないとローソクが間延びして、ぽつんと浮いて見える。
-        // 上場直後の銘柄は3〜5本しかない。1本あたりの幅に上限を設け、
-        // 余った幅は使わずに中央へ寄せる。
-        const slot = Math.min(240 / bars.length, 14);
-        const x0 = (240 - slot * bars.length) / 2;
-        const bw = Math.max(1.5, Math.min(7, slot * 0.6));
-@@OLD_CX@@
-          const cx = i * w + w / 2;
-@@NEW_CX@@
-          const cx = x0 + i * slot + slot / 2;
+@@NEW_MODAL@@
+        <div x-show="ipoHasProfile()" class="mt-3 border-t border-slate-200 pt-3">
+          <p x-show="ipoChart?.biz_ja" class="text-sm text-slate-800 font-medium mb-2"
+            x-text="ipoChart?.biz_ja"></p>
