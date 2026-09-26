@@ -109,9 +109,6 @@
     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(valueData?.generated_at_jst, 30)">
       💎 バリュー <span x-text="statusBadgeTime(valueData?.generated_at_jst)"></span>
     </span>
-    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(earningsData?.jp?.generated_at_jst || earningsData?.us?.generated_at_jst, 24*8)">
-      📈 決算 <span x-text="statusBadgeTime(earningsData?.jp?.generated_at_jst || earningsData?.us?.generated_at_jst)"></span>
-    </span>
     <span class="ml-auto text-slate-400 hidden sm:inline">🟢=新鮮 🟡=やや古 🔴=要再生成</span>
   </div>
 </div>
