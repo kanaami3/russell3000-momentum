@@ -37,6 +37,7 @@ import yfinance as yf
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 IPO_LIST = REPO_ROOT / "data" / "ipo_jp.json"
+PROFILES = REPO_ROOT / "data" / "ipo_profiles_jp.json"
 OUT_PAGE = REPO_ROOT / "web" / "data" / "ipo_jp.json"
 OUT_CHART = REPO_ROOT / "web" / "data" / "chart_data_ipo.json"
 
@@ -228,6 +229,30 @@ def metrics(sub: pd.DataFrame, offer_price: float | None) -> dict:
     }
 
 
+def load_profiles() -> dict:
+    """会社プロフィールのキャッシュを読む。無ければ空。
+
+    fetch_ipo_profiles.py が少しずつ埋めていくので、最初のうちは
+    プロフィールが付かない銘柄がある。付いていないことと「情報が無い」
+    ことは別なので、画面側では単に非表示にする。
+    """
+    if not PROFILES.exists():
+        return {}
+    try:
+        d = json.loads(PROFILES.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        print("プロフィールのキャッシュが読めませんでした。無視して続けます。",
+              file=sys.stderr)
+        return {}
+    return {k: v for k, v in (d.get("profiles") or {}).items() if v.get("ok")}
+
+
+# 画面に出すプロフィール項目。summary_en は英文なので、画面側で
+# 「会社概要（英文）」と断って出す。勝手に日本語のふりをさせない。
+PROFILE_FIELDS = ("sector_ja", "sector_en", "industry_en", "employees",
+                  "website", "city", "market_cap", "summary_en")
+
+
 def main() -> int:
     if not IPO_LIST.exists():
         print(f"{IPO_LIST} がありません。fetch_ipo_jp.py を先に動かしてください。",
@@ -249,6 +274,9 @@ def main() -> int:
             print(f"  {i//BATCH_SIZE + 1}バッチ目の取得に失敗: {e}", file=sys.stderr)
         print(f"  {min(i + BATCH_SIZE, len(tickers))}/{len(tickers)}", file=sys.stderr)
 
+    profiles = load_profiles()
+    print(f"会社プロフィール {len(profiles)} 件を読み込みました", file=sys.stderr)
+
     chart: dict[str, list] = {}
     out_rows = []
     failed = 0
@@ -257,6 +285,13 @@ def main() -> int:
         row = dict(r)
         ticker = f"{r['code']}.T"
         row["ticker"] = ticker
+
+        prof = profiles.get(r["code"])
+        if prof:
+            for k in PROFILE_FIELDS:
+                v = prof.get(k)
+                if v not in (None, ""):
+                    row[k] = v
 
         if not r.get("listed"):
             row["status"] = "upcoming"
