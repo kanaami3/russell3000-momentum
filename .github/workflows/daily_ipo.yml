@@ -1,0 +1,88 @@
+name: Daily IPO (JP) Update
+
+on:
+  schedule:
+    # 平日 17:12 JST = 08:12 UTC。JPXの新規上場会社情報は日中に更新される。
+    # concurrency グループ data-update の衝突を避けるため分の位置をズラす(:12)。
+    - cron: "12 8 * * 1-5"
+    # 多重保険: GitHub Actions の cron ドロップ対策(鮮度ガードで二重実行は防ぐ)
+    - cron: "12 11 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "鮮度ガードを無視して強制実行"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  ipo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # 鮮度ガード: 同じ営業日のデータが既にあればスキップする。
+      # inputs.force ではなく github.event.inputs.force を使う。前者は
+      # schedule イベントで未定義になり、式の評価に失敗して全ステップが
+      # 飛ぶ(2026-09 に実際に起きて5日間更新が止まった)。
+      - name: Check if IPO data already fresh today
+        id: freshness
+        run: |
+          f=web/data/ipo_jp.json
+          today=$(TZ=Asia/Tokyo date +%F)
+          if [ -f "$f" ]; then
+            asof=$(python -c "import json,sys; print(json.load(open('$f')).get('asof',''))" || echo "")
+          else
+            asof=""
+          fi
+          if [ "$asof" = "$today" ]; then
+            echo "本日分($today)は取得済み。スキップします。"
+            echo "need_run=false" >> $GITHUB_OUTPUT
+          else
+            echo "前回=$asof / 本日=$today。実行します。"
+            echo "need_run=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fetch IPO list from JPX
+        if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
+        run: python batch/fetch_ipo_jp.py
+
+      - name: Build IPO page data (prices / charts)
+        if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
+        run: python batch/build_ipo_page.py
+
+      - name: Generate AI commentary (Claude)
+        if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # AI生成は付加価値。失敗しても数値データのコミットは止めない。
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            python batch/generate_ipo_ai.py || echo "⚠ IPO AI解説 失敗（継続）"
+          else
+            echo "ANTHROPIC_API_KEY not set — skipping AI commentary"
+          fi
+
+      - name: Commit and push
+        if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
+        run: |
+          bash batch/safe_commit_push.sh \
+            "data(ipo): daily update $(TZ=Asia/Tokyo date +%F)" \
+            data/ipo_jp.json \
+            web/data/ipo_jp.json \
+            web/data/chart_data_ipo.json
