@@ -148,19 +148,41 @@ def clean_bars(sub: pd.DataFrame, listing_date: str | None) -> pd.DataFrame:
     return sub
 
 
-def spark(closes: pd.Series, n: int = SPARK_POINTS) -> list[float]:
-    """一覧に並べるミニチャート用に、上場来の終値を n 点へ間引く。
+def spark(sub: pd.DataFrame, n: int = SPARK_POINTS) -> list[list[float]]:
+    """一覧に並べるミニローソク足用に、上場来のOHLCを n 本へまとめる。
 
-    一覧で全銘柄のチャートを同時に出すので、フルのOHLCVを読ませると重い。
-    ミニチャートは形が分かればよいので、等間隔で抜いた終値だけを持たせる。
-    最後の点（直近）は必ず残す。ここが欠けると「今どこにいるか」がずれる。
+    **間引きではなく集約する。**
+    等間隔に抜き出すと、抜かれた日の高値・安値が消えてヒゲが無くなる。
+    日足を n 等分のバケツに入れ、始値=最初の始値 / 高値=期間中の最大 /
+    安値=期間中の最小 / 終値=最後の終値 とまとめる。週足や月足を作るのと
+    同じやり方で、本数が減っても値動きの幅は保たれる。
+
+    一覧で141銘柄ぶんを同時に描くので、フルの日足を読ませると重い。
+    拡大チャートの方は chart_data_ipo.json の日足をそのまま使う。
     """
-    vals = [float(v) for v in closes.tolist() if pd.notna(v)]
-    if len(vals) <= n:
-        return [round(v, 2) for v in vals]
-    step = (len(vals) - 1) / (n - 1)
-    idx = sorted({int(round(i * step)) for i in range(n)} | {len(vals) - 1})
-    return [round(vals[i], 2) for i in idx]
+    rows = sub.dropna(subset=["Close"])
+    m = len(rows)
+    if m == 0:
+        return []
+
+    o, h, l, c = rows["Open"], rows["High"], rows["Low"], rows["Close"]
+    out: list[list[float]] = []
+    buckets = min(n, m)
+    for i in range(buckets):
+        a = i * m // buckets
+        b = (i + 1) * m // buckets
+        if b <= a:
+            continue
+        op = o.iloc[a]
+        if pd.isna(op):
+            op = c.iloc[a]
+        out.append([
+            round(float(op), 2),
+            round(float(h.iloc[a:b].max()), 2),
+            round(float(l.iloc[a:b].min()), 2),
+            round(float(c.iloc[b - 1]), 2),
+        ])
+    return out
 
 
 def metrics(sub: pd.DataFrame, offer_price: float | None) -> dict:
@@ -202,7 +224,7 @@ def metrics(sub: pd.DataFrame, offer_price: float | None) -> dict:
         "above_ma25": None if ma25 is None else bool(last >= ma25),
         "vol_avg5": None if vol5 is None else int(vol5),
         "bars": int(len(closes)),
-        "spark": spark(closes),
+        "spark": spark(sub),
     }
 
 
