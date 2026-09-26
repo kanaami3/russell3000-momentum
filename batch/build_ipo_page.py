@@ -98,6 +98,24 @@ def series_rows(sub: pd.DataFrame) -> list[list]:
     return rows
 
 
+SPARK_POINTS = 60
+
+
+def spark(closes: pd.Series, n: int = SPARK_POINTS) -> list[float]:
+    """一覧に並べるミニチャート用に、上場来の終値を n 点へ間引く。
+
+    一覧で全銘柄のチャートを同時に出すので、フルのOHLCVを読ませると重い。
+    ミニチャートは形が分かればよいので、等間隔で抜いた終値だけを持たせる。
+    最後の点（直近）は必ず残す。ここが欠けると「今どこにいるか」がずれる。
+    """
+    vals = [float(v) for v in closes.tolist() if pd.notna(v)]
+    if len(vals) <= n:
+        return [round(v, 2) for v in vals]
+    step = (len(vals) - 1) / (n - 1)
+    idx = sorted({int(round(i * step)) for i in range(n)} | {len(vals) - 1})
+    return [round(vals[i], 2) for i in idx]
+
+
 def metrics(sub: pd.DataFrame, offer_price: float | None) -> dict:
     closes = sub["Close"].dropna()
     if closes.empty:
@@ -137,6 +155,7 @@ def metrics(sub: pd.DataFrame, offer_price: float | None) -> dict:
         "above_ma25": None if ma25 is None else bool(last >= ma25),
         "vol_avg5": None if vol5 is None else int(vol5),
         "bars": int(len(closes)),
+        "spark": spark(closes),
     }
 
 
