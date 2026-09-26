@@ -36,6 +36,9 @@ OUTPUT_PATH = REPO_ROOT / "web" / "data" / "morning_brief_jp.json"
 # AI生成分のキー。generate_morning_brief_ai.py が書き足す。
 AI_KEYS = ("ai_brief", "ai_picks", "ai_brief_model")
 
+# 引き継ぎを許す古さの上限（日）。デイトレの entry / stop は数日で意味を失う。
+MAX_AI_CARRY_DAYS = 3
+
 
 def _previous_ai(path) -> dict:
     """既存ファイルからAI生成分だけを取り出す。無ければ空の辞書。
@@ -57,8 +60,24 @@ def _previous_ai(path) -> dict:
         return {}
     if not any(prev.get(k) for k in AI_KEYS):
         return {}
+    stale_from = prev.get("target_date") or prev.get("asof")
+
+    # デイトレのピックは entry / stop / target が当日の値段を前提にしている。
+    # 何日も前のものを出すのは、消えているより悪い。日付が読めないもの、
+    # 古すぎるものは引き継がない。
+    if not stale_from:
+        return {}
+    try:
+        age = (_dt.date.today() - _dt.date.fromisoformat(stale_from)).days
+    except ValueError:
+        return {}
+    if age > MAX_AI_CARRY_DAYS:
+        print(f"  前回のAI内容は {stale_from} 時点で古いため引き継ぎません",
+              file=sys.stderr)
+        return {}
+
     carry = {k: prev[k] for k in AI_KEYS if k in prev}
-    carry["ai_stale_from"] = prev.get("target_date") or prev.get("asof")
+    carry["ai_stale_from"] = stale_from
     return carry
 
 # Filters for day-trade tradability
