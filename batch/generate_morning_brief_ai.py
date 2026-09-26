@@ -177,11 +177,19 @@ def main() -> int:
 
     client = anthropic.Anthropic(api_key=api_key)
     print(f"Calling Claude ({MODEL})...", file=sys.stderr)
-    resp = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS,
-        messages=[{"role": "user", "content": prompt}],
-    )
+    try:
+        resp = client.messages.create(
+            model=MODEL,
+            max_tokens=MAX_TOKENS,
+            messages=[{"role": "user", "content": prompt}],
+        )
+    except Exception as e:
+        # 失敗しても異常終了しない。build_morning_brief.py が前回のAI内容を
+        # 引き継いでいるので、ここで書かなければ古い内容がそのまま残る。
+        # 例外を投げると後続のコミット処理まで巻き込む恐れがある。
+        print(f"Claude 呼び出しに失敗しました: {e}", file=sys.stderr)
+        print("前回のAI内容を維持して正常終了します。", file=sys.stderr)
+        return 0
     text = "".join(b.text for b in resp.content if b.type == "text").strip()
     narrative, picks = parse_ai_picks(text)
 
@@ -200,6 +208,9 @@ def main() -> int:
         print(f"重複を除去: {len(picks)} -> {len(deduped)} 銘柄", file=sys.stderr)
     picks = deduped
 
+    # 生成に成功したので「引き継ぎ」の印を外す。残したままだと画面が
+    # ずっと古い扱いになる。
+    data.pop("ai_stale_from", None)
     data["ai_brief"] = narrative
     data["ai_picks"] = picks
     data["ai_brief_model"] = MODEL
