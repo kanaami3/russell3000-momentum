@@ -459,12 +459,8 @@
             <span x-text="r.market || '—'"></span>
             <span x-text="'上場 ' + ipoDate(r.listing_date)"></span>
           </div>
-          <svg viewBox="0 0 240 64" class="w-full h-16 mt-2" preserveAspectRatio="none">
-            <polyline :points="ipoSparkPoints(r)" fill="none" stroke-width="1.5"
-              :stroke="ipoSparkColor(r)" stroke-linejoin="round" stroke-linecap="round"></polyline>
-            <line x1="0" x2="240" :y1="ipoFirstLineY(r)" :y2="ipoFirstLineY(r)"
-              stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"></line>
-          </svg>
+          <svg viewBox="0 0 240 64" class="w-full h-16 mt-2" preserveAspectRatio="none"
+            x-html="ipoCandlesSvg(r)"></svg>
           <div class="grid grid-cols-3 gap-1 mt-2 text-[11px]">
             <div>
               <div class="text-slate-400">初値比</div>
@@ -1425,39 +1421,34 @@ function momentumApp() {
         return 'text-slate-600';
       },
 
-      // ミニチャートの座標。spark は build_ipo_page.py が終値を60点に
-      // 間引いたもの。初値の水平線と同じ尺度に乗せたいので、初値も
-      // 値域に含めてから正規化する。
-      _ipoScale(r) {
-        const vals = (r.spark || []).filter(v => typeof v === 'number');
-        if (!vals.length) return null;
-        const first = typeof r.first_price === 'number' ? r.first_price : vals[0];
-        const lo = Math.min(...vals, first);
-        const hi = Math.max(...vals, first);
-        const span = hi - lo || 1;
-        return { vals, first, lo, span };
-      },
-
-      ipoSparkPoints(r) {
-        const s = this._ipoScale(r);
-        if (!s) return '';
-        const n = s.vals.length;
-        const dx = n > 1 ? 240 / (n - 1) : 0;
-        return s.vals
-          .map((v, i) => `${(i * dx).toFixed(1)},${(60 - ((v - s.lo) / s.span) * 56).toFixed(1)}`)
-          .join(' ');
-      },
-
-      ipoFirstLineY(r) {
-        const s = this._ipoScale(r);
-        if (!s) return 32;
-        return (60 - ((s.first - s.lo) / s.span) * 56).toFixed(1);
-      },
-
-      ipoSparkColor(r) {
-        const v = r.from_first_pct;
-        if (typeof v !== 'number') return '#94a3b8';
-        return v >= 0 ? '#e11d48' : '#2563eb';
+      // ミニローソク足をSVGの文字列として組み立てる。
+      // 141枚を同時に出すので、カードごとにチャートライブラリを載せると
+      // 重すぎる。矩形とヒゲを直接描く。初値は点線で重ねる。
+      ipoCandlesSvg(r) {
+        const bars = (r.spark || []).filter(b => Array.isArray(b) && b.length === 4);
+        if (!bars.length) return '';
+        const first = typeof r.first_price === 'number' ? r.first_price : bars[0][0];
+        let lo = Math.min(first, ...bars.map(b => b[2]));
+        let hi = Math.max(first, ...bars.map(b => b[1]));
+        const span = (hi - lo) || 1;
+        const y = v => (60 - ((v - lo) / span) * 56).toFixed(1);
+        const w = 240 / bars.length;
+        const bw = Math.max(1, Math.min(6, w * 0.65));
+        const esc = [];
+        bars.forEach((b, i) => {
+          const [o, h, l, c] = b;
+          const cx = i * w + w / 2;
+          const up = c >= o;
+          const col = up ? '#e11d48' : '#2563eb';
+          esc.push(`<line x1="${cx.toFixed(1)}" x2="${cx.toFixed(1)}" y1="${y(h)}" y2="${y(l)}" stroke="${col}" stroke-width="0.8"/>`);
+          // 始値と終値が同じ日は高さ0になって消えるので、最低限の太さを持たせる
+          const yo = parseFloat(y(o)), yc = parseFloat(y(c));
+          const top = Math.min(yo, yc);
+          const hgt = Math.max(0.8, Math.abs(yc - yo));
+          esc.push(`<rect x="${(cx - bw / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${bw.toFixed(1)}" height="${hgt.toFixed(1)}" fill="${col}"/>`);
+        });
+        esc.push(`<line x1="0" x2="240" y1="${y(first)}" y2="${y(first)}" stroke="#94a3b8" stroke-width="0.8" stroke-dasharray="3 3"/>`);
+        return esc.join('');
       },
 
       ipoModalSub() {
