@@ -92,6 +92,12 @@
         class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
         🏆 配当・増配余力スクリーナー
       </button>
+        <button
+          @click="setMarket('ipo')"
+          :class="market === 'ipo' ? 'border-orange-600 text-orange-700' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
+          class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors whitespace-nowrap">
+          🆕 IPO
+        </button>
     </div>
   </div>
 </nav>
@@ -208,6 +214,7 @@
 
   <!-- Dividend screener tab -->
   <div x-show="market === 'dividend' && !dividendData" class="text-center py-20 text-slate-500">配当・増配余力スクリーナーを読み込み中...</div>
+  <div x-show="market === 'ipo'" class="max-w-6xl mx-auto px-4 sm:px-6 pt-5 text-xs text-slate-500" x-text="ipoCaption()"></div>
   <template x-if="market === 'dividend' && dividendData">
   <div class="space-y-4">
     <p class="text-xs text-slate-500">
@@ -362,6 +369,145 @@
       </div>
     </div>
   </div>
+  </template>
+  <template x-if="market === 'ipo'">
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-5 space-y-5">
+
+    <div x-show="!ipoData" class="text-center text-slate-400 py-10 text-sm">読み込み中…</div>
+
+    <!-- これから上場する銘柄 -->
+    <div x-show="ipoData && ipoUpcoming().length" class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+      <h2 class="font-bold text-slate-800 mb-3">🗓 上場予定</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-slate-500 border-b border-slate-200">
+              <th class="py-2 pr-3 font-semibold whitespace-nowrap">上場日</th>
+              <th class="py-2 pr-3 font-semibold whitespace-nowrap">コード</th>
+              <th class="py-2 pr-3 font-semibold">会社名</th>
+              <th class="py-2 pr-3 font-semibold whitespace-nowrap">市場</th>
+              <th class="py-2 pr-3 font-semibold whitespace-nowrap text-right">仮条件</th>
+              <th class="py-2 pr-3 font-semibold whitespace-nowrap text-right">公開価格</th>
+              <th class="py-2 pr-3 font-semibold whitespace-nowrap text-right">公募</th>
+              <th class="py-2 font-semibold whitespace-nowrap text-right">売出</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="r in ipoUpcoming()" :key="r.code">
+              <tr class="border-b border-slate-100">
+                <td class="py-2 pr-3 whitespace-nowrap" x-text="ipoDate(r.listing_date)"></td>
+                <td class="py-2 pr-3 font-bold text-slate-700 whitespace-nowrap" x-text="r.code"></td>
+                <td class="py-2 pr-3" x-text="r.name"></td>
+                <td class="py-2 pr-3 whitespace-nowrap" x-text="r.market || '—'"></td>
+                <td class="py-2 pr-3 text-right whitespace-nowrap" x-text="ipoBand(r)"></td>
+                <td class="py-2 pr-3 text-right whitespace-nowrap" x-text="ipoYen(r.offer_price)"></td>
+                <td class="py-2 pr-3 text-right whitespace-nowrap" x-text="ipoShares(r.public_shares_k)"></td>
+                <td class="py-2 text-right whitespace-nowrap" x-text="ipoShares(r.secondary_shares_k)"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-2">出所: 日本取引所グループ「新規上場会社情報」。「—」は未定または未公表。</p>
+    </div>
+
+    <!-- AIの解説 -->
+    <div x-show="ipoData?.ai_ipo" class="bg-orange-50 border border-orange-200 rounded-xl p-4">
+      <h2 class="font-bold text-orange-900 mb-2">🤖 AIによる銘柄メモ</h2>
+      <p class="text-sm text-orange-900 mb-3" x-text="ipoData?.ai_ipo?.summary"></p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <template x-for="a in ipoAiRows()" :key="a.code">
+          <div class="bg-white rounded-lg border border-orange-100 p-3">
+            <div class="flex items-baseline gap-2 mb-1">
+              <span class="font-bold text-slate-700 text-sm" x-text="a.code"></span>
+              <span class="text-sm font-semibold text-slate-800" x-text="a.headline"></span>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed" x-text="a.note"></p>
+          </div>
+        </template>
+      </div>
+      <p class="text-[11px] text-orange-700 mt-2">生成AIによる解説です。事実確認は各社の開示資料でお願いします。</p>
+    </div>
+
+    <!-- 絞り込みと並べ替え -->
+    <div x-show="ipoData" class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-wrap items-center gap-2 text-xs">
+      <span class="font-semibold text-slate-600">市場</span>
+      <template x-for="m in ['すべて','グロース','スタンダード','プライム']" :key="m">
+        <button @click="ipoMarket = m"
+          :class="ipoMarket === m ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+          class="px-2.5 py-1 rounded-full border font-semibold" x-text="m"></button>
+      </template>
+      <span class="font-semibold text-slate-600 ml-3">並べ替え</span>
+      <template x-for="s in ipoSorts" :key="s.key">
+        <button @click="ipoSort = s.key"
+          :class="ipoSort === s.key ? 'bg-slate-700 text-white border-slate-700' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+          class="px-2.5 py-1 rounded-full border font-semibold" x-text="s.label"></button>
+      </template>
+      <span class="ml-auto text-slate-500" x-text="ipoVisible().length + ' 銘柄'"></span>
+    </div>
+
+    <!-- チャート一覧 -->
+    <div x-show="ipoData" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <template x-for="r in ipoVisible()" :key="r.code">
+        <div @click="openIpoChart(r)"
+          class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 cursor-pointer hover:border-orange-300 hover:shadow transition">
+          <div class="flex items-baseline gap-2">
+            <span class="font-bold text-slate-700 text-sm" x-text="r.code"></span>
+            <span class="text-sm text-slate-800 truncate" x-text="r.name"></span>
+          </div>
+          <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+            <span x-text="r.market || '—'"></span>
+            <span x-text="'上場 ' + ipoDate(r.listing_date)"></span>
+          </div>
+          <svg viewBox="0 0 240 64" class="w-full h-16 mt-2" preserveAspectRatio="none">
+            <polyline :points="ipoSparkPoints(r)" fill="none" stroke-width="1.5"
+              :stroke="ipoSparkColor(r)" stroke-linejoin="round" stroke-linecap="round"></polyline>
+            <line x1="0" x2="240" :y1="ipoFirstLineY(r)" :y2="ipoFirstLineY(r)"
+              stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"></line>
+          </svg>
+          <div class="grid grid-cols-3 gap-1 mt-2 text-[11px]">
+            <div>
+              <div class="text-slate-400">初値比</div>
+              <div class="font-bold" :class="ipoPctClass(r.from_first_pct)" x-text="ipoPct(r.from_first_pct)"></div>
+            </div>
+            <div>
+              <div class="text-slate-400">高値から</div>
+              <div class="font-bold" :class="ipoPctClass(r.drawdown_pct)" x-text="ipoPct(r.drawdown_pct)"></div>
+            </div>
+            <div>
+              <div class="text-slate-400">現在値</div>
+              <div class="font-bold text-slate-700" x-text="ipoYen(r.last_close)"></div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <p x-show="ipoData" class="text-[11px] text-slate-400">
+      点線は初値。カードを押すと拡大チャート（5日線・25日線つき）が開きます。
+      情報整理であり投資勧誘ではありません。
+    </p>
+
+    <!-- 拡大チャート -->
+    <div x-show="ipoChart" x-cloak @click.self="closeIpoChart()"
+      class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl p-4">
+        <div class="flex items-start justify-between mb-2">
+          <div>
+            <div class="font-bold text-slate-800" x-text="(ipoChart?.code || '') + ' ' + (ipoChart?.name || '')"></div>
+            <div class="text-xs text-slate-500" x-text="ipoModalSub()"></div>
+          </div>
+          <button @click="closeIpoChart()" class="text-slate-400 hover:text-slate-700 text-xl leading-none px-2">×</button>
+        </div>
+        <div id="ipo-chart-panel" class="w-full" style="height:360px"></div>
+        <div class="text-[11px] text-slate-400 mt-2">
+          <span class="text-orange-600 font-semibold">──</span> 5日移動平均
+          <span class="text-sky-600 font-semibold">──</span> 25日移動平均
+        </div>
+      </div>
+    </div>
+
+  </section>
   </template>
 
   <!-- Earnings tab: main content -->
@@ -1168,6 +1314,13 @@ const MARKET_CONFIG = {
     docTitle: 'かな塾長秘書AI投資ナビ | バリュー投資',
     defaultSort: 'm3',
   },
+  ipo: {
+    file: null,  // uses ipo_jp.json only
+    title: 'IPO（新規上場）',
+    label: 'JP IPO — 上場スケジュールと上場後の値動き',
+    docTitle: 'かな塾長秘書AI投資ナビ | IPO',
+    defaultSort: 'm3',
+  },
   dividend: {
     file: null,  // uses dividend_screener.json only
     title: '配当・増配余力スクリーナー',
@@ -1181,6 +1334,226 @@ function momentumApp() {
   return {
     market: 'us',
     data: null,
+      ipoData: null,
+      ipoMarket: 'すべて',
+      ipoSort: 'listing',
+      ipoSorts: [
+        { key: 'listing', label: '上場日が新しい順' },
+        { key: 'drawdown', label: '高値からの下落が大きい順' },
+        { key: 'fromFirst', label: '初値比が高い順' },
+        { key: 'pop', label: '初値の上昇率が高い順' },
+      ],
+      ipoChart: null,
+      _ipoChartData: null,
+      _ipoLwc: null,
+
+      async loadIpo() {
+        if (this.ipoData) return;
+        try {
+          const resp = await fetch('data/ipo_jp.json', { cache: 'no-store' });
+          if (!resp.ok) throw new Error('ipo_jp.json ' + resp.status);
+          this.ipoData = await resp.json();
+        } catch (e) {
+          console.error('IPOデータの読み込みに失敗', e);
+          this.ipoData = { ipos: [], error: String(e) };
+        }
+      },
+
+      ipoCaption() {
+        const d = this.ipoData;
+        if (!d) return '';
+        const n = (d.ipos || []).length;
+        return `直近${d.years_back || 2}年の新規上場 ${n} 銘柄（上場予定 ${d.upcoming || 0} 件）· 基準日 ${d.asof || '—'}`;
+      },
+
+      ipoUpcoming() {
+        return (this.ipoData?.ipos || [])
+          .filter(r => r.status === 'upcoming')
+          .sort((a, b) => (a.listing_date || '').localeCompare(b.listing_date || ''));
+      },
+
+      ipoAiRows() {
+        const a = this.ipoData?.ai_ipo;
+        if (!a) return [];
+        return [...(a.upcoming || []), ...(a.recent || [])];
+      },
+
+      ipoVisible() {
+        let rows = (this.ipoData?.ipos || []).filter(r => r.status === 'listed');
+        if (this.ipoMarket !== 'すべて') {
+          rows = rows.filter(r => (r.market || '').includes(this.ipoMarket));
+        }
+        // 数値が無い銘柄を上位に混ぜない。null を 0 とみなすと、
+        // データが取れていない銘柄が「下落率0%」として並んでしまう。
+        const num = (v, fallback) => (typeof v === 'number' ? v : fallback);
+        const cmp = {
+          listing: (a, b) => (b.listing_date || '').localeCompare(a.listing_date || ''),
+          drawdown: (a, b) => num(a.drawdown_pct, 1e9) - num(b.drawdown_pct, 1e9),
+          fromFirst: (a, b) => num(b.from_first_pct, -1e9) - num(a.from_first_pct, -1e9),
+          pop: (a, b) => num(b.first_pop_pct, -1e9) - num(a.first_pop_pct, -1e9),
+        }[this.ipoSort];
+        return [...rows].sort(cmp);
+      },
+
+      ipoDate(s) {
+        if (!s) return '—';
+        const p = s.split('-');
+        return p.length === 3 ? `${p[0].slice(2)}/${p[1]}/${p[2]}` : s;
+      },
+
+      ipoYen(v) {
+        return typeof v === 'number' ? Math.round(v).toLocaleString() + '円' : '—';
+      },
+
+      ipoShares(v) {
+        return typeof v === 'number' ? Math.round(v).toLocaleString() + '千株' : '—';
+      },
+
+      ipoBand(r) {
+        if (typeof r.band_low !== 'number' || typeof r.band_high !== 'number') return '—';
+        return `${Math.round(r.band_low).toLocaleString()}〜${Math.round(r.band_high).toLocaleString()}`;
+      },
+
+      ipoPct(v) {
+        return typeof v === 'number' ? (v > 0 ? '+' : '') + v.toFixed(1) + '%' : '—';
+      },
+
+      ipoPctClass(v) {
+        if (typeof v !== 'number') return 'text-slate-400';
+        if (v > 0) return 'text-rose-600';
+        if (v < 0) return 'text-blue-600';
+        return 'text-slate-600';
+      },
+
+      // ミニチャートの座標。spark は build_ipo_page.py が終値を60点に
+      // 間引いたもの。初値の水平線と同じ尺度に乗せたいので、初値も
+      // 値域に含めてから正規化する。
+      _ipoScale(r) {
+        const vals = (r.spark || []).filter(v => typeof v === 'number');
+        if (!vals.length) return null;
+        const first = typeof r.first_price === 'number' ? r.first_price : vals[0];
+        const lo = Math.min(...vals, first);
+        const hi = Math.max(...vals, first);
+        const span = hi - lo || 1;
+        return { vals, first, lo, span };
+      },
+
+      ipoSparkPoints(r) {
+        const s = this._ipoScale(r);
+        if (!s) return '';
+        const n = s.vals.length;
+        const dx = n > 1 ? 240 / (n - 1) : 0;
+        return s.vals
+          .map((v, i) => `${(i * dx).toFixed(1)},${(60 - ((v - s.lo) / s.span) * 56).toFixed(1)}`)
+          .join(' ');
+      },
+
+      ipoFirstLineY(r) {
+        const s = this._ipoScale(r);
+        if (!s) return 32;
+        return (60 - ((s.first - s.lo) / s.span) * 56).toFixed(1);
+      },
+
+      ipoSparkColor(r) {
+        const v = r.from_first_pct;
+        if (typeof v !== 'number') return '#94a3b8';
+        return v >= 0 ? '#e11d48' : '#2563eb';
+      },
+
+      ipoModalSub() {
+        const r = this.ipoChart;
+        if (!r) return '';
+        const parts = [
+          `${r.market || '—'}`,
+          `上場 ${this.ipoDate(r.listing_date)}`,
+          `公開価格 ${this.ipoYen(r.offer_price)}`,
+          `初値 ${this.ipoYen(r.first_price)}`,
+          `高値 ${this.ipoYen(r.high)}`,
+          `現在 ${this.ipoYen(r.last_close)}`,
+        ];
+        return parts.join(' · ');
+      },
+
+      async openIpoChart(r) {
+        this.ipoChart = r;
+        if (!this._ipoChartData) {
+          try {
+            const resp = await fetch('data/chart_data_ipo.json', { cache: 'no-store' });
+            this._ipoChartData = resp.ok ? await resp.json() : {};
+          } catch (e) {
+            console.error('IPOチャートデータの読み込みに失敗', e);
+            this._ipoChartData = {};
+          }
+        }
+        this.$nextTick(() => this._renderIpoChart(r));
+      },
+
+      closeIpoChart() {
+        if (this._ipoLwc) {
+          try { this._ipoLwc.remove(); } catch (e) { /* 破棄済み */ }
+          this._ipoLwc = null;
+        }
+        this.ipoChart = null;
+      },
+
+      _ipoSma(rows, period) {
+        const out = [];
+        let sum = 0;
+        for (let i = 0; i < rows.length; i++) {
+          sum += rows[i][4];
+          if (i >= period) sum -= rows[i - period][4];
+          if (i >= period - 1) out.push({ time: rows[i][0], value: sum / period });
+        }
+        return out;
+      },
+
+      _renderIpoChart(r) {
+        const el = document.getElementById('ipo-chart-panel');
+        if (!el || typeof LightweightCharts === 'undefined') return;
+        if (this._ipoLwc) {
+          try { this._ipoLwc.remove(); } catch (e) { /* 破棄済み */ }
+          this._ipoLwc = null;
+        }
+        const rows = (this._ipoChartData || {})[r.ticker || (r.code + '.T')] || [];
+        if (!rows.length) {
+          el.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400 text-sm">チャートデータがありません</div>';
+          return;
+        }
+        el.innerHTML = '';
+        const chart = LightweightCharts.createChart(el, {
+          width: el.clientWidth,
+          height: 360,
+          layout: { background: { color: '#ffffff' }, textColor: '#334155' },
+          grid: { vertLines: { color: '#f1f5f9' }, horzLines: { color: '#f1f5f9' } },
+          rightPriceScale: { borderColor: '#e2e8f0' },
+          timeScale: { borderColor: '#e2e8f0' },
+        });
+        const candles = chart.addCandlestickSeries({
+          upColor: '#e11d48', downColor: '#2563eb',
+          borderUpColor: '#e11d48', borderDownColor: '#2563eb',
+          wickUpColor: '#e11d48', wickDownColor: '#2563eb',
+        });
+        candles.setData(rows.map(x => ({
+          time: x[0], open: x[1], high: x[2], low: x[3], close: x[4],
+        })));
+        if (rows.length >= 5) {
+          chart.addLineSeries({ color: '#ea580c', lineWidth: 1 })
+            .setData(this._ipoSma(rows, 5));
+        }
+        if (rows.length >= 25) {
+          chart.addLineSeries({ color: '#0284c7', lineWidth: 1 })
+            .setData(this._ipoSma(rows, 25));
+        }
+        // 初値の水平線。どこから調整したのかを一目で分かるようにする。
+        if (typeof r.first_price === 'number') {
+          candles.createPriceLine({
+            price: r.first_price, color: '#94a3b8', lineWidth: 1,
+            lineStyle: 2, axisLabelVisible: true, title: '初値',
+          });
+        }
+        chart.timeScale().fitContent();
+        this._ipoLwc = chart;
+      },
     loading: true,
     search: '',
     sortKey: 'market_cap',
@@ -1359,6 +1732,9 @@ statusBadgeClass(iso, freshH) {
       }
       if (this.market === 'dividend') {
         this.loadDividendScreener();
+      }
+      if (this.market === 'ipo') {
+        this.loadIpo();
       }
       if (this.market === 'jp' || this.market === 'us') {
         this.loadSwingPicks();
