@@ -33,6 +33,34 @@ UNIVERSE_PATH = REPO_ROOT / "data" / "universe_jp.json"
 PRICES_PATH = REPO_ROOT / "data" / "prices_jp.csv"
 OUTPUT_PATH = REPO_ROOT / "web" / "data" / "morning_brief_jp.json"
 
+# AI生成分のキー。generate_morning_brief_ai.py が書き足す。
+AI_KEYS = ("ai_brief", "ai_picks", "ai_brief_model")
+
+
+def _previous_ai(path) -> dict:
+    """既存ファイルからAI生成分だけを取り出す。無ければ空の辞書。
+
+    このスクリプトは朝ブリーフのJSONを毎回まるごと作り直す。AI生成は後段の
+    別スクリプトなので、そちらが失敗した日は ai_brief / ai_picks が書かれず、
+    画面から「AIが選ぶデイトレ推奨銘柄」がセクションごと消える。実際に
+    2026-09-26、APIキーが無効になった日にそうなった。
+
+    前回の内容を引き継いで、いつ時点のものかを ai_stale_from に残す。古い
+    ものを黙って出すためではなく、消えるより古いと分かる方がましだから。
+    AI生成が成功すれば ai_stale_from は落とされる。
+    """
+    if not path.exists():
+        return {}
+    try:
+        prev = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    if not any(prev.get(k) for k in AI_KEYS):
+        return {}
+    carry = {k: prev[k] for k in AI_KEYS if k in prev}
+    carry["ai_stale_from"] = prev.get("target_date") or prev.get("asof")
+    return carry
+
 # Filters for day-trade tradability
 MIN_AVG_VOLUME = 10_000        # 1万株/日 以上
 MIN_CLOSE_YEN = 100            # 100円超
@@ -459,6 +487,13 @@ def main() -> int:
         "picks": picks,
         "ai_input_pool": ai_pool,
     }
+
+    # AI生成分は後段のスクリプトが書く。失敗した日に消えないよう引き継ぐ。
+    carried = _previous_ai(OUTPUT_PATH)
+    if carried:
+        result.update(carried)
+        print(f"  前回のAI内容を引き継ぎました（{carried.get('ai_stale_from')} 時点）",
+              file=sys.stderr)
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
