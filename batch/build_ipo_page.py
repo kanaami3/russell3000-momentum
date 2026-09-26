@@ -250,7 +250,7 @@ def load_profiles() -> dict:
 # 画面に出すプロフィール項目。summary_en は英文なので、画面側で
 # 「会社概要（英文）」と断って出す。勝手に日本語のふりをさせない。
 PROFILE_FIELDS = ("sector_ja", "sector_en", "industry_en", "employees",
-                  "website", "city", "market_cap", "summary_en")
+                  "website", "city", "market_cap", "summary_en", "biz_ja")
 
 
 def main() -> int:

@@ -29,6 +29,11 @@ import anthropic
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PAGE_PATH = REPO_ROOT / "web" / "data" / "ipo_jp.json"
+PROFILES = REPO_ROOT / "data" / "ipo_profiles_jp.json"
+
+# 1回の実行で日本語の一言を作る上限。全銘柄ぶんを一度に投げるとプロンプトが
+# 長くなりすぎて1件あたりが雑になる。キャッシュするので数日で全件埋まる。
+MAX_BIZ = int(os.getenv("IPO_BIZ_PER_RUN", "30"))
 
 MODEL = "claude-haiku-4-5-20251001"
 MAX_TOKENS = 3000
@@ -153,6 +158,111 @@ def extract_json(text: str) -> dict | None:
     return None
 
 
+def biz_prompt(rows: list[dict]) -> str:
+    """英文の会社概要から、日本語の一言を作らせるプロンプト。
+
+    翻訳ではなく要約を頼む。英文をそのまま訳すと「〜を所有し運営する
+    オンラインコミュニティプラットフォーム」のような読みにくい文になる。
+    """
+    lines = []
+    for r in rows:
+        lines.append(
+            f"- {r['code']} {r['name']}（{r.get('sector_ja') or r.get('sector_en') or '業種不明'}"
+            f" / {r.get('industry_en') or '—'}）\n"
+            f"  {(r.get('summary_en') or '')[:600]}"
+        )
+    return f"""次の会社について、**何をしている会社か**を日本語で一言にしてください。
+
+原文は英語の会社概要です。逐語訳ではなく、日本語として自然な短い説明に
+してください。「〜を所有し運営する」のような直訳調は避けてください。
+
+会社:
+{chr(10).join(lines)}
+
+約束:
+- 各社40字以内。何で稼いでいるかが分かること
+- 業界用語をそのまま並べない。初めて聞く人にも伝わる言葉にする
+- 原文に書かれていないことを足さない。分からなければ "情報不足" と書く
+- 株価や投資判断には触れない
+
+次のJSON形式だけを ```json ブロックで返してください。
+
+```json
+{{"biz": [{{"code": "621A", "text": "音楽素材を作り手から集めて企業に売るサイトを運営"}}]}}
+```
+"""
+
+
+def fill_biz_ja(client, page: dict) -> int:
+    """会社プロフィールに日本語の一言（biz_ja）を足す。作った分だけ返す。
+
+    キャッシュは data/ipo_profiles_jp.json に書く。web/data 側ではなく
+    ここに置くのは、これが「取り直さなくてよい情報」だから。画面用の
+    JSONは build_ipo_page.py が毎回作り直すので、そこに書くと消える。
+    """
+    if not PROFILES.exists():
+        print("プロフィールのキャッシュが無いため、日本語の一言は作りません。",
+              file=sys.stderr)
+        return 0
+    try:
+        cache = json.loads(PROFILES.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        print("プロフィールのキャッシュが読めませんでした。", file=sys.stderr)
+        return 0
+
+    profiles = cache.get("profiles") or {}
+    by_code = {str(r["code"]): r for r in page.get("ipos", [])}
+
+    todo = []
+    for code, p in profiles.items():
+        if not p.get("ok") or p.get("biz_ja"):
+            continue
+        if not p.get("summary_en"):
+            continue
+        row = by_code.get(code)
+        todo.append({
+            "code": code,
+            "name": (row or {}).get("name") or code,
+            "sector_ja": p.get("sector_ja"), "sector_en": p.get("sector_en"),
+            "industry_en": p.get("industry_en"), "summary_en": p.get("summary_en"),
+        })
+    todo = todo[:MAX_BIZ]
+    if not todo:
+        print("日本語の一言は全銘柄ぶん揃っています。", file=sys.stderr)
+        return 0
+
+    print(f"日本語の一言を {len(todo)} 件作ります。", file=sys.stderr)
+    try:
+        resp = client.messages.create(
+            model=MODEL, max_tokens=MAX_TOKENS,
+            messages=[{"role": "user", "content": biz_prompt(todo)}],
+        )
+    except Exception as e:
+        print(f"一言の生成に失敗しました: {e}", file=sys.stderr)
+        return 0
+
+    parsed = extract_json("".join(b.text for b in resp.content if b.type == "text"))
+    rows = (parsed or {}).get("biz") or []
+    allowed = {r["code"] for r in todo}
+
+    n = 0
+    for r in rows:
+        code, text = str(r.get("code") or ""), (r.get("text") or "").strip()
+        # 候補外・空・「情報不足」は書き込まない。書くと再挑戦されなくなる。
+        if code not in allowed or not text or "情報不足" in text:
+            continue
+        profiles[code]["biz_ja"] = text
+        n += 1
+
+    if n:
+        cache["profiles"] = profiles
+        tmp = PROFILES.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(cache, ensure_ascii=False, indent=1), encoding="utf-8")
+        os.replace(tmp, PROFILES)
+    print(f"  {n} 件を書き込みました。", file=sys.stderr)
+    return n
+
+
 def main() -> int:
     key = os.getenv("ANTHROPIC_API_KEY")
     if not key:
@@ -172,8 +282,16 @@ def main() -> int:
         print("対象がないため生成しません。", file=sys.stderr)
         return 0
 
+    client = anthropic.Anthropic(api_key=key)
+
+    # 会社の一言は上場予定・直近とは別に、キャッシュが空いている銘柄を埋める。
+    # こちらが失敗しても下の解説生成は続ける。
     try:
-        client = anthropic.Anthropic(api_key=key)
+        fill_biz_ja(client, data)
+    except Exception as e:
+        print(f"一言の生成でエラー: {e}", file=sys.stderr)
+
+    try:
         resp = client.messages.create(
             model=MODEL,
             max_tokens=MAX_TOKENS,
