@@ -9,3 +9,6 @@ xlrd>=2.0.1
 # Actions IPs. yfinance auto-detects and uses it when installed.
 curl_cffi>=0.6.0
 lxml>=5.0.0
+# JPXの新規上場会社情報はHTMLの表。1レコードがtr2本に分かれており、
+# rowspanを見ながら読む必要があるので fetch_ipo_jp.py で使う。
+beautifulsoup4>=4.12.0
