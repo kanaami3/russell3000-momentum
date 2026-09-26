@@ -151,11 +151,18 @@ def parse_table(html: str) -> list[dict]:
             approval_date = f"{y}-{mo}-{d}"
 
         cond_lo, cond_hi = _range(_text(a[5]))
-        name = clean_name(_text(a[1]))
+        raw_name = _text(a[1])
+        # JPXは持株会社化・テクニカル上場など「実質的な新規公開ではない」
+        # 銘柄に（※）を付けている。公募をせず既存株主がそのまま移るので、
+        # 初値や公開価格の意味が普通のIPOと違う。画面で区別できるよう
+        # 印を残し、名前からは落とす。
+        technical = "※" in raw_name
+        name = clean_name(raw_name.replace("（※）", "").replace("(※)", ""))
 
         out.append({
             "code": cm.group(1),
             "name": name,
+            "technical": technical,
             "listing_date": listing_date,
             "approval_date": approval_date,
             "market": _text(b[0]) or None,

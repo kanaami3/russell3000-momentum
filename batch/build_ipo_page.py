@@ -100,6 +100,53 @@ def series_rows(sub: pd.DataFrame) -> list[list]:
 
 SPARK_POINTS = 60
 
+# 日中の高値が終値のこの倍率を超える行は、値そのものが壊れているとみなす。
+# 日本株には値幅制限があり、1日で終値の3倍の高値を付けることはできない。
+# 実測: 8303 の 2023-09-27 に 55,900,000,256 という行があり(出来高0)、
+# これを拾うと上場来高値が5.6兆円になり、下落率が-100%になった。
+BAD_TICK_RATIO = float(os.getenv("IPO_BAD_TICK_RATIO", "3.0"))
+
+# 中央値からこの倍率だけ離れた終値は、値ではなく事故とみなす。
+ABSURD_RATIO = float(os.getenv("IPO_ABSURD_RATIO", "50.0"))
+
+
+def clean_bars(sub: pd.DataFrame, listing_date: str | None) -> pd.DataFrame:
+    """上場日より前の行と、壊れた行を落とす。
+
+    **上場日で切るのが重要。**
+    持株会社化やテクニカル上場の銘柄は、同じティッカーに前身企業の株価が
+    続いている。period="3y" で取ると上場前の値が混ざり、「初値」が上場の
+    2年前の始値になる。実測で 8303 SBI新生銀行が2023年から始まっていた。
+    """
+    if sub is None or sub.empty:
+        return sub
+
+    if listing_date:
+        try:
+            sub = sub[sub.index >= pd.Timestamp(listing_date)]
+        except (ValueError, TypeError):
+            pass
+    if sub.empty:
+        return sub
+
+    hi, cl = sub["High"], sub["Close"]
+
+    # (1) 日中の値幅が異常。値幅制限のある日本株で終値の3倍の高値はない。
+    bad = (cl > 0) & (hi > cl * BAD_TICK_RATIO)
+
+    # (2) 行まるごとが桁違い。8303 の壊れた行は O/H/L/C すべてが 5.5e10 で
+    #     整合していたため (1) では捕まらなかった。中央値と比べて桁が違う
+    #     ものを落とす。上場後に75倍になった銘柄(キオクシア)でも最大値は
+    #     中央値の6倍程度なので、50倍を閾値にすれば正常値は巻き込まない。
+    med = cl[cl > 0].median()
+    if pd.notna(med) and med > 0:
+        bad = bad | (cl > med * ABSURD_RATIO) | ((cl > 0) & (cl < med / ABSURD_RATIO))
+
+    if bad.any():
+        print(f"  壊れた行を {int(bad.sum())} 件落としました", file=sys.stderr)
+        sub = sub[~bad]
+    return sub
+
 
 def spark(closes: pd.Series, n: int = SPARK_POINTS) -> list[float]:
     """一覧に並べるミニチャート用に、上場来の終値を n 点へ間引く。
@@ -195,6 +242,8 @@ def main() -> int:
             continue
 
         sub = frames.get(ticker)
+        if sub is not None and not sub.empty:
+            sub = clean_bars(sub, r.get("listing_date"))
         if sub is None or sub.empty:
             failed += 1
             row["status"] = "no_data"
