@@ -318,6 +318,16 @@ def focus_candidates(ipos: list[dict]) -> list[dict]:
 
 def fmt_focus(r: dict) -> str:
     biz = r.get("summary_ja") or r.get("biz_ja") or "（事業内容の情報なし）"
+    # 適時開示は集め始めてからの分しか無い。「無い」と「まだ集めていない」を
+    # 区別できるよう、取れているものだけを書く。
+    disc = []
+    if r.get("last_earnings_date"):
+        disc.append(f"直近の決算発表 {r['last_earnings_date']}")
+    if r.get("guidance_revised"):
+        disc.append("業績予想の修正あり(90日以内)")
+    if r.get("dividend_revised"):
+        disc.append("配当予想の修正あり(90日以内)")
+    disc_txt = f"\n  開示: {' / '.join(disc)}" if disc else ""
     return (
         f"- {r['code']} {r['name']}（{r.get('sector_ja') or r.get('sector_en') or '—'}）\n"
         f"  事業: {biz}\n"
@@ -326,6 +336,7 @@ def fmt_focus(r: dict) -> str:
         f" / 25日騰落 {r.get('ret_25d_pct')}%"
         f" / 売買代金 {round((r.get('turnover_5d') or 0) / 1e8, 1)}億円"
         f" / 上場来高値から {r.get('drawdown_pct')}%"
+        + disc_txt
     )
 
 
@@ -376,6 +387,9 @@ def focus_prompt(rows: list[dict]) -> str:
 - 買い時や目標株価は書かないこと
 - 出来高が増えていることは抽出条件であって、推奨の理由ではない。
   「出来高が増えているから良い」とは書かないこと
+- 「開示」の欄は、適時開示を集め始めてからの分しかない。書かれていない
+  ことを「決算を出していない」と解釈しないこと。また修正の方向（上方か
+  下方か）は表題からは分からないので、良し悪しを断定しないこと
 """
 
 
