@@ -578,8 +578,8 @@
     </div>
     <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-900">
       <iframe src="sector.html" title="セクターローテーション"
-        loading="lazy" class="w-full block"
-        style="height:85vh;min-height:700px;border:0"></iframe>
+        loading="lazy" class="w-full block" @load="fitSectorFrame($event.target)"
+        style="height:760px;border:0"></iframe>
     </div>
     <p class="text-[11px] text-slate-400 mt-2">情報整理であり投資勧誘ではありません。</p>
   </section>
@@ -1557,6 +1557,29 @@ function momentumApp() {
           + `${c.vol_ratio}倍以上・上昇日の出来高が${Math.round(c.up_volume_share * 100)}%以上`
           + `・${c.window_long}日線の上・売買代金${Math.round(c.min_turnover / 1e8)}億円以上`
           + ` のうち${f.min_score}項目以上 → ${f.candidate_count}銘柄が該当`;
+      },
+
+      // 中身の高さに合わせて iframe を伸ばす。
+      // 固定の高さだと、順位推移の下に続く乖離ランキングが枠の外に出て、
+      // 枠の中をスクロールしないと読めなくなる。同じドメインなので
+      // 中の高さを読める。中身は非同期に描画されるので数回測り直す。
+      fitSectorFrame(f) {
+        if (!f) return;
+        let n = 0;
+        const fit = () => {
+          try {
+            const d = f.contentDocument;
+            if (d && d.body) {
+              const h = Math.max(d.body.scrollHeight, d.documentElement.scrollHeight);
+              if (h > 200) f.style.height = (h + 24) + 'px';
+            }
+          } catch (e) {
+            // 別ドメインになった場合は測れない。固定の高さのままにする。
+            return;
+          }
+          if (n++ < 12) setTimeout(fit, 500);
+        };
+        fit();
       },
 
       ipoHasProfile() {
