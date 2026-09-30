@@ -247,10 +247,12 @@ def load_profiles() -> dict:
     return {k: v for k, v in (d.get("profiles") or {}).items() if v.get("ok")}
 
 
-# 画面に出すプロフィール項目。summary_en は英文なので、画面側で
-# 「会社概要（英文）」と断って出す。勝手に日本語のふりをさせない。
+# 画面に出すプロフィール項目。
+# summary_en（英文の会社概要）はここに含めない。画面は日本語なので、
+# 英文をそのまま出さず、generate_ipo_ai.py が作った summary_ja を使う。
+# 英文はキャッシュには残してあり、日本語を作るときの元データになる。
 PROFILE_FIELDS = ("sector_ja", "sector_en", "industry_en", "employees",
-                  "website", "city", "market_cap", "summary_en", "biz_ja")
+                  "website", "city", "market_cap", "biz_ja", "summary_ja")
 
 
 def main() -> int:

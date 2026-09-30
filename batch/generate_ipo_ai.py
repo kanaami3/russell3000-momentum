@@ -171,24 +171,30 @@ def biz_prompt(rows: list[dict]) -> str:
             f" / {r.get('industry_en') or '—'}）\n"
             f"  {(r.get('summary_en') or '')[:600]}"
         )
-    return f"""次の会社について、**何をしている会社か**を日本語で一言にしてください。
+    return f"""次の会社について、**何をしている会社か**を日本語で書いてください。
 
-原文は英語の会社概要です。逐語訳ではなく、日本語として自然な短い説明に
+原文は英語の会社概要です。逐語訳ではなく、日本語として自然な説明に
 してください。「〜を所有し運営する」のような直訳調は避けてください。
 
 会社:
 {chr(10).join(lines)}
 
+各社について2つ書きます。
+- text    : 40字以内の一言。一覧に並べるので短く
+- summary : 120〜180字の概要。何を売って誰から収益を得ているか、
+            主力事業が複数あるならその内訳
+
 約束:
-- 各社40字以内。何で稼いでいるかが分かること
 - 業界用語をそのまま並べない。初めて聞く人にも伝わる言葉にする
 - 原文に書かれていないことを足さない。分からなければ "情報不足" と書く
-- 株価や投資判断には触れない
+- 株価や投資判断、将来の見通しには触れない
 
 次のJSON形式だけを ```json ブロックで返してください。
 
 ```json
-{{"biz": [{{"code": "621A", "text": "音楽素材を作り手から集めて企業に売るサイトを運営"}}]}}
+{{"biz": [{{"code": "621A",
+           "text": "音楽素材を作り手から集めて企業に売るサイトを運営",
+           "summary": "音楽クリエイターが自作の楽曲を登録し、企業や制作会社が用途に応じて使用権を購入できるオンライン市場を運営しています。売上の一部がクリエイターへの使用料として支払われる仕組みで、登録楽曲数が増えるほど買い手が集まりやすくなる構造です。"}}]}}
 ```
 """
 
@@ -215,7 +221,11 @@ def fill_biz_ja(client, page: dict) -> int:
 
     todo = []
     for code, p in profiles.items():
-        if not p.get("ok") or p.get("biz_ja"):
+        if not p.get("ok"):
+            continue
+        # 一言と概要の両方が揃っている銘柄だけ飛ばす。片方しか無い銘柄は
+        # 作り直す（概要を後から足したので、一言だけの銘柄が既にある）。
+        if p.get("biz_ja") and p.get("summary_ja"):
             continue
         if not p.get("summary_en"):
             continue
@@ -245,13 +255,23 @@ def fill_biz_ja(client, page: dict) -> int:
     rows = (parsed or {}).get("biz") or []
     allowed = {r["code"] for r in todo}
 
+    def usable(s: str | None) -> str | None:
+        s = (s or "").strip()
+        # 空や「情報不足」は書き込まない。書くと再挑戦されなくなる。
+        return s if s and "情報不足" not in s else None
+
     n = 0
     for r in rows:
-        code, text = str(r.get("code") or ""), (r.get("text") or "").strip()
-        # 候補外・空・「情報不足」は書き込まない。書くと再挑戦されなくなる。
-        if code not in allowed or not text or "情報不足" in text:
+        code = str(r.get("code") or "")
+        if code not in allowed:
             continue
-        profiles[code]["biz_ja"] = text
+        text, summary = usable(r.get("text")), usable(r.get("summary"))
+        if not text and not summary:
+            continue
+        if text:
+            profiles[code]["biz_ja"] = text
+        if summary:
+            profiles[code]["summary_ja"] = summary
         n += 1
 
     if n:
