@@ -221,7 +221,7 @@
   <!-- Dividend screener tab -->
   <div x-show="market === 'dividend' && !dividendData" class="text-center py-20 text-slate-500">配当・増配余力スクリーナーを読み込み中...</div>
   <div x-show="market === 'ipo'" class="max-w-6xl mx-auto px-4 sm:px-6 pt-5 text-xs text-slate-500" x-text="ipoCaption()"></div>
-  <div x-show="market === 'sector'" class="max-w-6xl mx-auto px-4 sm:px-6 pt-5 text-xs text-slate-500">業種ごとの資金の巡りを見ます。上部のタブで「モメンタム順位」を選ぶと、業種の順位推移が追えます。</div>
+  <div x-show="market === 'sector'" class="max-w-6xl mx-auto px-4 sm:px-6 pt-5 text-xs text-slate-500">各業種をモメンタムで毎営業日ランク付けし、順位の推移を追っています。線の追い抜きが資金の移り先です。</div>
   <template x-if="market === 'dividend' && dividendData">
   <div class="space-y-4">
     <p class="text-xs text-slate-500">
