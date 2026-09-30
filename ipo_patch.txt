@@ -1,0 +1,11 @@
+@@OLD@@
+          <p x-show="ipoChart?.summary_en" class="text-xs text-slate-500 leading-relaxed mt-2">
+            <span class="text-slate-400">会社概要（英文・Yahoo Finance）</span><br>
+            <span x-text="ipoChart?.summary_en"></span>
+          </p>
+@@NEW@@
+          <p x-show="ipoChart?.summary_ja" class="text-xs text-slate-600 leading-relaxed mt-2">
+            <span class="text-slate-400">会社概要</span><br>
+            <span x-text="ipoChart?.summary_ja"></span>
+            <span class="block text-[10px] text-slate-400 mt-1">Yahoo Financeの会社概要をもとにAIが日本語化。正確な内容は各社の開示資料をご確認ください。</span>
+          </p>
