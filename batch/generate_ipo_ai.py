@@ -241,6 +241,13 @@ def fill_biz_ja(client, page: dict) -> int:
             "sector_ja": p.get("sector_ja"), "sector_en": p.get("sector_en"),
             "industry_en": p.get("industry_en"), "summary_en": p.get("summary_en"),
         })
+    # **どれから埋めるかが効く。**
+    # 1回12件ずつなので、143銘柄を辞書順に埋めると全部揃うまで12日かかる。
+    # その間、注目銘柄の判定に使う銘柄の説明が無いままになり、AIは
+    # 「説明が無いので選べない」と正しく答え続けて何も出ない。
+    # 資金流入の条件を通った銘柄を先に埋める。
+    priority = {r["code"] for r in focus_candidates(page.get("ipos", []))}
+    todo.sort(key=lambda r: (r["code"] not in priority, r["code"]))
     todo = todo[:MAX_BIZ]
     if not todo:
         print("日本語の一言は全銘柄ぶん揃っています。", file=sys.stderr)
@@ -292,6 +299,17 @@ def fill_biz_ja(client, page: dict) -> int:
         tmp = PROFILES.with_suffix(".json.tmp")
         tmp.write_text(json.dumps(cache, ensure_ascii=False, indent=1), encoding="utf-8")
         os.replace(tmp, PROFILES)
+
+        # 作ったばかりの説明を、この実行の行にも反映する。
+        # キャッシュに書くだけだと build_ipo_page.py が次に動くまで
+        # 画面にも注目銘柄の判定にも渡らず、常に1回ぶん遅れる。
+        for r in page.get("ipos", []):
+            p = profiles.get(str(r.get("code")))
+            if not p:
+                continue
+            for k in ("biz_ja", "summary_ja"):
+                if p.get(k):
+                    r[k] = p[k]
     print(f"  {n} 件を書き込みました。", file=sys.stderr)
     return n
 
