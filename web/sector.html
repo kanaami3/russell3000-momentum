@@ -447,3 +447,26 @@ document.querySelectorAll('nav button').forEach(b=>{b.onclick=()=>{
   $('foot').innerHTML=`※ 本サイトは情報整理・学習目的であり投資助言ではありません。RS-Ratio＝相対力(業種/TOPIX)の${W}週平均比、RS-Mom＝Ratioの${W}週モメンタム。<br>データ更新: pipeline/fetch_data.py → generate_brief.py → 本ページが data/*.json を読み込み(ローカル表示は python -m http.server 推奨)`;
 })();
 </script>
+
+<style id="only-rank">
+  /* ナビ側に見出しとタブがあるので、このページ自身のヘッダとタブは隠す */
+  .top{display:none !important}
+</style>
+<script>
+  /* 出すのは「業種モメンタム・ランキング推移」だけ。
+     ページ自身の初期化が後から走って元の画面に戻すことがあるので、
+     表示されるまで何度か切り替えを試す。 */
+  (function(){
+    var tries = 0;
+    function show(){
+      var btn = document.querySelector('[data-v="rank"]');
+      var view = document.getElementById('v-rank');
+      if (btn && view) btn.click();
+      if (view && getComputedStyle(view).display === 'none' && tries++ < 25) {
+        setTimeout(show, 200);
+      }
+    }
+    if (document.readyState === 'complete') setTimeout(show, 0);
+    else window.addEventListener('load', function(){ setTimeout(show, 0); });
+  })();
+</script>
