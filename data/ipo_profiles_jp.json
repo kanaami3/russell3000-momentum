@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-30T13:07:52+09:00",
+ "updated_at": "2026-09-30T13:12:15+09:00",
  "profiles": {
   "648A": {
    "ok": false,
@@ -415,7 +415,9 @@
    "market_cap": 810435280896,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "トラックとバスを製造・販売する商用車メーカー",
+   "summary_ja": "FUSOとHINOのブランドでトラック、バス、小型商用車、乗用車および関連エンジン・部品を製造・販売しています。商用車市場の企業や個人顧客から車両の販売代金および部品・サービス提供からの収入を得ています。"
   },
   "523A": {
    "summary_en": "SEIWA HOLDINGS Co., Ltd., through its subsidiaries, manufactures and sells highway signs; and fabricates inspection lanes and steel brackets. The company provides zinc plating services, structures for public works, overhead cranes, hydraulic parts, wire harnesses, industrial and ship cables, temperature-measuring cables, rubber molding machines, vacuum-type rubber vulcanization molding machines, system molding machines, press-fitting machines, generator and engine covers for ships, cationic electrodeposition coating services, gas injection equipment, nitrogen generators, bio-related equipment, and reflective liquid level gauges. It also offers \ntransparent liquid level gauges, round glass liquid level gauges, water level gauges, magnetic liquid level gauges, welded liquid level gauges, sight glasses, transparent cases, packaging materials, V-packs, painting services for automotive parts, electroplating, electroless nickel plating, nickel-chromium plating, surface treatment services, chemical conversion coating treatment, lane dividers, safety equipment, processed cables, electrical and electronic components, printed circuit boards, control equipment, agricultural hotbed wire, lighting cables, and illumination products. The company was incorporated in 2021 and is headquartered in Nagoya, Japan.",
@@ -427,7 +429,9 @@
    "market_cap": 34851717120,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "高速道路標識から産業用部品まで、多様な製造・加工業を展開",
+   "summary_ja": "複数の製造・加工事業を傘下に持つ企業グループです。高速道路の標識製造、検査施設や鋼製部材の製造、メッキ加工、クレーンや油圧部品の製造、ケーブル生産、ゴム成型機械の製造、船舶用部品など広範な製品を扱い、各製品の売上から収益を得ています。"
   },
   "520A": {
    "summary_en": "J-Pharma Co., Ltd. is engaged in the research and development of pharmaceutical drugs in Japan. The company researches and develops drugs targeting solute carrier (SLC) transporters, with emphasis on the LAT1 amino acid transporter. It is developing several compounds for various medical indications, including nanvuranlat (JPH203), a novel small-molecule compound identified as a selective inhibitor of LAT1 and provide treatment for biliary tract cancer, as well as for colorectal cancer; JPH034 is characterized as high brain penetrance and development for disorders of the central nervous system, including non-relapsing secondary progressive multiple sclerosis and glioma; and JPT-0008 for solid tumor, autoimmune diseases, and rare diseases. It also conducting clinical trail for biliary tract cancer and JPH034. The company was founded in 2005 and is based in Minato, Japan.",
@@ -559,7 +563,9 @@
    "market_cap": 245926805504,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "定置型・車載型の蓄電システムと充電インフラを提供",
+   "summary_ja": "再生可能エネルギーや電力網向けの蓄電池システム、商用車・公開の急速充電装置、海運向けの蓄電池輸送船など、エネルギー貯蔵と供給を支える製品を製造・販売しています。加えて電力の集約配分サービスと電気自動車の充電サービスも提供し、複数の顧客層から機器販売費とサービス利用料を得ています。"
   },
   "476A": {
    "summary_en": "Tsuji Hongo IT Consulting Co.,Ltd. develops a digital transformation platform designed to provide specialized know-how for better decision-making in the areas of corporate operations, inheritance tax, and accounting practices. It provides consulting services including business visualization, business improvement, early monthly settlement, strengthening of internal controls, management accounting support, and standardization of accounting operations; and technology which provides support in proposing and implementing the optimal system and promote business transformation through the power of technology, including software and hardware sales agency. It also provides operation outsourcing services, from system setup services to back-office operations such as bookkeeping, payroll, and other accounting support such as invoice issuance. The company also offers development and operation of web services for accounting firms and SaaS based accounting/HR operation and dispatching specialist personnel. The company was incorporated in 2012 and is based in Shibuya, Japan. Tsuji Hongo IT Consulting Co.,Ltd. operates as a subsidiary of Hongo Holdings Co., Ltd.",
@@ -711,7 +717,9 @@
    "market_cap": 180307656704,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "Tシャツから家具まで、ライフスタイル製品を販売",
+   "summary_ja": "衣類、バッグ、靴、食器、ラグ、タオルなど、複数のブランド名で幅広いアパレル・生活用品を設計・製造し、ECサイトと実店舗で販売しています。衣類から室内装飾品まで生活全般にわたる商品を扱い、小売売上が主な収入源です。"
   },
   "446A": {
    "summary_en": "Northsand, Inc. provides IT consulting and business consulting services in Japan and internationally. The company offers various services from IT strategy and planning to implementation and operations, including design considerations and reducing IT operating costs. It also provides business improvement, strategy formulation, and execution support in non-IT areas, such as marketing, sales, and human resources; and provision of Notion services. Northsand, Inc. was incorporated in 2015 and is based in Chuo, Japan.",
@@ -723,7 +731,9 @@
    "market_cap": 160908001280,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "IT戦略から実行支援まで、企業向けコンサルティングを提供",
+   "summary_ja": "企業のIT環境の構築・改善からコスト削減の提案、実装・運用まで一貫したIT関連コンサルティングサービスを提供しています。加えてマーケティングや営業、人事といった非IT領域の業務改善や戦略策定の支援も行い、クライアント企業からのコンサルティング費用で収益を得ています。"
   },
   "442A": {
    "summary_en": "Classico, Inc. engages in the planning, development, and sale of medical apparel in Japan and internationally. The company offers lab coats, scrubs, patient clothing, and related accessories. It sells its products through domestic e-commerce, retail stores, pop-up stores, and online stores. The company was incorporated in 2008 and is based in Minato, Japan.",
@@ -819,7 +829,9 @@
    "market_cap": 23819657216,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "寿司や焼き鳥、ラーメンなど複数の飲食ブランドを運営",
+   "summary_ja": "日本料理の複数ブランド店舗を運営する外食事業者です。寿司、焼き鳥、ラーメン、洋食、中華、カフェなど多様な食事メニューを提供し、顧客からの飲食代が主な収入源です。一部ブランドは定食屋の名称で展開されています。"
   },
   "421A": {
    "summary_en": "Movin' Strategic Career CO., LTD. provides paid employment placement services. The company offers recruitment services to consulting firms and other professional firms; career planning support for businesspeople through various media; and executive search and recruitment assistance to companies and job seekers. Movin' Strategic Career CO., LTD. was formerly known as Predecessor Movin Co., Ltd. The company was founded in 1996 and is based in Minato, Japan.",
@@ -1119,7 +1131,9 @@
    "market_cap": 31966441472,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "屋根の防水・塗装工事と老朽インフラの修復を行う",
+   "summary_ja": "特殊樹脂を吹き付けて屋根を強化する工法や、レーザーを使い建造物の錆びと塗装を除去する技術を持つ建設企業です。屋根の防水・断熱・補強工事と古い建造物の塗装・錆び取り工事を請け負い、工事費から収入を得ています。"
   },
   "339A": {
    "summary_en": "Progress Technologies Group, Inc., together with its subsidiaries, provides solutions and services for the manufacturing industry in Japan. The company offers consulting and digital engineering services. It is also involved in undertaking product development; and research and development products, such as joint research and development, and contract development and design development. In addition, the company provides support product development; and design and development, and consulting and digitalization in the design and development field. Further, it offers formulation of product development designs, system designing, tool implementation support, operational familiarization, stabilization, and execution services for implementing those designs; virtual testing environments, development and evaluation of plant models, and proposal of plans for reforming the development process; and engineering services. The company was formerly known as PTS HD Inc. and changed its name to Progress Technologies Group, Inc. in February 2023. The company was founded in 2005 and is headquartered in Koto, Japan.",
@@ -1239,7 +1253,9 @@
    "market_cap": 43234828288,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "疲労回復機能を持つウェアやアクセサリーを開発・販売",
+   "summary_ja": "運動後の疲労軽減や睡眠改善を目的とした衣類、インソール、寝具、サンダルといった製品を開発・製造し、主に日本国内で販売しています。アパレルから日用雑貨、スポーツ用品、ベビー用品まで幅広い商品ラインアップを展開し、小売販売から収益を得ています。"
   },
   "324A": {
    "summary_en": "Booking Resort Co., Ltd. operates accommodation facilities in Japan. The company operates resort-glamping.com, a booking platform for glamping and resort facilities; and Inuyado, a hotel for pet tourism. It also engages in the provision of customer attraction support for glamping, resort villas, and pet-friendly accommodations; management of dog villas; and accommodation facility revitalization projects. The company was incorporated in 2013 and is headquartered in Osaka, Japan. Booking Resort Co., Ltd. is a subsidiary of SN Holdings Co.,Ltd.",
@@ -1275,7 +1291,9 @@
    "market_cap": 192133185536,
    "sector_ja": "金融",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "ものづくり企業を買収し、金属加工や部品製造を統合運営",
+   "summary_ja": "精密機械部品の金属研磨、電源装置の製造・販売、自動車部品や産業機械の鋳造・加工組立、制動装置用スプリング製造など、複数のものづくり事業を傘下に持ちます。各企業の製品売上と、中古フォークリフトのレンタル・販売からも収益を得ています。"
   },
   "302A": {
    "summary_en": "b-style holdings,Inc. provides staffing and recruitment services in Japan. It operates through the Dispatch and Placement Business, Media Business, DX Business, and Other Business segments. The company offers dispatch and recruitment services of personnel for part-time, temporary, and contract; staffing services; custom solutions for DX promotion support services; medical/nursing/welfare staffing and recruitment services; matching services; custom solution DX promotion support service; and BPO services. It also operates recruitment media sites, including platforms focused on housewives. b-style holdings,Inc. was founded in 2002 and is headquartered in Shinjuku, Japan.",
@@ -1395,7 +1413,9 @@
    "market_cap": 28563568852992,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "フラッシュメモリやSSDなどの記憶素子を製造・販売",
+   "summary_ja": "スマートフォンやパソコン、データセンター向けの記憶素子（フラッシュメモリ）とそれを組み込んだSSD製品を開発・製造し、世界中の企業や消費者に販売しています。メモリチップの製造から製品開発、マーケティングまで一連の事業を展開し、製品売上が主な収入源です。"
   },
   "291A": {
    "summary_en": "Reskill Corp. engages in the corporate employee training business in Japan. It provides level-specific training services, including new employee, young employee, mid-career employee, and management training services; and training services, such as compliance and harassment, customer service, leadership, communication, presentation, motivation, mental health, risk management, subordinate development and junior guidance, diversity, writing, communication, thinking, planning, business improvement, computer and office automation skills, accounting, finance and legal, self-reliance, personnel evaluation, and career training services. The company also offers job-specific training services comprising sales, marketing, personnel, and call center training services; and industry-specific training services, including IT and communications, service, corporate services, distribution, and construction and real estate industries, as well as training for the manufacturing, logistics and transportation, organization and non-profit corporation, advertising, and publishing industries. In addition, it provides IT training services, such as digital transformation, IT certification, web design, programming, system design, infrastructure, security, database, AI, advanced technology, development tool, project management, design, and quality control training services. The company was founded in 1986 and is based in Tokyo, Japan.",
@@ -1515,7 +1535,9 @@
    "market_cap": 21698918400,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "企業の不動産管理をデジタル化するシステムを提供",
+   "summary_ja": "企業が保有する不動産の投資判断や売買、賃借の仲介などに使うデジタルツールを開発・提供しています。営業支援AI、物件マッチングシステム、固定資産データ抽出ツールなど複数のソフトウェア製品があり、企業からのライセンス料やサービス利用料で収益を得ています。また経営情報を配信するB2Bポータルサイトも運営しています。"
   },
   "274A": {
    "summary_en": "Garden Co., Ltd. operates restaurants in Japan and Southeast Asia. The company provides ramen, steak, and sushi products. It also operates franchise stores. In addition, the company is involved in the real estate business. The company operates through Ikkaku family, Yamashita Honki Udon, Manbaken, Takadaya, Shin Nikuzushiman, Passionate Sutameshi Dondon, Iron Plate Kingdom, The Veranda RRainbow, Teraccho, Daruma no Me, Abura Soba Sohonten, Ikkakudo, Shinagawa Seimenjo, MARZAC MARZAC7, SUSHI PREMIUM Kaiou, and Ichiryu brands. Garden Co., Ltd. was incorporated in 2015 and is headquartered in Shinjuku, Japan.",
@@ -1627,7 +1649,9 @@
    "market_cap": 43418595328,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "土木・建設工事と都市開発を手がけ、企業買収の仲介も行う",
+   "summary_ja": "橋梁やダム、道路などの大規模土木工事から都市・臨海開発、環境改善事業まで幅広く請け負う建設会社です。設計・施工・管理をトータルで提供し、工事費から収益を得ます。加えて企業のM&Aや経営統合の仲介、IT関連のシステム開発なども手がけており、多角的なサービスで複数の顧客層から収入を得ています。"
   },
   "255A": {
    "summary_en": "Gltechno Holdings, Inc., through its subsidiaries, engages in analytical instruments, Semiconductors, automated recognition, and related businesses. It offers liquid and gas chromatography, antenna separated and integrated module, wall-mounted reader/writer, desktop USB reader, security cabinet, face recognition system, reagent management system, IC cards, label-type tags, and processing tags. The company was founded in 2024 and is based in Tokyo, Japan.",
