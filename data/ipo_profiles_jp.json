@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-30T13:12:15+09:00",
+ "updated_at": "2026-10-01T01:48:32+09:00",
  "profiles": {
   "648A": {
    "ok": false,
@@ -379,7 +379,9 @@
    "market_cap": 93742809088,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "ペット用食品の製造販売と、ペット向けの医療・美容サービスの提供",
+   "summary_ja": "犬と猫向けの栄養バランスを整えた食品を製造・販売するほか、ペットの健康診断や血液検査、獣医療、グルーミング（毛並みケア）といった複合的なサービスを提供しています。食品販売と医療・美容サービスの両面から飼い主の需要に応えています。"
   },
   "545A": {
    "summary_en": "Toranvia Co.,Ltd., through its subsidiaries, engages in the software development, computer operations management, system solution services, and related businesses. The company was incorporated in 2026 and is based in Tokyo, Japan.",
@@ -443,7 +445,9 @@
    "market_cap": 6996026368,
    "sector_ja": "ヘルスケア",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "がん治療や脳疾患の薬の研究開発を行うバイオテク企業",
+   "summary_ja": "胆管がんや大腸がん、中枢神経の疾患を対象とした医薬品の研究開発を手がけています。特定のタンパク質の輸送機能に着目した創薬アプローチで、複数の有望な化合物を開発中です。医薬品が上市された際の売上が主な収益源となります。"
   },
   "519A": {
    "summary_en": "Basic Inc. develops SaaS platform and digital solutions for the B2B marketing field. The company's products include ferret One, a B2B marketing tool for creating websites and managing leads; formrun, a no-code form builder with simple customer management functions; bookrun, a scheduling tool for coordinating appointments; workrun, an AI-based workflow tool for automating basic tasks; and AIBOW, an AI agent system that supports routine operational work. Basic Inc. was founded in 2004 and is based in Chiyoda, Japan.",
@@ -927,7 +931,9 @@
    "market_cap": 7076385280,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "ネットショップと実店舗の売上を増やすためのマーケティングプラットフォームを提供",
+   "summary_ja": "ネットショップと実店舗の経営者向けに、顧客体験を高めたりデジタル化を進めたりするためのマーケティングツールやプラットフォームを開発・提供しています。店舗が顧客との関係を強化し、売上向上を実現するための支援が主な事業です。"
   },
   "409A": {
    "summary_en": "Orion Breweries, Ltd. manufactures and sells alcohol and soft drinks in Japan. The company also engages in the operation of hotels and facilities. In addition, it owns, rents, and manages tourist properties. It sells its beer under the Orion brand name. The company was formerly known as Okinawa Breweries, Ltd. and changed its name to Orion Breweries, Ltd. In January 1959. The company was incorporated in 1957 and is headquartered in Tomigusuku, Japan.",
@@ -1573,7 +1579,9 @@
    "market_cap": 3045217024,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "音声認識やAI技術を活用した企業向けコンサルティングと製品開発",
+   "summary_ja": "音声認識や異常音検知、自然言語解析などのAI技術を用いたコンサルティングソリューションを企業向けに提供しています。音に関連するサイバニクス（人と機械の融合技術）の事業化も展開中で、情報通信企業や製造業が顧客です。"
   },
   "268A": {
    "summary_en": "Rigaku Holdings Corporation engages in the manufacture and sale of scientific equipment in Japan, the United States, Europe, and Asia. The company offers multipurpose analytical instruments, such as X-ray diffraction equipment, X-ray fluorescence, and X-ray imaging; semiconductor process control equipment, including semiconductor X-ray inspection and X-ray transmission equipment; and product-related warranty, repairs, maintenance, relocation, and other products. Its products are used in life science, academia, semiconductor electronic device, battery, and other applications. The company was founded in 1951 and is based in Akishima, Japan.",
@@ -1609,7 +1617,9 @@
    "market_cap": 3695160320,
    "sector_ja": "生活必需品",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "社会人向けのオンライン学習・研修サービスを提供",
+   "summary_ja": "ビジネススキルから教養まで幅広い内容の動画講座をオンラインで配信し、企業研修や個人の自己啓発を支援しています。大学や企業の学習管理システムも提供しており、法人向けの研修サービスが主な収益源です。"
   },
   "262A": {
    "summary_en": "Intermestic Inc. sells eyeglasses and sunglasses in Japan. It also sells cases, cleaners, and other related accessories of eyeglasses and contact lens. It sells its products through stores and online. The company was incorporated in 1993 and is based in Minato, Japan.",
@@ -1621,7 +1631,9 @@
    "market_cap": 51553411072,
    "sector_ja": "ヘルスケア",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "眼鏡とサングラスの製造販売",
+   "summary_ja": "眼鏡やサングラス、関連するケースやクリーニング用品などを製造・販売しています。実店舗とオンラインの両方を通じて、消費者に直接販売しています。"
   },
   "261A": {
    "summary_en": "Nihon Suido Consultants Co., Ltd. provides construction consulting services for water supply and sewerage in Japan and internationally. Its consultancy services include arrangement, investigation, research, planning, design, construction supervision, facility operation, management, diagnosis, water quality inspection, economic and financial analysis, water supply, sewerage, industrial water supply, flood control, water utilization, and environmental management of rivers, lakes, marshes and coastal waters, treatment of industrial wastewater and waste, architecture, urban and regional development, agricultural development, renewable energy. The company is also involved in the development, sales, rental, operation, and maintenance of information processing systems, as well as temporary staffing; contracting, construction, and supervision of architectural, civil engineering, and various plant works; and procurement, sale, lease and rental of materials and equipment. Nihon Suido Consultants Co., Ltd. was incorporated in 1959 and is headquartered in Tokyo, Japan.",
@@ -1633,7 +1645,9 @@
    "market_cap": 23492691968,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "水道事業やダム・河川の計画・設計・管理に関するコンサルティング提供",
+   "summary_ja": "上下水道、工業用水、治水、河川・湖沼の管理などに関する調査・企画・設計・工事監理や、施設の運営管理を行うコンサルティング会社です。水質検査や環境管理のアドバイスも含まれており、行政機関や水道事業体が主な顧客です。"
   },
   "260A": {
    "ok": false,
@@ -1663,7 +1677,9 @@
    "market_cap": 70780190720,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "分析機器や半導体、自動認識システムなどを製造販売",
+   "summary_ja": "化学物質の分析に使う液体・気体クロマトグラフィー装置、アンテナモジュール、ICカード読み取り機、顔認証システム、RFID関連製品などを開発・製造しています。分析機器メーカーや企業のセキュリティシステム導入企業が顧客です。"
   },
   "254A": {
    "summary_en": "Ai Fusion Capital Group Corp.is principal investment firm specializing in companies that provide AI solutions and conventional venture investment. It is also engage in management and administration of the group companies that are in to Investment in venture companies and formation and administration of Investment Funds, and as well as all associated and related these businesses. Ai Fusion Capital Group Corp. was founded in October 1, 2024 and is headquartered in Tokyo, Japan.",
@@ -1675,7 +1691,9 @@
    "market_cap": 10068995072,
    "sector_ja": "金融",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "AI関連企業や新興企業への投資を行うベンチャーキャピタル",
+   "summary_ja": "人工知能ソリューションを手がける企業やベンチャー企業を投資対象とする投資ファンドの運営・管理が主な事業です。グループ企業の経営管理も並行して行っており、投資回収による利益が主な収益源です。"
   },
   "253A": {
    "summary_en": "ETS Group Co.,Ltd engages in the electric power business in Japan and internationally. The company surveys, designs, and constructs overhead and underground transmission lines, substations, civil engineering, pipe, etc. It involved in electrical equipment construction, instrumentation equipment construction, information and communication equipment construction, and disaster prevention and crime prevention equipment construction activities, as well as design, construction, and maintenance management of energy-saving equipment construction, etc. In addition, it provides services, such as preservation, inspection, repair, maintenance planning, and administrative management of buildings and facilities, as well as the placement of cleaning staff and administrators, and various maintenance services. Further, the company offers support services for domestic and international companies. The company was founded in 1922 and is based in Tokyo, Japan.",
@@ -1687,7 +1705,9 @@
    "market_cap": 6534493696,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "送電線や変電所、通信施設などの電力インフラの建設・保守を提供",
+   "summary_ja": "送電線や変電所などの電力インフラ、通信設備、災害・防犯設備の設計・建設・保守を手がけています。省エネ機器の施工や維持管理サービスも提供しており、電力・通信企業や自治体が顧客です。"
   },
   "250A": {
    "summary_en": "Shimadaya Corporation manufactures and sells noodles and related food products in Japan. The company offers udon, buckwheat, ramen, cold ramen/cold dipping noodles, yakisoba and other fried noodles, pasta, and broth and ingredients. It sells its products under flowing noodles; healthy noodles; true hit; honjo; ryusui-men, shinuchi; kenbimen; noukou kaiwai; clock tower; teppan noodles; local Chinese restaurant; and momiuchi brands. In addition, it exports its products. The company was incorporated in 1949 and is headquartered in Tokyo, Japan.",
@@ -1699,9 +1719,15 @@
    "market_cap": 22373017600,
    "sector_ja": "生活必需品",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "うどん、そば、ラーメンなどの麺類食品を製造販売",
+   "summary_ja": "うどん、そば、ラーメン、焼きそば、パスタ、つゆなどの麺類食品を多くのブランドで製造・販売しています。国内向けの食品卸売が主な事業で、製品の海外輸出も行っています。"
+  },
+  "656A": {
+   "ok": false,
+   "checked_at": "2026-10-01"
   }
  },
- "count": 143,
+ "count": 144,
  "ok_count": 135
 }

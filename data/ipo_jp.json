@@ -1,13 +1,28 @@
 {
- "asof": "2026-09-30",
- "generated_at_jst": "2026-09-30T13:12:14+09:00",
+ "asof": "2026-10-01",
+ "generated_at_jst": "2026-10-01T01:48:29+09:00",
  "source": "https://www.jpx.co.jp/listing/stocks/new/",
- "cutoff": "2024-09-29",
+ "cutoff": "2024-09-30",
  "years_back": 2,
  "pages_failed": 0,
- "count": 143,
- "upcoming": 6,
+ "count": 144,
+ "upcoming": 4,
  "ipos": [
+  {
+   "code": "656A",
+   "name": "Allganize Holdings（株）",
+   "technical": false,
+   "listing_date": "2026-11-04",
+   "approval_date": "2026-09-30",
+   "market": "グロース",
+   "band_low": null,
+   "band_high": null,
+   "offer_price": null,
+   "public_shares_k": 658.1,
+   "secondary_shares_k": 2954.9,
+   "trading_unit": 100.0,
+   "listed": false
+  },
   {
    "code": "653A",
    "name": "MabGenesis（株）",
@@ -66,7 +81,7 @@
    "public_shares_k": null,
    "secondary_shares_k": null,
    "trading_unit": 100.0,
-   "listed": false
+   "listed": true
   },
   {
    "code": "641A",
@@ -81,7 +96,7 @@
    "public_shares_k": null,
    "secondary_shares_k": null,
    "trading_unit": 100.0,
-   "listed": false
+   "listed": true
   },
   {
    "code": "640A",
@@ -96,7 +111,7 @@
    "public_shares_k": null,
    "secondary_shares_k": null,
    "trading_unit": 100.0,
-   "listed": false
+   "listed": true
   },
   {
    "code": "646A",
