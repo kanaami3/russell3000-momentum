@@ -1,0 +1,63 @@
+name: Sector Rotation Update
+
+on:
+  schedule:
+    # 平日 07:17 JST = 前日 22:17 UTC。移植元は 22:07 UTC だったが、
+    # concurrency グループ data-update の衝突を避けるため分をズラす。
+    - cron: "17 22 * * 0-4"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  sector:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # 出力先が無いとスクリプトが書き込みで落ちる
+      - name: Prepare output directory
+        run: mkdir -p web/data/sector
+
+      - name: Fetch market data (RRG / momentum)
+        run: python batch/sector/fetch_data.py
+
+      - name: Fetch sector deviation ranking
+        run: python batch/sector/fetch_deviation.py || echo "⚠ 乖離データ取得 失敗（既存を維持して継続）"
+
+      # ブリーフは週1回でよい。JSTの月曜、または手動実行のときだけ作る。
+      # AI生成は付加価値なので、失敗しても数値データのコミットは止めない。
+      - name: Generate weekly brief (Claude)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          dow=$(TZ=Asia/Tokyo date +%u)
+          if [ "$dow" != "1" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            echo "月曜でも手動実行でもないため、ブリーフの生成は行いません（JST曜日=$dow）"
+            exit 0
+          fi
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            python batch/sector/generate_brief.py || echo "⚠ 週次ブリーフ 失敗（継続）"
+          else
+            echo "ANTHROPIC_API_KEY not set — skipping weekly brief"
+          fi
+
+      - name: Commit and push
+        run: |
+          bash batch/safe_commit_push.sh \
+            "data(sector): rotation update $(TZ=Asia/Tokyo date +%F)" \
+            web/data/sector
