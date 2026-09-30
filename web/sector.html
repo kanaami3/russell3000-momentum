@@ -451,22 +451,26 @@ document.querySelectorAll('nav button').forEach(b=>{b.onclick=()=>{
 <style id="only-rank">
   /* ナビ側に見出しとタブがあるので、このページ自身のヘッダとタブは隠す */
   .top{display:none !important}
+  /* 順位推移の下に乖離ランキングを続けて出す */
+  #v-deviation{display:block !important; margin-top:28px; border-top:1px solid rgba(255,255,255,.08); padding-top:20px}
 </style>
 <script>
-  /* 出すのは「業種モメンタム・ランキング推移」だけ。
-     ページ自身の初期化が後から走って元の画面に戻すことがあるので、
-     表示されるまで何度か切り替えを試す。 */
+  /* 出すのは「業種モメンタム・ランキング推移」と「乖離ランキング」の2つだけ。
+     このページは1画面ずつ切り替える作りなので、乖離を先に一度開いて
+     描画させてから順位推移に戻し、CSSで乖離を出したままにする。 */
   (function(){
     var tries = 0;
-    function show(){
-      var btn = document.querySelector('[data-v="rank"]');
-      var view = document.getElementById('v-rank');
-      if (btn && view) btn.click();
-      if (view && getComputedStyle(view).display === 'none' && tries++ < 25) {
-        setTimeout(show, 200);
+    function step(){
+      var dev  = document.querySelector('[data-v="deviation"]');
+      var rank = document.querySelector('[data-v="rank"]');
+      var vr   = document.getElementById('v-rank');
+      if (dev && rank && vr) {
+        if (!window.__devRendered) { dev.click(); window.__devRendered = true; setTimeout(step, 400); return; }
+        rank.click();
       }
+      if (vr && getComputedStyle(vr).display === 'none' && tries++ < 25) setTimeout(step, 250);
     }
-    if (document.readyState === 'complete') setTimeout(show, 0);
-    else window.addEventListener('load', function(){ setTimeout(show, 0); });
+    if (document.readyState === 'complete') setTimeout(step, 0);
+    else window.addEventListener('load', function(){ setTimeout(step, 0); });
   })();
 </script>
