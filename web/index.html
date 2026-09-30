@@ -513,9 +513,10 @@
             <a x-show="ipoChart?.website" :href="ipoChart?.website" target="_blank" rel="noopener"
               class="text-blue-600 hover:underline">公式サイト ↗</a>
           </div>
-          <p x-show="ipoChart?.summary_en" class="text-xs text-slate-500 leading-relaxed mt-2">
-            <span class="text-slate-400">会社概要（英文・Yahoo Finance）</span><br>
-            <span x-text="ipoChart?.summary_en"></span>
+          <p x-show="ipoChart?.summary_ja" class="text-xs text-slate-600 leading-relaxed mt-2">
+            <span class="text-slate-400">会社概要</span><br>
+            <span x-text="ipoChart?.summary_ja"></span>
+            <span class="block text-[10px] text-slate-400 mt-1">Yahoo Financeの会社概要をもとにAIが日本語化。正確な内容は各社の開示資料をご確認ください。</span>
           </p>
         </div>
         <div class="text-[11px] text-slate-400 mt-2">
@@ -1487,7 +1488,7 @@ function momentumApp() {
 
       ipoHasProfile() {
         const r = this.ipoChart;
-        return !!(r && (r.sector_ja || r.sector_en || r.summary_en || r.employees || r.market_cap));
+        return !!(r && (r.sector_ja || r.sector_en || r.summary_ja || r.biz_ja || r.employees || r.market_cap));
       },
 
       ipoMcap(v) {
