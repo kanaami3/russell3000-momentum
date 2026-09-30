@@ -1,32 +1,35 @@
-@@NAV@@
-        <button
-          @click="setMarket('sector')"
-          :class="market === 'sector' ? 'border-cyan-600 text-cyan-700' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
-          class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors whitespace-nowrap">
-          🔄 セクターローテーション
-        </button>
-@@HEADER@@
-  <div x-show="market === 'sector'" class="max-w-6xl mx-auto px-4 sm:px-6 pt-5 text-xs text-slate-500">業種ごとの資金の巡りを見ます。上部のタブで「モメンタム順位」を選ぶと、業種の順位推移が追えます。</div>
-@@PANEL@@
-  <template x-if="market === 'sector'">
-  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-5">
-    <div class="flex items-center justify-end mb-2">
-      <a href="sector.html" target="_blank" rel="noopener"
-        class="text-xs text-blue-600 hover:underline whitespace-nowrap">別タブで大きく見る ↗</a>
-    </div>
-    <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-900">
+@@OLD_IFRAME@@
       <iframe src="sector.html" title="セクターローテーション"
         loading="lazy" class="w-full block"
         style="height:85vh;min-height:700px;border:0"></iframe>
-    </div>
-    <p class="text-[11px] text-slate-400 mt-2">情報整理であり投資勧誘ではありません。</p>
-  </section>
-  </template>
-@@REGISTRY@@
-  sector: {
-    file: null,  // 同じリポジトリの sector.html を iframe で表示する
-    title: 'セクターローテーション',
-    label: 'SECTOR ROTATION — 業種別の資金循環',
-    docTitle: 'かな塾長秘書AI投資ナビ | セクターローテーション',
-    defaultSort: 'm3',
-  },
+@@NEW_IFRAME@@
+      <iframe src="sector.html" title="セクターローテーション"
+        loading="lazy" class="w-full block" @load="fitSectorFrame($event.target)"
+        style="height:760px;border:0"></iframe>
+@@OLD_JS@@
+      ipoHasProfile() {
+@@NEW_JS@@
+      // 中身の高さに合わせて iframe を伸ばす。
+      // 固定の高さだと、順位推移の下に続く乖離ランキングが枠の外に出て、
+      // 枠の中をスクロールしないと読めなくなる。同じドメインなので
+      // 中の高さを読める。中身は非同期に描画されるので数回測り直す。
+      fitSectorFrame(f) {
+        if (!f) return;
+        let n = 0;
+        const fit = () => {
+          try {
+            const d = f.contentDocument;
+            if (d && d.body) {
+              const h = Math.max(d.body.scrollHeight, d.documentElement.scrollHeight);
+              if (h > 200) f.style.height = (h + 24) + 'px';
+            }
+          } catch (e) {
+            // 別ドメインになった場合は測れない。固定の高さのままにする。
+            return;
+          }
+          if (n++ < 12) setTimeout(fit, 500);
+        };
+        fit();
+      },
+
+      ipoHasProfile() {
