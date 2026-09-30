@@ -38,7 +38,6 @@ import yfinance as yf
 REPO_ROOT = Path(__file__).resolve().parent.parent
 IPO_LIST = REPO_ROOT / "data" / "ipo_jp.json"
 PROFILES = REPO_ROOT / "data" / "ipo_profiles_jp.json"
-TDNET = REPO_ROOT / "data" / "tdnet_ipo_jp.json"
 OUT_PAGE = REPO_ROOT / "web" / "data" / "ipo_jp.json"
 OUT_CHART = REPO_ROOT / "web" / "data" / "chart_data_ipo.json"
 
@@ -340,63 +339,6 @@ PROFILE_FIELDS = ("sector_ja", "sector_en", "industry_en", "employees",
                   "website", "city", "market_cap", "biz_ja", "summary_ja")
 
 
-# 「最近」とみなす日数。業績予想の修正は出てから時間が経つと材料として
-# 薄れるので、直近のものだけを印にする。
-RECENT_DISCLOSURE_DAYS = 90
-MAX_DISCLOSURES_PER_STOCK = 4
-
-
-def load_tdnet() -> tuple[dict[str, list[dict]], str | None]:
-    """銘柄ごとの適時開示。あわせて「いつから集めているか」を返す。
-
-    収集開始日を持ち回るのが大事。TDnetは31日しか遡れないので、それ以前の
-    決算は永遠に空欄のままになる。画面で「決算の開示なし」と出してしまうと、
-    実際には決算を出している会社まで出していないように見える。
-    """
-    if not TDNET.exists():
-        return {}, None
-    try:
-        d = json.loads(TDNET.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        print("TDnetのキャッシュが読めませんでした。無視して続けます。", file=sys.stderr)
-        return {}, None
-
-    by_code: dict[str, list[dict]] = {}
-    for row in d.get("disclosures", []):
-        by_code.setdefault(str(row.get("code")), []).append(row)
-    for rows in by_code.values():
-        rows.sort(key=lambda r: (r.get("date", ""), r.get("time", "")), reverse=True)
-    return by_code, d.get("first_collected")
-
-
-def attach_disclosures(row: dict, rows: list[dict], today) -> None:
-    if not rows:
-        return
-    row["disclosures"] = [
-        {k: r.get(k) for k in ("date", "kind", "title")}
-        for r in rows[:MAX_DISCLOSURES_PER_STOCK]
-    ]
-    kessan = [r for r in rows if r.get("kind") == "決算短信"]
-    if kessan:
-        row["last_earnings_date"] = kessan[0]["date"]
-        row["last_earnings_title"] = kessan[0]["title"]
-
-    def recent(kind: str) -> bool:
-        for r in rows:
-            if r.get("kind") != kind:
-                continue
-            try:
-                d = datetime.fromisoformat(r["date"]).date()
-            except (ValueError, KeyError):
-                continue
-            if (today - d).days <= RECENT_DISCLOSURE_DAYS:
-                return True
-        return False
-
-    row["guidance_revised"] = recent("業績予想の修正")
-    row["dividend_revised"] = recent("配当予想の修正")
-
-
 def main() -> int:
     if not IPO_LIST.exists():
         print(f"{IPO_LIST} がありません。fetch_ipo_jp.py を先に動かしてください。",
@@ -421,10 +363,6 @@ def main() -> int:
     profiles = load_profiles()
     print(f"会社プロフィール {len(profiles)} 件を読み込みました", file=sys.stderr)
 
-    tdnet, tdnet_since = load_tdnet()
-    today = datetime.now(JST).date()
-    print(f"適時開示 {len(tdnet)} 銘柄ぶん（収集開始 {tdnet_since or '—'}）",
-          file=sys.stderr)
 
     chart: dict[str, list] = {}
     out_rows = []
@@ -434,8 +372,6 @@ def main() -> int:
         row = dict(r)
         ticker = f"{r['code']}.T"
         row["ticker"] = ticker
-
-        attach_disclosures(row, tdnet.get(r["code"], []), today)
 
         prof = profiles.get(r["code"])
         if prof:
@@ -487,9 +423,6 @@ def main() -> int:
             "min_turnover": MIN_TURNOVER,
         },
         "flow_judgeable_count": sum(1 for r in out_rows if r.get("flow_judgeable")),
-        # いつから適時開示を集めているか。これより前の決算は取得できない。
-        "tdnet_since": tdnet_since,
-        "tdnet_stocks": len(tdnet),
         "ipos": out_rows,
     }
 
