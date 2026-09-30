@@ -283,6 +283,150 @@ def fill_biz_ja(client, page: dict) -> int:
     return n
 
 
+# 資金流入の機械判定を通す下限。4点満点。
+FOCUS_MIN_SCORE = int(os.getenv("IPO_FOCUS_MIN_SCORE", "3"))
+FOCUS_MAX_CANDIDATES = 25
+FOCUS_MAX_PICKS = 6
+
+
+def save_page(data: dict) -> None:
+    tmp = PAGE_PATH.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    os.replace(tmp, PAGE_PATH)
+
+
+def focus_candidates(ipos: list[dict]) -> list[dict]:
+    """資金が入っていて、かつ売買できる銘柄に絞る。
+
+    ここはすべて機械の判定。AIには「どれを見るか」を決めさせない。
+    選ばれた理由が数字で説明できる状態にしておきたいため。
+    """
+    out = []
+    for r in ipos:
+        if r.get("status") != "listed":
+            continue
+        s = r.get("flow_score")
+        if not isinstance(s, int) or s < FOCUS_MIN_SCORE:
+            continue
+        if not r.get("liquid"):
+            continue
+        out.append(r)
+    out.sort(key=lambda r: (-(r.get("flow_score") or 0),
+                            -(r.get("vol_ratio") or 0)))
+    return out[:FOCUS_MAX_CANDIDATES]
+
+
+def fmt_focus(r: dict) -> str:
+    biz = r.get("summary_ja") or r.get("biz_ja") or "（事業内容の情報なし）"
+    return (
+        f"- {r['code']} {r['name']}（{r.get('sector_ja') or r.get('sector_en') or '—'}）\n"
+        f"  事業: {biz}\n"
+        f"  出来高: 直近5日平均が25日平均の{r.get('vol_ratio')}倍"
+        f" / 上昇日の出来高比率 {round((r.get('up_volume_share') or 0) * 100)}%"
+        f" / 25日騰落 {r.get('ret_25d_pct')}%"
+        f" / 売買代金 {round((r.get('turnover_5d') or 0) / 1e8, 1)}億円"
+        f" / 上場来高値から {r.get('drawdown_pct')}%"
+    )
+
+
+def focus_prompt(rows: list[dict]) -> str:
+    return f"""投資塾でIPO銘柄を解説しています。
+下は「出来高が増え、上昇日に買いが偏っている」銘柄を機械で抽出したものです。
+
+この中から、**ストック型（継続して収益が積み上がる）の事業を持つ銘柄**を
+最大{FOCUS_MAX_PICKS}社選び、理由を書いてください。
+
+ストック型とみなす例:
+- 月額・年額の継続課金（SaaS、サブスクリプション）
+- 保守・運用・管理の受託で、契約が続く限り収益が立つもの
+- 定期購入・定期配送
+- 手数料が取引のたびに入り、利用者数の増加がそのまま積み上がるもの
+
+ストック型でない例:
+- 受注ごとの一品生産、工事の請負
+- 商品の売り切り
+- 広告の単発出稿
+
+**事業内容の説明から読み取れる範囲で判断してください。**
+説明が短くて判断できない場合は、その銘柄を選ばないでください。
+推測で「たぶんSaaSだろう」と補わないこと。
+
+候補:
+{chr(10).join(fmt_focus(r) for r in rows)}
+
+次のJSON形式だけを ```json ブロックで返してください。
+
+```json
+{{
+  "picks": [
+    {{
+      "code": "621A",
+      "stock_type": "月額課金",
+      "why": "100字程度。事業内容のどこを見てストック型と判断したか。
+              積み上がる収益の source を具体的に",
+      "watch": "60字程度。注意点。契約の解約率、単価、競合など"
+    }}
+  ],
+  "summary": "120字程度。今回選んだ銘柄に共通する傾向"
+}}
+```
+
+注意:
+- 候補にない銘柄を選ばないこと
+- 買い時や目標株価は書かないこと
+- 出来高が増えていることは抽出条件であって、推奨の理由ではない。
+  「出来高が増えているから良い」とは書かないこと
+"""
+
+
+def build_focus(client, data: dict) -> None:
+    rows = focus_candidates(data.get("ipos", []))
+    print(f"資金流入の条件を通過: {len(rows)} 銘柄", file=sys.stderr)
+    if len(rows) < 3:
+        print("候補が少ないため注目銘柄は作りません。", file=sys.stderr)
+        return
+
+    try:
+        resp = client.messages.create(
+            model=MODEL, max_tokens=MAX_TOKENS,
+            messages=[{"role": "user", "content": focus_prompt(rows)}],
+        )
+    except Exception as e:
+        print(f"注目銘柄の生成に失敗しました: {e}", file=sys.stderr)
+        return
+
+    parsed = extract_json("".join(b.text for b in resp.content if b.type == "text"))
+    picks = (parsed or {}).get("picks") or []
+    by_code = {str(r["code"]): r for r in rows}
+    kept = []
+    for p in picks:
+        r = by_code.get(str(p.get("code")))
+        if not r:
+            continue
+        # 数値は元データで上書きする。モデルの転記ミスを画面に出さない。
+        kept.append({
+            **p,
+            "name": r.get("name"), "sector": r.get("sector_ja") or r.get("sector_en"),
+            "flow_score": r.get("flow_score"), "vol_ratio": r.get("vol_ratio"),
+            "up_volume_share": r.get("up_volume_share"),
+            "ret_25d_pct": r.get("ret_25d_pct"), "drawdown_pct": r.get("drawdown_pct"),
+            "last_close": r.get("last_close"), "listing_date": r.get("listing_date"),
+        })
+    if not kept:
+        print("採用できる注目銘柄がありませんでした。", file=sys.stderr)
+        return
+
+    data["ai_ipo_focus"] = {
+        "picks": kept,
+        "summary": (parsed or {}).get("summary", ""),
+        "model": MODEL,
+        "candidate_count": len(rows),
+        "min_score": FOCUS_MIN_SCORE,
+        "generated_at_jst": datetime.now(JST).isoformat(timespec="seconds"),
+    }
+    print(f"注目銘柄 {len(kept)} 件を書き出しました。", file=sys.stderr)
+
+
 def main() -> int:
     key = os.getenv("ANTHROPIC_API_KEY")
     if not key:
@@ -310,6 +454,16 @@ def main() -> int:
         fill_biz_ja(client, data)
     except Exception as e:
         print(f"一言の生成でエラー: {e}", file=sys.stderr)
+
+    # 注目銘柄。機械で絞ってからストック型かどうかをAIに読ませる。
+    # 失敗しても他の生成は続ける。
+    try:
+        build_focus(client, data)
+        # ここで一度書き出す。この後の解説生成が落ちたときに、せっかく
+        # 作った注目銘柄まで失われるのを避ける。
+        save_page(data)
+    except Exception as e:
+        print(f"注目銘柄の生成でエラー: {e}", file=sys.stderr)
 
     try:
         resp = client.messages.create(
@@ -353,9 +507,7 @@ def main() -> int:
         "recent_days": RECENT_DAYS,
     }
 
-    tmp = PAGE_PATH.with_suffix(".json.tmp")
-    tmp.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-    os.replace(tmp, PAGE_PATH)
+    save_page(data)
 
     print(f"解説 {len(out['upcoming'])} + {len(out['recent'])} 件を書き出しました。",
           file=sys.stderr)

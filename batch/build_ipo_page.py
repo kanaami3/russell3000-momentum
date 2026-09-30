@@ -186,6 +186,90 @@ def spark(sub: pd.DataFrame, n: int = SPARK_POINTS) -> list[list[float]]:
     return out
 
 
+# 資金流入を見る窓。25日＝おおよそ1か月の営業日。
+FLOW_SHORT = 5
+FLOW_LONG = 25
+
+# 流動性の下限（円）。売買代金がこれを下回ると、数字が良くても
+# 実際には買えない・売れない。
+MIN_TURNOVER = float(os.getenv("IPO_MIN_TURNOVER", "100000000"))  # 1億円
+
+
+def flow_metrics(sub: pd.DataFrame) -> dict:
+    """出来高と資金流入の続き具合を測る。
+
+    見ているのは3つ。
+
+      1. 出来高が増えているか   直近5日平均 ÷ 直近25日平均
+      2. 買いが優勢か           上昇日の出来高が全体に占める割合
+      3. 続いているか           25日線の上にいるか、25日で上げているか
+
+    **上昇日の出来高比率を見るのが要点。**
+    単に出来高が増えただけでは、投げ売りで増えたのか買いが入ったのか
+    分からない。上げた日に出来高が偏っているなら、売り手より買い手が
+    急いでいる。逆に下げた日に偏っていれば、増えた出来高は流出。
+
+    **25日分に満たない銘柄は判定しない。**
+    上場3日目の銘柄に「出来高が増えている」とは言えない。0や False で
+    埋めると、上場直後の銘柄が一律で「流入なし」として並ぶ。
+    """
+    vol = sub["Volume"].fillna(0)
+    close = sub["Close"].dropna()
+    if len(close) < FLOW_LONG or len(vol) < FLOW_LONG:
+        return {"flow_judgeable": False}
+
+    v_short = float(vol.tail(FLOW_SHORT).mean())
+    v_long = float(vol.tail(FLOW_LONG).mean())
+    vol_ratio = (v_short / v_long) if v_long > 0 else None
+
+    tail = sub.tail(FLOW_LONG)
+    chg = tail["Close"].diff()
+    v = tail["Volume"].fillna(0)
+    total = float(v.sum())
+    up_share = float(v[chg > 0].sum()) / total if total > 0 else None
+
+    ma25 = float(close.tail(FLOW_LONG).mean())
+    last = float(close.iloc[-1])
+    ret25 = (last / float(close.iloc[-FLOW_LONG]) - 1) * 100
+
+    turnover = float((tail["Close"] * tail["Volume"]).tail(FLOW_SHORT).mean())
+
+    return {
+        "flow_judgeable": True,
+        "vol_ratio": _r(vol_ratio),
+        "up_volume_share": _r(up_share, 3),
+        "above_ma25_flow": bool(last >= ma25),
+        "ret_25d_pct": _r(ret25),
+        "turnover_5d": int(turnover),
+        "liquid": bool(turnover >= MIN_TURNOVER),
+    }
+
+
+# 「資金が入っていて続いている」とみなすしきい値
+FLOW_VOL_RATIO = 1.3      # 出来高が直近1か月平均の1.3倍以上
+FLOW_UP_SHARE = 0.55      # 上昇日の出来高が全体の55%以上
+
+
+def flow_score(m: dict) -> int | None:
+    """0〜4点。判定できなければ None。
+
+    点を足すだけの素朴な作りにしてある。重み付けを凝っても、
+    根拠のない係数が増えるだけで当たりやすくはならない。
+    """
+    if not m.get("flow_judgeable"):
+        return None
+    s = 0
+    if isinstance(m.get("vol_ratio"), (int, float)) and m["vol_ratio"] >= FLOW_VOL_RATIO:
+        s += 1
+    if isinstance(m.get("up_volume_share"), (int, float)) and m["up_volume_share"] >= FLOW_UP_SHARE:
+        s += 1
+    if m.get("above_ma25_flow"):
+        s += 1
+    if isinstance(m.get("ret_25d_pct"), (int, float)) and m["ret_25d_pct"] > 0:
+        s += 1
+    return s
+
+
 def metrics(sub: pd.DataFrame, offer_price: float | None) -> dict:
     closes = sub["Close"].dropna()
     if closes.empty:
@@ -312,6 +396,9 @@ def main() -> int:
 
         row["status"] = "listed"
         row.update(metrics(sub, r.get("offer_price")))
+        fm = flow_metrics(sub)
+        row.update(fm)
+        row["flow_score"] = flow_score(fm)
         rows = series_rows(sub)
         if rows:
             chart[ticker] = rows
@@ -329,6 +416,12 @@ def main() -> int:
         "no_data": failed,
         "ma_short": MA_SHORT,
         "ma_long": MA_LONG,
+        "flow_criteria": {
+            "window_short": FLOW_SHORT, "window_long": FLOW_LONG,
+            "vol_ratio": FLOW_VOL_RATIO, "up_volume_share": FLOW_UP_SHARE,
+            "min_turnover": MIN_TURNOVER,
+        },
+        "flow_judgeable_count": sum(1 for r in out_rows if r.get("flow_judgeable")),
         "ipos": out_rows,
     }
 
