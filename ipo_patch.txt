@@ -1,53 +1,32 @@
-@@OLD@@
-    <!-- 絞り込みと並べ替え -->
-@@NEW@@
-    <!-- 資金が入っている＋ストック型 -->
-    <div x-show="ipoData?.ai_ipo_focus?.picks?.length" class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-      <h2 class="font-bold text-emerald-900 mb-1">🔎 資金が入っているストック型</h2>
-      <p class="text-[11px] text-emerald-800 mb-2" x-text="ipoFocusCriteria()"></p>
-      <p class="text-sm text-emerald-900 mb-3" x-text="ipoData?.ai_ipo_focus?.summary"></p>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <template x-for="p in (ipoData?.ai_ipo_focus?.picks || [])" :key="p.code">
-          <div class="bg-white rounded-lg border border-emerald-100 p-3">
-            <div class="flex items-baseline gap-2 flex-wrap mb-1">
-              <span class="font-bold text-slate-700 text-sm" x-text="p.code"></span>
-              <span class="text-sm text-slate-800" x-text="p.name"></span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold"
-                x-text="p.stock_type"></span>
-            </div>
-            <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-slate-500 mb-1.5">
-              <span>出来高 <span class="font-semibold text-slate-700" x-text="(p.vol_ratio ?? '—') + '倍'"></span></span>
-              <span>上昇日の出来高 <span class="font-semibold text-slate-700"
-                x-text="Math.round((p.up_volume_share || 0) * 100) + '%'"></span></span>
-              <span>25日 <span class="font-semibold" :class="ipoPctClass(p.ret_25d_pct)"
-                x-text="ipoPct(p.ret_25d_pct)"></span></span>
-              <span>高値から <span class="font-semibold" :class="ipoPctClass(p.drawdown_pct)"
-                x-text="ipoPct(p.drawdown_pct)"></span></span>
-            </div>
-            <p class="text-xs text-slate-600 leading-relaxed" x-text="p.why"></p>
-            <p class="text-xs text-amber-700 leading-relaxed mt-1" x-show="p.watch"
-              x-text="'⚠ ' + p.watch"></p>
-          </div>
-        </template>
-      </div>
-      <p class="text-[11px] text-emerald-700 mt-2">
-        出来高と値動きで機械的に絞ったうえで、事業内容がストック型かをAIが判断しています。
-        出来高が増えていることは抽出の条件であって、推奨の理由ではありません。
-      </p>
+@@NAV@@
+        <button
+          @click="setMarket('sector')"
+          :class="market === 'sector' ? 'border-cyan-600 text-cyan-700' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
+          class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors whitespace-nowrap">
+          🔄 セクターローテーション
+        </button>
+@@HEADER@@
+  <div x-show="market === 'sector'" class="max-w-6xl mx-auto px-4 sm:px-6 pt-5 text-xs text-slate-500">業種ごとの資金の巡りを見ます。上部のタブで「モメンタム順位」を選ぶと、業種の順位推移が追えます。</div>
+@@PANEL@@
+  <template x-if="market === 'sector'">
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-5">
+    <div class="flex items-center justify-end mb-2">
+      <a href="sector.html" target="_blank" rel="noopener"
+        class="text-xs text-blue-600 hover:underline whitespace-nowrap">別タブで大きく見る ↗</a>
     </div>
-
-    <!-- 絞り込みと並べ替え -->
-@@OLD_JS@@
-      ipoHasProfile() {
-@@NEW_JS@@
-      ipoFocusCriteria() {
-        const f = this.ipoData?.ai_ipo_focus;
-        const c = this.ipoData?.flow_criteria;
-        if (!f || !c) return '';
-        return `直近${c.window_short}日の平均出来高が${c.window_long}日平均の`
-          + `${c.vol_ratio}倍以上・上昇日の出来高が${Math.round(c.up_volume_share * 100)}%以上`
-          + `・${c.window_long}日線の上・売買代金${Math.round(c.min_turnover / 1e8)}億円以上`
-          + ` のうち${f.min_score}項目以上 → ${f.candidate_count}銘柄が該当`;
-      },
-
-      ipoHasProfile() {
+    <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-900">
+      <iframe src="sector.html" title="セクターローテーション"
+        loading="lazy" class="w-full block"
+        style="height:85vh;min-height:700px;border:0"></iframe>
+    </div>
+    <p class="text-[11px] text-slate-400 mt-2">情報整理であり投資勧誘ではありません。</p>
+  </section>
+  </template>
+@@REGISTRY@@
+  sector: {
+    file: null,  // 同じリポジトリの sector.html を iframe で表示する
+    title: 'セクターローテーション',
+    label: 'SECTOR ROTATION — 業種別の資金循環',
+    docTitle: 'かな塾長秘書AI投資ナビ | セクターローテーション',
+    defaultSort: 'm3',
+  },
