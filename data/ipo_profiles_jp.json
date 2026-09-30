@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-30T13:02:53+09:00",
+ "updated_at": "2026-09-30T13:07:52+09:00",
  "profiles": {
   "648A": {
    "ok": false,
@@ -31,7 +31,9 @@
    "market_cap": 6016350208,
    "sector_ja": "ヘルスケア",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "医療機関向けのデジタル化ツールと情報メディアを提供",
+   "summary_ja": "医療機関のデジタル変革を支援する企業です。患者管理と診療所スタッフの連携を効率化するシステム「カカリテ」、医療情報を発信するメディア「Medical Window」、ウェブサイトの制作・運用支援などを提供しています。クリニック、病院、製薬会社、自治体を顧客としており、医療現場のDX推進で収益を得ています。"
   },
   "627A": {
    "summary_en": "akippa Inc. owns and operates an online marketplace for vacant car parking space reservation and rental. Its platform offers a smart parking experience to park a car anywhere in the city. akippa Inc. was formerly known as Galaxy Agency Inc. and changed its name to akippa Inc. in February 2015. The company was incorporated in 2009 and is based in Osaka, Japan.",
@@ -43,7 +45,9 @@
    "market_cap": 10251122688,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "空き駐車場を時間単位で貸し借りできるマッチングプラットフォーム",
+   "summary_ja": "個人や企業が保有する余った駐車スペースと、駐車場を探す利用者をオンライン上で仲介するサービスを運営しています。都市内でどこにでも車を停められる柔軟な駐車体験を実現し、駐車スペース提供者と利用者の双方からの手数料で収益を得ています。"
   },
   "623A": {
    "summary_en": "Vertex Co., Ltd. provides real estate services in Japan. It offers real estate consulting, real estate planning and development, real estate sales, rental brokerage, and property management services. The company also involves in business of real estate fund and non-life insurance agency, as well as business related to the solicitation of life insurance. Vertex Co., Ltd. was incorporated in 2010 and is headquartered in Tokyo, Japan.",
@@ -55,7 +59,9 @@
    "market_cap": 6659999744,
    "sector_ja": "不動産",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "不動産の仲介・コンサルティング・管理など総合サービスを提供",
+   "summary_ja": "不動産取引の相談から企画・開発、売買・賃貸の仲介、物件管理まで一連のサービスを提供する企業です。このほか不動産ファンドの運営、生命保険と損害保険の代理業も手がけており、個人や企業の不動産関連のニーズに対して包括的に対応することで収益を得ています。"
   },
   "622A": {
    "summary_en": "Techno Craft Corporation develops, manufactures, and sells IT solutions in Japan. The company offers products, such as GPS-based cart navigation and fleet management systems for golf courses under the Marshal-Ai brand, a cloud-based business support system for childcare facilities named Commu-Navi, and health monitoring solutions using GPS technology; and services, including application development, ASP services, and support for its various control terminals. The company was incorporated in 1995 and is headquartered in Niigata-shi, Japan.",
@@ -67,7 +73,9 @@
    "market_cap": null,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "ゴルフ場や保育施設向けのIT システムと位置情報ソリューション",
+   "summary_ja": "GPS技術を活用したIT ソリューションを開発・販売しています。ゴルフ場向けのカート誘導・車両管理システム「Marshal-Ai」、保育施設向けの業務支援クラウドシステム「Commu-Navi」、位置情報を使った健康管理ソリューションなどを提供し、アプリケーション開発やASPサービスでも収益を得ています。"
   },
   "625A": {
    "summary_en": "Skyfall Inc. provides digital marketing and advertising technology (AdTech) services in Japan. The company offers services, such as marketing support and media platform development, to connect users with products and services and support the growth of partner companies. It products includes SKYFLAG, a reward marketing platform designed to enhance the user experience and drive service engagement; Poker Chase, a battle royale-style Texas Hold'em poker game; POCKET PLAY, a rewards app that lets users earn points simply by playing their favorite games; and SKYORDER, a self-ordering system for restaurants that goes beyond streamlining operations. The company was founded in 2017 and is headquartered in Minato, Japan.",
@@ -79,7 +87,9 @@
    "market_cap": 11889139712,
    "sector_ja": "通信サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "デジタル広告・マーケティング支援と報酬型ゲームプラットフォーム",
+   "summary_ja": "デジタルマーケティングと広告技術を活用したサービスを提供しています。企業のマーケティング支援とメディアプラットフォーム開発が主力で、ユーザーがゲーム利用やアプリ利用で報酬を得られる「SKYFLAG」などのプラットフォームのほか、ポーカーゲーム、飲食店向け自動注文システムなども展開しています。"
   },
   "621A": {
    "summary_en": "Audiostock Inc. owns and operates an online community platform where music creators can present and share their music audios. The company offers a platform for music creators to register their music and sell usage rights, receiving royalties based on sales. It also provides a marketplace for music creators to sell their work and for users to purchase licenses. Audiostock Inc. was formerly known as CreoFuga, Inc. and changed its name to Audiostock Inc. in July 2020. The company was founded in 2007 and is based in Okayama, Japan.",
@@ -91,7 +101,9 @@
    "market_cap": 6047185920,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "音楽クリエイターが楽曲の使用権を販売できるオンラインプラットフォーム",
+   "summary_ja": "音楽クリエイターが自作楽曲を登録し、使用権を販売できるコミュニティプラットフォームを運営しています。企業や制作会社が必要な楽曲をライセンス購入し、クリエイターは売上に応じた使用料を受け取ります。登録楽曲の拡大と利用者の増加を通じて、マーケットプレイスとしての価値を高めることで収益化しています。"
   },
   "619A": {
    "summary_en": "Oliver Corporation designs, manufactures, and sells interior design products in Japan. The company offers task chairs, desks, sofas, lobby chairs, tables, outdoor furniture, cabinets, executive and reception furniture, kids' furniture, private booths, and other equipment. It caters to hotels, offices, restaurants, and commercial and medical facilities. The company was founded in 1967 and is based in Okazaki, Japan.",
@@ -103,7 +115,9 @@
    "market_cap": 30799998976,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "オフィス・店舗・施設向けの家具とインテリア製品を製造販売",
+   "summary_ja": "タスクチェアやデスク、ソファ、ロビーチェア、テーブル、室外用家具、キャビネット、役員室家具、子ども向け家具、プライベートブースなど多様な室内装備品を設計・製造・販売しています。ホテル、オフィス、飲食店、商業施設、医療施設などを顧客とし、それぞれのニーズに応じた製品販売で収益を得ています。"
   },
   "618A": {
    "summary_en": "KOMPEITO Inc. engages in the operation of an employee-benefit food service in Japan. The company offers OFFICE DE YASAI, a refrigerator that delivers fresh vegetables; OFFICE DE MEDIA, a digital signage displays product information for OFFICE DE YASAI, as well as TV commercials, weather forecasts, and other content; and SALAD STAND, a salad vending machine that helps to reduce food waste. The company was incorporated in 2012 and is based in Tokyo, Japan.",
@@ -115,7 +129,9 @@
    "market_cap": 17391312896,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "オフィスに新鮮野菜や健康食を届ける冷蔵庫と関連サービス",
+   "summary_ja": "企業の職場環境を改善する給食・飲食サービスを運営しています。新鮮な野菜を届ける専用冷蔵庫「OFFICE DE YASAI」とそれに連動するデジタルサイネージ、食品ロス削減向けのサラダ自動販売機「SALAD STAND」などを提供し、企業向けの福利厚生・食事サービスで収益を得ています。"
   },
   "607A": {
    "summary_en": "every,Inc. owns and operates various platforms that provide video media and advertising solutions in Japan. The company's platforms include Delish Kitchen, which delivers recipe videos; retail HUB, including Store DX, which involves installing digital signage in retail stores; Tomonite, which helps with child-rearing; and MOMENTH, which offers services that address companies' marketing challenges. It also offers tie-up advertising, display ads, store vision ads, user matching ads, performance-based advertising, and ad network advertising. every,Inc. was incorporated in 2015 and is headquartered in Minato, Japan.",
@@ -127,7 +143,9 @@
    "market_cap": 5827408384,
    "sector_ja": "通信サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "動画メディアと広告ソリューションを備えた複数プラットフォーム運営",
+   "summary_ja": "複数の動画・広告プラットフォームを運営しています。レシピ動画配信の「Delish Kitchen」、小売店向けデジタルサイネージの「Store DX」、育児支援の「Tomonite」、企業マーケティング課題解決の「MOMENTH」などを展開し、タイアップ広告、ディスプレイ広告、店舗ビジョン広告、パフォーマンス広告など様々な広告商品で収益化しています。"
   },
   "604A": {
    "summary_en": "beABLE CO.,LTD. engages in construction business and renewable energy business in Japan. The construction business focuses on maintenance and inspection work for nuclear power plants; The renewable energy business focuses on development, construction, and maintenance of renewable energy. It also engages in day care service for the elderly, gym services, and restaurant services. In addition, the company engages in electricity retail business. beABLE CO.,LTD. was incorporated in 1991 and is headquartered in Futaba, Japan.",
@@ -139,7 +157,9 @@
    "market_cap": 14832249856,
    "sector_ja": "不動産",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "原発点検・再生可能エネルギー開発・福祉サービスを展開",
+   "summary_ja": "建設事業では原発の保守点検作業を手がけており、再生可能エネルギー事業では太陽光発電施設の開発・施工・保守を行っています。このほか高齢者向けデイサービス、フィットネス施設、飲食店の運営、電力小売事業も展開し、複数の事業セグメントから収益を得ています。"
   },
   "603A": {
    "summary_en": "i GRID SOLUTIONS Inc. develops and operates platforms that enable the integrated utilization of distributed energy resources in Japan. It operates through GX Solution Business and Energy Trading Business segments. The company develops and operates on-site solar power plants, as well as provides related support and consulting services. It also provides various services related to promoting green transformation, including battery storage and EV-related services; and offers energy trading services for the use and circulation of renewable energy resources. The company was incorporated in 2004 and is headquartered in Minato, Japan.",
@@ -151,7 +171,9 @@
    "market_cap": 31577839616,
    "sector_ja": "公益",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "分散型エネルギーの統合活用プラットフォームと再生可能エネルギー取引",
+   "summary_ja": "太陽光発電、蓄電池、EV関連など複数の分散エネルギー資源を統合的に利用できるプラットフォームを開発・運営しています。オンサイト太陽光発電の導入支援、グリーン化関連コンサルティング、再生可能エネルギーの取引仲介などを通じて、企業や自治体のエネルギー転換を支援することで収益を得ています。"
   },
   "593A": {
    "summary_en": "Tier IV, Inc. develops open-source software solutions for autonomous driving. It develops Autoware, which is a software for urban driverless cars and supports 3D localization, object detection, path planning and following, and lane detection. In addition, the company offers self-driving development kit; autoware loggers; and autoware remove drive kit. It also offers sensor fusion technologies and products, including laser scanners and cameras. It also offers mobility services, development services, and solution services, covering deployment of autonomous driving systems, system integration, testing, operation support, and maintenance. The company was incorporated in 2015 and is based in Tokyo, Japan.",
@@ -163,7 +185,9 @@
    "market_cap": 124634259456,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "自動運転車用のオープンソースソフトウェアとセンサー技術を開発",
+   "summary_ja": "自動運転技術の実現に向け、都市部での無人運転を実現するソフトウェア「Autoware」を開発・公開しています。3次元位置認識、障害物検知、経路計画、車線検知などの機能を備え、開発キットやログツール、リモート操縦キットも提供しています。センサー技術やモビリティサービス、システム統合支援を通じて収益を得ています。"
   },
   "598A": {
    "summary_en": "ChatPlus Co.,Ltd. develops and provides SaaS-based subscription-based chatbot systems in Japan. The chatbot system is a service that supports companies in improving operational efficiency and productivity by automating and reducing the manpower required to handle inquiries from both inside and outside the company. It offers ChatPlus, a chatbot that supports the automation of corporate inquiry handling and communication, employing a format; AI Agent Plus, a chatbot that integrates generation AI such as ChatCPT with Chat Plus to generate optimal responses on the spot in addition to registered answers, enabling it to handle complex inquiries and diverse expressions from visitors and provide natural conversational responses; and FAQPlus, a system for creating, organizing, and managing articles of frequently asked questions and answers, so that users can easily find the answers they need. The company was incorporated in 2016 and is based in Chiyoda, Japan.",
