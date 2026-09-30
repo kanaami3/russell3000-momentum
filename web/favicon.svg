@@ -6,12 +6,13 @@
       <stop offset="1" stop-color="#9333ea"/>
     </linearGradient>
   </defs>
-  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#g)"/>
-  <!-- momentum bars -->
-  <rect x="14" y="34" width="7" height="16" rx="2" fill="#ffffff" opacity="0.55"/>
-  <rect x="25" y="26" width="7" height="24" rx="2" fill="#ffffff" opacity="0.75"/>
-  <rect x="36" y="18" width="7" height="32" rx="2" fill="#ffffff" opacity="0.9"/>
-  <!-- upward arrow -->
-  <path d="M13 40 L27 30 L37 36 L50 20" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M43 18 L52 17 L51 26 Z" fill="#ffffff"/>
+  <rect x="0" y="0" width="64" height="64" rx="14" fill="url(#g)"/>
+  <!-- momentum bars: 右上がりに並べ、奥ほど薄くして奥行きを出す -->
+  <rect x="13" y="36" width="8" height="15" rx="2" fill="#ffffff" opacity="0.45"/>
+  <rect x="25" y="29" width="8" height="22" rx="2" fill="#ffffff" opacity="0.6"/>
+  <rect x="37" y="21" width="8" height="30" rx="2" fill="#ffffff" opacity="0.75"/>
+  <rect x="49" y="13" width="8" height="38" rx="2" fill="#ffffff" opacity="0.95"/>
+  <!-- 上昇ライン: 16px に縮めるとバーは潰れるが、この線だけは形が残る -->
+  <polyline points="13,40 29,33 41,25 53,15" fill="none" stroke="#fbbf24"
+            stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
