@@ -31,9 +31,14 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 PAGE_PATH = REPO_ROOT / "web" / "data" / "ipo_jp.json"
 PROFILES = REPO_ROOT / "data" / "ipo_profiles_jp.json"
 
-# 1回の実行で日本語の一言を作る上限。全銘柄ぶんを一度に投げるとプロンプトが
-# 長くなりすぎて1件あたりが雑になる。キャッシュするので数日で全件埋まる。
-MAX_BIZ = int(os.getenv("IPO_BIZ_PER_RUN", "30"))
+# 1回の実行で日本語を作る上限。
+# 30件にしたら応答が max_tokens で切れ、JSONが壊れて1件も書けなかった。
+# 1銘柄あたり「一言40字＋概要180字」で日本語220字≒250トークン。12件なら
+# 3000トークン程度で、下の BIZ_MAX_TOKENS に十分収まる。
+MAX_BIZ = int(os.getenv("IPO_BIZ_PER_RUN", "12"))
+
+# 一言＋概要の生成だけ、他より長い応答を許す。
+BIZ_MAX_TOKENS = int(os.getenv("IPO_BIZ_MAX_TOKENS", "8000"))
 
 MODEL = "claude-haiku-4-5-20251001"
 MAX_TOKENS = 3000
@@ -244,14 +249,22 @@ def fill_biz_ja(client, page: dict) -> int:
     print(f"日本語の一言を {len(todo)} 件作ります。", file=sys.stderr)
     try:
         resp = client.messages.create(
-            model=MODEL, max_tokens=MAX_TOKENS,
+            model=MODEL, max_tokens=BIZ_MAX_TOKENS,
             messages=[{"role": "user", "content": biz_prompt(todo)}],
         )
     except Exception as e:
         print(f"一言の生成に失敗しました: {e}", file=sys.stderr)
         return 0
 
-    parsed = extract_json("".join(b.text for b in resp.content if b.type == "text"))
+    text = "".join(b.text for b in resp.content if b.type == "text")
+    parsed = extract_json(text)
+    if parsed is None:
+        # 応答が途中で切れるとJSONが壊れる。黙って0件にすると原因が
+        # 分からないので、打ち切り理由と応答の先頭を残す。
+        print(f"  JSONを解釈できませんでした。stop_reason="
+              f"{getattr(resp, 'stop_reason', '?')} 応答{len(text)}字",
+              file=sys.stderr)
+        print(f"  先頭: {text[:150]}", file=sys.stderr)
     rows = (parsed or {}).get("biz") or []
     allowed = {r["code"] for r in todo}
 
