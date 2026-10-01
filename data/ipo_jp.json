@@ -1,13 +1,28 @@
 {
- "asof": "2026-10-01",
- "generated_at_jst": "2026-10-01T01:48:29+09:00",
+ "asof": "2026-10-02",
+ "generated_at_jst": "2026-10-02T00:24:24+09:00",
  "source": "https://www.jpx.co.jp/listing/stocks/new/",
- "cutoff": "2024-09-30",
+ "cutoff": "2024-10-01",
  "years_back": 2,
  "pages_failed": 0,
- "count": 144,
- "upcoming": 4,
+ "count": 145,
+ "upcoming": 5,
  "ipos": [
+  {
+   "code": "658A",
+   "name": "（株）estie",
+   "technical": false,
+   "listing_date": "2026-11-06",
+   "approval_date": "2026-10-01",
+   "market": "グロース",
+   "band_low": null,
+   "band_high": null,
+   "offer_price": null,
+   "public_shares_k": 50.0,
+   "secondary_shares_k": 5638.8,
+   "trading_unit": 100.0,
+   "listed": false
+  },
   {
    "code": "656A",
    "name": "Allganize Holdings（株）",

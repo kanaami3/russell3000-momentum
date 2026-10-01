@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-10-01T01:48:32+09:00",
+ "updated_at": "2026-10-02T00:24:28+09:00",
  "profiles": {
   "648A": {
    "ok": false,
@@ -283,7 +283,9 @@
    "market_cap": 7944549888,
    "sector_ja": "生活必需品",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "犬猫向けの食事製品と動物病院・トリミング施設を提供",
+   "summary_ja": "ペット向けの調理済みパッケージ食を製造・販売するほか、ペットの健康診断や血液検査、動物病院診療、トリミングサロンなどの付帯サービスを提供しています。食品販売と医療・美容サービスを組み合わせることで、飼い主が必要とする複数のペットケアサービスを一体的に提供する事業モデルとなっています。"
   },
   "558A": {
    "summary_en": "SQUEEZE Inc. designs and develops an artificial intelligence (AI)-based platform for hospitality and tourism industry. The company's platform offers accounting management, revenue management, property management, cloud reception, cleaning and housekeeping, and facility operations services. The company was founded in 2014 and is based in Kitahiroshima, Japan.",
@@ -1407,7 +1409,9 @@
    "market_cap": 184382095360,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "合成開口レーダー衛星の運用と地球観測データサービスを提供",
+   "summary_ja": "複数の合成開口レーダー衛星を運用し、地表の変化を検出・分析するサービスを提供しています。地盤沈下監視、洪水・災害被害の評価、洋上風力発電・森林資源管理などの様々な用途向けのソリューションと、衛星データへのアクセス・分析プラットフォームを提供しています。"
   },
   "285A": {
    "summary_en": "Kioxia Holdings Corporation engages in research, development, manufacturing, sales, and other services of memory and related products for solid state drives (SSDs) and storage and smart devices in Japan, North America, Europe, and Asia. The company offers flash memory, SSDs, SD memory cards, and other retail products. It is also involved in the product and software development of SSD products; marketing of memory and SSD products; production management of subcontracted production in the post-process of memory; production and distribution of memory and photomask for semiconductor products; energy management business; and entrusted engineering work of CIM developments, as well as provides cleaning and health keeping for development center, and customer support services. The company was formerly known as Toshiba Memory Holdings Corporation and changed its name to Kioxia Holdings Corporation in October 2019. Kioxia Holdings Corporation was incorporated in 2019 and is headquartered in Minato, Japan.",
@@ -1445,7 +1449,9 @@
    "market_cap": 48435425280,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "精密部品・装置を製造し、自動車や電子産業などに供給",
+   "summary_ja": "液晶パネル用の印刷版、自動組立・検査装置、超音波溶接装置、アルミニウムダイカスト製品、ディスクドライブ組立装置などを製造・販売しています。あわせて、開発エンジニア向けの試作開発や組込基板の製造などの受託サービスも提供しています。"
   },
   "288A": {
    "summary_en": "Laxus Technologies Inc. provides sharing brand bags services through subscription-type membership in Japan. The company was incorporated in 2006 and is headquartered in Hiroshima, Japan.",
@@ -1457,7 +1463,9 @@
    "market_cap": 2414548224,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "高級ブランドバッグのサブスクリプション共有サービスを提供",
+   "summary_ja": "会員制の購読型サービスを通じて、複数の高級ブランドバッグを貸し出しています。高級品を購入する代わりに定期支払いで使用できる新しい消費モデルであり、消費者からの会費が主な収益源となっています。"
   },
   "286A": {
    "summary_en": "EUCALIA Inc. offers hospital management support services in Japan. The company offers consulting on organizational restructuring and business succession for medical institutions; plans, designs, and constructs building and structures; and manages, consults and introduces elderly care facilities. It also manufactures and sells contact lens and designs, develops, sells, and maintains package systems. EUCALIA Inc. was formerly known as Capital Medica Co., Ltd and changed its name to EUCALIA Inc. in May 2022. The company was founded in 2005 and is headquartered in Tokyo, Japan.",
@@ -1469,7 +1477,9 @@
    "market_cap": 26118922240,
    "sector_ja": "ヘルスケア",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "医療機関や介護施設の経営支援および関連製品・サービスの提供",
+   "summary_ja": "病院や介護施設に対し、組織再編や事業承継のコンサルティング、施設の建設・設計・管理を行っています。また、コンタクトレンズの製造販売やシステムの開発・販売・保守も手がけており、医療・介護施設のニーズに対応した複数のサービスを展開しています。"
   },
   "7075": {
    "summary_en": "QLS Holdings Co., Ltd, through its subsidiaries, engages in the childcare businesses in Japan. The company operates through Childcare, Nursing care, and Staffing Segment. It also offers nursing care services, such as home visit care, in-home nursing care support, after-school care, and home support services, as well as disability welfare and temporary staffing services. In addition, the company manages nurseries, daycare centers, kindergartens, and after-school clubs; and mobile phones and other telecommunications equipment. QLS Holdings Co., Ltd was founded in 2005 and is headquartered in Osaka, Japan. QLS Holdings Co., Ltd operates as a subsidiary of Grit Co. Ltd.",
@@ -1493,7 +1503,9 @@
    "market_cap": 2309757952,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "家庭や企業のエネルギー管理を効率化するソフトウェア・サービス",
+   "summary_ja": "家庭の電力使用量を最適化し、太陽光発電と蓄電を管理するアプリケーション、および電力会社向けのエネルギー管理サービスを提供しています。顧客は家庭と企業、電力事業者の複数の層にまたがっています。"
   },
   "280A": {
    "summary_en": "TMH Inc. engages in the purchase, repair, and sale of semiconductor manufacturing equipment parts in Japan, Asia, the United States, and internationally. It also operates LAYLA, an online marketplace for the semiconductor industry. In addition, the company offers heater, bratron, ceramic heater, chamber parts, chiller, dome, equipment parts, esc, generator, jacket heater, LFM, magnet, mass flow controller, motor driver, sensor, spindle, touch panel, valve, VODM, cryopump, turbo pump, and robot products. The company was incorporated in 2012 and is headquartered in Oita, Japan.",
@@ -1505,7 +1517,9 @@
    "market_cap": 3985031680,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "半導体製造装置の部品を売買・修理するほか、オンライン市場を運営",
+   "summary_ja": "中古の半導体製造装置部品の購入・修理・販売を行っており、グローバルに事業を展開しています。あわせて、半導体業界向けのオンライン部品市場を運営し、業界内での部品取引を仲介しています。"
   },
   "278A": {
    "summary_en": "Terra Drone Corporation, together with its subsidiaries, engages in the provision of industrial drone solutions in Japan, Belgium, the Netherlands, the Republic of Indonesia, and internationally. The company is involved in the development of unmanned aircraft system traffic management systems for enhancing the safety of drones and urban air mobility flights. The company also provides aerial solutions for spraying pesticides, fertilizers, and pest control products for agricultural plantations, as well as land survey and plant monitoring, mapping and analysis of soil conditions, and monitoring weather conditions and rainfall. In addition, it offers Terra UT drones and Terra 3D Inspect, a cloud-based platform for inspection of tanks, boilers, and various infrastructure facilities in the petrochemical and electric power industries. Further, the company provides Terra Lidar drones for construction and engineering, mining exploration, and GIS solutions. It serves land surveying, forest survey, mine surveying, infrastructure inspection, and oil and gas inspection sectors. The company has a strategic alliance with Quest UAV Ltd. Terra Drone Corporation was incorporated in 2016 and is headquartered in Tokyo, Japan.",
@@ -1517,7 +1531,9 @@
    "market_cap": 211351666688,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "産業用ドローンシステムと交通管理システムの開発・提供",
+   "summary_ja": "農業や土地測量、災害対応など様々な分野で使用される産業用ドローンソリューションを提供しています。また、ドローンや都市空中モビリティの安全性を高めるための無人航空機交通管理システムの開発にも取り組んでいます。"
   },
   "277A": {
    "summary_en": "Globe-ing Inc. provides DX and strategic consulting, and digital analytics/data services in Japan. The company offers cloud products, including Sales Suite, a solution to improve sales productivity; and Spend Intelligence Suite, a solution to optimize a company's external spending. The company was incorporated in 2017 and is based in Tokyo, Japan.",
@@ -1529,7 +1545,9 @@
    "market_cap": 52527562752,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "企業のデジタル化と経営戦略の策定を支援するコンサルティング企業",
+   "summary_ja": "デジタル化と経営戦略に関するコンサルティング、および経営データの分析・活用支援を行っています。営業効率を高める営業支援ツールや、企業の外部支出を最適化する支出管理ソリューションなどのクラウドサービスを提供しています。"
   },
   "276A": {
    "summary_en": "CCReB Advisors Inc. provides corporate real estate (CRE) solution in Japan. It develops real estate tech systems to support businesses, such as real estate investment, real estate buying and selling, rental brokerage, consulting, and project management. The company also offers CCReB GATEWAY, a B2B portal site that provides the latest management trends and essential information for corporate management; CCReB AI, a CRE sales support system; CCReB CREMa, a commercial real estate matching system; CCReB PROP, a fixed asset data extraction tool; CCReB Clip, an information support tool that creates target lists based on computer disclosure documents, including prospect lists, market statistics, and other analytical datasets; CCReB BI, a real estate research tool; and CCChat, a chat system utilizing generative AI. CCReB Advisors Inc. was incorporated in 2019 and is headquartered in Tokyo, Japan.",
@@ -1555,7 +1573,9 @@
    "market_cap": 15951560704,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "ラーメンや寿司など複数ブランドの飲食店を運営",
+   "summary_ja": "ラーメン、ステーキ、寿司などの複数の飲食ブランドを日本およびアジア各地で運営しており、直営店舗とフランチャイズ店舗の両方を展開しています。飲食事業に加えて、不動産ビジネスも行っています。"
   },
   "269A": {
    "summary_en": "Sapeet Inc. provides artificial intelligence (AI) solutions and products in Japan. The company's services include sales AI agent construction service, generative AI consulting/development support, planning and support for store DX and OMO measures, DX support for customer service standardization, AI posture and motion analysis, and new business support in the healthcare and wellness fields. It also offers Culticloud, a cloud service that streamlines communication between business owners and their customers. The company was incorporated in 2016 and is based in Tokyo, Japan.",
@@ -1567,7 +1587,9 @@
    "market_cap": 4654321152,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "AI技術を活用した業務効率化ツールと相談サービスを提供",
+   "summary_ja": "営業代行のためのAIエージェント構築やAI導入の相談・開発支援、店舗の販売チャネル統合支援、顧客対応の標準化支援など、企業のデジタル化に関わるAI活用を支援しています。また、事業者と顧客間のコミュニケーションを効率化するクラウドサービスも提供しています。"
   },
   "265A": {
    "summary_en": "Hmcomm Inc. develops products using voice recognition processing, abnormal sound detection, and natural language analysis processing. The company provides AI utilization consulting solutions. It also promotes cybernics business related to sound, such as information technology, artificial intelligence, and robotics. The company was incorporated in 2012 and is based in Tokyo, Japan.",
@@ -1593,7 +1615,9 @@
    "market_cap": 387535503360,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "X線を使った分析・検査機器を製造販売",
+   "summary_ja": "X線回折装置やX線蛍光分析装置、X線撮像装置などの分析機器、および半導体製造用のX線検査装置を製造・販売しています。これらの機器は半導体産業、電池製造、学術機関など多様な分野で使われており、製品のメンテナンスや修理サービスも提供しています。"
   },
   "9023": {
    "summary_en": "Tokyo Metro Co., Ltd. engages in the operation and management of railways in Japan. It is involved in the urban design and lifestyle creation businesses. The company also manages shops at stations and other commercial facilities; develops and rents office buildings and hotels; and provides advertising media services, such as advertisements in stations, premises and trains, and an information and communications business that handles licensing of mobile phone communication services, as well as leases optical fiber cable, etc. The company was formerly known as Teito Rapid Transit Authority and changed its name to Tokyo Metro Co., Ltd. in 2004. The company was founded in 1920 and is headquartered in Tokyo, Japan.",
@@ -1726,8 +1750,12 @@
   "656A": {
    "ok": false,
    "checked_at": "2026-10-01"
+  },
+  "658A": {
+   "ok": false,
+   "checked_at": "2026-10-02"
   }
  },
- "count": 144,
+ "count": 145,
  "ok_count": 135
 }
