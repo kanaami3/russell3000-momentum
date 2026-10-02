@@ -1609,6 +1609,17 @@ function momentumApp() {
           if (n++ < 12) setTimeout(fit, 500);
         };
         fit();
+        // 中のテーブルを開くと高さが変わる。監視して追従させる。
+        try {
+          const d = f.contentDocument;
+          if (d && window.ResizeObserver && !f._ro) {
+            f._ro = new ResizeObserver(() => {
+              const h = Math.max(d.body.scrollHeight, d.documentElement.scrollHeight);
+              if (h > 200) f.style.height = (h + 24) + 'px';
+            });
+            f._ro.observe(d.documentElement);
+          }
+        } catch (e) { /* 別ドメインなら監視できない */ }
       },
 
       ipoHasProfile() {
