@@ -6,9 +6,9 @@
 <title>かな塾長秘書AI投資ナビ</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2" />
 <link rel="apple-touch-icon" href="favicon.svg?v=2" />
-<meta name="description" content="かな塾長秘書AI投資ナビ:米国ラッセル3000と東証プライム全銘柄のモメンタムランキング、スウィングピック、デイトレ・ピックアップ、バリュー投資、指数モニターをAIが毎日自動分析。" />
+<meta name="description" content="かな塾長秘書AI投資ナビ:東証プライム全銖柄のモメンタムランキング、デイトレ・ピックアップ、バリュー投資、IPO、セクターローテーション、テーマランキングをAIが毎日自動分析。" />
 <meta property="og:title" content="かな塾長秘書AI投資ナビ" />
-<meta property="og:description" content="米国・日本株のモメンタム / スウィング / バリュー / デイトレ / 指数モニターを AI が毎日自動分析。塾生限定。" />
+<meta property="og:description" content="日本株のモメンタム / デイトレ / バリュー / IPO / セクター / テーマを AI が毎日自動分析。塾生限定。" />
 <meta property="og:type" content="website" />
 <script src="https://cdn.tailwindcss.com"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
@@ -62,12 +62,6 @@
 <nav class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm overflow-x-auto">
   <div class="max-w-6xl mx-auto px-4 sm:px-6">
     <div class="flex gap-1 whitespace-nowrap">
-      <button
-        @click="setMarket('us')"
-        :class="market === 'us' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
-        🇺🇸 米国 (Russell 3000)
-      </button>
       <button
         @click="setMarket('jp')"
         :class="market === 'jp' ? 'border-rose-600 text-rose-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
@@ -858,7 +852,7 @@
   </section>
 
   <!-- Weekly outlook section (来週の展望, JP / US tabs only) -->
-  <section x-show="(market === 'jp' || market === 'us') && weeklyOutlook && outlookMarketBody" class="bg-gradient-to-br from-sky-50 to-indigo-50 border-2 border-sky-300 rounded-2xl p-5 sm:p-6 shadow-md mb-8">
+  <section x-show="market === 'jp' && weeklyOutlook && outlookMarketBody" class="bg-gradient-to-br from-sky-50 to-indigo-50 border-2 border-sky-300 rounded-2xl p-5 sm:p-6 shadow-md mb-8">
     <div class="flex items-start justify-between flex-wrap gap-2 mb-3">
       <div>
         <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-extrabold text-sky-900">
@@ -936,7 +930,7 @@
   </section>
 
   <!-- Swing picks section (JP / US tabs only) -->
-  <section x-show="(market === 'jp' || market === 'us') && currentSwingPicks && (currentSwingPicks.picks || []).length > 0" class="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-2xl p-5 sm:p-6 shadow-md mb-8">
+  <section x-show="market === 'jp' && currentSwingPicks && (currentSwingPicks.picks || []).length > 0" class="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-2xl p-5 sm:p-6 shadow-md mb-8">
     <div class="flex items-start justify-between flex-wrap gap-2 mb-4">
       <div>
         <h2 class="flex items-center gap-3 text-xl sm:text-2xl font-extrabold text-amber-900">
@@ -1383,13 +1377,6 @@
 
 <script>
 const MARKET_CONFIG = {
-  us: {
-    file: 'momentum_us.json',
-    title: 'ラッセル3000 モメンタムランキング',
-    label: 'DAILY RUSSELL 3000 MOMENTUM REPORT',
-    docTitle: 'かな塾長秘書AI投資ナビ | 米国ラッセル3000',
-    defaultSort: 'market_cap',
-  },
   jp: {
     file: 'momentum_jp.json',
     title: '東証プライム モメンタムランキング',
@@ -1443,7 +1430,7 @@ const MARKET_CONFIG = {
 
 function momentumApp() {
   return {
-    market: 'us',
+    market: 'jp',
     data: null,
       ipoData: null,
       ipoMarket: 'すべて',
@@ -1778,8 +1765,8 @@ function momentumApp() {
     init() {
       // Pick market from URL hash > localStorage > default 'us'
       const hash = (location.hash || '').replace('#', '').toLowerCase();
-      let m = MARKET_CONFIG[hash] ? hash : (localStorage.getItem('market') || 'us');
-      if (!MARKET_CONFIG[m]) m = 'us';
+      let m = MARKET_CONFIG[hash] ? hash : (localStorage.getItem('market') || 'jp');
+      if (!MARKET_CONFIG[m]) m = 'jp';
       this.setMarket(m, /*replaceUrl=*/true);
 
       window.addEventListener('hashchange', () => {
@@ -1926,7 +1913,7 @@ statusBadgeClass(iso, freshH) {
       if (this.market === 'ipo') {
         this.loadIpo();
       }
-      if (this.market === 'jp' || this.market === 'us') {
+      if (this.market === 'jp') {
         this.loadSwingPicks();
         this.loadWeeklyOutlook();
       }
@@ -1957,7 +1944,7 @@ statusBadgeClass(iso, freshH) {
 
     async loadSwingPicks() {
       // Load swing picks for current market (jp or us only)
-      if (this.market !== 'jp' && this.market !== 'us') return;
+      if (this.market !== 'jp') return;
       const cacheKey = this.market === 'jp' ? 'swingPicksJp' : 'swingPicksUs';
       if (this[cacheKey]) return;
       try {
