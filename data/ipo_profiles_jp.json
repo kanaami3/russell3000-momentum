@@ -1,25 +1,57 @@
 {
- "updated_at": "2026-10-02T00:24:28+09:00",
+ "updated_at": "2026-10-03T01:36:50+09:00",
  "profiles": {
   "648A": {
    "ok": false,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-10-03"
   },
   "642A": {
-   "ok": false,
-   "checked_at": "2026-09-26"
+   "summary_en": "KYUDEN Holdings Inc. engages in the power generation, transmission, distribution, and retail in Japan and internationally. It is also involved in construction and maintenance of electrical equipment; sale of gas / LNG and coal; renewable energy business; data communication; optical broadband; telecommunications construction and maintenance; information system development; public-private partnership, and data center business. Further, the company develops and manages real estate. KYUDEN Holdings Inc. was founded in 1951 and is headquartered in Fukuoka City, Japan.",
+   "sector_en": "Utilities",
+   "industry_en": "Utilities - Independent Power Producers",
+   "employees": 21189,
+   "website": "https://www.kyuden.co.jp",
+   "city": "Fukuoka City",
+   "market_cap": 931136536576,
+   "sector_ja": "公益",
+   "ok": true,
+   "checked_at": "2026-10-03"
   },
   "641A": {
-   "ok": false,
-   "checked_at": "2026-09-26"
+   "summary_en": "NOK Group Corporation engages in manufacturing and selling industrial functional products in Japan and internationally. The company provides solutions in the fields of Sealing, Mechanical, Electronics, and Chemical. It offers sealing solutions, such as oil seals, O-rings, and others; mechanical solutions, including mechanical seals, valves, and accumulators; electronics solutions comprising flexible printed circuits; and chemical solutions, such as specialty lubricants, synthetic rubber, and others. It serves various industries in automotive, electronic products, industrial machinery, aviation and aerospace, marine vessels, nuclear power and energy, and semiconductor manufacturing equipment. The company was incorporated in 2026 and is based in Tokyo, Japan.",
+   "sector_en": "Technology",
+   "industry_en": "Electronic Components",
+   "employees": null,
+   "website": "https://www.nokgrp.com",
+   "city": "Tokyo",
+   "market_cap": null,
+   "sector_ja": "情報技術",
+   "ok": true,
+   "checked_at": "2026-10-03"
   },
   "640A": {
-   "ok": false,
-   "checked_at": "2026-09-26"
+   "summary_en": "ASNOVA Companies Inc. engages in the rental and sale of wedge-tied scaffolding and similar products in Japan and internationally. The company was founded in 2013 and is headquartered in Nagoya, Japan.",
+   "sector_en": "Industrials",
+   "industry_en": "Rental & Leasing Services",
+   "employees": 231,
+   "website": "https://www.asnova.co.jp",
+   "city": "Nagoya",
+   "market_cap": 5136833024,
+   "sector_ja": "資本財・サービス",
+   "ok": true,
+   "checked_at": "2026-10-03"
   },
   "646A": {
-   "ok": false,
-   "checked_at": "2026-09-26"
+   "summary_en": "Crasus Chemical Inc. manufactures petrochemical products in Japan. The company produces basic petrochemicals, organic chemicals, synthetic resins, and other derivatives at the Oita Petrochemical Complex. It manufactures olefins, including ethylene and propylene, through naphtha cracker furnaces that process naphtha, liquefied petroleum gas, condensate, and kerosene/diesel as feedstocks. The company also manufactures organic chemicals using acetic acid as the principal raw material, including ethyl acetate, vinyl acetate, and allyl alcohol. Additionally, it manufactures synthetic resin products, such as polypropylene used in automobile and food packaging applications, and polyethylene used in automobile and semiconductor applications. The company also manufactures styrene monomer, along with by-products and by-product derivatives generated from petrochemical complex operations. Crasus Chemical Inc. was incorporated in 2024 and is based in Oita, Japan. Crasus Chemical Inc. is a prior subsidiary of Resonac Holdings Corporation.",
+   "sector_en": "Basic Materials",
+   "industry_en": "Chemicals",
+   "employees": null,
+   "website": "https://www.crasus.co.jp",
+   "city": "Oita",
+   "market_cap": 50797826048,
+   "sector_ja": "素材",
+   "ok": true,
+   "checked_at": "2026-10-03"
   },
   "634A": {
    "summary_en": "LAYERED Inc. provides medical digital transformation (DX) services. The company offers products, such as Kakarite, a patient management and communication support system; and Medical Window, medical information media; and services, including website production and operation support for medical institutions. The company serves clinics, hospitals, pharmaceutical companies, and local governments. The company was founded in 1998 and is headquartered in Fukuoka City, Japan.",
@@ -1165,7 +1197,9 @@
    "market_cap": 8232520192,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "秘密分散技術を使ったPC向けセキュリティソフトを開発・販売",
+   "summary_ja": "データ漏洩を防ぐための暗号化技術をソフトウェアやSDK、データベースプラットフォームの形で提供しています。個人や企業のパソコンで安全にデータを保護する「ZENMU Virtual Drive」や、認証・データ保護向けのSDK、セキュアな計算ができるデータベース「QueryAhead」が主な製品です。企業や組織からのライセンス販売が収益源です。"
   },
   "336A": {
    "summary_en": "Dynamic Map Platform Co., Ltd. develops high-precision 3D data in Japan and the United States of America. The company provides Dynamic Map Platform, an autonomous driving and advance driving assistance systems for mobility; 3Dmapspocket, a data platform that allows users to view and analyze high-precision 3D point cloud data of nationwide expressways/motorways, and arterial roads; high-precision guidance using HD map generation technology; and location information services. The company was formerly known as Dynamic Map Planning Co., Ltd and changed its name to Dynamic Map Platform Co., Ltd. in June 2017. The company was founded in 2016 and is headquartered in Tokyo, Japan.",
@@ -1275,7 +1309,9 @@
    "market_cap": 4050270464,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "グランピングやペット旅館などの宿泊施設を運営・支援",
+   "summary_ja": "「resort-glamping.com」というグランピングやリゾート施設の予約プラットフォームを運営し、あわせてペット向け旅館「Inuyado」も展開しています。グランピング施設やペット対応宿泊施設の誘客支援、施設管理代行、経営再生コンサルティングも手がけており、宿泊予約手数料、施設運営料、コンサルティング料から収益を得ています。"
   },
   "323A": {
    "summary_en": "Flier Inc., together with its subsidiaries, provides book summary services in Japan. It operates in two segments, Enterprise and Consumer. The company offers Flier, a book summary service that facilitates encounters with good books; Flier Business, a corporate talent development service centered in book summary content; Flier Book Labo, an online reading community; and Flier Book Camp, an online course where authors and experts serve as instructors. It also provides Flier Growth Organization Navi, a concept survey that visualizes the results of human resource investment; and Cross-Boundary Management Program, a cross-boundary corporate training program for leaders of corporations. The company was incorporated in 2013 and is headquartered in Chiyoda, Japan. Flier Inc. operates as a subsidiary of MEDIA DO Co., Ltd.",
@@ -1287,7 +1323,9 @@
    "market_cap": 1316468992,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "書籍の要約コンテンツを提供するプラットフォーム運営",
+   "summary_ja": "「Flier」という書籍要約サービスをメイン事業として、個人向けと企業向けの二つのセグメントで展開しています。個人向けでは要約による読書体験と読書コミュニティを提供し、企業向けでは人材育成研修として書籍要約コンテンツを活用させています。オンライン講座やタレント診断ツールも提供しており、個人の有料会員と企業の研修利用料が主な収入源です。"
   },
   "319A": {
    "summary_en": "Next Generation Technology Group Inc. engages in the acquisition of manufacturing-related companies. It is involved in the metal grinding business for industrial equipment, designs, manufactures and sells power supply equipment; casting, machining and assembly of industrial machinery and automotive parts; and manufacturing metal springs for automobile brakes and EV parts disaster. In addition, it rents, maintains, and sells used forklift. Next Generation Technology Group Inc. was incorporated in 2018 and is based in Tokyo, Japan.",
@@ -1313,7 +1351,9 @@
    "market_cap": 1693601408,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "非正規雇用の人材派遣・紹介と情報メディアを運営",
+   "summary_ja": "パート・契約社員などの派遣・紹介業が主力で、医療・福祉業界向けの人材サービスも提供しています。あわせて主婦向けを含む求人情報メディアを複数運営し、DX推進支援やBPO（業務代行）サービスも展開します。企業からの派遣手数料・紹介料、求人広告料、コンサルティング料などが収益源です。"
   },
   "304A": {
    "summary_en": "FORCIA, Inc. operates a digital business platform in Japan. It primarily offers search platform development and consulting services. The company offers Spook, a technological platform that processes data; WebConnect, a product sales and business management platform for the travel and tourism industry; and Value Connect, which connects providers and sellers of tourism resources. FORCIA, Inc. was incorporated in 2001 and is based in Tokyo, Japan.",
@@ -1325,7 +1365,9 @@
    "market_cap": 2636265984,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "旅行・観光業向けのデータプラットフォームを開発",
+   "summary_ja": "企業向けの検索プラットフォーム開発とコンサルティングを主要事業とする情報技術企業です。旅行・観光業向けの「WebConnect」（商品販売・業務管理）や「Value Connect」（観光資源のマッチングプラットフォーム）など複数のプラットフォームを提供しています。旅行会社や観光関連事業者からのシステム利用料やライセンス料が収益源です。"
   },
   "303A": {
    "summary_en": "visumo Inc. engages in the development and operation of marketing platforms. It also designs and develops SaaS based visual marketing platforms for digital marketing and enriching website content. The company's Visumo platform collects posted photos from Instagram and other social media sites with hashtags and can be used for own website content. It serves clients in apparel, beauty and cosmetics, interior, food, tourism, local governments, and other sectors. The company was incorporated in 2019 and is based in Shibuya, Japan. visumo Inc. operates as a subsidiary of Softcreate Holdings Corp.",
@@ -1337,7 +1379,9 @@
    "market_cap": 1252977664,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "SNS写真を使ったビジュアル・マーケティング支援ツールを提供",
+   "summary_ja": "企業のWebサイトやマーケティング活動を支援するSaaS型プラットフォーム「Visumo」を提供しています。InstagramなどのSNSに投稿された写真をハッシュタグで収集し、企業が自社サイトのコンテンツとして活用できます。アパレル、美容、食品、観光、自治体など多くの業種から利用されており、企業からのサブスクリプション料が主な収入源です。"
   },
   "298A": {
    "summary_en": "GVA TECH,Inc. engages in the development and provision of legal tech platforms. It offers OLGA, a legal operating system that offers services for companies with legal departments; online service that supports the preparation of documents for commercial and company change registrations; corporate registration certificate acquisition service, including GVA Corporate Registration, GVA Register Acquisition, and GVA Trademark Registration; and AI-powered confidentiality agreement checking service. GVA TECH,Inc. was incorporated in 2017 and is headquartered in Shibuya, Japan.",
@@ -1349,7 +1393,9 @@
    "market_cap": 1516692352,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "法律業務をIT化するプラットフォームを提供",
+   "summary_ja": "企業の法務部門向けに、法律業務を効率化するデジタルプラットフォーム「OLGA」を提供しています。商業登記・会社設立変更手続きの書類作成支援、法人登記証取得代行、商標登録サービス、AI搭載の秘密保持契約チェック機能など、複数のサービスをワンプラットフォームで展開します。法務業務を扱う企業からのサブスクリプション料やサービス利用料が収益源です。"
   },
   "300A": {
    "summary_en": "MIC Co., Ltd. provides retail sales promotion support services in Japan. It offers support services from manufacturing to delivery, and display of promotional tools; PromOS, a cloud-based platform that manages systems and information related to sales promotion; Co.HUB, a joint delivery service that consolidates promotional tools from each manufacturer at a promotion management center and delivers them to stores; and designer on-site support services. The company also provides business improvement consulting, system development, BPO, creative designing, printing, fulfillment, and field supporting services. MIC Co., Ltd. was founded in 1946 and is based in Tokyo, Japan. MIC Co., Ltd. operates as a subsidiary of M2 Corporation.",
@@ -1361,7 +1407,9 @@
    "market_cap": 21309888512,
    "sector_ja": "通信サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "メーカーの販売促進ツールの企画から店舗設置までをサポート",
+   "summary_ja": "メーカーが販売促進に使うポスターやサンプル品などのツール制作から、店舗への配送・設置までを一括支援する企業です。クラウド型プラットフォーム「PromOS」で販促情報を管理し、複数メーカーの販促ツールを一括配送する「Co.HUB」サービスも提供しています。メーカーからの業務委託費、コンサルティング料、システム利用料が主な収入源です。"
   },
   "297A": {
    "summary_en": "Alpico Holdings Co., Ltd. engages in the distribution business in Japan. It operates through Distribution Business, Transportation Business, Tourism Business, Real Estate Business, and Other Service Business segments. The company operates food supermarkets under the Delicia brand name; commercial product stores under the Gyomu Super and U-Palette brand; mobile sales vehicles under the Tokushimaru name; a self-service unmanned payment store; online supermarkets; pharmaceutical stores; and burger and coffee shops. It is also involved in the bus, taxi, and railway transportation; automobile maintenance, such as vehicle inspection, maintenance, bodywork painting, and vehicle sales; operation of city and business hotels, hot spring resort hotels, inns, and service areas, as well as leisure facilities, including golf courses and campgrounds; travel agency; real estate rental and villa subdivision management business; and insurance activities. Alpico Holdings Co., Ltd. was founded in 1920 and is headquartered in Matsumoto, Japan.",
@@ -1373,7 +1421,9 @@
    "market_cap": 14494020608,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "食品スーパーから交通・観光・不動産まで幅広く展開",
+   "summary_ja": "「デリシア」というスーパーマーケットチェーンを中心に、業務用食品店、移動販売、医薬品店、飲食店などの小売事業を運営しています。並行してバス・タクシー・鉄道などの交通事業、観光事業、不動産事業も展開しており、複数の事業セグメントから収益を得ている総合企業です。個人消費者と自治体・法人が主な顧客です。"
   },
   "296A": {
    "summary_en": "Reiwa Accounting Holdings Co., Ltd. provides consulting services focused on accounting operations and business management in Japan. It provides payroll calculation, temporary staffing, recruitment, accounting, bookkeeping certification, labor management, labor consulting, and other business process outsourcing services, as well as planning and running training and seminars on accounting practices. The company also engages in the planning, design, production, development, and sales of systems related to accounting operations; the operation, maintenance, management, and updating of IT systems; and the planning, investigation, research, development, technical support, training, and consulting related to systems for management, business, information processing, and information communication. In addition, It provides consulting services related to management and finance, along with related services. The company serves various clients, including companies, students, accounting staff, and other related parties. Reiwa Accounting Holdings Co., Ltd. was incorporated in 2004 and is headquartered in Chuo, Japan.",
@@ -1385,7 +1435,9 @@
    "market_cap": 43985928192,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "経理・労務関連の専門的なサービスと業務代行を提供",
+   "summary_ja": "企業の経理業務や人事労務業務をサポートするコンサルティング会社です。給与計算、派遣スタッフ派遣、採用支援、記帳代行、労務管理などの業務代行と、会計実務の研修セミナーを実施しています。また経理システムの開発・販売やITシステムの保守管理も手がけており、複数の企業から業務委託費やシステム利用料を得ています。"
   },
   "299A": {
    "summary_en": "Kurashiru, Inc. engages in the platform business in Japan, Singapore, and internationally. It offers advertising services, including Kurashiru, a recipe video platform; Receipt Challenge by Kurashiru, a smart savings app; Kurashiru AI OS, an AI agent platform for CPG brands, wholesalers, and retailers; TRILL, a lifestyle information media; and LIVEwith, a creator management agency. The company was formerly known as dely Inc. and changed its name to Kurashiru, Inc. in October 2025. Kurashiru, Inc. was incorporated in 2014 and is headquartered in Minato, Japan.",
@@ -1397,7 +1449,9 @@
    "market_cap": 50339340288,
    "sector_ja": "通信サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "レシピ動画サイトなど複数のメディア・プラットフォームを運営",
+   "summary_ja": "「Kurashiru」というレシピ動画プラットフォーム、家計管理アプリ「Receipt Challenge」、CPGブランド向けのAIエージェント「Kurashiru AI OS」、ライフスタイル情報メディア「TRILL」、クリエイター事務所「LIVEwith」など複数のメディア・プラットフォームを運営しています。広告料、アプリ利用料、サービス手数料などから収益を得ています。"
   },
   "290A": {
    "summary_en": "Synspective Inc. designs, builds, and operates a fleet of synthetic aperture radar satellites (SAR) to detect and understand changes. It offers land displacement monitoring, flood damage assessment, disaster damage assessment, offshore wind and wave, and forest inventory management solutions. The company's product includes StriX satellite to observe and analyze the Earth's surface down to sub-meter resolutions. It also provides Synspective Data Platform that offers access to SAR data for searching, ordering, and downloading data to find solutions in social infrastructure management, disaster response, environmental monitoring, security, and intelligence fields. Synspective Inc. was founded in 2018 and is based in Tokyo, Japan.",
@@ -1437,7 +1491,9 @@
    "market_cap": 4110532864,
    "sector_ja": "生活必需品",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "企業の社員研修を企画・実施",
+   "summary_ja": "新入社員からマネジメント層まで、階層別や職種別の研修プログラムを提供しています。コンプライアンス、顧客対応、リーダーシップ、メンタルヘルス、業務改善スキルなど多岐にわたるテーマに対応します。企業が社員教育をアウトソースする際の主要な受託先として、研修実施料から収益を得ています。"
   },
   "287A": {
    "summary_en": "Kuroda Group Co., Ltd. manufactures and sells goods and materials for data storage, automotive, and electronics industries in Japan and internationally. It offers printing plates for alignment film printing for liquid crystal panels; automated assembly and inspection equipment; ultrasonic soldering devices; aluminum die-casting products; \nand assembly equipment for disk drives. The company is also involved in contract development and manufacturing services, including product development for development engineers, manufacturing and development of embedded and evaluation board, and electronic circuit board design; automation equipment; manufacture and sell resin molded products and plastic molding dies for automotive; seals, labels, and filters for hard disk drive; surface treatment processing; and laser processing business of electronic components for automobiles and mobile devices. In addition, it trades in electronic parts and materials. The company was formerly known as KM Holdings Co., Ltd. and changed its name to Kuroda Group Co., Ltd. in April 2020. The company was founded in 1945 and is based in Shinagawa, Japan.",
@@ -1757,5 +1813,5 @@
   }
  },
  "count": 145,
- "ok_count": 135
+ "ok_count": 139
 }
