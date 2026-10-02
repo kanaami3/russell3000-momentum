@@ -104,6 +104,12 @@
           class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors whitespace-nowrap">
           🔄 セクターローテーション
         </button>
+        <button
+          @click="setMarket('theme')"
+          :class="market === 'theme' ? 'border-cyan-600 text-cyan-700' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
+          class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors whitespace-nowrap">
+          🔥 テーマランキング
+        </button>
     </div>
   </div>
 </nav>
@@ -221,7 +227,8 @@
   <!-- Dividend screener tab -->
   <div x-show="market === 'dividend' && !dividendData" class="text-center py-20 text-slate-500">配当・増配余力スクリーナーを読み込み中...</div>
   <div x-show="market === 'ipo'" class="max-w-6xl mx-auto px-4 sm:px-6 pt-5 text-xs text-slate-500" x-text="ipoCaption()"></div>
-  <div x-show="market === 'sector'" class="max-w-6xl mx-auto px-4 sm:px-6 pt-5 text-xs text-slate-500">各業種をモメンタムで毎営業日ランク付けし、順位の推移を追っています。線の追い抜きが資金の移り先です。</div>
+  <div x-show="market === 'sector'" class="max-w-6xl mx-auto px-4 sm:px-6 pt-5 text-xs text-slate-500">各セクターをモメンタムで毎営業日ランク付けし、順位の推移を追っています。線の追い抜きが資金の移り先です。</div>
+  <div x-show="market === 'theme'" class="max-w-6xl mx-auto px-4 sm:px-6 pt-5 text-xs text-slate-500">当塾で見ているテーマごとに銖柄バスケットを等ウェイトで組み、TOPIXに対する相対力で毎営業日ランク付けしています。線の追い抜きが資金の移り先です。</div>
   <template x-if="market === 'dividend' && dividendData">
   <div class="space-y-4">
     <p class="text-xs text-slate-500">
@@ -584,6 +591,21 @@
     <p class="text-[11px] text-slate-400 mt-2">情報整理であり投資勧誘ではありません。</p>
   </section>
   </template>
+  <template x-if="market === 'theme'">
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-5">
+    <div class="flex items-center justify-end mb-2">
+      <a href="theme.html" target="_blank" rel="noopener"
+        class="text-xs text-blue-600 hover:underline whitespace-nowrap">別タブで大きく見る ↗</a>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-900">
+      <iframe src="theme.html" title="テーマランキング"
+        loading="lazy" class="w-full block" @load="fitSectorFrame($event.target)"
+        style="height:760px;border:0"></iframe>
+    </div>
+    <p class="text-[11px] text-slate-400 mt-2">テーマの分類は当塾の定義です。情報整理であり投資勧誘ではありません。</p>
+  </section>
+  </template>
+
 
   <!-- Earnings tab: main content -->
 
@@ -1392,8 +1414,15 @@ const MARKET_CONFIG = {
   sector: {
     file: null,  // 同じリポジトリの sector.html を iframe で表示する
     title: 'セクターローテーション',
-    label: 'SECTOR ROTATION — 業種別の資金循環',
+    label: 'SECTOR ROTATION — セクター別の資金循環',
     docTitle: 'かな塾長秘書AI投資ナビ | セクターローテーション',
+    defaultSort: 'm3',
+  },
+  theme: {
+    file: null,  // 同じリポジトリの theme.html を iframe で表示する
+    title: 'テーマランキング',
+    label: 'THEME RANKING — テーマ別の相対力推移',
+    docTitle: 'かな塾長秘書AI投資ナビ | テーマランキング',
     defaultSort: 'm3',
   },
   ipo: {
