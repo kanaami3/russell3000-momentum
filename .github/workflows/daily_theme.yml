@@ -1,0 +1,40 @@
+name: Theme Ranking Update
+
+on:
+  schedule:
+    # 平日 07:27 JST = 前日 22:27 UTC。
+    # concurrency グループ data-update の衝突を避けるため、セクター(:17)と
+    # 分の位置をズラしてある。
+    - cron: "27 22 * * 0-4"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  theme:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build theme ranking data
+        run: python batch/theme/build_theme_data.py
+
+      - name: Commit and push
+        run: |
+          bash batch/safe_commit_push.sh \
+            "data(theme): theme ranking $(TZ=Asia/Tokyo date +%F)" \
+            web/data/theme
