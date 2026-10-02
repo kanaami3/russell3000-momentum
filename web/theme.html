@@ -474,3 +474,90 @@ document.querySelectorAll('nav button').forEach(b=>{b.onclick=()=>{
     else window.addEventListener('load', function(){ setTimeout(step, 0); });
   })();
 </script>
+
+<!-- テーマ構成銘柄テーブル（相対力の順に並べる） -->
+<style>
+  #theme-stocks{max-width:1100px;margin:28px auto 40px;padding:20px 16px 0;border-top:1px solid rgba(255,255,255,.08)}
+  #theme-stocks h2{font-size:15px;font-weight:700;margin:0 0 4px}
+  #theme-stocks .ts-note{font-size:11px;color:#94a3b8;margin:0 0 16px;line-height:1.7}
+  #theme-stocks .ts-card{border:1px solid rgba(255,255,255,.10);border-radius:10px;margin-bottom:10px;overflow:hidden;background:rgba(255,255,255,.02)}
+  #theme-stocks .ts-head{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;user-select:none}
+  #theme-stocks .ts-head:hover{background:rgba(255,255,255,.04)}
+  #theme-stocks .ts-rank{min-width:28px;font-size:12px;font-weight:700;color:#67e8f9}
+  #theme-stocks .ts-name{font-size:13px;font-weight:700;flex:1}
+  #theme-stocks .ts-rs{font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums}
+  #theme-stocks .ts-caret{font-size:10px;color:#64748b}
+  #theme-stocks table{width:100%;border-collapse:collapse;font-size:12px}
+  #theme-stocks th{text-align:right;font-weight:600;color:#94a3b8;font-size:10px;padding:6px 10px;border-top:1px solid rgba(255,255,255,.08)}
+  #theme-stocks th:nth-child(1),#theme-stocks th:nth-child(2){text-align:left}
+  #theme-stocks td{text-align:right;padding:6px 10px;border-top:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums}
+  #theme-stocks td:nth-child(1),#theme-stocks td:nth-child(2){text-align:left}
+  #theme-stocks td.code{color:#64748b;font-size:11px}
+  #theme-stocks .up{color:#34d399}
+  #theme-stocks .down{color:#f87171}
+  #theme-stocks .na{color:#64748b}
+  #theme-stocks .ts-body{display:none}
+  #theme-stocks .ts-card.open .ts-body{display:block}
+</style>
+<div id="theme-stocks">
+  <h2>テーマ別・構成銘柄</h2>
+  <p class="ts-note">相対力の強い順にテーマを並べています。テーマ名をクリックすると構成銘柄が開きます。売買代金は終値×出来高の概算です。<br>テーマの分類は当塾の定義であり、情報整理であって投資勧誘ではありません。</p>
+  <div id="ts-list"></div>
+</div>
+<script>
+(function(){
+  var FMT = function(n){
+    if (n === null || n === undefined) return null;
+    if (n >= 1e12) return (n/1e12).toFixed(2) + '兆円';
+    if (n >= 1e8)  return (n/1e8).toFixed(0) + '億円';
+    return Math.round(n/1e4) + '万円';
+  };
+  function row(s){
+    var c = s.change_pct;
+    var cls = c === null || c === undefined ? 'na' : (c > 0 ? 'up' : (c < 0 ? 'down' : ''));
+    var ctxt = c === null || c === undefined ? '—' : (c > 0 ? '+' : '') + c.toFixed(2) + '%';
+    var price = s.price === null || s.price === undefined ? '—' : s.price.toLocaleString();
+    var vol = s.volume === null || s.volume === undefined ? '—' : s.volume.toLocaleString();
+    var to = FMT(s.turnover) || '—';
+    return '<tr><td class="code">' + s.code + '</td><td>' + s.name + '</td><td>' + price +
+           '</td><td class="' + cls + '">' + ctxt + '</td><td>' + vol + '</td><td>' + to + '</td></tr>';
+  }
+  function card(rank, name, rs, items){
+    var d = document.createElement('div');
+    d.className = 'ts-card' + (rank <= 3 ? ' open' : '');
+    d.innerHTML =
+      '<div class="ts-head"><span class="ts-rank">#' + rank + '</span>' +
+      '<span class="ts-name">' + name + '</span>' +
+      '<span class="ts-rs">相対力 ' + rs.toFixed(3) + '</span>' +
+      '<span class="ts-caret">\u25BC</span></div>' +
+      '<div class="ts-body"><table><thead><tr><th>コード</th><th>銘柄</th><th>株価</th>' +
+      '<th>前日比</th><th>出来高</th><th>売買代金</th></tr></thead><tbody>' +
+      items.map(row).join('') + '</tbody></table></div>';
+    d.querySelector('.ts-head').addEventListener('click', function(){ d.classList.toggle('open'); });
+    return d;
+  }
+  Promise.all([
+    fetch('data/theme/market_data.json').then(function(r){ return r.json(); }),
+    fetch('data/theme/stocks.json').then(function(r){ return r.json(); })
+  ]).then(function(res){
+    var market = res[0], stocks = res[1];
+    // 相対力の最新値で降順。市場データ側に無いテーマは末尾に回す。
+    var order = (market.sectors || []).map(function(s){
+      return { name: s.name, rs: s.rs && s.rs.length ? s.rs[s.rs.length - 1] : null };
+    }).filter(function(s){ return s.rs !== null; })
+      .sort(function(a, b){ return b.rs - a.rs; });
+    var list = document.getElementById('ts-list');
+    order.forEach(function(s, i){
+      var items = (stocks.themes || {})[s.name];
+      if (!items) return;
+      list.appendChild(card(i + 1, s.name, s.rs, items));
+    });
+    if (!list.children.length) {
+      list.innerHTML = '<p class="ts-note">構成銘柄のデータが読み込めませんでした。</p>';
+    }
+  }).catch(function(e){
+    document.getElementById('ts-list').innerHTML =
+      '<p class="ts-note">構成銘柄のデータが読み込めませんでした。</p>';
+  });
+})();
+</script>
