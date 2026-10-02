@@ -156,7 +156,7 @@
   <!-- ============ MONITOR ============ -->
   <div class="view on" id="v-monitor">
     <div class="regime" id="regime"></div>
-    <div class="card"> <h2>トレンド転換アラート</h2> <p class="desc">直近1週で象限をまたいだ業種。<b style="color:var(--improve)">Improving入り</b>＝底打ち初動、<b style="color:var(--weak)">Weakening入り</b>＝失速初動。</p> <div id="alerts"></div> </div> <div class="card full">
+    <div class="card"> <h2>トレンド転換アラート</h2> <p class="desc">直近1週で象限をまたいだセクター。<b style="color:var(--improve)">Improving入り</b>＝底打ち初動、<b style="color:var(--weak)">Weakening入り</b>＝失速初動。</p> <div id="alerts"></div> </div> <div class="card full">
       <h2>相対力チャート（TOPIX比・26週正規化）</h2>
       <p class="desc">上向き＝資金流入。凡例クリックで表示切替。</p>
       <svg id="lines" viewBox="0 0 1160 380" preserveAspectRatio="xMidYMid meet"></svg>
@@ -164,7 +164,7 @@
     </div>
   </div>
 
-  <!-- ============ MOMENTUM RANK ============ --> <div class="view" id="v-rank"> <div class="card"> <h2>業種モメンタム・ランキング推移</h2> <p class="desc">各業種を<b>モメンタム(RS-Mom)</b>または<b>相対力(RS-Ratio)</b>で毎営業日ランク付けし、順位の推移を追跡。線の追い抜き＝資金シフトの転換点、右端の数字＝現在の順位。凡例クリックで表示切替。</p> <div class="rrg-tools"> <div class="secchips" id="rank-metric" style="margin:0"> <button class="on" data-m="mom">モメンタム(RS-Mom)</button> <button data-m="ratio">相対力(RS-Ratio)</button> </div> <div class="slider" style="margin-left:auto">期間 <input type="range" id="rankwin" min="10" max="40" step="5" value="20"><span id="rankwinlen">20営業日</span></div> </div> <div class="regime" id="rank-movers" style="margin-bottom:10px"></div> <svg id="rankchart" viewBox="0 0 1160 620" preserveAspectRatio="xMidYMid meet"></svg> <div id="rank-lg" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:3px 12px;margin-top:12px"></div> </div> </div>  <!-- ============ BRIEF ============ -->
+  <!-- ============ MOMENTUM RANK ============ --> <div class="view" id="v-rank"> <div class="card"> <h2>セクターモメンタム・ランキング推移</h2> <p class="desc">各セクターを<b>モメンタム(RS-Mom)</b>または<b>相対力(RS-Ratio)</b>で毎営業日ランク付けし、順位の推移を追跡。線の追い抜き＝資金シフトの転換点、右端の数字＝現在の順位。凡例クリックで表示切替。</p> <div class="rrg-tools"> <div class="secchips" id="rank-metric" style="margin:0"> <button class="on" data-m="mom">モメンタム(RS-Mom)</button> <button data-m="ratio">相対力(RS-Ratio)</button> </div> <div class="slider" style="margin-left:auto">期間 <input type="range" id="rankwin" min="10" max="40" step="5" value="20"><span id="rankwinlen">20営業日</span></div> </div> <div class="regime" id="rank-movers" style="margin-bottom:10px"></div> <svg id="rankchart" viewBox="0 0 1160 620" preserveAspectRatio="xMidYMid meet"></svg> <div id="rank-lg" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:3px 12px;margin-top:12px"></div> </div> </div>  <!-- ============ BRIEF ============ -->
   <div class="view" id="v-brief">
     <div class="masthead">
       <div><span class="eyebrow">来週の展望</span><h1 class="head" id="b-headline"></h1></div>
@@ -195,10 +195,10 @@
   <!-- ============ BOARD ============ -->
   <div class="view" id="v-board">
     <div class="card">
-      <h2>業種スコアボード</h2>
-      <p class="desc">RRG座標・象限・相対リターン。<b>初期表示はRS-Mom（勢い）の高い順＝近く上昇しそうな業種が上位</b>。列見出しクリックで並べ替え。</p>
+      <h2>セクタースコアボード</h2>
+      <p class="desc">RRG座標・象限・相対リターン。<b>初期表示はRS-Mom（勢い）の高い順＝近く上昇しそうなセクターが上位</b>。列見出しクリックで並べ替え。</p>
       <table id="tbl"><thead><tr>
-        <th data-k="name">業種</th><th data-k="quad">象限</th>
+        <th data-k="name">セクター</th><th data-k="quad">象限</th>
         <th data-k="ratio">RS-Ratio</th><th data-k="mom">RS-Mom</th>
         <th data-k="r1">1週(相対)</th><th data-k="r4">4週(相対)</th><th data-k="r13">13週(相対)</th>
       </tr></thead><tbody></tbody></table>
@@ -209,7 +209,7 @@
   <div class="view" id="v-deviation">
     <div class="card">
       <h2>セクター別 移動平均乖離率ランキング</h2>
-      <p class="desc">各業種で <b>25日移動平均からの乖離</b> が大きい主要銘柄トップ50。<span class="num-pos">プラス＝買われすぎ</span> / <span class="num-neg">マイナス＝売られすぎ</span>。参考に75日乖離・PER・PBR・配当利回りも表示。<span style="color:var(--muted)">※yfinanceの主要銘柄ユニバース内・当日終値ベース。全上場ではありません。PER/PBR/配当は取得できない銘柄は「—」。</span></p>
+      <p class="desc">各セクターで <b>25日移動平均からの乖離</b> が大きい主要銘柄トップ50。<span class="num-pos">プラス＝買われすぎ</span> / <span class="num-neg">マイナス＝売られすぎ</span>。参考に75日乖離・PER・PBR・配当利回りも表示。<span style="color:var(--muted)">※yfinanceの主要銘柄ユニバース内・当日終値ベース。全上場ではありません。PER/PBR/配当は取得できない銘柄は「—」。</span></p>
       <div class="secchips" id="dev-secs"></div>
       <div id="dev-body"></div>
     </div>
@@ -444,7 +444,7 @@ document.querySelectorAll('nav button').forEach(b=>{b.onclick=()=>{
   DEV=await loadJSON('data/sector/deviation.json');
   if(DEV&&DEV.sectors&&DEV.sectors.length){renderDevSecs();renderDevTable();}
   else{$('dev-body').innerHTML='<div class="empty">乖離データ未生成(pipeline/fetch_deviation.py を実行)</div>';}
-  $('foot').innerHTML=`※ 本サイトは情報整理・学習目的であり投資助言ではありません。RS-Ratio＝相対力(業種/TOPIX)の${W}週平均比、RS-Mom＝Ratioの${W}週モメンタム。<br>データ更新: pipeline/fetch_data.py → generate_brief.py → 本ページが data/*.json を読み込み(ローカル表示は python -m http.server 推奨)`;
+  $('foot').innerHTML=`※ 本サイトは情報整理・学習目的であり投資助言ではありません。RS-Ratio＝相対力(セクター/TOPIX)の${W}週平均比、RS-Mom＝Ratioの${W}週モメンタム。<br>データ更新: pipeline/fetch_data.py → generate_brief.py → 本ページが data/*.json を読み込み(ローカル表示は python -m http.server 推奨)`;
 })();
 </script>
 
@@ -455,7 +455,7 @@ document.querySelectorAll('nav button').forEach(b=>{b.onclick=()=>{
   #v-deviation{display:block !important; margin-top:28px; border-top:1px solid rgba(255,255,255,.08); padding-top:20px}
 </style>
 <script>
-  /* 出すのは「業種モメンタム・ランキング推移」と「乖離ランキング」の2つだけ。
+  /* 出すのは「セクターモメンタム・ランキング推移」と「乖離ランキング」の2つだけ。
      このページは1画面ずつ切り替える作りなので、乖離を先に一度開いて
      描画させてから順位推移に戻し、CSSで乖離を出したままにする。 */
   (function(){
