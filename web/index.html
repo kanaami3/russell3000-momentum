@@ -540,13 +540,24 @@
         <div id="ipo-chart-panel" class="w-full" style="height:360px"></div>
         <div class="flex items-center justify-between mt-2 px-1">
           <span class="text-[11px] font-semibold text-slate-600">WAPS <span class="text-slate-400 font-normal">売り圧力の吸収度</span></span>
-          <span class="text-[11px] text-slate-500" id="ipo-waps-readout"></span>
+          <span class="flex items-center gap-2">
+            <span class="text-[11px] text-slate-500" id="ipo-waps-readout"></span>
+            <span class="flex rounded border border-slate-200 overflow-hidden">
+              <template x-for="s in [{k:'low',l:'弱'},{k:'std',l:'標準'},{k:'high',l:'強'}]" :key="s.k">
+                <button @click="setIpoWapsSens(s.k)"
+                  :class="ipoWapsSens === s.k ? 'bg-slate-700 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'"
+                  class="px-2 py-0.5 text-[10px] leading-none border-r border-slate-200 last:border-r-0"
+                  x-text="s.l"></button>
+              </template>
+            </span>
+          </span>
         </div>
         <div id="ipo-waps-panel" class="w-full" style="height:150px"></div>
         <p class="text-[10px] text-slate-400 mt-1 leading-relaxed">
           WAPS ＝ 直近14日の「下落した日の出来高が全体に占める割合」÷「同期間の値動きの大きさ」。
           値が大きいぽど「売りの出来高が出ているのに価格が下がっていない」状態です。
           <span class="text-rose-500">▼</span> は動的閾値（赤の階段線／直近50日の平均×60%、下限10）を超えた山。紫色はその時点でWAPS移動平均（橙）も上向きだったことを示します。
+          感度（弱／標準／強）は▼の出すしかただけを変えるもので、WAPSの計算式自体は変わりません（強＝TradingView版と同じ検出数）。
           指標の表示であり、売買の推奨ではありません。
         </p>
         <div x-show="ipoHasProfile()" class="mt-3 border-t border-slate-200 pt-3">
@@ -1418,6 +1429,8 @@ function momentumApp() {
       ipoData: null,
       ipoMarket: 'すべて',
       ipoSort: 'listing',
+      // WAPSの感度。low=目立つ山だけ / std=標準 / high=Pine原典と同じ検出数
+      ipoWapsSens: 'std',
       ipoSorts: [
         { key: 'listing', label: '上場日が新しい順' },
         { key: 'drawdown', label: '高値からの下落が大きい順' },
@@ -1725,9 +1738,29 @@ function momentumApp() {
       // TradingView の Pine 版 WAPSv3 をそのまま移植したもの。
       // 「売り方向の出来高が出ているのに値段が下がっていない」ほど値が大きくなる。
       // ============================================================
+      // 感度プリセット。計算式そのものは変えず、ピーク判定の厳しさだけを動かす。
+      // high は Pine 原典と同じ設定（＝▼が一番多く出る）。
+      _ipoWapsPreset() {
+        const P = {
+          low:  { dist: 12, pctl: 85, gap: 20 },
+          std:  { dist: 10, pctl: 75, gap: 10 },
+          high: { dist: 5,  pctl: 60, gap: 0  },
+        };
+        return P[this.ipoWapsSens] || P.std;
+      },
+
+      setIpoWapsSens(k) {
+        if (this.ipoWapsSens === k) return;
+        this.ipoWapsSens = k;
+        if (!this.ipoChart) return;
+        const rows = (this._ipoChartData || {})[this.ipoChart.ticker || (this.ipoChart.code + '.T')] || [];
+        this._renderIpoWaps(rows, this._ipoLwc);
+      },
+
       _ipoWaps(rows) {
-        const W = 14, SMOOTH = 5, LOOKBACK = 50, MIN_DIST = 5;
-        const PCTL = 60, MIN_TH = 10.0, MA_P = 5;
+        const pre = this._ipoWapsPreset();
+        const W = 14, SMOOTH = 5, LOOKBACK = 50, MIN_DIST = pre.dist;
+        const PCTL = pre.pctl, MIN_TH = 10.0, MA_P = 5;
         const n = rows.length;
         const close = rows.map(x => x[4]);
         const vol = rows.map(x => x[5] || 0);
@@ -1805,7 +1838,14 @@ function momentumApp() {
           }
           if (local) {
             const maRising = ma[b] !== null && ma[b - 1] !== null && ma[b] > ma[b - 1];
-            peaks.push({ i: b, maRising: maRising });
+            // 近すぎる山はまとめる。原典は毎日のように▼が出て読めないため、
+            // 一定本数以内に並んだ場合は値が大きい方だけを残す（計算値は触らない）。
+            const prevPeak = peaks.length ? peaks[peaks.length - 1] : null;
+            if (pre.gap && prevPeak && b - prevPeak.i < pre.gap) {
+              if (sm[b] > sm[prevPeak.i]) peaks[peaks.length - 1] = { i: b, maRising: maRising };
+            } else {
+              peaks.push({ i: b, maRising: maRising });
+            }
           }
         }
 
