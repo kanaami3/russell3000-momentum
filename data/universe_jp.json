@@ -2472,14 +2472,6 @@
     "size_cat": "TOPIX Small 2"
   },
   {
-    "ticker": "3480.T",
-    "code": "3480",
-    "name": "ジェイ・エス・ビー",
-    "sector33": "不動産業",
-    "sector17": "不動産",
-    "size_cat": "-"
-  },
-  {
     "ticker": "3482.T",
     "code": "3482",
     "name": "ロードスターキャピタル",
@@ -5056,14 +5048,6 @@
     "size_cat": "TOPIX Mid400"
   },
   {
-    "ticker": "5202.T",
-    "code": "5202",
-    "name": "日本板硝子",
-    "sector33": "ガラス・土石製品",
-    "sector17": "建設・資材",
-    "size_cat": "TOPIX Small 1"
-  },
-  {
     "ticker": "5208.T",
     "code": "5208",
     "name": "有沢製作所",
@@ -6848,14 +6832,6 @@
     "size_cat": "TOPIX Mid400"
   },
   {
-    "ticker": "6486.T",
-    "code": "6486",
-    "name": "イーグル工業",
-    "sector33": "機械",
-    "sector17": "機械",
-    "size_cat": "TOPIX Small 1"
-  },
-  {
     "ticker": "6490.T",
     "code": "6490",
     "name": "ＰＩＬＬＡＲ",
@@ -7078,14 +7054,6 @@
     "sector33": "電気機器",
     "sector17": "電機・精密",
     "size_cat": "-"
-  },
-  {
-    "ticker": "6615.T",
-    "code": "6615",
-    "name": "ユー・エム・シー・エレクトロニクス",
-    "sector33": "電気機器",
-    "sector17": "電機・精密",
-    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "6616.T",
@@ -8182,14 +8150,6 @@
     "sector33": "輸送用機器",
     "sector17": "自動車・輸送機",
     "size_cat": "TOPIX Small 1"
-  },
-  {
-    "ticker": "7240.T",
-    "code": "7240",
-    "name": "ＮＯＫ",
-    "sector33": "輸送用機器",
-    "sector17": "自動車・輸送機",
-    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "7241.T",
@@ -11699,14 +11659,6 @@
     "ticker": "9507.T",
     "code": "9507",
     "name": "四国電力",
-    "sector33": "電気・ガス業",
-    "sector17": "電力・ガス",
-    "size_cat": "TOPIX Mid400"
-  },
-  {
-    "ticker": "9508.T",
-    "code": "9508",
-    "name": "九州電力",
     "sector33": "電気・ガス業",
     "sector17": "電力・ガス",
     "size_cat": "TOPIX Mid400"
