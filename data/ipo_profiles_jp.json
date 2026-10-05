@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-10-03T01:36:50+09:00",
+ "updated_at": "2026-10-06T02:06:01+09:00",
  "profiles": {
   "648A": {
    "ok": false,
@@ -615,7 +615,9 @@
    "market_cap": 3439279616,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "企業の経営判断を支援するデジタル変革プラットフォームを提供",
+   "summary_ja": "企業の経営、相続税対策、会計実務の分野で、経営層の意思決定を支援するコンサルティングサービスを提供しています。業務の可視化、改善提案、会計業務の標準化、内部統制強化などのコンサルティングと、最適なシステム導入・実装を通じたビジネス変革支援が主な事業です。企業からのコンサルティング受託料が主な収益源です。"
   },
   "475A": {
    "summary_en": "GIMIC Co., Ltd. develops and operates a medical service software. It offers Doctor's File, a medical information website; Hospitals File, a hospital-based medical information site, as well as medical information magazine and veterinary hospital information website; Doctor's File Medipathy, an information sharing app for medical institutions; Doctor's File Apo Registus, a reservation management system that supports the management of medical institutions; Doctors File Appo, a web reservation management system for clinics; and Doctor's File LINK, a website creation service for clinics. The company also provides Doctor's File Clinico, a clinic-specific personnel evaluation/ talent management system; Doctor's File Jobs, a medical job search site; Doctors File Agent, a job placement service for healthcare professionals; Doctor's File Aporegitas, a LINE-integrated appointment management system; Hospitals that Value Medical Collaboration, an information platform booklet; and MedicallianceDAY, an in-person regional medical collaboration event, and Human Resources Outpatient Clinic, a personnel consultation service for clinics. In addition, it offers D-Search, a medical collaboration platform; Clinic Future Lab, Clinic management information media. GIMIC Co., Ltd. was incorporated in 2003 and is based in Shibuya, Japan.",
@@ -631,11 +633,11 @@
   },
   "653A": {
    "ok": false,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-10-06"
   },
   "652A": {
    "ok": false,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-10-06"
   },
   "472A": {
    "summary_en": "Mirrativ Inc. develops and operates live streaming platform. Its platform offers Emomo, an avatar feature that creates alter ego; Ranking, an event that ranks users and live streams within Mirrativ based on various metrics; and Live Gaming, an interactive game feature on Mirrativ that allows streamers and viewers to play together during live broadcast. The company was formerly known as Emomo Inc. and changed its name to Mirrativ Inc. in April 2018. Mirrativ Inc. was founded in 2015 and is headquartered in Meguro, Japan.",
@@ -1123,7 +1125,9 @@
    "market_cap": 6860781568,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "女性向けフィットネススタジオと関連健康食品を展開",
+   "summary_ja": "ヨガスタジオ「LOIVE」、サーフエクササイズ「Surf Fit」、ピラティス「Pilates K」など複数ブランドのフィットネススタジオを運営しています。加えて、燃焼ドリンクや腸内環境改善サプリ、大豆プロテイン製品なども販売しています。会員利用料と健康食品販売が収益源です。"
   },
   "350A": {
    "summary_en": "DIGITAL GRID Corporation operates power trading platform in Japan. It operates through three Segments: the Electricity PF business; Renewable energy PF business; and the Others. The company offers Digital Grid Platform, a trading platform where users can procure electricity; Econohashi, for environmental value purchasing; RE Bridge, a virtual PPA auction site; Digital Grip Platform Battery Aggregation; and GX Navi, a practical GX human resource development service for decarbonization beginners. It also engages in the balancing power business and decarbonization education business. DIGITAL GRID Corporation was founded in 2017 and is based in Minato, Japan.",
@@ -1135,7 +1139,9 @@
    "market_cap": 28688644096,
    "sector_ja": "公益",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "電力取引プラットフォームと再生可能エネルギー仲介を運営",
+   "summary_ja": "電力を売買できるプラットフォーム、再生可能エネルギー由来の電力や環境価値の購入サイト、仮想PPA（電力購入契約）オークションなど、電力市場や脱炭素化推進に関連する複数のプラットフォームを運営しています。企業や電力事業者からの利用料金が収益源です。"
   },
   "343A": {
    "summary_en": "IACE TRAVEL Corporation., together with its subsidiaries, engages in the travel business in Japan, Canada, and Mexico. The company offers business travel management (BTM) services, such as visa application assistance, expense settlement assistance, crisis management, and provision of travel data.It also operates Smart BTMJ, a cloud-based travel booking system with online reservation functionality that provides data analysis and proposals for cost reduction, multiple route suggestions, urgent booking arrangements, and a 24/7 emergency response system. In addition, the company provides personal travel services comprising domestic and international package tours, personal travel arrangements, custom travel proposals, and other benefits-related services; travel agency support services for government bodies, such as personal trips and home visits; airline ticketing, travel planning, and guided tours for U.S. military personnel based in Japan; flight bookings to Japan and international tours departing from Canada; and incentive travel and personal travel support for employees of Japanese corporations in Mexico. It serves corporate clients, individual travelers, government agencies, and the U.S. military in Japan. IACE TRAVEL Corporation. was founded in 1975 and is headquartered in Chuo, Japan.",
@@ -1147,7 +1153,9 @@
    "market_cap": 6188604416,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "企業の出張管理と予約システムを提供する旅行会社",
+   "summary_ja": "企業の出張経費削減と管理業務をサポートする旅行会社です。ビザ申請代行、経費精算支援、危機管理などの出張管理サービスと、クラウド型の出張予約システム「Smart BTMJ」を提供しています。企業からの出張管理受託料とシステム利用料が主な収益です。"
   },
   "340A": {
    "summary_en": "zig-zag,Inc., a technology company, provides cross-border e-commerce platform services. It offers WorldShopping, a purchasing agent service for overseas customers; and WorldShoppingBIZ, a cross-border e-commerce support service for domestic e-commerce sites. zig-zag,Inc. was incorporated in 2015 and is based in Shibuya, Japan.",
@@ -1159,7 +1167,9 @@
    "market_cap": 2481739264,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "越境 e コマース支援プラットフォームを運営",
+   "summary_ja": "日本のEC事業者が海外顧客に販売するための「WorldShopping」と、海外顧客が日本のオンラインショップから購入できる「WorldShoppingBIZ」を運営しています。国を超えたオンラインショッピングを仲介・支援する事業で、利用事業者からの手数料が収益源です。"
   },
   "341A": {
    "summary_en": "TOYOKOH Inc. operates as a painting and waterproofing contractor in Japan. The company offers SOSEI, a spray-coating three layers of special resin to restore strong roofs; and CoolLaser, a laser-based system for removing rust and pain from aging infrastructure. It offers waterproofing, insulation and reinforcement work for roofs; and paint and rust removal services. TOYOKOH Inc. was incorporated in 1996 and is headquartered in Fuji, Japan.",
@@ -1185,7 +1195,9 @@
    "market_cap": 7046696448,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "製造業向けのコンサルティングと製品開発支援を提供",
+   "summary_ja": "製造業企業に対してデジタル化推進のコンサルティング、製品開発支援、設計支援などを提供しています。自社での製品開発や他社との共同研究開発、受託開発も手がけています。製造業クライアントからのコンサルティング受託料と開発受託料が主な収益です。"
   },
   "338A": {
    "summary_en": "ZenmuTech, Inc. provides information security solutions in Japan. The company offers ZENMU Virtual Drive, a software that harnesses secret-sharing technology to enable secure and effortless PC usage; ZENMU Engine (SDK) for data protection and authentication purposes; and QueryAhead, a secure computation database platform that brings security and change to society. The company was incorporated in 2014 and is headquartered in Tokyo, Japan.",
@@ -1211,7 +1223,9 @@
    "market_cap": 28694417408,
    "sector_ja": "通信サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "自動運転向けの高精度3D地図データと位置情報サービスを提供",
+   "summary_ja": "自動運転や運転支援システム向けの高精度3D地図データを日米で開発・提供しています。高速道路や主要道路の3D点群データを閲覧・分析できるプラットフォーム、HD地図生成技術による正確な経路案内、位置情報サービスなどが主な事業です。自動運転関連企業やデータ利用企業からの利用料が収益源です。"
   },
   "334A": {
    "summary_en": "Visual Processing Japan Co., Ltd. engages in the development of digital asset management (DAM) solutions in Japan. The company offers DAM solution to support the business activities of companies by providing assistance on media content production, management and distribution. It provides CIERTO that integrates digital asset management and product information management to support the production of content across various platforms, such as e-commerce sites, websites, videos, social media, catalogs, and brochures; APROOOVE WM, a project management solution for content production such as catalogs, brochures, videos, and websites; and WoodWing Studio, an online editing and distribution system that enables online editing of media consisting of magazines, newspapers, and documents. The company serves distribution and retail, manufacturing, service, printing, housing and real estate, media and publishing, pharmaceutical and chemical, finance and insurance, and travelling and sightseeing industries. The company was incorporated in 1994 and is headquartered in Shibuya, Japan.",
@@ -1223,7 +1237,9 @@
    "market_cap": 4001855232,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "デジタル資産管理ソフトで企業のコンテンツ制作を支援",
+   "summary_ja": "企業の画像や動画などのデジタル資産を統一的に管理するソフトウェアを提供しています。「CIERTO」は商品情報管理と組み合わせ、EC サイトやSNS、カタログなど複数の媒体向けコンテンツ制作を効率化するツールです。企業からのソフトウェアライセンス料が主な収益源です。"
   },
   "335A": {
    "summary_en": "Mirairo Inc. provides training, research, and consulting services. The company offers training and lectures to promote universal manners; research monitors with disabilities; produces print materials and signage; and designs spaces. It also provides Mirairo Connect to remove barriers in communication for persons who have difficulty in hearing or speaking; and Mirairo ID, a digitalized disability certificate. Mirairo Inc. was founded in 2009 and is headquartered in Osaka, Japan.",
@@ -1235,7 +1251,9 @@
    "market_cap": 3504773376,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "障害者対応の研修・コンサルティングと支援ツールを提供",
+   "summary_ja": "障害者への接し方や対応方法に関する研修・講演、空間設計などのコンサルティングを行っています。加えて、聴覚や言語障害のある人向けのコミュニケーション支援アプリ「Mirairo Connect」と、デジタル化された障害者手帳「Mirairo ID」も提供しています。企業・自治体からの研修受託料とツール利用料が収益源です。"
   },
   "332A": {
    "summary_en": "MEEQ Inc. engages in the mobile IoT support business in Japan. It offers MEEQ, a mobile data communication service for IoT that allows to purchase and manage multiple lines from a console screen, as well as provides databases and data processing for creating IoT systems without coding or system development. The company's services include MEEQ Data Platform, which collects and processes data from IoT devices; MEEQ AI, a data processing SaaS that uses AI to process data collected and stored from IoT devices; MEEQ SIM, a IoT communications solutions; MEEQ Global SIM; MEEQ service integration, which links data in IoT storage with linked services; and MEEQ Business Tools that provides various business functions necessary for running an IoT business. MEEQ Inc. was formerly known as Sony Network Communications Smart Platform Inc. and changed its name to MEEQ Inc. in December 2022. The company was incorporated in 2019 and is based in Tokyo, Japan.",
@@ -1247,7 +1265,9 @@
    "market_cap": 14376966144,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "IoT機器の通信回線とデータ管理プラットフォームを提供",
+   "summary_ja": "IoT（モノのインターネット）機器向けのデータ通信サービスと、複雑なプログラミングなしにIoTシステムを構築できるデータ管理プラットフォームを提供しています。通信回線、データ収集・処理プラットフォーム、AI活用のデータ処理サービスなどが主な事業で、IoTシステムの導入企業からの利用料が収益源です。"
   },
   "5016": {
    "summary_en": "JX Advanced Metals Corporation develops, manufactures, and sells materials made from copper and rare metals in Japan. The company operates through Semiconductor Materials, ICT Materials, and Metals & Recycling segments. It offers copper alloys/foil, sputtering targets, compound semiconductors and crystal materials, metal and compound powders, special ceramic powders, high-purity metals, surface treatment agents, upinorg (high-purity copper sulfate), electroless UBM plating service, heater, shielding materials, stainless steel, and nonferrous metals and chemical products. The company also provides titanium sponge, THC catalysts, electrolytic copper, cast copper, precious metals, sulfuric acid, and EMI shielding films. The company was formerly known as JX Metals Corporation and changed its name to JX Advanced Metals Corporation in May 2024. JX Advanced Metals Corporation was founded in 1905 and is headquartered in Minato, Japan.",
@@ -1271,7 +1291,9 @@
    "market_cap": 3507621120,
    "sector_ja": "通信サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "デジタル広告と制作サービスで企業の販促を支援",
+   "summary_ja": "企業の販売促進活動を支援するデジタルマーケティング企業です。検索広告、ディスプレイ広告、ソーシャルメディア広告など各種広告配信サービスと、Webサイト制作、EC サイト構築、動画制作、SEO対策などの制作・コンサルティングサービスを提供しています。広告主企業および広告代理店からの広告費・制作受託料が主な収益です。"
   },
   "330A": {
    "summary_en": "TalentX Inc. engages in the planning, development, management, and operation of the talent acquisition platform. The company is involved in providing recruitment marketing business. It offers the platform under the brand name My Series. TalentX Inc. was founded in 2015 and is based in Tokyo, Japan.",
@@ -1283,7 +1305,9 @@
    "market_cap": 2915587584,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "企業の採用活動を支援するプラットフォーム「My Series」を運営",
+   "summary_ja": "企業の採用マーケティングに特化したプラットフォーム「My Series」を開発・運営しています。企業がこのプラットフォームを活用して求職者にアプローチし、採用活動を効率化することで、利用企業からの利用料金を得ています。採用支援プラットフォームの運営企業です。"
   },
   "325A": {
    "summary_en": "TENTIAL Inc. develops and sells recovery wear and health-related products primarily in Japan. It offers apparel, pajamas, insole, bedding, sandals, bath additive/aromatherapy, work support accessories, sleep accessories, masks, medical scrubs, innerwear, water-absorbing shorts, travel accessories, sports, and baby products. The company was formerly known as Aspole Co., Ltd. TENTIAL Inc. was incorporated in 2018 and is based in Shinagawa, Japan.",
