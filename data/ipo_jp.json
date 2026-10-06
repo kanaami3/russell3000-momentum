@@ -1,13 +1,28 @@
 {
- "asof": "2026-10-06",
- "generated_at_jst": "2026-10-06T02:05:56+09:00",
+ "asof": "2026-10-07",
+ "generated_at_jst": "2026-10-07T00:04:11+09:00",
  "source": "https://www.jpx.co.jp/listing/stocks/new/",
- "cutoff": "2024-10-05",
+ "cutoff": "2024-10-06",
  "years_back": 2,
  "pages_failed": 0,
- "count": 140,
- "upcoming": 5,
+ "count": 141,
+ "upcoming": 6,
  "ipos": [
+  {
+   "code": "660A",
+   "name": "（株）RECEPTIONIST",
+   "technical": false,
+   "listing_date": "2026-11-10",
+   "approval_date": "2026-10-06",
+   "market": "グロース",
+   "band_low": null,
+   "band_high": null,
+   "offer_price": null,
+   "public_shares_k": 50.0,
+   "secondary_shares_k": 1416.2,
+   "trading_unit": 100.0,
+   "listed": false
+  },
   {
    "code": "658A",
    "name": "（株）estie",

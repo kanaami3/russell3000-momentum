@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-10-06T02:06:01+09:00",
+ "updated_at": "2026-10-07T00:04:16+09:00",
  "profiles": {
   "648A": {
    "ok": false,
@@ -955,7 +955,8 @@
    "market_cap": 9132992512,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "建設・土木工事の企画施工"
   },
   "410A": {
    "summary_en": "GMO Commerce, Inc. provides marketing support for e-commerce and brick-and-mortar stores. It also develops and provides marketing platforms that support the improvement of store CX and the promotion of DX. The company was founded in 2012 and is based in Tokyo, Japan with an additional office in Miyazaki, Japan. GMO Commerce, Inc. operates as a subsidiary of GMO internet group, Inc.",
@@ -993,7 +994,9 @@
    "market_cap": 36008497152,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "小型衛星の設計・製造・運用・販売",
+   "summary_ja": "小型人工衛星と関連部品を設計・製造し、運用・販売しています。農業管理、災害監視、報道、環境管理などの用途に向けた衛星観測プラットフォーム「AxelGlobe」、衛星利用プロジェクト向けの統合サービス「AxelLiner」など、複数の衛星利用サービスを提供しています。"
   },
   "387A": {
    "summary_en": "Fuller, Inc. offers business development and digital consultancy services in Japan. The company develops applications for mobile devices and offers App Ape, an app analytics service that provides the actual usage application data of smartphones. It also offers services, such as app development, UI/UX design, system development, and application usage data analysis with a focus on smartphone applications, and human resource development support. The company was incorporated in 2011 and is headquartered in Niigata, Japan.",
@@ -1005,7 +1008,9 @@
    "market_cap": 1595658368,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "スマートフォンアプリの開発と利用データ分析",
+   "summary_ja": "モバイルアプリの開発、UIデザイン、システム開発を主な事業とし、スマートフォンアプリの利用データを分析する「App Ape」というサービスを提供しています。また、デジタルコンサルティングや人材育成支援も行い、アプリ関連事業を総合的に展開しています。"
   },
   "386A": {
    "summary_en": "Minoya Co., Ltd. engages in the sale of confectionery products through retail stores under the Okashino Machioka name. It offers various sweets, pastries, snacks, rice crackers, and biscuits. The company was incorporated in 1954 and is based in Saitama, Japan.",
@@ -1017,7 +1022,9 @@
    "market_cap": 4527880192,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "菓子製品の小売販売",
+   "summary_ja": "「お菓子の町岡」という店舗ブランドで、和菓子、洋菓子、スナック、せんべい、ビスケットなど様々な菓子製品を消費者に小売販売しています。"
   },
   "378A": {
    "summary_en": "Hit Co., Ltd., an advertising company, engages in outdoor and transit advertising business. The company is involved in planning, researching, constructing and maintaining sign. It also offers HIT-movi, a smartphone location-based advertising service that is linked to the placement of outdoor advertisements, as well as developing synchronized broadcasting media that allows multiple large-scale vision to be displayed, as well as planning and producing advertising videos for digital media. The company offers digital billboards in the areas of shibuya / omotesando / ikebukuro / miyamasu / ebisu-bashi / metropolitan expressway; and static billboards in the areas of metropolitan expressway / shibuya / downtown / roadside / others. Hit Co., Ltd. was founded in 1991 and is based in Tokyo, Japan.",
@@ -1029,7 +1036,9 @@
    "market_cap": 12917245952,
    "sector_ja": "通信サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "屋外広告・交通広告の企画・施工・配信",
+   "summary_ja": "看板などの屋外広告と交通広告（駅舎内や乗り物内の広告）を手がける広告会社です。広告の企画・調査・施工・保守に加えて、スマートフォンの位置情報と連動した広告配信サービスや複数の大型ビジョンを同期表示するメディア開発、デジタル広告向けの映像制作なども行っています。"
   },
   "373A": {
    "summary_en": "LIPPS Co.,Ltd. develops and sells men's beauty products. It offers haircare, skincare, and makeup products. The company also operates hair salons under the LIPPS franchise. It sells its products online. LIPPS Co.,Ltd. was founded in 1999 and is headquartered in Shibuya, Japan.",
@@ -1041,7 +1050,9 @@
    "market_cap": 3927824896,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "男性用美容製品の開発販売とサロン運営",
+   "summary_ja": "ヘアケア、スキンケア、メイク製品など男性向け美容製品を開発・販売しています。オンライン販売のほか、フランチャイズ展開する理髪サロン「リップス」を運営し、製品販売とサロン事業の両面から収益を得ています。"
   },
   "372A": {
    "summary_en": "Rent Corporation engages in the rental of construction and industrial machinery. The company rents industrial vehicles, passenger cars, industrial machinery and equipment, and construction machinery and equipment; inspects and calibrates measuring tools, lifting equipment, etc.; provides cleaning and packaging services for equipment used in clean rooms; and remanufacturers batteries. It is also involved in the rental car franchise, construction and industrial machinery training, and painting rental businesses. Rent Corporation was founded in 1984 and is headquartered in Shizuoka, Japan.",
@@ -1053,7 +1064,9 @@
    "market_cap": 21853640704,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "建設・工業機械装置のレンタル事業",
+   "summary_ja": "建設機械、工業機械、産業車両、乗用車などを企業や建設業者にレンタルする事業が中核です。このほか計測工具の検査・校正、クリーンルーム用設備のクリーニング・梱包、バッテリーの再製造、車両や機械の訓練、塗装関連のレンタルなど、付帯サービスも展開しています。"
   },
   "369A": {
    "summary_en": "A-tie Co.,Ltd. engages in grave construction and management business. The company plans, designs, and constructs tree burials/permanent memorial graves and cemeteries. It also offers customer acquisition and sales agency services for cemetery users; and temple management consulting services. A-tie Co.,Ltd. was incorporated in 2004 and is headquartered in Tokyo, Japan.",
@@ -1065,7 +1078,9 @@
    "market_cap": 11536445440,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "樹木葬・永代供養墓の企画設計施工と管理",
+   "summary_ja": "樹木葬や永代供養墓、霊園などの企画・設計・施工を行う墓地建設事業者です。完成後の管理運営のほか、墓地ユーザーの顧客獲得・販売仲介、寺院向けの経営コンサルティングも提供し、墓地関連サービスの幅広い部分に関わっています。"
   },
   "368A": {
    "summary_en": "Kitazato Corporation researches, develops, manufactures, and markets medical devices, reagents, and related products for fertility treatment. It offers needles, catheters and cannulas, vitrification media and equipment, sperm processing medium/tools, IVF medium products, micro tools, and labware products. The company was formerly known as Kitazato Biopharma Co., Ltd. The company was founded in 1998 and is based in Shizuoka, Japan. Kitazato Corporation is a subsidiary of Kitasato Shoji Co., Ltd.",
@@ -1077,7 +1092,9 @@
    "market_cap": 57320001536,
    "sector_ja": "ヘルスケア",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "不妊治療用医療機器・試薬の研究開発・製造販売",
+   "summary_ja": "体外受精などの不妊治療に使用される医療機器と試薬・関連製品を研究開発・製造し、販売しています。針、カテーテル、卵子凍結保存液、精子処理用液・器具、培養液、マイクロツール、実験器具など、生殖医療の現場で必要とされる多様な医療製品を供給しています。"
   },
   "367A": {
    "summary_en": "Primo Global Holdings Co., Ltd., together with its subsidiaries, engages in the bridal jewelry business in Japan, Mainland China, Taiwan, Hong Kong, and Singapore. It sells and purchases bridal jewelry under the I-PRIMO and LAZARE DIAMOND brand names through its stores. The company was founded in 1999 and is headquartered in Chuo, Japan.",
@@ -1089,7 +1106,9 @@
    "market_cap": 25244254208,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "ブライダルジュエリーの販売",
+   "summary_ja": "アイプリモとラザールダイアモンドの2ブランドでブライダルジュエリーを扱っています。日本および中国、台湾、香港、シンガポールの各地域で店舗を展開し、婚約指輪や結婚指輪などの宝飾品を顧客に販売する一方で、メーカーからの仕入れも行っています。"
   },
   "366A": {
    "summary_en": "Wellness Communications Corporation provides healthcare data platform and solutions. The company provides Growbase, a cloud-based health management system that promotes health management operations and health focused management through centralized management of health data; health checkup solution, a network medical checkup service handles health checkup related tasks; SUZAKU, a talent management and human resource management system based on organizational psychology and AI; and other medical institution support services. It also offers wellness-related information distribution and service introduction business; and occupational health services. The company was incorporated in 2006 and is headquartered in Tokyo, Japan.",
@@ -1101,7 +1120,9 @@
    "market_cap": 15043323904,
    "sector_ja": "ヘルスケア",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "企業向け健康管理データプラットフォーム提供",
+   "summary_ja": "企業の従業員健康管理を支援するクラウドシステムを提供しています。健康診断の受診・管理、健康関連データの一元管理、組織心理学とAIを活用した人材・人事管理システムなど、複数の医療機関向けサービスを展開しており、健康関連情報の配信も行っています。"
   },
   "365A": {
    "summary_en": "Izawa Towel Co.,Ltd. engages in the planning, manufacturing, import/export, and sales of towel products in Japan. The company offers its products under the Towel Research Institute brand name. It serves convenience stores, entertainment companies, e-commerce businesses, discount stores, home centers, general merchandise stores, and drugstores. The company was founded in 1970 and is headquartered in Shibuya, Japan.",
@@ -1113,7 +1134,9 @@
    "market_cap": 7234500096,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "タオル製品の企画・製造・販売",
+   "summary_ja": "タオル研究所というブランド名で、タオル製品の企画と製造を行い、国内で販売・輸出しています。コンビニエンスストア、娯楽施設、ネット販売業者、ディスカウント店、ホームセンター、総合商社、ドラッグストアなどの多様な小売業態を顧客として、タオル製品を供給しています。"
   },
   "352A": {
    "summary_en": "LOIVE Co.,Ltd. operates fitness studios in Japan. The company operates women yoga studio under the LOIVE brand; surf exercise studio under the Surf Fit brand; machine pilates studio under the Pilates K brand; and group machine muscle training studio under the REDY'SGYM brand name. It also provides burn-off drink under the Burn&fit brand; intestinal environment regulation tablet under the Bio&fit brand; and soy protein for adult women under the &fitPROTEIN brand. LOIVE Co.,Ltd. was formerly known as LIFE CREATE Co., Ltd. and changed its name to LOIVE Co.,Ltd. in August 2025. LOIVE Co.,Ltd. was incorporated in 2008 and is based in Sapporo, Japan.",
@@ -1755,7 +1778,7 @@
   },
   "260A": {
    "ok": false,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-10-07"
   },
   "256A": {
    "summary_en": "TOBISHIMA HOLDINGS Inc. engages in the construction business in Japan and internationally. The company is involved in the research, survey, planning, drafting, designing, supervision, and operation of civil engineering, construction work and contracting, as well as regional development, urban and marine development, and environmental improvement; mediation of corporate acquisitions, mergers, company splits, share exchanges and transfers, business transfers, capital alliances, and business alliances; computer-based information processing and hardware and software development; and mediation related to corporate management strategies, organizational and business restructuring, and corporate revitalization, as well as non-life insurance agency, insurance agency, and life insurance solicitation businesses. It also engages in housing, real estate transaction, and real estate leasing businesses; planning, drafting, designing, holding, maintenance, management, operation, and management of public facilities; supply of energy, such as electricity and heat; contract maintenance and management of buildings and facilities incidental to buildings; entrustment of security and security; acquisition, licensing, and sale of industrial property rights, copyrights, and know-how; planning, design, manufacture, and sale of plant factories; and research and development related to the production of agricultural, forestry, and fishery products. In addition, the company manufactures, procures, sells, and leases construction machinery and equipment, civil engineering, and construction-related materials; produces, processes, and sells agricultural, forestry, and fishery products; provides temporary staffing and paid employment placement; and engages in projects related to the remediation of environmental pollution. TOBISHIMA HOLDINGS Inc. was incorporated in 2024 and is based in Tokyo, Japan.",
@@ -1834,8 +1857,12 @@
   "658A": {
    "ok": false,
    "checked_at": "2026-10-02"
+  },
+  "660A": {
+   "ok": false,
+   "checked_at": "2026-10-07"
   }
  },
- "count": 145,
+ "count": 146,
  "ok_count": 139
 }
