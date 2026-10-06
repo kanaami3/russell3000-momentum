@@ -19,6 +19,8 @@ import sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
+from ai_carry import carry_previous_ai
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INPUT_CSV = REPO_ROOT / "data" / "value_data_jp.csv"
 OUTPUT_PATH = REPO_ROOT / "web" / "data" / "dividend_screener.json"
@@ -349,6 +351,13 @@ def main() -> int:
         },
         "stocks": rows,
     }
+
+    # このスクリプトは dividend_screener.json を毎回まるごと書き直す。
+    # 後段の generate_growth_dividend_picks.py が失敗したときにAIピックが
+    # 消えないよう、前回ぶんを引き継ぐ（古すぎるものは捨てる）。
+    out.update(carry_previous_ai(OUTPUT_PATH, ("ai_growth_dividend",),
+                                 asof=out.get("asof")))
+
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
     size_kb = OUTPUT_PATH.stat().st_size / 1024
