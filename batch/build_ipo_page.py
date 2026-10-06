@@ -35,6 +35,8 @@ from pathlib import Path
 import pandas as pd
 import yfinance as yf
 
+from ai_carry import carry_previous_ai
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 IPO_LIST = REPO_ROOT / "data" / "ipo_jp.json"
 PROFILES = REPO_ROOT / "data" / "ipo_profiles_jp.json"
@@ -425,6 +427,12 @@ def main() -> int:
         "flow_judgeable_count": sum(1 for r in out_rows if r.get("flow_judgeable")),
         "ipos": out_rows,
     }
+
+    # このスクリプトは ipo_jp.json を毎回まるごと書き直す。後段の
+    # generate_ipo_ai.py が失敗したときに注目銘柄が消えないよう、
+    # 前回ぶんを引き継ぐ（古すぎるものは捨てる）。
+    payload.update(carry_previous_ai(OUT_PAGE, ("ai_ipo_focus",),
+                                     asof=payload.get("asof")))
 
     for path, data in ((OUT_PAGE, payload), (OUT_CHART, chart)):
         path.parent.mkdir(parents=True, exist_ok=True)
