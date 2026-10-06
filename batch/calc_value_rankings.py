@@ -15,6 +15,7 @@ from pathlib import Path
 import pandas as pd
 
 import dividend_streak
+from ai_carry import carry_previous_ai
 from build_dividend_screener import (
     eps_revision,
     headroom_note,
@@ -278,6 +279,15 @@ def main() -> int:
         "scored_count": int(n_scored),
         "rankings": rankings,
     }
+
+    # このスクリプトは value_jp.json を毎回まるごと書き直す。後段の
+    # generate_value_commentary.py が失敗したときにAI解説が消えないよう、
+    # 前回ぶんを引き継ぐ（古すぎるものは捨てる）。
+    result.update(carry_previous_ai(
+        OUTPUT_PATH,
+        ("overall_commentary", "category_commentary", "ai_picks", "commentary_model"),
+        asof=result.get("asof"),
+    ))
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
