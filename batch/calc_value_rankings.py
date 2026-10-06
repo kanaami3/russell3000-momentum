@@ -285,7 +285,8 @@ def main() -> int:
     # 前回ぶんを引き継ぐ（古すぎるものは捨てる）。
     result.update(carry_previous_ai(
         OUTPUT_PATH,
-        ("overall_commentary", "category_commentary", "ai_picks", "commentary_model"),
+        ("overall_commentary", "category_commentary",
+         "category_commentary_at", "ai_picks", "commentary_model"),
         asof=result.get("asof"),
     ))
 
