@@ -13,6 +13,7 @@ Requires env var: ANTHROPIC_API_KEY
 
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import os
 import re
@@ -35,6 +36,11 @@ MAX_TOKENS_NARRATIVE = 1500
 # occasionally exceeded 2500, truncating the ```json``` block → 0 picks parsed.
 MAX_TOKENS_PICKS = 4000
 MAX_TOKENS_CATEGORY = 500
+
+# カテゴリ短評を作り直す間隔（日）。ランキングの顔ぶれは日々そこまで
+# 変わらないのに、6カテゴリ分の生成がこのスクリプトのAI呼び出しの大半を
+# 占めていた。環境変数で変えられるようにしておく。
+CATEGORY_MAX_AGE_DAYS = int(os.getenv("VALUE_CATEGORY_MAX_AGE_DAYS", "7"))
 
 CATEGORY_LABELS = {
     "high_dividend": "💰 高配当・増配余力 TOP30",
@@ -238,6 +244,14 @@ def parse_picks(text: str) -> tuple[str, list[dict]]:
     return narrative, []
 
 
+def _as_date(value):
+    """ISO文字列を date に。壊れていれば None。"""
+    try:
+        return _dt.date.fromisoformat(str(value)[:10])
+    except (TypeError, ValueError):
+        return None
+
+
 def main() -> int:
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
@@ -324,23 +338,42 @@ def main() -> int:
         print(f"  ERROR picks: {e}", file=sys.stderr)
 
     # Per-category short commentary
-    cat_commentary = {}
-    for key in data["rankings"].keys():
-        try:
-            print(f"  Claude → {key}...", file=sys.stderr)
-            resp = client.messages.create(
-                model=MODEL,
-                max_tokens=MAX_TOKENS_CATEGORY,
-                messages=[{"role": "user", "content": build_category_prompt(key, data["rankings"][key])}],
-            )
-            text = "".join(b.text for b in resp.content if b.type == "text").strip()
-            cat_commentary[key] = text
-            total_in += resp.usage.input_tokens
-            total_out += resp.usage.output_tokens
-        except Exception as e:
-            print(f"    ERROR {key}: {e}", file=sys.stderr)
+    # **毎日は作り直さない。** 前回ぶんが CATEGORY_MAX_AGE_DAYS 以内に
+    # 作られていれば、それをそのまま使う（calc_value_rankings 側で
+    # 前回ファイルから引き継がれている）。
+    cat_at = _as_date(data.get("category_commentary_at"))
+    base = _as_date(data.get("asof")) or _dt.date.today()
+    fresh = (
+        bool(data.get("category_commentary"))
+        and cat_at is not None
+        and (base - cat_at).days < CATEGORY_MAX_AGE_DAYS
+    )
 
-    data["category_commentary"] = cat_commentary
+    if fresh:
+        print(f"  カテゴリ短評は {cat_at} 時点のものを使います"
+              f"（{CATEGORY_MAX_AGE_DAYS}日ごとに作り直し）", file=sys.stderr)
+    else:
+        cat_commentary = {}
+        for key in data["rankings"].keys():
+            try:
+                print(f"  Claude → {key}...", file=sys.stderr)
+                resp = client.messages.create(
+                    model=MODEL,
+                    max_tokens=MAX_TOKENS_CATEGORY,
+                    messages=[{"role": "user",
+                               "content": build_category_prompt(key, data["rankings"][key])}],
+                )
+                text = "".join(b.text for b in resp.content if b.type == "text").strip()
+                cat_commentary[key] = text
+                total_in += resp.usage.input_tokens
+                total_out += resp.usage.output_tokens
+            except Exception as e:
+                print(f"    ERROR {key}: {e}", file=sys.stderr)
+        # 全滅したときは前回ぶんを消さない
+        if cat_commentary:
+            data["category_commentary"] = cat_commentary
+            data["category_commentary_at"] = base.isoformat()
+
     data["commentary_model"] = MODEL
 
     VALUE_PATH.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
