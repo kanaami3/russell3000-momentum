@@ -49,7 +49,7 @@ jobs:
               else:
                   monday = now - timedelta(days=now.weekday())
               target = monday.strftime('%Y-%m-%d')
-              complete = bool(o.get('us', {}).get('outlook')) and bool(o.get('jp', {}).get('outlook'))
+              complete = bool(o.get('jp', {}).get('outlook'))
               print('false' if (o.get('week_start') == target and complete) else 'true')
           except Exception:
               print('true')
