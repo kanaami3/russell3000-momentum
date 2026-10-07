@@ -34,13 +34,13 @@ import urllib.error
 import urllib.request
 
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+LIST_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models?pageSize=200"
 
 # 既定モデル。無料枠は Flash 系のみ。環境変数で差し替えられる。
-DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
 
 # 既定モデルが使えなかったときに順に試す候補。
-# モデル名はGoogle側で改廃されるので、落ちたら黙って次を試す。
-FALLBACK_MODELS = ("gemini-flash-latest", "gemini-2.0-flash")
+FALLBACK_MODELS = ("gemini-3.8-flash", "gemini-2.5-flash")
 
 MAX_RETRIES = int(os.getenv("GEMINI_MAX_RETRIES", "4"))
 TIMEOUT = int(os.getenv("GEMINI_TIMEOUT", "180"))
@@ -76,6 +76,40 @@ class _Response:
         # Anthropic の stop_reason 相当。診断ログで使っている箇所がある。
         self.stop_reason = (cands[0].get("finishReason") if cands else None)
         self.model = model
+
+
+def discover_models(api_key: str) -> list[str]:
+    """使えるFlash系モデルを問い合わせて返す。
+
+    **モデル名を決め打ちにしない。**
+    Google はモデルを頻繁に改廃する（gemini-2.5-flash は「新規ユーザーには
+    提供されない」と言われて404になった）。固定の候補が全滅したときは、
+    その場で一覧を引いて生きている名前を拾う。
+    """
+    req = urllib.request.Request(
+        LIST_ENDPOINT, headers={"x-goog-api-key": api_key}, method="GET")
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except Exception as e:  # 一覧すら引けないなら諦める
+        print(f"  [llm] モデル一覧の取得に失敗: {e}", file=sys.stderr)
+        return []
+
+    names = []
+    for m in data.get("models", []):
+        if "generateContent" not in (m.get("supportedGenerationMethods") or []):
+            continue
+        name = (m.get("name") or "").replace("models/", "")
+        if "flash" not in name:
+            continue        # 無料枠は Flash 系のみ
+        if "image" in name or "tts" in name or "live" in name:
+            continue        # 文章生成用ではない
+        names.append(name)
+
+    # lite は最後に回す。プレビュー版も後ろ。
+    names.sort(key=lambda n: ("lite" in n, "preview" in n or "exp" in n, n))
+    print(f"  [llm] 利用可能なモデル: {names[:5]}", file=sys.stderr)
+    return names
 
 
 def _post(model: str, api_key: str, body: dict) -> dict:
@@ -123,20 +157,30 @@ class _Messages:
             body["systemInstruction"] = {"parts": [{"text": str(system)}]}
 
         # model 引数は Anthropic のモデル名が渡ってくる。無視して Gemini 側を使う。
-        candidates = [DEFAULT_MODEL, *FALLBACK_MODELS]
-        last_err = None
+        state = {"last_err": None, "no_thinking": False}
 
-        for name in candidates:
+        def attempt_model(name):
             for attempt in range(MAX_RETRIES):
+                payload = dict(body)
+                if state["no_thinking"]:
+                    gc = dict(payload["generationConfig"])
+                    gc.pop("thinkingConfig", None)
+                    payload["generationConfig"] = gc
                 try:
-                    return _Response(_post(name, self._key, body), name)
+                    return _Response(_post(name, self._key, payload), name)
                 except urllib.error.HTTPError as e:
                     detail = e.read().decode("utf-8", "replace")[:300]
-                    last_err = f"{name}: HTTP {e.code} {detail}"
+                    state["last_err"] = f"{name}: HTTP {e.code} {detail}"
+                    if e.code == 400 and "think" in detail.lower() \
+                            and not state["no_thinking"]:
+                        # thinkingConfig を受け付けないモデル。外して同じ名前で再試行。
+                        print("  [llm] thinkingConfig 非対応。外して再試行します",
+                              file=sys.stderr)
+                        state["no_thinking"] = True
+                        continue
                     if e.code in (404, 400):
-                        # モデル名が無い / 形式が合わない。次の候補へ。
-                        print(f"  [llm] {last_err}", file=sys.stderr)
-                        break
+                        print(f"  [llm] {state['last_err']}", file=sys.stderr)
+                        return None
                     if e.code == 429:
                         wait = 20 * (attempt + 1)
                         print(f"  [llm] レート上限。{wait}秒待って再試行 "
@@ -146,13 +190,29 @@ class _Messages:
                     if 500 <= e.code < 600:
                         time.sleep(5 * (attempt + 1))
                         continue
-                    print(f"  [llm] {last_err}", file=sys.stderr)
-                    break
+                    print(f"  [llm] {state['last_err']}", file=sys.stderr)
+                    return None
                 except (urllib.error.URLError, TimeoutError) as e:
-                    last_err = f"{name}: {e}"
+                    state["last_err"] = f"{name}: {e}"
                     time.sleep(5 * (attempt + 1))
+            return None
 
-        raise LLMError(f"Gemini 呼び出しに失敗しました: {last_err}")
+        tried = []
+        for name in (DEFAULT_MODEL, *FALLBACK_MODELS):
+            tried.append(name)
+            got = attempt_model(name)
+            if got is not None:
+                return got
+
+        # 決め打ちの候補が全滅。生きているモデルを問い合わせて拾い直す。
+        for name in discover_models(self._key):
+            if name in tried:
+                continue
+            got = attempt_model(name)
+            if got is not None:
+                return got
+
+        raise LLMError(f"Gemini 呼び出しに失敗しました: {state['last_err']}")
 
 
 class Client:
