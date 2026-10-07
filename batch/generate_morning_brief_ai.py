@@ -7,7 +7,7 @@ sends a rich prompt to Claude, and appends:
                          with {ticker, name, type, rationale, entry, target, risk}
   - `ai_brief_model`   : model id used
 
-Requires env var: ANTHROPIC_API_KEY
+Requires env var: GEMINI_API_KEY
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ import re
 import sys
 from pathlib import Path
 
-import anthropic
+import llm  # Gemini を Anthropic SDK と同じ形で呼ぶラッパ
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BRIEF_PATH = REPO_ROOT / "web" / "data" / "morning_brief_jp.json"
@@ -164,9 +164,9 @@ def parse_ai_picks(text: str) -> tuple[str, list[dict]]:
 
 
 def main() -> int:
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        print("ERROR: ANTHROPIC_API_KEY not set", file=sys.stderr)
+        print("ERROR: GEMINI_API_KEY not set", file=sys.stderr)
         return 1
     if not BRIEF_PATH.exists():
         print(f"ERROR: {BRIEF_PATH} not found — run build_morning_brief.py first", file=sys.stderr)
@@ -175,7 +175,7 @@ def main() -> int:
     data = json.loads(BRIEF_PATH.read_text(encoding="utf-8"))
     prompt = build_prompt(data)
 
-    client = anthropic.Anthropic(api_key=api_key)
+    client = llm.client(api_key=api_key)
     print(f"Calling Claude ({MODEL})...", file=sys.stderr)
     try:
         resp = client.messages.create(
