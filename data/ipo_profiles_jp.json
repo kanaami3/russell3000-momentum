@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-10-07T00:04:16+09:00",
+ "updated_at": "2026-10-07T17:11:27+09:00",
  "profiles": {
   "648A": {
    "ok": false,
@@ -685,7 +685,9 @@
    "market_cap": 30199003136,
    "sector_ja": "不動産",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "空き家の買い取り・再販や不動産投資の支援を行う",
+   "summary_ja": "国内で空き家や訳あり不動産を買い取ってリフォームした上で転売するほか、土地の買収と賃貸管理、不動産に関するコンサルティングを手掛けています。さらに、自社Webサイトを通じて個人などの投資家向けに不動産投資情報の提供も行っています。"
   },
   "469A": {
    "summary_en": "Fitcrew Inc. engages in the operation of personal training gyms and trainer training schools in Japan. The company owns and operates women-only personal training gyms under the UNDEUXSUPERBODY and UNDEUXSUPERBODYLIFE brand name; and training gym under the Dr. plus Fit brand name. It also offers home-delivery of meals and dietary services; and in-house training and collaboration with school business. The company was formerly known as Trias Co., Ltd. and changed its name to Fitcrew Inc. in February 2022. Fitcrew Inc. was incorporated in 2015 and is based in Osaka, Japan.",
@@ -821,7 +823,9 @@
    "market_cap": 20731338752,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "企業のメールやチャットなど情報通信の安全を支える",
+   "summary_ja": "日本の企業向けに、メールやビジネスチャット、グループウェアといった社内通信システムの開発や販売、導入支援を行っています。安全な通信を守るためのセキュリティ対策や、トラブルを防ぐリスク管理サービス、法人用クラウドストレージなども手掛けています。"
   },
   "431A": {
    "summary_en": "uSonar Co., Ltd. engages in the development of a corporate database, \"LBC,\" that offers B2B data. The company operates a customer data integration solution platform, \"Usonar,\" that provides information on capital affiliations and headquarters/business unit relationships, as well as list extraction considering news, implemented services, and website visit data. It provides mSonar, a business information and business card management application and Plansonar, a management strategy platform. It offers customer data integration solution for corporate activities including marketing and management. The company was formerly known as Landscape Co., Ltd. and changed its name to uSonar Co., Ltd. in July 2022. The company was incorporated in 1990 and is based in Shinjuku, Japan.",
@@ -833,7 +837,9 @@
    "market_cap": 22305632256,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "企業データベースを活用し営業やマーケティングを支援",
+   "summary_ja": "独自の日本最大級の企業データベース「LBC」を構築し、B2B（企業間取引）向けのマーケティング支援サービスを提供しています。企業の資本関係や系列、導入しているITサービス、Webアクセス履歴などを統合管理・分析できるプラットフォームを提供しています。"
   },
   "429A": {
    "summary_en": "Tekscend Photomask Corp. manufactures and distributes semiconductor photomasks in Japan, China, Taiwan, South Korea, the United States, Europe, and internationally. It offers photomasks, including binary and phase shift masks, and EUV photomasks; 3D photomasks; and silicon stencil masks/molds for nanoimprint, including quartz and silicon molds. It also photomasks for various applications, such as MEMS, semiconductor packaging substrates, LED, tool accuracy control, high resolution printing, IC bump packaging, micro lens array, thermal head, and OEM qualification and research. Tekscend Photomask Corp. was formerly known as Toppan Photomask Co., Ltd. and changed its name to Tekscend Photomask Corp. in October 2024. The company was founded in 1961 and is headquartered in Tokyo, Japan.",
@@ -845,7 +851,9 @@
    "market_cap": 389474975744,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "半導体の製造に不可欠な「原版」を世界的に製造・販売",
+   "summary_ja": "国内外の半導体メーカー向けに、回路パターンを焼き付けるための原版である「フォトマスク」（通常のマスクや最先端のEUV用、3D用、微細加工用のシリコン金型など）を製造・販売しています。用途はMEMSや半導体パッケージ、LEDなど多岐にわたります。"
   },
   "423A": {
    "summary_en": "Lion Office Products Corp. is a global company that specializes in the production and distribution of various office products, including NT cutters, NT spare blades, OHTO writing instruments, and Lion office products. It also offers cutting mats, rulers, rulers for aluminum cutting rulers, scissors, staplers, staples, and tally counters. In addition, the company provides Yamato glue sticks, sticky roll paper tapes, and Yamata liquid glue sticks. Additionally, it offers a variety of writing instruments, such as stylus pens, stylus pencils, and stylus erasers. The company was founded in 1792 and is based in Higashiosaka, Japan.",
@@ -857,7 +865,9 @@
    "market_cap": 11075091456,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "カッターや筆記具など幅広いオフィス用品を世界で提供",
+   "summary_ja": "カッターナイフやその替刃、筆記具をはじめ、カッティングマット、定規、ハサミ、ホッチキス、事務用糊などのオフィス用品や事務機器の製造・販売をグローバルに展開しています。1792年に創業し、現在も各種文房具を幅広く提供しています。"
   },
   "428A": {
    "summary_en": "Cypress Holdings Co., Ltd. operates and manages a food store that offers various Japanese food brands in Japan. The company provides seafood, sushi, yakitori, noodles, fast food, western food, Chinese food, and cafes. It offers its products under the Tsukiji Shokudo Genchan brand name. Cypress Holdings Co., Ltd. was incorporated in 2019 and is based in Minato, Japan.",
@@ -883,7 +893,9 @@
    "market_cap": 33431111680,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "コンサル業界に特化した有料職業紹介や転職支援を行う",
+   "summary_ja": "コンサルティングファームやプロフェッショナル企業への転職を目指すビジネスパーソンに対し、キャリア相談や職業紹介を行っています。また、人材を求める企業と求職者を結ぶエグゼクティブサーチ（ヘッドハンティング）や、自社メディアを通じた転職情報発信も展開しています。"
   },
   "414A": {
    "summary_en": "OVERLAP Holdings,Inc. engages in the planning, production, and sale of entertainment IP contents of manga, novels, comics, and animations. It is also involved in the cross-media development and licensing business. The company was founded in 2011 and is based in Shinagawa, Japan.",
@@ -895,7 +907,9 @@
    "market_cap": 17386952704,
    "sector_ja": "通信サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "アニメや漫画などの原作企画・制作から版権まで展開",
+   "summary_ja": "アニメ、小説、漫画、コミックといったエンターテインメント分野の知的財産（コンテンツ）の企画、制作、販売を行っています。また、これらの作品を様々なメディアへ展開するクロスメディア事業や、キャラクターなどのライセンス事業も手掛けています。"
   },
   "417A": {
    "summary_en": "Blue Zones Holdings Co.,Ltd. engages in the operation of supermarkets in Japan. The company offers various products, including fresh food, dried and processed food, and daily food, as well as delicatessen products. It also engages in the trading business and related operations; store-related services such as security, facility management, insurance agency; import and wholesale of food products, beverages, alcohol, and raw materials; and assisting with food manufacturing, processing, and packaging, and other related tasks. The company was formerly known as Yaoko Co.,Ltd. and changed its name to Blue Zones Holdings Co.,Ltd. in October 2025. was founded in 1890 and is headquartered in Kawagoe, Japan.",
@@ -907,7 +921,9 @@
    "market_cap": 377378340864,
    "sector_ja": "生活必需品",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "生鮮食品などを販売するスーパーマーケットを展開",
+   "summary_ja": "国内でスーパーマーケットを運営し、生鮮食品や加工食品、惣菜などの販売を主たる事業としています。また、関連事業として貿易、店舗警備、保険代理店業に加え、国内外からの飲食物・原材料の輸入卸売、食品の加工・包装支援なども行っています。"
   },
   "416A": {
    "summary_en": "Fuji United Holdings Company,Ltd. purchases and sells petroleum products in Japan. The company operates through the Oil Business, Recycling Business, Renewable Energy Business, Home Energy Business, and Rental Business segments. It offers biodiesel fuels, recycled heavy oil, carbon offset fuels, fuel oils, asphalts, and lubricants, as well as AdBlue, a urea water for ammonia-based exhaust gas purification systems. The company also collects, transports, and processes industrial waste, as well as manufactures and sells recycled heavy oil; sells electricity generated by solar power plants; sells household fuel in small lots; and rents construction machinery and other equipment. Fuji United Holdings Company,Ltd. was founded in 1949 and is headquartered in Tokyo, Japan.",
@@ -919,7 +935,9 @@
    "market_cap": 9041351680,
    "sector_ja": "エネルギー",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "石油・リサイクル燃料の販売や太陽光発電を行う",
+   "summary_ja": "国内で燃料油やアスファルトなどの石油製品を販売しています。これに加え、工業廃油から再生重油やバイオディーゼル燃料などを製造・販売するリサイクル事業、太陽光発電による電力販売、産業廃棄物の収集・処理、さらには賃貸事業も手掛けています。"
   },
   "415A": {
    "summary_en": "GMO TECH Holdings, Inc. operates as a holding company that engages in internet advertising, real estate tech, affiliate services, internet media, GMO and DX solutions businesses. The company was incorporated in 2025 and is based in Shibuya, Japan.",
@@ -931,7 +949,9 @@
    "market_cap": 8414167040,
    "sector_ja": "通信サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "ネット広告や不動産ITなどの子会社を傘下に持つ持株会社",
+   "summary_ja": "インターネット広告の配信をはじめ、ITを活用した不動産仲介（不動産テック）、成果報酬型の広告サービス、ウェブメディアの運営、および企業のDX支援などを行う複数の事業会社を子会社として統括し、経営管理を行っています。"
   },
   "8729": {
    "summary_en": "Sony Financial Group Inc., together with its subsidiaries, provides financial services in Japan. It offers death protection, medical, educational endowment, living benefit, automobile, medical, overseas travel, and fire insurance products, as well as reinsurance services. The company also provides foreign currency deposits, mortgage loans, investment trust, and venture capital and credit card settlement services, as well as plans, develops, and operates nursing care homes. Sony Financial Group Inc. was formerly known as Sony Financial Holdings Inc. and changed its name to Sony Financial Group Inc. in October 2021. The company was founded in 1979 and is headquartered in Tokyo, Japan.",
@@ -956,7 +976,8 @@
    "sector_ja": "資本財・サービス",
    "ok": true,
    "checked_at": "2026-09-29",
-   "biz_ja": "建設・土木工事の企画施工"
+   "biz_ja": "仙台を拠点に道路や建物などの建設・土木工事を行う",
+   "summary_ja": "宮城県仙台市に拠点を置き、道路や橋といったインフラを整備する土木工事や、各種建物の建設工事を主たる事業として提供しています。1904年の創業以来、長年にわたり公共や民間の様々な建設関連のサービスを手掛けています。"
   },
   "410A": {
    "summary_en": "GMO Commerce, Inc. provides marketing support for e-commerce and brick-and-mortar stores. It also develops and provides marketing platforms that support the improvement of store CX and the promotion of DX. The company was founded in 2012 and is based in Tokyo, Japan with an additional office in Miyazaki, Japan. GMO Commerce, Inc. operates as a subsidiary of GMO internet group, Inc.",
@@ -982,7 +1003,9 @@
    "market_cap": 49274470400,
    "sector_ja": "生活必需品",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "沖縄を代表するビール製造のほか、ホテルも運営",
+   "summary_ja": "「オリオン」ブランドのビールをはじめとするアルコール飲料やソフトドリンクの製造・販売を主に行っています。また、観光客を主な対象として、沖縄県内を中心にホテルの運営や観光施設の所有、賃貸、管理といった観光事業も幅広く展開しています。"
   },
   "402A": {
    "summary_en": "Axelspace Holdings Corporation designs, manufactures, operates, and sells micro-satellites and related components in Japan and internationally. It offers AxelGlobe, an Earth observation platform that offers business insights for various applications, including agriculture, disaster monitoring, news reporting, and environmental management; and AxelLiner, a one-stop service for satellite projects to conduct space missions including observations, communications, experiments, and in-orbit demonstrations. Axelspace Holdings Corporation has a strategic partnership with Airbus Defence and Space SAS to develop and deliver solutions that meet long-term customer needs for utilizing satellite imagery. The company was founded in 2008 and is based in Tokyo, Japan.",
