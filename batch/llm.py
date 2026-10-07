@@ -42,8 +42,15 @@ DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
 # 既定モデルが使えなかったときに順に試す候補。
 FALLBACK_MODELS = ("gemini-3.8-flash", "gemini-2.5-flash")
 
-MAX_RETRIES = int(os.getenv("GEMINI_MAX_RETRIES", "4"))
-TIMEOUT = int(os.getenv("GEMINI_TIMEOUT", "180"))
+MAX_RETRIES = int(os.getenv("GEMINI_MAX_RETRIES", "2"))
+TIMEOUT = int(os.getenv("GEMINI_TIMEOUT", "90"))
+
+# 1回の生成にかけてよい時間の上限（秒）。
+# **これが無いと詰まったときに延々と待つ。**
+# モデル候補を順に試し、それぞれでリトライするので、上限を決めないと
+# ワークフローが10分以上ぶら下がる（実際にそうなった）。打ち切って
+# 前回の内容を引き継ぐ方が、待たされるより運用上ましである。
+DEADLINE = int(os.getenv("GEMINI_DEADLINE", "240"))
 
 
 class LLMError(RuntimeError):
@@ -92,7 +99,7 @@ def discover_models(api_key: str) -> list[str]:
         with urllib.request.urlopen(req, timeout=60) as resp:
             data = json.loads(resp.read().decode("utf-8"))
     except Exception as e:  # 一覧すら引けないなら諦める
-        print(f"  [llm] モデル一覧の取得に失敗: {e}", file=sys.stderr)
+        print(f"  [llm] モデル一覧の取得に失敗: {e}", file=sys.stderr, flush=True)
         return []
 
     names = []
@@ -108,7 +115,7 @@ def discover_models(api_key: str) -> list[str]:
 
     # lite は最後に回す。プレビュー版も後ろ。
     names.sort(key=lambda n: ("lite" in n, "preview" in n or "exp" in n, n))
-    print(f"  [llm] 利用可能なモデル: {names[:5]}", file=sys.stderr)
+    print(f"  [llm] 利用可能なモデル: {names[:5]}", file=sys.stderr, flush=True)
     return names
 
 
@@ -158,9 +165,17 @@ class _Messages:
 
         # model 引数は Anthropic のモデル名が渡ってくる。無視して Gemini 側を使う。
         state = {"last_err": None, "no_thinking": False}
+        started = time.monotonic()
+
+        def out_of_time():
+            return time.monotonic() - started > DEADLINE
 
         def attempt_model(name):
             for attempt in range(MAX_RETRIES):
+                if out_of_time():
+                    print(f"  [llm] 制限時間({DEADLINE}秒)を超えたので打ち切ります",
+                          file=sys.stderr, flush=True)
+                    return None
                 payload = dict(body)
                 if state["no_thinking"]:
                     gc = dict(payload["generationConfig"])
@@ -175,22 +190,22 @@ class _Messages:
                             and not state["no_thinking"]:
                         # thinkingConfig を受け付けないモデル。外して同じ名前で再試行。
                         print("  [llm] thinkingConfig 非対応。外して再試行します",
-                              file=sys.stderr)
+                              file=sys.stderr, flush=True)
                         state["no_thinking"] = True
                         continue
                     if e.code in (404, 400):
-                        print(f"  [llm] {state['last_err']}", file=sys.stderr)
+                        print(f"  [llm] {state['last_err']}", file=sys.stderr, flush=True)
                         return None
                     if e.code == 429:
                         wait = 20 * (attempt + 1)
                         print(f"  [llm] レート上限。{wait}秒待って再試行 "
-                              f"({attempt + 1}/{MAX_RETRIES})", file=sys.stderr)
+                              f"({attempt + 1}/{MAX_RETRIES})", file=sys.stderr, flush=True)
                         time.sleep(wait)
                         continue
                     if 500 <= e.code < 600:
                         time.sleep(5 * (attempt + 1))
                         continue
-                    print(f"  [llm] {state['last_err']}", file=sys.stderr)
+                    print(f"  [llm] {state['last_err']}", file=sys.stderr, flush=True)
                     return None
                 except (urllib.error.URLError, TimeoutError) as e:
                     state["last_err"] = f"{name}: {e}"
@@ -199,13 +214,15 @@ class _Messages:
 
         tried = []
         for name in (DEFAULT_MODEL, *FALLBACK_MODELS):
+            if out_of_time():
+                break
             tried.append(name)
             got = attempt_model(name)
             if got is not None:
                 return got
 
         # 決め打ちの候補が全滅。生きているモデルを問い合わせて拾い直す。
-        for name in discover_models(self._key):
+        for name in ([] if out_of_time() else discover_models(self._key)):
             if name in tried:
                 continue
             got = attempt_model(name)
