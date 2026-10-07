@@ -8,7 +8,7 @@ Reads web/data/value_jp.json, sends ranking summaries to Claude, and appends:
   - `ai_picks`: 5-7 stocks Claude selects as 'most attractive value buys',
     each with rationale + risks + price-target observation
 
-Requires env var: ANTHROPIC_API_KEY
+Requires env var: GEMINI_API_KEY
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ import re
 import sys
 from pathlib import Path
 
-import anthropic
+import llm  # Gemini を Anthropic SDK と同じ形で呼ぶラッパ
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 VALUE_PATH = REPO_ROOT / "web" / "data" / "value_jp.json"
@@ -253,16 +253,16 @@ def _as_date(value):
 
 
 def main() -> int:
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        print("ERROR: ANTHROPIC_API_KEY not set", file=sys.stderr)
+        print("ERROR: GEMINI_API_KEY not set", file=sys.stderr)
         return 1
     if not VALUE_PATH.exists():
         print(f"ERROR: {VALUE_PATH} not found", file=sys.stderr)
         return 1
 
     data = json.loads(VALUE_PATH.read_text(encoding="utf-8"))
-    client = anthropic.Anthropic(api_key=api_key)
+    client = llm.client(api_key=api_key)
 
     # Load rotation history so we can ask the AI to avoid repeating itself
     pick_history = _load_pick_history()
