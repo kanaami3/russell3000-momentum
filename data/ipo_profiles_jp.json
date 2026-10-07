@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-10-07T17:11:27+09:00",
+ "updated_at": "2026-10-08T00:30:52+09:00",
  "profiles": {
   "648A": {
    "ok": false,
@@ -589,7 +589,9 @@
    "market_cap": 3453516032,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "障害者の就労支援やサテライトオフィス運営",
+   "summary_ja": "障害のある方の雇用をサポートするサービスを幅広く展開しています。企業向けには、障害者が働く専用のサテライトオフィスの提供や、採用から定着までのコンサルティングを行っています。個人向けには就職支援やスキルアップのためのトレーニングを提供しており、主に導入企業からの利用料が収益源です。"
   },
   "485A": {
    "summary_en": "PowerX,Inc. manufactures and sells energy storage systems. It provides stationary energy storage systems, including PowerX Mega Power; PowerX cube for grid-mounted batteries, renewable energy-integrated batteries, and industrial and commercial batteries; and PowerX Hypercharger for commercial EV charging/public charging infrastructure applications, as well as battery tankers for maritime business. The company also offers electricity supply and aggregation services, as well as electric vehicle charging services. In additionit provides its services through PowerX app. PowerX,Inc. was incorporated in 2021 and is based in Tamano, Japan.",
@@ -629,7 +631,9 @@
    "market_cap": 3607052800,
    "sector_ja": "ヘルスケア",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "医療機関向け情報サイトや予約管理システムの提供",
+   "summary_ja": "医療情報ポータルサイト「ドクターズ・ファイル」の運営や、医療機関向けの予約管理システム、クリニックのウェブサイト作成支援などを手がけています。全国のクリニックや病院に対して、集患支援や業務効率化を促進するITツールを提供することで、広告掲載料やシステム利用料を得ています。"
   },
   "653A": {
    "ok": false,
@@ -649,7 +653,9 @@
    "market_cap": 9528108032,
    "sector_ja": "通信サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "スマホで手軽に配信・視聴できるライブ配信プラットフォーム",
+   "summary_ja": "スマホ一つでライブ配信や視聴ができるアプリを運営しています。配信者が自分の分身となるキャラクターを作成する機能や、視聴者と一緒に遊べるゲーム機能など、独自のコミュニケーション機能を備えています。投げ銭やサービス内の課金を通じて収益を得るモデルです。"
   },
   "8303": {
    "summary_en": "SBI Shinsei Bank, Limited provides banking and financial products and services to individual customers, corporations, public-sector entities, and financial institutions in Japan. It offers Yen/foreign currency deposits, and structured deposits; mortgage loans; corporate loans, shopping credit, real estate non-recourse finance, project finance, renewable energy finance, shipping and aircraft finance, healthcare finance, merger and acquisition (M&A) related finance, and specialty finance; and loan syndication. The company also provides foreign exchange and derivatives, M&A advisory, private equity and asset-backed investment, business succession finance, and venture business-related services, as well as credit cards and payment services. In addition, it provides trust services, leasing related financial products and services, equity related and other capital markets transactions, securities, asset and wealth management, unsecured loans, housing loans, investment trusts, brokerage, life and non-life insurance, consumer finance products and services, credit guarantee services, installment sales finance, and treasury services. SBI Shinsei Bank, Limited was formerly known as Shinsei Bank, Limited and changed its name to SBI Shinsei Bank, Limited in January 2023. The company was founded in 1952 and is based in Chuo, Japan. SBI Shinsei Bank, Limited operates as a subsidiary of SBI Regional Bank Holdings Co., Ltd.",
@@ -673,7 +679,9 @@
    "market_cap": 77885857792,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "不動産賃貸に関わる家賃債務保証・回収代行",
+   "summary_ja": "不動産会社や物件オーナーに対して、家賃の滞納リスクを回避する家賃債務保証や、家賃の回収代行サービスを提供しています。入居者の審査業務も行い、オーナーや管理会社が安定して物件を運営できるよう支援することで、保証料や管理手数料を収益源としています。"
   },
   "5537": {
    "summary_en": "AlbaLink Co.,Ltd. engages in the real estate business in Japan. It is also involved in the purchase and resale of vacant houses and properties; purchase and leasing of land; and consulting services related to real estate, as well as provides information on real estate investment through real estate investment forest website. The company was incorporated in 2011 and is headquartered in Tokyo, Japan.",
@@ -699,7 +707,9 @@
    "market_cap": 1748387584,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "女性専用パーソナルトレーニングジムの運営",
+   "summary_ja": "女性に特化したパーソナルトレーニングジムを運営し、利用者に合わせたトレーニング指導を行っています。また、トレーナーの育成スクール事業や、食事管理をサポートする宅配食サービスも提供しています。ジムの会員やスクール生などから直接料金を得るビジネスモデルです。"
   },
   "462A": {
    "summary_en": "FUNDINNO,Inc. engages in the financial instruments trading operation business in Japan. The company involved in the operation of FUNDINNO, a type 1 small-amount electronic offering business; operation of FUNDINNO PLUS+, a type 1 financial instruments business; operation of FUNDINNO MARKET and FUNDINNO MARKET PLUS+, type 1 financial instruments business; FUNDOOR and development of MUFG FUNDOOR, as well as in the provision of corporate growth support consulting and recruitment services. The company was formerly known as Japan Cloud Capital, Inc. FUNDINNO,Inc. was incorporated in 2015 and is headquartered in Tokyo, Japan.",
@@ -711,7 +721,9 @@
    "market_cap": 5993905152,
    "sector_ja": "金融",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "非上場企業向けの株式投資型クラウドファンディング運営",
+   "summary_ja": "主に非上場企業の資金調達を支援する、株式投資型クラウドファンディングを展開しています。企業は個人投資家から小口の資金を集められる仕組みです。また、金融商品取引業者として投資機会を提供しつつ、企業成長のためのコンサルティングや採用支援なども手掛けています。"
   },
   "464A": {
    "summary_en": "QPS Holdings Inc. engages in the research and development, design, manufacture, sale, operation, management, and maintenance of satellites, satellite-mounted equipment, precision equipment, electronic equipment, ground facilities, software, and information and communication networks. It is also involved in business related to data acquired by satellites; the provision of services using artificial satellites; planning and management of research meetings, workshops, and seminars on space technology; and technical consulting, operational support, contract work, development guidance, lectures, education, and related to satellites business. The company was incorporated in 2025 and is headquartered in Fukuoka City, Japan.",
@@ -723,7 +735,9 @@
    "market_cap": 95351119872,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "人工衛星の開発からデータ活用までを手がける宇宙企業",
+   "summary_ja": "人工衛星や搭載機器、地上設備、関連ソフトウェアの開発・設計から製造、運用までを一貫して手がけています。また、衛星から取得したデータの提供サービスや、宇宙技術に関するセミナー・研究会の企画運営、技術コンサルティングなど、宇宙産業に関連する幅広いサービスを展開し、官公庁や企業から収益を得ています。"
   },
   "463A": {
    "summary_en": "INTELLEX HOLDINGS Co.,Ltd. engages in the real estate business in Japan. The company operates through two segments: Renovation Business Field and Solution Business Field. Its Renovation Business segment engages in the sale, rental and brokerage of used homes, renovation and interior renovation business Its Solution Business segment is involved sale, purchase and rental of income-generating real estate. It also provides real estate consulting, and hotel services. The company was founded in 1995 and is headquartered in Tokyo, Japan.",
@@ -735,7 +749,9 @@
    "market_cap": 10252748800,
    "sector_ja": "不動産",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "中古住宅の再生販売や不動産のソリューション事業",
+   "summary_ja": "中古住宅を買い取り、リノベーションを施して販売・賃貸する事業と、収益不動産の売買や仲介を行うソリューション事業が二本の柱です。これらに加え、不動産に関するコンサルティングやホテル運営なども手がけており、個人や法人、投資家から収益を得るモデルとなっています。"
   },
   "460A": {
    "summary_en": "BRANU Inc. engages in the provision of IT solutions for small and medium-sized construction companies. The company offers Careecon, a matching platform specialized for the construction industry that allows to search for construction partner companies and place orders for projects; Careecon Plus, an integrated business tool for the construction industry that handles from marketing to recruitment management, construction management, and business management; and DX consulting services which provides marketing aspects, such as market research and sales strategies to visualization of operational issues and productivity enhancement through on-site management. BRANU Inc. was incorporated in 2009 and is headquartered in Minato, Japan.",
@@ -747,7 +763,9 @@
    "market_cap": 5496346624,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "建設業界特化型のマッチング・業務支援DXツール提供",
+   "summary_ja": "中小建設業者向けに、協力会社探しや発注ができるマッチングプラットフォームや、営業から施工管理、採用までを一元管理する業務ツールを提供しています。また、建設会社のデジタル化を推進するコンサルティングを行い、マーケティング戦略から業務改善までを支援することで収益を得ています。"
   },
   "456A": {
    "summary_en": "HUMAN MADE Inc. sells apparel and lifestyle products in Japan. The company offers mugs, caps, bags, containers, rugs, shoes, t-shirts, hoodies, sweatshirts, sweaters, denim jackets, down jackets, oxford shirts, work shirts, denim, chinos, and cargo pants; and interior goods and towels. It sells its products under the HUMAN MADE, Buffer, and CURRY UP brands through e-commerce and retail channels. HUMAN MADE Inc. was formerly known as Otsumo Co., Ltd. and changed its name to HUMAN MADE Inc. in May 2024. The company was incorporated in 2016 and is headquartered in Shinagawa, Japan.",
@@ -787,7 +805,9 @@
    "market_cap": 1677015936,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "白衣やスクラブなど医療用ウェアの企画・販売",
+   "summary_ja": "医師や看護師などが着用する白衣、スクラブ、患者用衣類などの企画・製造・販売を行っています。機能性とデザイン性を両立させた医療用アパレルを、自社のオンラインストア、実店舗、ポップアップストアなどを通じて販売しており、医療従事者や医療機関を主な顧客として事業を展開しています。"
   },
   "441A": {
    "summary_en": "NE Inc. develops a cloud-based (SaaS) e-commerce backend system for e-commerce businesses in Japan. The company provides Next Engine, a cloud-based e-commerce backend system which manages multiple e-commerce stores; and automates and streamlines order, inventory, and product management operations. It also offers e-commerce consulting store management services; e-commerce site support services, including store management outsourcing services; and support services for the operation of hometown tax donation programs to local governments, as well as operates physical locations, such as pop-up stores and inn gift shops. In addition, the company provides traditional crafts, food products, seasonings, and alcoholic beverages. The company was incorporated in 2022 and is based in Yokohama, Japan.",
@@ -799,7 +819,9 @@
    "market_cap": 8966277120,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "EC運営を効率化するクラウド型管理システムの提供",
+   "summary_ja": "複数のネットショップを一元管理できるクラウド型システム「ネクストエンジン」を提供しています。受注から在庫、商品管理までの業務を自動化することでEC事業者の負担を軽減します。システム利用料のほか、ECサイト構築や運営代行、地方自治体向けのふるさと納税業務支援などのコンサルティングサービスを展開しています。"
   },
   "438A": {
    "summary_en": "Infcurion, Inc. develops a finance platform for all payment needs. The company provides payment infrastructure that enables digital wallets, issues international brand cards, and integrates with bank APIs. It also offers consulting services. Infcurion, Inc. was incorporated in 2006 and is based in Chiyoda, Japan.",
@@ -811,7 +833,9 @@
    "market_cap": 22012710912,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "決済システムや金融プラットフォームの開発・提供",
+   "summary_ja": "決済代行やデジタルウォレットの構築、銀行システムとの連携など、キャッシュレス社会を支える基盤技術を提供しています。また、国際ブランドカードの発行支援や、金融ビジネスに関するコンサルティングも行っており、主に金融機関や決済サービス事業者を顧客として収益を得ています。"
   },
   "436A": {
    "summary_en": "Cybersolutions Inc. engages in the digital communication and cybersecurity business in Japan. It provides planning, development, sales, and support of business communication services, such as email, business chat, groupware, and software packages; general consulting on messaging systems; initial consulting, implementation support, customization, version upgrade support, etc.; provision and construction support of cloud systems for ASP and SaaS businesses, as well as security and risk management services related to emails. The company also offers cloud services, including cyberchat, securedrive, securecommunicationone, secureboard portal, cloud mail Security Suite, MailGates, and EMERGENCYMAIL. In addition, it provides EnterpriseAudit Sigma, an email archiving services; CyberMail Sigma ST, an one-stop cloud email sanitization services; Cybermail Sigma, a domestic cloud email services; and CyberMail-CDR, an email sanitization systems. The company was founded in 1997 and is headquartered in Minato, Japan.",
@@ -1875,7 +1899,7 @@
   },
   "656A": {
    "ok": false,
-   "checked_at": "2026-10-01"
+   "checked_at": "2026-10-08"
   },
   "658A": {
    "ok": false,
