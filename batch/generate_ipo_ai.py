@@ -13,7 +13,7 @@
 公開価格や初値をモデルの記憶から書かせると転記ミスが混ざる。文章だけを
 任せ、画面に出る数値は build_ipo_page.py が計算したものを使う。
 
-Requires env var: ANTHROPIC_API_KEY
+Requires env var: GEMINI_API_KEY
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import anthropic
+import llm  # Gemini を Anthropic SDK と同じ形で呼ぶラッパ
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PAGE_PATH = REPO_ROOT / "web" / "data" / "ipo_jp.json"
@@ -461,9 +461,9 @@ def build_focus(client, data: dict) -> None:
 
 
 def main() -> int:
-    key = os.getenv("ANTHROPIC_API_KEY")
+    key = os.getenv("GEMINI_API_KEY")
     if not key:
-        print("ANTHROPIC_API_KEY が未設定です。スキップします。", file=sys.stderr)
+        print("GEMINI_API_KEY が未設定です。スキップします。", file=sys.stderr)
         return 0
     if not PAGE_PATH.exists():
         print(f"{PAGE_PATH} がありません。", file=sys.stderr)
@@ -479,7 +479,7 @@ def main() -> int:
         print("対象がないため生成しません。", file=sys.stderr)
         return 0
 
-    client = anthropic.Anthropic(api_key=key)
+    client = llm.client(api_key=key)
 
     # 会社の一言は上場予定・直近とは別に、キャッシュが空いている銘柄を埋める。
     # こちらが失敗しても下の解説生成は続ける。
