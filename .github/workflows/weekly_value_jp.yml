@@ -4,11 +4,11 @@ on:
   schedule:
     # 統一実行時刻: 平日 09:00 JST = 00:00 UTC
     # concurrency 衝突回避のため :50 にズラす
-    - cron: "50 0 * * *"  # 09:50 JST
+    - cron: "50 0 * * 1-5"  # 09:50 JST
     # 多重保険: GitHub Actions の cron ドロップ対策で 3 時間帯に分散
     # (鮮度ガードで当日分が既に生成済みなら全ステップをスキップ)
-    - cron: "50 3 * * *"  # 12:50 JST
-    - cron: "50 6 * * *"  # 15:50 JST
+    - cron: "50 3 * * 1-5"  # 12:50 JST
+    - cron: "50 6 * * 1-5"  # 15:50 JST
   workflow_dispatch:
     inputs:
       force:
@@ -96,7 +96,15 @@ jobs:
             python batch/generate_value_commentary.py || echo "⚠ value commentary 失敗（継続）"
             # 増配バリューのAIピックは配当スクリーナーの出力を読むので、
             # build_dividend_screener.py の後でなければならない。
-            python batch/generate_growth_dividend_picks.py || echo "⚠ growth dividend picks 失敗（継続）"
+            #
+            # **週1回でよい。** 増配余力の判定は決算をまたがないと動かないのに、
+            # 毎日作り直してAPIを使っていた。JSTの月曜、または手動実行のときだけ作る。
+            dow=$(TZ=Asia/Tokyo date +%u)
+            if [ "$dow" = "1" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              python batch/generate_growth_dividend_picks.py || echo "⚠ growth dividend picks 失敗（継続）"
+            else
+              echo "増配バリューのAIピックは月曜のみ生成します（JST曜日=$dow）"
+            fi
           else
             echo "ANTHROPIC_API_KEY not set — skipping AI steps"
           fi
