@@ -39,6 +39,18 @@ jobs:
       - name: Fetch JP prices (yfinance, ~14 months daily)
         run: python batch/fetch_prices.py jp
 
+      # 指数(日経/NASDAQ/ドル円)と日経・TOPIXのEPSは、米国ワークフローを
+      # 止めたのでこちらで取得する。中身は日本株の判断に使うものなので
+      # もともと日本側にあるべきだった。
+      - name: Fetch indices (N225 / NDX / USDJPY)
+        run: python batch/fetch_indices.py || echo "⚠ 指数の取得に失敗（継続）"
+
+      - name: Fetch Nikkei 225 EPS
+        run: python batch/fetch_nikkei_eps.py || echo "⚠ 日経EPSの取得に失敗（継続）"
+
+      - name: Fetch TOPIX EPS
+        run: python batch/fetch_topix_eps.py || echo "⚠ TOPIX EPSの取得に失敗（継続）"
+
       - name: Compute JP momentum metrics
         run: python batch/calc_momentum.py jp
 
@@ -78,4 +90,5 @@ jobs:
           bash batch/safe_commit_push.sh \
             "data(jp): daily update $(date -u +%Y-%m-%d)" \
             data/universe_jp.json web/data/momentum_jp.json web/data/chart_data_jp.json \
-            web/data/swing_picks_jp.json
+            web/data/swing_picks_jp.json web/data/indices.json \
+            web/data/nikkei_eps_history.json web/data/topix_eps_history.json
