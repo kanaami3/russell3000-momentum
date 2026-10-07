@@ -12,7 +12,7 @@
 毎日同じ顔ぶれが並ぶと読まれなくなる。既存の generate_value_commentary.py と
 同じ考え方で、直近の採用履歴を渡して新規発掘を優先させる。
 
-Requires env var: ANTHROPIC_API_KEY
+Requires env var: GEMINI_API_KEY
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ import re
 import sys
 from pathlib import Path
 
-import anthropic
+import llm  # Gemini を Anthropic SDK と同じ形で呼ぶラッパ
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCREENER_PATH = REPO_ROOT / "web" / "data" / "dividend_screener.json"
@@ -200,9 +200,9 @@ def extract_json(text: str) -> dict | None:
 
 
 def main() -> int:
-    key = os.getenv("ANTHROPIC_API_KEY")
+    key = os.getenv("GEMINI_API_KEY")
     if not key:
-        print("ANTHROPIC_API_KEY が未設定です。スキップします。", file=sys.stderr)
+        print("GEMINI_API_KEY が未設定です。スキップします。", file=sys.stderr)
         return 0
     if not SCREENER_PATH.exists():
         print(f"{SCREENER_PATH} がありません。", file=sys.stderr)
@@ -223,7 +223,7 @@ def main() -> int:
     # クレジット切れで株価もランキングも5日間更新が止まった。
     # AI生成は付加価値であって、数値データの更新を人質に取ってはいけない。
     try:
-        client = anthropic.Anthropic(api_key=key)
+        client = llm.client(api_key=key)
         resp = client.messages.create(
             model=MODEL,
             max_tokens=MAX_TOKENS,
