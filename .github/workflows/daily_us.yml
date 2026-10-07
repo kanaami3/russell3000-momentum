@@ -4,11 +4,11 @@ on:
   schedule:
     # 実行分を workflow ごとにズラして同一 concurrency グループ(data-update)の
     # 保留キャンセル衝突を回避。US は :02(09:02 JST / US引け直後)。
-    - cron: "2 0 * * *"   # 09:02 JST(US引け直後・JP寄付直前)
+    - cron: "2 0 * * 1-5"   # 09:02 JST(US引け直後・JP寄付直前)
     # 多重保険: GitHub Actions の cron ドロップ対策で 3 時間帯に分散
     # (鮮度ガードで当日分が既に生成済みなら高コストな AI ステップはスキップ)
-    - cron: "2 3 * * *"   # 12:02 JST
-    - cron: "2 6 * * *"   # 15:02 JST
+    - cron: "2 3 * * 1-5"   # 12:02 JST
+    - cron: "2 6 * * 1-5"   # 15:02 JST
   workflow_dispatch: {}
 
 permissions:
@@ -77,17 +77,8 @@ jobs:
         if: steps.freshness.outputs.need_run == 'true'
         run: python batch/fetch_topix_eps.py
 
-      - name: Generate AI swing picks (US, Claude)
-        if: steps.freshness.outputs.need_run == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          if [ -n "$ANTHROPIC_API_KEY" ]; then
-            # AI生成は付加価値。失敗しても数値データのコミットは止めない。
-            python batch/generate_swing_picks.py us || echo "⚠ swing picks 失敗（継続）"
-          else
-            echo "ANTHROPIC_API_KEY not set — skipping swing picks"
-          fi
+      # 米国タブをサイトから外したため、米国のスウィングピック生成は停止。
+      # 数値データ(momentum_us.json)は来週の展望が参照するので取得は続ける。
 
       - name: Commit and push
         if: steps.freshness.outputs.need_run == 'true'
