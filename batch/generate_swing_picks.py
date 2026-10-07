@@ -15,7 +15,7 @@ For each market (jp / us):
 
 Outputs: web/data/swing_picks_{market}.json
 
-Requires env var: ANTHROPIC_API_KEY
+Requires env var: GEMINI_API_KEY
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-import anthropic
+import llm  # Gemini を Anthropic SDK と同じ形で呼ぶラッパ
 import yfinance as yf
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -321,9 +321,9 @@ def main() -> int:
         print(f"ERROR: market must be 'jp' or 'us'", file=sys.stderr)
         return 1
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        print("ERROR: ANTHROPIC_API_KEY not set", file=sys.stderr)
+        print("ERROR: GEMINI_API_KEY not set", file=sys.stderr)
         return 1
 
     momentum, chart = load_inputs(market)
@@ -391,7 +391,7 @@ def main() -> int:
         print(f"[{market.upper()}] no candidates pass fundamental filter, using technical pool", file=sys.stderr)
         pool = technical_pool[:CANDIDATE_POOL_SIZE]
 
-    client = anthropic.Anthropic(api_key=api_key)
+    client = llm.client(api_key=api_key)
     print(f"[{market.upper()}] Calling Claude...", file=sys.stderr)
     resp = client.messages.create(
         model=MODEL,
