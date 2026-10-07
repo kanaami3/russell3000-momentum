@@ -24,7 +24,7 @@ Output: web/data/weekly_outlook.json
     "risks": ["..."]
   }
 
-Requires env var: ANTHROPIC_API_KEY
+Requires env var: GEMINI_API_KEY
 Optional env var: WEEKLY_OUTLOOK_MODEL (default: claude-haiku-4-5-20251001)
 
 Usage:
@@ -217,14 +217,14 @@ def main() -> int:
         print(prompt)
         return 0
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        print("ERROR: ANTHROPIC_API_KEY not set", file=sys.stderr)
+        print("ERROR: GEMINI_API_KEY not set", file=sys.stderr)
         return 1
 
-    import anthropic  # deferred import so --dry-run works without the package
+    import llm  # Gemini を Anthropic SDK と同じ形で呼ぶラッパ  # deferred import so --dry-run works without the package
 
-    client = anthropic.Anthropic(api_key=api_key)
+    client = llm.client(api_key=api_key)
     print(f"Calling Claude ({MODEL}) for weekly outlook...", file=sys.stderr)
     resp = client.messages.create(
         model=MODEL,
