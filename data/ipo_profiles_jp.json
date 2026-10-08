@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-10-08T00:30:52+09:00",
+ "updated_at": "2026-10-09T00:32:36+09:00",
  "profiles": {
   "648A": {
    "ok": false,
@@ -389,7 +389,9 @@
    "market_cap": 6288799744,
    "sector_ja": "生活必需品",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "美容液や洗顔料、美容マスクなどのスキンケア・健康商品をネット販売",
+   "summary_ja": "健やかで美しい生活を支援するウェルネス商品の開発、製造、販売を行っています。主な製品は、肌を明るく整えるパウダー、シャンプー、シワ改善美容液、美容クリーム、クレンジングバーム、エイジングケア用の引き締めマスクなどです。これらの商品をインターネットを通じて一般消費者に直接販売しています。"
   },
   "547A": {
    "summary_en": "Muninova Holdings Inc. engages in the consumer finance and credit guarantee business in Japan. It offers loans for individuals and businesses; credit cards, prepaid cards, individual credit purchase arrangements, and deferred payment options; credit guarantees; and pet insurance, as well as investing in a range of businesses. The company is also involved in leaseback, corporate restructuring, small amount short-term insurance business, venture capital, and SES business, rent guarantee, and crowdfunding businesses, as well as the provision of system development, maintenance, and operation services for its clients. Aiful Corporation was founded in 1967 and is headquartered in Kyoto, Japan.",
@@ -427,7 +429,9 @@
    "market_cap": 39461322752,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "ソフトウェア開発やシステムの保守運用、IT解決策の提供を展開",
+   "summary_ja": "傘下の子会社を通じて、ソフトウェアの開発、コンピューターシステムの運用管理、各種ITシステム解決（システムソリューション）サービスの提供、およびそれらに関連する付帯業務を展開しています。企業などの顧客に向けて最適なITインフラやソフトウェア環境を提供することで収益を得ています。"
   },
   "544A": {
    "summary_en": "GMS Group Co.,Ltd., through its subsidiaries, engages in the development, manufacture, and sale of injection molding machines, molds, automated molding systems, and measuring instruments. It also offers die casting machines and related automated equipment. The company was founded in 1925 and is based in Tokyo, Japan.",
@@ -439,7 +443,9 @@
    "market_cap": 24636796928,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "プラスチック成形機や鋳造機、関連する自動化システムを製造・販売",
+   "summary_ja": "子会社を通じて、産業用機械の製造・販売を行っています。プラスチック製品を作るための射出成形機、金型、自動成形システム、各種測定器の開発・販売を手がけるほか、金属部品を鋳造するためのダイカストマシンやその自動化周辺機器を製造し、国内外の製造業メーカー向けに販売しています。"
   },
   "543A": {
    "summary_en": "ARCHION Corporation manufactures and sells commercial vehicles under the FUSO and HINO brands. It offers trucks and buses; light commercial and passenger vehicles, as well as various engines, service parts, etc. The company was founded in 1942 and is headquartered in Tokyo, Japan.",
@@ -493,7 +499,9 @@
    "market_cap": 2840393984,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "企業の販売・営業活動や業務効率化を支援するクラウドソフト群を提供",
+   "summary_ja": "企業間取引（B2B）のマーケティング活動を支援するクラウドシステムやIT製品を提供しています。ウェブサイト作成と顧客獲得を行う「ferret One」、簡易顧客管理機能付きの問い合わせフォーム作成ツール「formrun」、日程調整や業務効率化、AI自動化を支援するツールなどを展開しています。"
   },
   "505A": {
    "summary_en": "Geekly, Inc. operates as an information technology recruitment company in Japan. The company operates as a recruitment agency specializing in the information technology, web, and gaming industries. Geekly, Inc. was founded in 2011 and is headquartered in Shibuya, Japan.",
@@ -505,7 +513,9 @@
    "market_cap": 15465086976,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "ITやWeb、ゲーム業界に特化した人材紹介・転職支援サービスを提供",
+   "summary_ja": "日本国内でIT業界に特化した人材紹介事業を展開しています。情報システム、Web、およびゲーム業界への転職を希望する求職者と、専門人材を求める企業を仲介する人材紹介エージェントとして活動しており、マッチングの成立や採用の支援を通じて収益を得ています。"
   },
   "504A": {
    "summary_en": "Innovacell Inc. develops, manufactures, and sells cell therapy and regenerative medicine products. The company's products include ICEF15, a cell treatment for urgent fecal incontinence; ICEF16, a cell therapy for leaky fecal incontinence; and ICES13, a cell therapy for stress urinary incontinence. Innovacell Inc. was incorporated in 2021 and is based in Shinagawa, Japan.",
@@ -517,7 +527,9 @@
    "market_cap": 26143090688,
    "sector_ja": "ヘルスケア",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "便失禁や尿失禁を治療するための細胞治療・再生医療製品を開発",
+   "summary_ja": "細胞治療および再生医療製品の開発、製造、販売を行っています。主な製品として、急性の便失禁を治療するための「ICEF15」、漏れを伴う便失禁向けの「ICEF16」、および腹圧性尿失禁を治療するための「ICES13」といった細胞治療薬を擁し、医療現場や患者向けに展開しています。"
   },
   "500A": {
    "summary_en": "TO Books, Inc. engages in the content production business that publishes and sells comics and novels in Japan. The company offers picture books, anime, movies, stage plays, drama CDs, and audiobooks. It sells its products through the internet. The company was incorporated in 2014 and is based in Shibuya, Japan. TO Books, Inc. operates as a subsidiary of MTS Co., Ltd.",
@@ -529,7 +541,9 @@
    "market_cap": 12801742848,
    "sector_ja": "通信サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "小説やマンガの出版・販売、アニメや舞台などの関連コンテンツを展開",
+   "summary_ja": "小説やコミックの出版・販売を中心としたコンテンツ制作事業を展開しています。さらに、絵本、アニメ、映画、舞台、ドラマCD、オーディオブックなど、作品のマルチメディア展開を幅広く手がけています。これらの商品はインターネットを通じて一般顧客向けに販売され、収益を得ています。"
   },
   "480A": {
    "summary_en": "LiB Consulting co.,ltd provides management consulting services in Japan and internationally. The company offers services for IT; telecommunications; media; finance; industrial goods; trading companies; consumer goods; healthcare and life sciences; construction and real estate; mobility and energy; car dealer; housing and real estate; and venture and startups sectors. LiB Consulting co.,ltd was incorporated in 2012 and is headquartered in Chuo, Japan.",
@@ -541,7 +555,9 @@
    "market_cap": 6448074752,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "国内外の幅広い業界の企業を対象とした経営コンサルティングを展開",
+   "summary_ja": "日本および海外において、経営コンサルティングサービスを提供しています。主な顧客はIT、通信、メディア、金融、工業製品、商社、消費財、医療・ライフサイエンス、建設・不動産、モビリティ・エネルギー、自動車ディーラー、住宅、ベンチャー・スタートアップなど多岐にわたる分野の企業であり、経営課題の解決を支援しています。"
   },
   "479A": {
    "summary_en": "PRONI, Inc. owns and operates a business to business (B2B) ordering platform. The company's platform offers business matching service, navigation system, DX navigation system, DX ultimate navigator, IT ranking, and PRONI magazine. It also provides characteristics, achievements, and services of suppliers, subcontractors, and outsourcers, and information and price quotes. The company was formerly known as unilabo, Inc. and changed its name to PRONI, Inc. in August 2023. The company was incorporated in 2012 and is based in Shinagawa, Japan.",
@@ -553,7 +569,9 @@
    "market_cap": 9731034112,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "企業間で外注先や開発パートナーを探せるマッチングサイトを運営",
+   "summary_ja": "企業間の発注・外注を支援するB2Bプラットフォームを運営しています。発注先を探す企業に対し、ITやDX推進に特化したナビゲーションシステムや専門誌、サプライヤーの実績や見積もり情報を掲載したビジネスマッチングサービスを提供し、効率的なパートナー選びを支援することで収益を得ています。"
   },
   "478A": {
    "summary_en": "Hutzper Inc. provides artificial intelligence services for the manufacturing industry in Japan. It offers Mekikibite, an AI solution for visual inspection and quality control in manufacturing; Custom Hutzper AI for contract development services; Skill Puzzle, an AI solution for optimizing personnel allocation in the manufacturing industry; Laclag, a local LLM solution. The company was incorporated in 2020 and is headquartered in Osaka, Japan.",
@@ -565,7 +583,9 @@
    "market_cap": 7491487744,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "製造業向けに外観検査や人員配置を最適化するAIサービスを提供",
+   "summary_ja": "日本の製造業を対象にAI（人工製品の知能）サービスを提供しています。主力事業として、画像認識による目視検査や品質管理を行う「メキキバイト」、特注開発を行う「カスタムフツパーAI」、現場の人員配置を最適化する「スキルパズル」、独自の局所言語モデル「ラクラグ」を展開し、製造現場の効率化から収益を得ています。"
   },
   "483A": {
    "summary_en": "Tera Technology, Inc. operates as an information technology consulting company that offers information system design, operation, and maintenance services in Japan. The company offers services for business in five areas including public, communications, information services, finance, and manufacturing and others. The company's services for the public include electronic application system for local governments, billing acceptance system for care service providers, government integrated portal system, electronic approval system, support for big data operations in public institutions, and grant application system. It offers various system development projects for the telecommunications carrier industry, such as network infrastructure and content distribution. The company caters to information system industry by providing services, such as TV shopping EC site development, e-commerce website development for individuals/corporations, magazine production support system, department store point service system, delivery status management system for courier services, membership site for healthcare professionals, customer management system for cosmetics manufacturers, infrastructure construction for cloud service providers, migrating existing systems to the cloud, and core systems for internet service providers. Additionally, it offers software development services for finance, insurance, and securities companies. It also engages in the development of software for various manufacturing companies including automotive equipment, industrial machinery, medical device, in-house development, and service deployment. The company was formerly known as Terra International Co., Ltd. and changed its name to Tera Technology, Inc. in February 2016. Tera Technology, Inc. was incorporated in 1991 and is based in Toshima, Japan.",
@@ -577,7 +597,9 @@
    "market_cap": 3617336832,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "官公庁や通信・金融業界向けにITシステムの構築や運用保守を提供",
+   "summary_ja": "ITコンサルティング企業として、情報システムの設計、運用、保守サービスを提供しています。顧客は行政、通信、情報サービス、金融、製造などの5分野にわたります。行政向けには、自治体の電子申請システム、介護事業者の請求受付システム、政府統合ポータル、電子決算、ビッグデータ運用支援などを展開しています。"
   },
   "477A": {
    "summary_en": "Startline CO.,LTD. provides comprehensive employment support services for people with disabilities. The company offers supported satellite offices for employing people with disabilities, including INCLU and INCLU ONE; employment support services for people with disabilities, including IBUKI, BYSN, RESQWO, and home-based employment support service; TASKI; job site for people with disabilities; personnel placement service exclusively for people with disabilities; various training and seminars on employment for people with disabilities; support for establishing special subsidiary companies; and dispatch of professional personnel for supporting the professional lives of people with disabilities. It also provides employment transition support/employment retention support services; real job training station; job counseling and consultation for job seekers with disabilities; education and training for people with disabilities; operation of training programs commissioned by public institutions; and acceptance of interns and practical training. The company was founded in 2009 and is based in Mitaka, Japan.",
@@ -1349,7 +1371,9 @@
    "market_cap": 3115071569920,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "半導体やICT分野で使用される銅や希少金属の部材を製造・販売",
+   "summary_ja": "銅や希少金属（レアメタル）を用いた高機能材料の開発、製造、販売を行っています。半導体用材料、ICT（情報通信技術）用材料、金属・リサイクルの各部門を展開し、銅合金・銅箔、ターゲット材、化合物半導体、高純度金属、表面処理剤、めっき用材料などの部材を関連産業のメーカーに提供しています。"
   },
   "331A": {
    "summary_en": "Medix Inc. provides digital marketing services in Japan. It offers advertising and promotion services, such as search advertising, display advertising, feed ads, social media advertising, video ads, affiliate advertising, and advertising management service for agencies; creative design and production services, including creative consulting, EC site construction/ renewal, web advertising production, site construction and operation management, search engine optimization, and content marketing, as well as digital marketing services comprise web services, apps, DTP, videos, and novelties. The company also provides support to BtoC digital marketing and BtoB digital marketing support; and data-driven marketing services, such utilization of marketing data, support for utilizing BigQuery and BI tools, data analysis support, GA4 utilization support, CRM utilization support, KARTE utilization support, D2C marketing, and KPI operation support. In addition, it offers tag management tools, overseas advertising distribution and overseas marketing support, in-house support service, and online advertising management services. Medix Inc. was incorporated in 1984 and is based in Tokyo, Japan.",
@@ -1903,7 +1927,7 @@
   },
   "658A": {
    "ok": false,
-   "checked_at": "2026-10-02"
+   "checked_at": "2026-10-09"
   },
   "660A": {
    "ok": false,
