@@ -1,9 +1,9 @@
 {
- "updated_at": "2026-10-09T00:32:36+09:00",
+ "updated_at": "2026-10-10T00:14:40+09:00",
  "profiles": {
   "648A": {
    "ok": false,
-   "checked_at": "2026-10-03"
+   "checked_at": "2026-10-10"
   },
   "642A": {
    "summary_en": "KYUDEN Holdings Inc. engages in the power generation, transmission, distribution, and retail in Japan and internationally. It is also involved in construction and maintenance of electrical equipment; sale of gas / LNG and coal; renewable energy business; data communication; optical broadband; telecommunications construction and maintenance; information system development; public-private partnership, and data center business. Further, the company develops and manages real estate. KYUDEN Holdings Inc. was founded in 1951 and is headquartered in Fukuoka City, Japan.",
@@ -243,7 +243,9 @@
    "market_cap": 34185562112,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "ネットで手軽に送れる電子ギフトを企画・販売",
+   "summary_ja": "スマートフォンなどを通じてオンライン上でやり取りできる「eギフト」の作成や流通、販売を行っています。ネット上で気軽にプレゼントを贈りたい個人や、販促などで電子ギフトを活用する顧客に向けてサービスを提供し、対価を得ています。"
   },
   "589A": {
    "summary_en": "NEIS Co.,Ltd. operates as a franchisor and operator of children's gymnastics clubs. The company provides child development support and after-school day services and assists children with developmental disabilities. It also manufactures classroom equipment, apparel, and other goods. The company was incorporated in 2010 and is based in Tokyo, Japan. NEIS Co.,Ltd. is a subsidiary of Minami no Shima Co., Ltd.",
@@ -255,7 +257,9 @@
    "market_cap": 5995489280,
    "sector_ja": "生活必需品",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "子ども向け体操教室の運営や発達支援事業を展開",
+   "summary_ja": "子ども向けの体操教室を直営およびフランチャイズで運営しています。また、発達に課題を抱える子ども向けに児童発達支援や放課後等デイサービスを提供しているほか、教室で使う用具やウェアなどの衣料品の製造・販売も手掛けています。"
   },
   "584A": {
    "summary_en": "LiNKX, Inc. operates as a financial technology company in Japan. The company specializes in modernization and reconstruction through cloud-based and AI-based technologies. It offers design and implementation methods to support the development of systems such as accounting systems, API gateways, and data infrastructure for the financial sector, including banks. Its products include LabHub, a platform which supports productivity improvement for researchers, including pharmaceutical companies; and shikAI, a navigation system for the visually impaired, as a social contribution project. The company was formerly known as Links Co., Ltd. and changed its name to LiNKX, Inc. in November 2025. The company was incorporated in 2020 and is headquartered in Minato, Japan.",
@@ -267,7 +271,9 @@
    "market_cap": 16914200576,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "金融機関向けにクラウドやAIを用いたシステムを開発",
+   "summary_ja": "銀行などの金融機関向けに、クラウドやAI技術を活用して会計システムやデータ基盤などのシステム刷新・開発支援を行っています。あわせて、製薬会社などの研究職向けに作業効率化プラットフォーム「LabHub」を提供するほか、視覚障がい者向けの誘導システムなども手掛けています。"
   },
   "581A": {
    "summary_en": "GO Inc. designs and develops a taxi-hailing application that enables users to arrange and schedule a cab ride in Japan. The company's application offers real-time location information sharing, digitalization of operations for taxi companies, management service, and decarbonization services. The company was incorporated in 1977 and is based in Tokyo, Japan.",
@@ -279,7 +285,9 @@
    "market_cap": 260064919552,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "タクシーを呼べるスマホアプリを開発・運営",
+   "summary_ja": "スマートフォンからタクシーを呼べる配車アプリを開発・提供しています。利用者にタクシーの即時手配や事前予約の機能を提供するほか、タクシー会社向けには位置情報の共有や配車業務のデジタル化、運行管理などの支援機能を提供しています。"
   },
   "575A": {
    "summary_en": "MAEZAWA Holdings CO.,LTD., through its subsidiaries, engages in the manufacture and sale of water supply and sewage-related products. The company was incorporated in 2026 and is headquartered in Tokyo, Japan.",
@@ -291,7 +299,9 @@
    "market_cap": 74669400064,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "上水道や下水道に関連する製品を製造・販売",
+   "summary_ja": "グループ子会社を通じて、上水道や下水道などの水処理に関連する設備や部材の製造および販売を行っています。水インフラに関わる製品を供給することで収益を得ています。"
   },
   "559A": {
    "summary_en": "Umenoyado Brewery Co., Ltd. engages in the production, sale, and product development of sake, liqueurs, and assorted beverages in Japan and internationally. The company offers alcoholic beverages, including Japanese sake and fruit-infused sake liqueurs through the Aragoshi and Umenoyado no Umeshu brands. Umenoyado Brewery Co., Ltd. was founded in 1893 and is headquartered in Katsuragi, Japan.",
@@ -303,7 +313,9 @@
    "market_cap": 7102201856,
    "sector_ja": "生活必需品",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "日本酒や果実のお酒などを製造・販売",
+   "summary_ja": "日本酒やリキュールなどのアルコール飲料を製造し、国内外で販売しています。「あらごし」シリーズや「梅乃宿の梅酒」といった自社ブランドを展開しており、果実を使ったお酒や日本酒の製造・販売を通じて収益を得ています。"
   },
   "556A": {
    "summary_en": "INUNEKO-SEIKATSU Co.,Ltd. manufactures and sells pet food products in Japan. The company offers prepared packaged food for cats and dogs. The company also provides in-house health checkups and blood test services, as well as veterinary clinic and grooming salon services. The company was formerly known as Honest Food Co., Ltd. The company was incorporated in 2018 and is based in Shinjuku, Japan.",
@@ -329,7 +341,9 @@
    "market_cap": 20060684288,
    "sector_ja": "一般消費財",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "宿泊・観光施設向けにAIを使った管理システムを提供",
+   "summary_ja": "宿泊業界や観光業界向けに、AI技術を活用した施設運営プラットフォームを開発・提供しています。遠隔でのクラウド受付や清掃・客室管理、施設の会計や売上管理などを一元化できる仕組みを提供し、ホテルの運営効率化を支援することで利用料などの対価を得ています。"
   },
   "554A": {
    "summary_en": "Batonz Co., Ltd. plan, develops, and operates an M&A support platform to offer business succession matching services via the Internet in Japan. The company offers internet-based M&A matching, management consulting, website planning, production, operation, and management consulting websites using the internet. It provides services such as, M&A Platform, includes matching service, sourcing support services, and FA support services; and M&A SaaS, includes partner program, B MASS, and customer management system. The company was incorporated in 2018 and is headquartered in Minato, Japan.",
@@ -341,7 +355,9 @@
    "market_cap": 6554421248,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "ネット上で企業や事業の引き継ぎを仲介するサイトを運営",
+   "summary_ja": "事業を売りたい企業と買いたい企業をインターネット上で結びつける、事業承継・M&Aのマッチングサイトを企画・運営しています。サイト上でのマッチングや成約までの実務支援に加え、提携パートナー向けや顧客管理を行うクラウド型業務ソフトも提供し、それらの利用料や支援対価を得ています。"
   },
   "550A": {
    "summary_en": "Softtex Co.,Ltd. engages in the computer system design and software development business. It operates through two segments, Software Development Services and Medical IT Services. It offers disaster prevention equipment manufacturers, computer manufacturers, system integrators, and information systems. The company also offers internet-related system services; consultation and education on computer usage; development, sales, and support of software packages; and construction and support of medical systems. The company was incorporated in 1984 and is based in Nagoya, Japan with additional offices in Tokyo, Sapporo, and Okinawa, Japan.",
@@ -353,7 +369,9 @@
    "market_cap": 1901795968,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "ソフトウェア受託開発や医療向けシステムを提供",
+   "summary_ja": "ソフトウェア開発サービスと医療ITサービスの2事業を展開しています。防災機器メーカーやコンピューターメーカー向けにシステム設計や開発を行うほか、医療機関向けにシステムの構築やサポートを提供しています。さらにパッケージソフトの販売やIT研修なども手掛けています。"
   },
   "549A": {
    "summary_en": "HITO-TO-HITO Holdings Co.,Ltd. engages in the event operation management, security and cleaning, staffing, and sales promotion businesses. It engages in the operation of sporting events; security and cleaning of office buildings and commercial facilities; and provision of staffing services for companies, as well as support for product and service sales. The company was founded in 1974 and is based in Shibuya, Japan.",
@@ -365,7 +383,9 @@
    "market_cap": 6817999872,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "イベント運営や施設警備・清掃、人材派遣を展開",
+   "summary_ja": "スポーツ大会などのイベント運営や、オフィスビル・商業施設の警備および清掃サービスを提供しています。あわせて、企業向けの人材派遣や商品の販売促進支援なども手掛けており、各種施設の管理者やイベント主催者、一般企業などにサービスを提供して対価を得ています。"
   },
   "548A": {
    "summary_en": "SystemEXE,Inc. engages in the system integration business. It provides business system development, scratch development, IT infrastructure construction, cloud integration, AI solutions, database services, data utilization, operations and maintenance, PMO support, system migration, DX (digital transformation) solutions, offshore development, groupware workflow, and IoT services, as well as data analysis infrastructure construction and report-based DX promotion solutions. The company serves real estate, manufacturing, non-life and life insurance, medical care, petroleum, chemical, and other industries. SystemEXE,Inc. was incorporated in 1998 and is headquartered in Chuo, Japan.",
@@ -377,7 +397,9 @@
    "market_cap": 5008937984,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "企業の業務システム開発やITインフラ構築を支援",
+   "summary_ja": "不動産や製造、保険、医療などの幅広い業界向けに、業務システムのオーダーメイド開発やクラウド導入、ITインフラの構築を提供しています。さらに、AIを活用したデータ分析基盤の構築や保守運用、DX支援、オフショア開発などを手掛け、企業のIT化支援から対価を得ています。"
   },
   "542A": {
    "summary_en": "Vitabrid Japan Inc. develops, manufactures, and sells wellness products. The company's products include face brightening powder, shampoo, wrinkle serum, wrinkle cream, cleansing balm, and age-defying and firming mask. It sells its products through the internet. The company was incorporated in 2014 and is based in Tokyo, Japan. Vitabrid Japan Inc. operates as a subsidiary of Vector Inc.",
@@ -403,7 +425,9 @@
    "market_cap": 209321443328,
    "sector_ja": "金融",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "個人・法人向けローンや決済、保証などを展開",
+   "summary_ja": "個人や法人向けの融資をはじめ、クレジットカードや後払いなどの決済サービス、各種保証事業を行っています。また、少額短期保険やペット保険、リースバック、ベンチャー投資、ITエンジニア派遣やシステム開発・保守など、金融や決済を中心とした幅広いサービスを提供して収益を得ています。"
   },
   "546A": {
    "summary_en": "Miraini Holdings Co., Ltd. engages in the sale of electronic components, electronic devices, and electronic equipment. It is also involved in the manufacture and sale of FA equipment; development and design of embedded software and various systems; and related businesses. The company was founded in 1947 and is based in Tokyo, Japan.",
