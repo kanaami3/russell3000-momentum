@@ -1455,26 +1455,44 @@ function momentumApp() {
           const resp = await fetch('data/ipo_jp.json', { cache: 'no-store' });
           if (!resp.ok) throw new Error('ipo_jp.json ' + resp.status);
           this.ipoData = await resp.json();
-          // 拡大チャートのデータは1.8MBある。開いてから取りに行くと数秒待たされるので、
-          // 一覧を出した時点で裏で先読みしておく（待たない）。
-          this._prefetchIpoChartData();
         } catch (e) {
           console.error('IPOデータの読み込みに失敗', e);
           this.ipoData = { ipos: [], error: String(e) };
         }
       },
 
-      _prefetchIpoChartData() {
-        if (this._ipoChartPromise) return this._ipoChartPromise;
-        // **毎回ダウンロードし直さない。**
-        // no-store だとブラウザのキャッシュが効かず、ページを開くたびに1.8MBを
-        // 取り直すことになる。日付をURLに付けて、中身が変わった日だけ取り直す。
+      // **銘柄ごとのファイルを1本だけ読む。**
+      // まとめファイル(chart_data_ipo.json)は1.7MBあり、押してから取りに行くと
+      // 数秒待たされる。1銘柄ぶんなら十数KB。日付をURLに付けてキャッシュを効かせる。
+      _ipoChartUrl(code) {
         const v = (this.ipoData && this.ipoData.asof) || 'x';
-        this._ipoChartPromise = fetch('data/chart_data_ipo.json?v=' + v)
-          .then(resp => (resp.ok ? resp.json() : {}))
-          .catch(e => { console.error('IPOチャートデータの読み込みに失敗', e); return {}; })
-          .then(d => { this._ipoChartData = d; return d; });
-        return this._ipoChartPromise;
+        return 'data/ipo_charts/' + code + '.json?v=' + v;
+      },
+
+      async _loadIpoChartRows(r) {
+        const code = String(r.code || (r.ticker || '').replace('.T', ''));
+        this._ipoRowCache = this._ipoRowCache || {};
+        if (this._ipoRowCache[code]) return this._ipoRowCache[code];
+        try {
+          const resp = await fetch(this._ipoChartUrl(code));
+          if (resp.ok) {
+            const rows = await resp.json();
+            this._ipoRowCache[code] = rows;
+            return rows;
+          }
+        } catch (e) {
+          console.error('IPOチャートの読み込みに失敗', code, e);
+        }
+        // 分割ファイルがまだ無い日のための保険（まとめファイルから拾う）
+        if (!this._ipoChartData) {
+          try {
+            const resp = await fetch('data/chart_data_ipo.json?v=' + ((this.ipoData && this.ipoData.asof) || 'x'));
+            this._ipoChartData = resp.ok ? await resp.json() : {};
+          } catch (e) { this._ipoChartData = {}; }
+        }
+        const rows = this._ipoChartData[r.ticker || (code + '.T')] || [];
+        this._ipoRowCache[code] = rows;
+        return rows;
       },
 
       ipoCaption() {
@@ -1673,10 +1691,11 @@ function momentumApp() {
 
       async openIpoChart(r) {
         this.ipoChart = r;
-        this.ipoChartLoading = !this._ipoChartData;
-        if (!this._ipoChartData) await this._prefetchIpoChartData();
+        const code = String(r.code || (r.ticker || '').replace('.T', ''));
+        this.ipoChartLoading = !(this._ipoRowCache && this._ipoRowCache[code]);
+        const rows = await this._loadIpoChartRows(r);
         this.ipoChartLoading = false;
-        this.$nextTick(() => this._renderIpoChart(r));
+        this.$nextTick(() => this._renderIpoChart(r, rows));
       },
 
       closeIpoChart() {
@@ -1722,14 +1741,14 @@ function momentumApp() {
         }
       },
 
-      _renderIpoChart(r) {
+      _renderIpoChart(r, rowsIn) {
         const el = document.getElementById('ipo-chart-panel');
         if (!el || typeof LightweightCharts === 'undefined') return;
         if (this._ipoLwc) {
           try { this._ipoLwc.remove(); } catch (e) { /* 破棄済み */ }
           this._ipoLwc = null;
         }
-        const rows = (this._ipoChartData || {})[r.ticker || (r.code + '.T')] || [];
+        const rows = rowsIn || [];
         if (!rows.length) {
           el.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400 text-sm">チャートデータがありません</div>';
           return;
