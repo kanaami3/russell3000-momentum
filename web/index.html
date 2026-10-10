@@ -538,7 +538,13 @@
           </div>
           <button @click="closeIpoChart()" class="text-slate-400 hover:text-slate-700 text-xl leading-none px-2">×</button>
         </div>
-        <div id="ipo-chart-panel" class="w-full" style="height:360px"></div>
+        <div class="relative">
+          <div x-show="ipoChartLoading"
+            class="absolute inset-0 flex items-center justify-center text-sm text-slate-400 bg-white/80 z-10">
+            チャートを読み込み中…
+          </div>
+          <div id="ipo-chart-panel" class="w-full" style="height:360px"></div>
+        </div>
         <div class="flex items-center justify-between mt-2 px-1">
           <span class="text-[11px] font-semibold text-slate-600">WAPS <span class="text-slate-400 font-normal">売り圧力の吸収度</span></span>
           <span class="flex items-center gap-2">
@@ -1430,6 +1436,7 @@ function momentumApp() {
       ipoData: null,
       ipoMarket: 'すべて',
       ipoSort: 'listing',
+      ipoChartLoading: false,
       // WAPSの感度。low=目立つ山だけ / std=標準 / high=Pine原典と同じ検出数
       ipoWapsSens: 'std',
       ipoSorts: [
@@ -1448,10 +1455,26 @@ function momentumApp() {
           const resp = await fetch('data/ipo_jp.json', { cache: 'no-store' });
           if (!resp.ok) throw new Error('ipo_jp.json ' + resp.status);
           this.ipoData = await resp.json();
+          // 拡大チャートのデータは1.8MBある。開いてから取りに行くと数秒待たされるので、
+          // 一覧を出した時点で裏で先読みしておく（待たない）。
+          this._prefetchIpoChartData();
         } catch (e) {
           console.error('IPOデータの読み込みに失敗', e);
           this.ipoData = { ipos: [], error: String(e) };
         }
+      },
+
+      _prefetchIpoChartData() {
+        if (this._ipoChartPromise) return this._ipoChartPromise;
+        // **毎回ダウンロードし直さない。**
+        // no-store だとブラウザのキャッシュが効かず、ページを開くたびに1.8MBを
+        // 取り直すことになる。日付をURLに付けて、中身が変わった日だけ取り直す。
+        const v = (this.ipoData && this.ipoData.asof) || 'x';
+        this._ipoChartPromise = fetch('data/chart_data_ipo.json?v=' + v)
+          .then(resp => (resp.ok ? resp.json() : {}))
+          .catch(e => { console.error('IPOチャートデータの読み込みに失敗', e); return {}; })
+          .then(d => { this._ipoChartData = d; return d; });
+        return this._ipoChartPromise;
       },
 
       ipoCaption() {
@@ -1650,15 +1673,9 @@ function momentumApp() {
 
       async openIpoChart(r) {
         this.ipoChart = r;
-        if (!this._ipoChartData) {
-          try {
-            const resp = await fetch('data/chart_data_ipo.json', { cache: 'no-store' });
-            this._ipoChartData = resp.ok ? await resp.json() : {};
-          } catch (e) {
-            console.error('IPOチャートデータの読み込みに失敗', e);
-            this._ipoChartData = {};
-          }
-        }
+        this.ipoChartLoading = !this._ipoChartData;
+        if (!this._ipoChartData) await this._prefetchIpoChartData();
+        this.ipoChartLoading = false;
         this.$nextTick(() => this._renderIpoChart(r));
       },
 
