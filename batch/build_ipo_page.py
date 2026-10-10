@@ -43,6 +43,11 @@ PROFILES = REPO_ROOT / "data" / "ipo_profiles_jp.json"
 OUT_PAGE = REPO_ROOT / "web" / "data" / "ipo_jp.json"
 OUT_CHART = REPO_ROOT / "web" / "data" / "chart_data_ipo.json"
 
+# **拡大チャートは銘柄ごとのファイルにも書き出す。**
+# まとめた chart_data_ipo.json は1.7MBあり、カードを押してから取りに行くと
+# 数秒待たされる。1銘柄ぶんなら十数KBで済むので、画面はこちらを読む。
+OUT_CHART_DIR = REPO_ROOT / "web" / "data" / "ipo_charts"
+
 JST = timezone(timedelta(hours=9))
 BATCH_SIZE = int(os.getenv("IPO_BATCH_SIZE", "40"))
 PERIOD = os.getenv("IPO_PERIOD", "3y")
@@ -439,6 +444,18 @@ def main() -> int:
         tmp = path.with_suffix(".json.tmp")
         tmp.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
         os.replace(tmp, path)
+
+    # 銘柄ごとの分割ファイル。画面はこちらを1本ずつ読む。
+    OUT_CHART_DIR.mkdir(parents=True, exist_ok=True)
+    written = 0
+    for ticker, rows in chart.items():
+        code = str(ticker).replace(".T", "")
+        p = OUT_CHART_DIR / f"{code}.json"
+        tmp = p.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(rows, ensure_ascii=False), encoding="utf-8")
+        os.replace(tmp, p)
+        written += 1
+    print(f"  銘柄別チャート {written} ファイルを書き出しました", file=sys.stderr)
 
     print(f"{payload['listed_count']} 銘柄の値動きを計算（取得失敗 {failed}）",
           file=sys.stderr)
