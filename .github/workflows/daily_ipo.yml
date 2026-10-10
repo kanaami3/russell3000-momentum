@@ -92,4 +92,4 @@ jobs:
             data/ipo_jp.json \
             data/ipo_profiles_jp.json \
             web/data/ipo_jp.json \
-            web/data/chart_data_ipo.json
+            web/data/chart_data_ipo.json web/data/ipo_charts
