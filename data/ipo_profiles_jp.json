@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-10-10T00:14:40+09:00",
+ "updated_at": "2026-10-10T22:59:21+09:00",
  "profiles": {
   "648A": {
    "ok": false,
@@ -15,7 +15,9 @@
    "market_cap": 931136536576,
    "sector_ja": "公益",
    "ok": true,
-   "checked_at": "2026-10-03"
+   "checked_at": "2026-10-03",
+   "biz_ja": "電力供給を中心にガス、通信、不動産など幅広く展開",
+   "summary_ja": "国内外で発電から送配電、電気の販売までを行う電力事業を中核に展開しています。また、電気設備の工事・保守、ガスや石炭の販売、再生可能エネルギー事業に加え、データ通信や光ブロードバンド、情報システム開発、不動産の開発・管理など多角的なサービスを提供し、個人や法人から収益を得ています。"
   },
   "641A": {
    "summary_en": "NOK Group Corporation engages in manufacturing and selling industrial functional products in Japan and internationally. The company provides solutions in the fields of Sealing, Mechanical, Electronics, and Chemical. It offers sealing solutions, such as oil seals, O-rings, and others; mechanical solutions, including mechanical seals, valves, and accumulators; electronics solutions comprising flexible printed circuits; and chemical solutions, such as specialty lubricants, synthetic rubber, and others. It serves various industries in automotive, electronic products, industrial machinery, aviation and aerospace, marine vessels, nuclear power and energy, and semiconductor manufacturing equipment. The company was incorporated in 2026 and is based in Tokyo, Japan.",
@@ -27,7 +29,9 @@
    "market_cap": null,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-10-03"
+   "checked_at": "2026-10-03",
+   "biz_ja": "オイルシールや電子基板など産業用機能部品を製造・販売",
+   "summary_ja": "自動車、電子機器、産業機械、航空などの多様な産業向けに、シール製品（オイルシールやOリング）、メカニカル製品、フレキシブルプリント基板などの電子部品、特殊潤滑剤といった化学製品を製造・販売しています。これら産業用機能部品の提供を通じて国内外のメーカーから収益を得ています。"
   },
   "640A": {
    "summary_en": "ASNOVA Companies Inc. engages in the rental and sale of wedge-tied scaffolding and similar products in Japan and internationally. The company was founded in 2013 and is headquartered in Nagoya, Japan.",
@@ -39,7 +43,9 @@
    "market_cap": 5136833024,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-10-03"
+   "checked_at": "2026-10-03",
+   "biz_ja": "建設現場向けのくさび式足場などのレンタル・販売を展開",
+   "summary_ja": "国内外の建設現場や工事現場向けに、くさび式足場をはじめとする仮設資材のレンタルおよび販売を行っています。建設業者などに対して足場資材を供給することで収益を得ており、資材の貸出料や販売代金が主な収入源となっています。"
   },
   "646A": {
    "summary_en": "Crasus Chemical Inc. manufactures petrochemical products in Japan. The company produces basic petrochemicals, organic chemicals, synthetic resins, and other derivatives at the Oita Petrochemical Complex. It manufactures olefins, including ethylene and propylene, through naphtha cracker furnaces that process naphtha, liquefied petroleum gas, condensate, and kerosene/diesel as feedstocks. The company also manufactures organic chemicals using acetic acid as the principal raw material, including ethyl acetate, vinyl acetate, and allyl alcohol. Additionally, it manufactures synthetic resin products, such as polypropylene used in automobile and food packaging applications, and polyethylene used in automobile and semiconductor applications. The company also manufactures styrene monomer, along with by-products and by-product derivatives generated from petrochemical complex operations. Crasus Chemical Inc. was incorporated in 2024 and is based in Oita, Japan. Crasus Chemical Inc. is a prior subsidiary of Resonac Holdings Corporation.",
@@ -51,7 +57,9 @@
    "market_cap": 50797826048,
    "sector_ja": "素材",
    "ok": true,
-   "checked_at": "2026-10-03"
+   "checked_at": "2026-10-03",
+   "biz_ja": "ナフサなどを原料とした基礎化学品や合成樹脂を製造",
+   "summary_ja": "大分石油化学コンビナートにて、ナフサやLPGなどを原料にエチレンやプロピレンといったオレフィン類（基礎化学品）を製造しています。さらに酢酸を主原料とする有機化学品（酢酸エチル等）や合成樹脂製品なども手掛け、多様な石油化学製品を産業向けに製造・販売しています。"
   },
   "634A": {
    "summary_en": "LAYERED Inc. provides medical digital transformation (DX) services. The company offers products, such as Kakarite, a patient management and communication support system; and Medical Window, medical information media; and services, including website production and operation support for medical institutions. The company serves clinics, hospitals, pharmaceutical companies, and local governments. The company was founded in 1998 and is headquartered in Fukuoka City, Japan.",
@@ -231,7 +239,9 @@
    "market_cap": 6579749888,
    "sector_ja": "情報技術",
    "ok": true,
-   "checked_at": "2026-09-26"
+   "checked_at": "2026-09-26",
+   "biz_ja": "社内外の問合せ対応を自動化するチャットボットを提供",
+   "summary_ja": "企業向けに、社内外からの問い合わせ対応を自動化するSaaS型のチャットボットツールを提供しています。従来のシナリオ型ツール「ChatPlus」に加え、ChatGPTなどの生成AIを活用して最適な回答を自動生成する「AI Agent Plus」を展開しており、企業の問い合わせ対応業務の効率化や省力化を支援しています。"
   },
   "590A": {
    "summary_en": "giftee Group, Inc. engages in the creation, distribution, and sale of e-gifts. It sells its e-gifts online via smartphones and other devices. The company was founded in 2010 and is headquartered in Shinagawa, Japan.",
@@ -713,7 +723,9 @@
    "market_cap": 1439601000448,
    "sector_ja": "金融",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "個人・法人向けに預金、ローン、金融ソリューションを提供",
+   "summary_ja": "個人顧客向けに円・外貨預金や住宅ローン等を提供し、法人や機関投資家向けには事業融資、ショッピングクレジット、不動産・再生可能エネルギー・航空機等のプロジェクトファイナンス、M&A関連融資やデリバティブなどの専門的な金融サービスを提供して利息や手数料を得ています。"
   },
   "471A": {
    "summary_en": "NS Group, Inc. provides rent guarantee services in Japan. The company offers rent guarantee and collection agency services. The company offers collection agency services to collect rent and other payments on behalf of real estate companies and property lessors. It also provides screening services. The company was formerly known as BCJ-54 Co., Ltd. and changed its name to NS Group, Inc. in October 2023. NS Group, Inc. was incorporated in 2021 and is based in Osaka, Japan.",
@@ -1033,7 +1045,9 @@
    "market_cap": 1080730648576,
    "sector_ja": "金融",
    "ok": true,
-   "checked_at": "2026-09-29"
+   "checked_at": "2026-09-29",
+   "biz_ja": "生命・損害保険を中心に銀行や介護など総合金融を展開",
+   "summary_ja": "グループ会社を通じて、死亡保障・医療・学資などの生命保険や自動車・火災保険などの損害保険商品、再保険を提供しています。さらに外貨預金や住宅ローン、投資信託、ベンチャーキャピタル、クレジットカード決済サービスなどの銀行・金融業務のほか、介護付有料老人ホームの企画・運営も手掛けています。"
   },
   "407A": {
    "summary_en": "Unicon Holdings Co., Ltd. provides construction and related business services. It engages in the civil engineering and building construction activities. The company was founded in 1904 and is based in Sendai, Japan.",
@@ -1689,7 +1703,9 @@
    "market_cap": 7747885568,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "保育・介護事業や人材派遣、携帯端末販売などを展開",
+   "summary_ja": "子会社を通じて保育園や幼稚園、学童クラブの運営などの保育事業を行っています。また、訪問介護や障害福祉などの介護サービス、人材派遣事業のほか、携帯電話などの通信機器の販売事業も展開しており、利用する個人や事業者から収益を得ています。"
   },
   "281A": {
    "summary_en": "Informetis Co., Ltd. engages in the energy informatics business in Japan. It offers ienowa and enenova for reducing the use of electricity by home appliances, generating electricity from solar power, and store electricity; and hitonowa, an energy management service for electric power companies. Informetis Co., Ltd. was founded in 2013 and is headquartered in Minato, Japan.",
@@ -1827,7 +1843,9 @@
    "market_cap": 853767684096,
    "sector_ja": "資本財・サービス",
    "ok": true,
-   "checked_at": "2026-09-30"
+   "checked_at": "2026-09-30",
+   "biz_ja": "地下鉄の運行と駅ナカ商業施設や不動産の開発・運営",
+   "summary_ja": "首都圏を中心とした鉄道（地下鉄）の運行・管理を主力事業としています。また、都市開発や生活関連事業として、駅構内店舗（駅ナカ）や商業施設の運営、オフィスビル・ホテルの開発・賃貸、駅や車内の広告事業、通信事業者向けの光ファイバー設備の賃貸なども展開し収益を得ています。"
   },
   "264A": {
    "summary_en": "Schoo,inc. provides social change based online learning and education services in Japan. The company offers school for business, an online video training service that covers training and self-directed learning support to learning management; school for personal, a community-based video learning service for working adults that offers free live streaming classes; and School Swing, a data-driven learning management system that realizes digital transformation for higher education institutions and adult education providers. Schoo,inc. was incorporated in 2011 and is based in Shibuya, Japan.",
