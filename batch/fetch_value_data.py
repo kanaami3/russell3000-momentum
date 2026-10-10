@@ -91,9 +91,25 @@ def fetch_one(spec: dict) -> dict:
         "forward_eps": None,
     }
     try:
-        info = yf.Ticker(ticker).info or {}
+        tk = yf.Ticker(ticker)
+        info = tk.info or {}
         row["market_cap"] = _safe_num(info.get("marketCap"))
-        row["current_price"] = _safe_num(info.get("currentPrice") or info.get("regularMarketPrice"))
+
+        # **株価は1つのキーに頼らない。**
+        # currentPrice は日本株だと欠けていることが多く、ここが None になると
+        # 後段(build_dividend_screener)が行ごと捨てる。実際それで東証プライム
+        # 1,550銘柄のうち700銘柄ほどがスクリーナーから消えていた。
+        for key in ("currentPrice", "regularMarketPrice",
+                    "previousClose", "regularMarketPreviousClose"):
+            row["current_price"] = _safe_num(info.get(key))
+            if row["current_price"] is not None:
+                break
+        if row["current_price"] is None:
+            # info に無くても fast_info なら返ることがある
+            try:
+                row["current_price"] = _safe_num(getattr(tk.fast_info, "last_price", None))
+            except Exception:
+                pass
 
         # yfinance unit conventions (verified):
         #   dividendYield   → already a percentage (3.35 = 3.35%)
@@ -120,8 +136,9 @@ def fetch_one(spec: dict) -> dict:
         row["trailing_eps"]      = _safe_num(info.get("trailingEps"))
         row["forward_eps"]       = _safe_num(info.get("forwardEps"))
     except Exception as e:
-        # Swallow per-ticker errors; many smaller Prime names will lack data.
-        pass
+        # 1銘柄の失敗で全体を止めない。ただし握り潰すと原因が追えないので
+        # 理由だけは残す（集計に使う）。
+        row["fetch_error"] = type(e).__name__
     return row
 
 
@@ -148,10 +165,25 @@ def main() -> int:
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=FIELDS)
+        # fetch_error は診断用に行へ付けてあるだけなので CSV には出さない
+        w = csv.DictWriter(f, fieldnames=FIELDS, extrasaction="ignore")
         w.writeheader()
         for r in rows:
             w.writerow(r)
+
+    # **株価が取れなかった行の内訳を出す。**
+    # 後段は株価の無い行を捨てるので、ここが欠けた数＝スクリーナーから
+    # 消える銘柄数になる。黙って減っていると気づけない。
+    no_price = [r for r in rows if r["current_price"] is None]
+    errs = {}
+    for r in no_price:
+        k = r.get("fetch_error") or "株価フィールド無し"
+        errs[k] = errs.get(k, 0) + 1
+    if no_price:
+        detail = " / ".join(f"{k}:{v}" for k, v in sorted(errs.items(), key=lambda x: -x[1]))
+        print(f"  株価が取れなかった銘柄: {len(no_price)}/{len(rows)}  ({detail})",
+              file=sys.stderr)
+        print("  例: " + ", ".join(r["ticker"] for r in no_price[:10]), file=sys.stderr)
 
     # Quick coverage stats
     have_pe = sum(1 for r in rows if r["trailing_pe"] is not None)
