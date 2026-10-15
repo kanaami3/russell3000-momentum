@@ -191,6 +191,38 @@ def fetch_vix_macd() -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# NS倍率(日経平均 ÷ S&P500)
+# ---------------------------------------------------------------------------
+
+def _yf_closes(symbol: str, period: str = "5y") -> dict[str, float]:
+    import yfinance as yf
+    t = yf.Ticker(symbol, session=_SESSION) if _SESSION is not None else yf.Ticker(symbol)
+    df = t.history(period=period, interval="1d", auto_adjust=False)
+    return {i.date().isoformat(): float(c) for i, c in zip(df.index, df["Close"])}
+
+
+def build_ns_ratio(nk_fallback: dict[str, float]) -> list[list]:
+    """[[日付, 日経平均, S&P500, NS倍率], ...]。日経の各営業日に、その日以前で直近のS&P500終値を合わせる。"""
+    sp = _yf_closes("^GSPC")
+    try:
+        nk = _yf_closes("^N225")
+    except Exception as e:
+        print(f"  WARN ^N225 取得失敗、indices.json で代用: {e}", file=sys.stderr)
+        nk = {}
+    nk = {**nk, **nk_fallback} if len(nk) < len(nk_fallback) else {**nk_fallback, **nk}
+    sp_dates = sorted(sp)
+    out, j = [], 0
+    for d in sorted(nk):
+        while j + 1 < len(sp_dates) and sp_dates[j + 1] <= d:
+            j += 1
+        if not sp_dates or sp_dates[j] > d:
+            continue
+        v = sp[sp_dates[j]]
+        out.append([d, round(nk[d]), round(v, 1), round(nk[d] / v, 2)])
+    return out
+
+
+# ---------------------------------------------------------------------------
 # 判定
 # ---------------------------------------------------------------------------
 
@@ -343,6 +375,15 @@ def main() -> int:
     except (KeyError, IndexError, statistics.StatisticsError, TypeError) as e:
         print(f"  WARN バンドウォークを計算できませんでした: {e}", file=sys.stderr)
 
+    # ---- NS倍率 --------------------------------------------------------
+    try:
+        nk_fb = {r[0]: r[4] for r in idx["N225"]["history"]} if "N225" in idx else {}
+        ns = build_ns_ratio(nk_fb)
+        print(f"  NS倍率 {len(ns)} 日分(最新 {ns[-1][0]} {ns[-1][3]}倍)" if ns else "  WARN NS倍率が空", file=sys.stderr)
+    except Exception as e:
+        print(f"  WARN NS倍率 取得失敗: {e}", file=sys.stderr)
+        ns = prev.get("ns_ratio") or []
+
     # ---- VIX MACD ------------------------------------------------------
     try:
         vix = fetch_vix_macd()
@@ -401,14 +442,24 @@ def main() -> int:
               {"num": lev["ratio"], "unit": "倍"} if lev else None,
               "≥ 1.00倍", lev["date"] if lev else None, lev_src,
               chart={"type": "line", "series": [[h["date"], h["ratio"]] for h in lev_list], "line": 1, "unit": "倍"}),
-        _item("japan_edge", 4, "日本株の優位性低下",
-              (edge["spread"] < 0) if edge else None,
-              {"num": edge["spread"], "unit": "%pt", "signed": True} if edge else None,
-              "< 0%pt(暫定)", edge["date"] if edge else None,
-              "日経225(ドル換算)とNASDAQ100の3ヶ月騰落率の差",
-              detail="暫定ロジック: 直近約3ヶ月で日経225(ドル換算)がNASDAQ100に負けていれば点灯。"
-                     "見方が違う場合は data/ignition_manual.json で上書きできる。",
-              chart={"type": "line", "series": edge["series"], "line": 0, "unit": "%pt"} if edge else None),
+        (_item("japan_edge", 4, "日本株の優位性低下(NS倍率の低下)",
+               ns[-1][3] < ns[-1 - EDGE_DAYS][3],
+               {"num": ns[-1][3], "unit": "倍",
+                "sub": f"約3ヶ月前({md_jp(ns[-1 - EDGE_DAYS][0])}) {ns[-1 - EDGE_DAYS][3]:.2f}倍 → "
+                       f"{(ns[-1][3] / ns[-1 - EDGE_DAYS][3] - 1) * 100:+.1f}%"},
+               "NS倍率が3ヶ月前より低い", ns[-1][0], "NS倍率 = 日経平均 ÷ S&P500(Yahoo Finance)",
+               detail="日本株に優位性がある(NS倍率が上がっている)と、ショートカバーを巻き込んで上がりやすい。"
+                      "NS倍率が約3ヶ月前(63営業日前)を下回ったら、優位性が低下したとみて点灯。",
+               chart={"type": "line", "series": [[r[0], r[3]] for r in ns[-250:]],
+                      "line": ns[-1 - EDGE_DAYS][3], "unit": "倍"})
+         if len(ns) > EDGE_DAYS else
+         _item("japan_edge", 4, "日本株の優位性低下",
+               (edge["spread"] < 0) if edge else None,
+               {"num": edge["spread"], "unit": "%pt", "signed": True} if edge else None,
+               "< 0%pt(暫定)", edge["date"] if edge else None,
+               "日経225(ドル換算)とNASDAQ100の3ヶ月騰落率の差",
+               detail="NS倍率を取得できなかったため代わりの判定: 直近約3ヶ月で日経225(ドル換算)がNASDAQ100に負けていれば点灯。",
+               chart={"type": "line", "series": edge["series"], "line": 0, "unit": "%pt"} if edge else None)),
         _item("below_theory", 5, "日経平均が理論値(PER×EPS)を割り込む",
               (last_close < last_eps["eps_weighted"] * theory_per) if (last_close and last_eps) else None,
               {"num": round(last_close), "unit": "円",
@@ -460,6 +511,8 @@ def main() -> int:
         "pbr_history": [{"date": d, "pbr": v} for d, v in sorted(pbr_hist.items())],
         "vix_macd": vix[-130:],
         # 日経平均とEPS×PER(16/17/18倍)・EPS・PERの推移グラフ用。[日付, 終値, EPS, PER]
+        # NS倍率グラフ用。[日付, 日経平均, S&P500, NS倍率]
+        "ns_ratio": ns,
         "nikkei_valuation": [[h["date"], round(h["close"]), round(h["eps_weighted"], 1), h["per_weighted"]]
                              for h in eps_rows if h.get("close") and h.get("per_weighted")],
     }
