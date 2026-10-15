@@ -44,6 +44,8 @@ MANUAL_PATH = REPO_ROOT / "data" / "ignition_manual.json"
 JST = timezone(timedelta(hours=9))
 
 SHORT_SALES_LINE_OKU = 8000          # 二市場の売り残の境目(億円)
+SHORT_SALES_SWITCH_NOTE = ("売り残が多いほど、売り方の買い戻しで相場は上昇しやすい。"
+                           "8,000億円を割ると買い戻しが一巡し、上昇の燃料が切れたと見る。")
 LEV_ETF_CODE = "1570"               # NEXT FUNDS 日経平均レバレッジ・インデックス連動型
 LEV_URL = f"https://finance.yahoo.co.jp/quote/{LEV_ETF_CODE}.T"
 PBR_URL = "https://indexes.nikkei.co.jp/nkave/archives/data?list=pbr"
@@ -342,6 +344,7 @@ def main() -> int:
               (sales[1] < SHORT_SALES_LINE_OKU) if sales else None,
               {"num": sales[1], "unit": "億円"} if sales else None,
               f"< {SHORT_SALES_LINE_OKU:,}億円", sales[0] if sales else None, jpx_margin,
+              detail=SHORT_SALES_SWITCH_NOTE,
               chart={"type": "line", "series": sales_series, "line": SHORT_SALES_LINE_OKU, "unit": "億円"}),
         _item("lev_ratio_above", 3, "日経レバの信用倍率が1倍以上",
               (lev["ratio"] >= 1) if lev else None,
