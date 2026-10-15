@@ -364,7 +364,7 @@ def main() -> int:
               (sales[1] >= SHORT_SALES_LINE_OKU) if sales else None,
               {"num": sales[1], "unit": "億円"} if sales else None,
               f"≥ {SHORT_SALES_LINE_OKU:,}億円", sales[0] if sales else None, jpx_margin,
-              detail="売り方の買い戻し余力。多いほど踏み上げの燃料になる。",
+              detail="空売り(売り残)が8,000億円以上あり、売りが多いほど買い戻しで上昇しやすい。8,000億円を下回ると、空売りが入っていない(上昇の燃料がない)状態。",
               chart={"type": "line", "series": sales_series, "line": SHORT_SALES_LINE_OKU, "unit": "億円"}),
         _item("fuel_lev_ratio", 2, "日経レバの信用倍率が1倍未満",
               (lev["ratio"] < 1) if lev else None,
