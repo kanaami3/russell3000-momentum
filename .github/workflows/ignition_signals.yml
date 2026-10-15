@@ -1,0 +1,36 @@
+name: Ignition signals (燃料と着火スイッチ) rebuild
+
+# 手動判定(data/ignition_manual.json)を書き換えたら、すぐページに反映する。
+# 通常の日次更新は daily_jp.yml の中で行う。
+on:
+  push:
+    branches: [main]
+    paths: [data/ignition_manual.json]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Build ignition signals
+        run: python batch/build_ignition_signals.py
+      - name: Commit and push
+        run: |
+          bash batch/safe_commit_push.sh \
+            "data(ignition): rebuild $(date -u +%Y-%m-%d)" \
+            web/data/ignition_signals.json

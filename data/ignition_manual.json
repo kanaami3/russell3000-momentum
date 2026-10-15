@@ -1,0 +1,8 @@
+{
+  "_help": "着火スイッチの手動判定。status は true=点灯 / false=消灯 / null=自動判定(自動判定がない項目は未判定)。theory_per は⑤の理論値(EPS×基準PER)に使う基準PER。",
+  "theory_per": 16.0,
+  "items": {
+    "bw_end": { "status": null, "note": "", "updated": "" },
+    "japan_edge": { "status": null, "note": "", "updated": "" }
+  }
+}
