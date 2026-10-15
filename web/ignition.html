@@ -223,10 +223,10 @@ function lampsRow(items, kind) {
 
 function verdictText(s) {
   const k = s.switch_lit, n = s.switch_total;
-  if (k >= 6) return `着火スイッチが${n}個中${k}個点灯。終了サインがかなり揃っている状態です。`;
-  if (k >= 4) return `着火スイッチが${n}個中${k}個点灯。半分以上が揃い、終盤を意識する段階です。`;
-  if (k >= 2) return `着火スイッチは${n}個中${k}個点灯。まだ一部が点いただけの段階です。`;
-  return `着火スイッチはほとんど点いていません。`;
+  if (k >= 6) return `着火スイッチが${n}個中${k}個点灯。売られる要因がかなり揃っています。下落に要注意です。`;
+  if (k >= 4) return `着火スイッチが${n}個中${k}個点灯。売られる要因が半分以上揃い、下落を意識する段階です。`;
+  if (k >= 2) return `着火スイッチは${n}個中${k}個点灯。売られる要因はまだ一部だけです。`;
+  return `売られる要因はほとんど点いていません。`;
 }
 
 function render(d) {
@@ -242,7 +242,7 @@ function render(d) {
         <div class="verdict">${s.fuel_lit === s.fuel_total ? '燃料が揃っています。踏み上げが起きやすい土台です。' : s.fuel_lit ? '燃料は一部だけ。' : '燃料は空の状態です。'}</div>
       </div>
       <div class="sbox">
-        <div class="lbl"><span>🔥 着火スイッチ(揃うほど終了が近い)</span>${s.switch_unknown ? `<span style="color:#B45309">未判定 ${s.switch_unknown}</span>` : ''}</div>
+        <div class="lbl"><span>🔥 着火スイッチ(売られる要因。揃うほど下落に注意)</span>${s.switch_unknown ? `<span style="color:#B45309">未判定 ${s.switch_unknown}</span>` : ''}</div>
         <div class="big">${s.switch_lit}<small> / ${s.switch_total}</small></div>
         ${lampsRow(d.switches, 'fire')}
         <div class="meter"><i style="width:${(s.switch_lit / s.switch_total * 100).toFixed(0)}%"></i></div>
@@ -278,7 +278,7 @@ function render(d) {
     </div>
 
     <h2 class="sec">🔥 着火スイッチ</h2>
-    <p class="secdesc">点灯した数が多いほど、上昇相場の終了が近いと見ます。</p>
+    <p class="secdesc">どれも売られる方向に働く要因です。点灯した数が多いほど上昇相場が終わり、下落に向かいやすいと見ます。</p>
     <div class="grid">${d.switches.map(it => card(it, 'fire')).join('')}</div>
 
     <div class="note">
