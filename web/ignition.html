@@ -2,19 +2,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>燃料と着火スイッチ</title>
-<meta name="theme-color" content="#070A11">
+<meta name="theme-color" content="#FFFFFF">
 <style>
   :root{
-    --bg:#070A11; --panel:#0F1524; --panel-2:#0B111C; --line:#1B2434; --line-soft:#141C2A;
-    --text:#E9EEF7; --muted:#8797B0; --muted-2:#54627D;
-    --fuel:#FB923C; --fuel-bg:rgba(251,146,60,.10);
-    --fire:#F45B7A; --fire-bg:rgba(244,91,122,.10);
-    --off:#2A3447; --accent:#6EA8FE; --ok:#34D399;
+    --bg:#F8FAFC; --panel:#FFFFFF; --panel-2:#FFFFFF; --line:#E2E8F0; --line-soft:#F1F5F9;
+    --text:#0F172A; --muted:#475569; --muted-2:#94A3B8;
+    --fuel:#EA580C; --fuel-bg:#FFF7ED;
+    --fire:#E11D48; --fire-bg:#FFF1F2;
+    --off:#CBD5E1; --accent:#2563EB; --ok:#059669; --ref:#D97706;
     --mono:"SFMono-Regular","JetBrains Mono","Roboto Mono",ui-monospace,monospace;
     --sans:"Inter",-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(1200px 500px at 80% -10%,#0E1626 0%,var(--bg) 60%);background-color:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
   .wrap{max-width:1200px;margin:0 auto;padding:18px 16px 48px}
   .top{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:18px}
   .top h1{font-size:18px;font-weight:700;margin:0;letter-spacing:-.01em}
@@ -25,17 +25,17 @@
   /* summary */
   .sum{display:grid;grid-template-columns:1fr 2fr;gap:14px;margin-bottom:26px}
   @media(max-width:760px){.sum{grid-template-columns:1fr}}
-  .sbox{background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .sbox{background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 1px 2px rgba(15,23,42,.05)}
   .sbox .lbl{font-size:12px;color:var(--muted);font-weight:600;display:flex;justify-content:space-between;gap:8px}
   .big{font-family:var(--mono);font-size:40px;font-weight:700;line-height:1.1;margin:6px 0 10px}
   .big small{font-size:18px;color:var(--muted-2);font-weight:600}
   .lamps{display:flex;gap:8px;flex-wrap:wrap}
   .lamp{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:700;background:var(--panel-2);border:2px solid var(--off);color:var(--muted-2);cursor:pointer;text-decoration:none}
   .lamp.unk{border-style:dashed}
-  .lamp.fuel.on{background:var(--fuel);border-color:var(--fuel);color:#1a0d02;box-shadow:0 0 14px rgba(251,146,60,.55)}
-  .lamp.fire.on{background:var(--fire);border-color:var(--fire);color:#22060c;box-shadow:0 0 14px rgba(244,91,122,.55)}
+  .lamp.fuel.on{background:var(--fuel);border-color:var(--fuel);color:#fff;box-shadow:0 0 0 3px rgba(234,88,12,.18)}
+  .lamp.fire.on{background:var(--fire);border-color:var(--fire);color:#fff;box-shadow:0 0 0 3px rgba(225,29,72,.18)}
   .meter{height:6px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:12px}
-  .meter i{display:block;height:100%;background:linear-gradient(90deg,#E0A72E,var(--fire));border-radius:6px;transition:width .4s}
+  .meter i{display:block;height:100%;background:linear-gradient(90deg,#F59E0B,var(--fire));border-radius:6px;transition:width .4s}
   .verdict{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
 
   h2.sec{font-size:15px;font-weight:700;margin:0 0 4px;display:flex;align-items:center;gap:8px}
@@ -43,31 +43,31 @@
   .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:28px}
   @media(max-width:760px){.grid{grid-template-columns:1fr}}
 
-  .card{background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;scroll-margin-top:12px}
-  .card.fuel.on{border-color:rgba(251,146,60,.55);background:linear-gradient(180deg,var(--fuel-bg) 0%,var(--panel-2) 100%)}
-  .card.fire.on{border-color:rgba(244,91,122,.55);background:linear-gradient(180deg,var(--fire-bg) 0%,var(--panel-2) 100%)}
+  .card{background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 1px 2px rgba(15,23,42,.05);display:flex;flex-direction:column;gap:8px;scroll-margin-top:12px}
+  .card.fuel.on{border-color:#FDBA74;background:linear-gradient(180deg,var(--fuel-bg) 0%,var(--panel-2) 100%)}
+  .card.fire.on{border-color:#FDA4AF;background:linear-gradient(180deg,var(--fire-bg) 0%,var(--panel-2) 100%)}
   .head{display:flex;gap:10px;align-items:flex-start}
   .head .lamp{flex-shrink:0;cursor:default}
   .head .nm{font-size:13.5px;font-weight:650;line-height:1.4}
   .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
   .tag{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:5px;border:1px solid var(--line);color:var(--muted);font-weight:600}
-  .tag.st-on.fuel{color:var(--fuel);border-color:rgba(251,146,60,.5)}
-  .tag.st-on.fire{color:var(--fire);border-color:rgba(244,91,122,.5)}
+  .tag.st-on.fuel{color:var(--fuel);border-color:#FDBA74;background:#FFF7ED}
+  .tag.st-on.fire{color:var(--fire);border-color:#FDA4AF;background:#FFF1F2}
   .tag.st-off{color:var(--muted)}
-  .tag.st-unk{color:#E0A72E;border-color:rgba(224,167,46,.45)}
+  .tag.st-unk{color:#B45309;border-color:#FCD34D;background:#FFFBEB}
   .val{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
   .val b{font-family:var(--mono);font-size:22px;font-weight:700}
   .val .u{font-size:12px;color:var(--muted)}
   .val .th{font-family:var(--mono);font-size:11px;color:var(--muted-2);margin-left:auto}
   .sub{font-family:var(--mono);font-size:11px;color:var(--muted)}
   .detail{font-size:11.5px;color:var(--muted);line-height:1.55}
-  .manual{font-size:11.5px;line-height:1.5;padding:7px 9px;border-radius:8px;background:rgba(224,167,46,.07);border:1px solid rgba(224,167,46,.25);color:#E7C77A}
+  .manual{font-size:11.5px;line-height:1.5;padding:7px 9px;border-radius:8px;background:#FFFBEB;border:1px solid #FDE68A;color:#92400E}
   .meta{font-family:var(--mono);font-size:10px;color:var(--muted-2);display:flex;gap:10px;flex-wrap:wrap;margin-top:auto}
   svg.spark{display:block;width:100%;height:auto}
   .nohist{font-size:11px;color:var(--muted-2);font-family:var(--mono);padding:6px 0}
   .spark .ln{fill:none;stroke-width:1.6}
   .spark .th{stroke:var(--muted-2);stroke-dasharray:3 3;stroke-width:1}
-  .spark text{font-family:var(--mono);font-size:11px;fill:var(--muted-2)}
+  .spark text{paint-order:stroke;stroke:var(--panel);stroke-width:3px;stroke-linejoin:round;font-family:var(--mono);font-size:11px;fill:var(--muted-2)}
   .legend{font-family:var(--mono);font-size:10px;color:var(--muted-2);display:flex;gap:10px;flex-wrap:wrap}
   .legend i{display:inline-block;width:10px;height:2px;vertical-align:middle;margin-right:4px}
   .note{font-size:11.5px;color:var(--muted);line-height:1.7;border-top:1px solid var(--line);padding-top:14px}
@@ -156,18 +156,18 @@ function chartSVG(ch, color) {
     const m = s.map(r => r[1]), g = s.map(r => r[2]);
     const y = scaler(m.concat(g), [0]);
     body += `<line class="th" x1="${PL}" x2="${W - PR}" y1="${y(0)}" y2="${y(0)}"/>`;
-    body += `<path class="ln" d="${path(xs, g.map(y))}" stroke="#E0A72E"/>`;
+    body += `<path class="ln" d="${path(xs, g.map(y))}" stroke="var(--ref)"/>`;
     body += `<path class="ln" d="${path(xs, m.map(y))}" stroke="${color}"/>`;
-    legend = `<div class="legend"><span><i style="background:${color}"></i>MACD</span><span><i style="background:#E0A72E"></i>シグナル</span></div>`;
+    legend = `<div class="legend"><span><i style="background:${color}"></i>MACD</span><span><i style="background:var(--ref)"></i>シグナル</span></div>`;
   } else if (ch.type === 'nikkei') {
     const ref = ch.show === 'pbr' ? 3 : 2;
     const c = s.map(r => r[1]), r2 = s.map(r => r[ref]);
     const y = scaler(c.concat(r2));
-    body += `<path class="ln" d="${path(xs, r2.map(v => v == null ? null : y(v)))}" stroke="#E0A72E" stroke-dasharray="4 3"/>`;
+    body += `<path class="ln" d="${path(xs, r2.map(v => v == null ? null : y(v)))}" stroke="var(--ref)" stroke-dasharray="4 3"/>`;
     body += `<path class="ln" d="${path(xs, c.map(y))}" stroke="${color}"/>`;
     const lastRef = r2.filter(v => v != null).pop();
-    if (lastRef != null) body += `<text x="${W - PR + 4}" y="${y(lastRef) + 3}" style="fill:#E0A72E">${shortNum(lastRef)}</text>`;
-    legend = `<div class="legend"><span><i style="background:${color}"></i>日経平均</span><span><i style="background:#E0A72E"></i>${ch.show === 'pbr' ? 'PBR2倍ライン' : '理論値'}</span></div>`;
+    if (lastRef != null) body += `<text x="${W - PR + 4}" y="${y(lastRef) + 3}" style="fill:var(--ref)">${shortNum(lastRef)}</text>`;
+    legend = `<div class="legend"><span><i style="background:${color}"></i>日経平均</span><span><i style="background:var(--ref)"></i>${ch.show === 'pbr' ? 'PBR2倍ライン' : '理論値'}</span></div>`;
   }
   return `<svg class="spark" viewBox="0 0 ${W} ${H}" role="img">${body}${axisLabels(s)}</svg>${legend}`;
 }
@@ -221,7 +221,7 @@ function render(d) {
         <div class="verdict">${s.fuel_lit === s.fuel_total ? '燃料が揃っています。踏み上げが起きやすい土台です。' : s.fuel_lit ? '燃料は一部だけ。' : '燃料は空の状態です。'}</div>
       </div>
       <div class="sbox">
-        <div class="lbl"><span>🔥 着火スイッチ(揃うほど終了が近い)</span>${s.switch_unknown ? `<span style="color:#E0A72E">未判定 ${s.switch_unknown}</span>` : ''}</div>
+        <div class="lbl"><span>🔥 着火スイッチ(揃うほど終了が近い)</span>${s.switch_unknown ? `<span style="color:#B45309">未判定 ${s.switch_unknown}</span>` : ''}</div>
         <div class="big">${s.switch_lit}<small> / ${s.switch_total}</small></div>
         ${lampsRow(d.switches, 'fire')}
         <div class="meter"><i style="width:${(s.switch_lit / s.switch_total * 100).toFixed(0)}%"></i></div>
