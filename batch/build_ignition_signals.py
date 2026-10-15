@@ -362,7 +362,8 @@ def main() -> int:
                "sub": f"理論値 {round(last_eps['eps_weighted'] * theory_per):,}円"
                       f"(EPS {last_eps['eps_weighted']:,.0f}円 × {theory_per:g}倍)"} if (last_close and last_eps) else None,
               f"終値 < EPS×{theory_per:g}倍", last_close_date, "日経平均 終値・加重平均EPS(日経公表PERから算出)",
-              detail=f"理論値の基準PERは {theory_per:g}倍(data/ignition_manual.json の theory_per で変更できる)。",
+              detail=f"理論値の基準PERは {theory_per:g}倍(data/ignition_manual.json の theory_per で変更できる)。"
+                     "16/17/18倍の3本は下の「日経平均とEPS×PER」グラフで見られる。",
               chart={"type": "nikkei", "series": nk_chart, "show": "theory"}),
         _item("foreign_selling", 6, "海外投資家の日本株売り",
               (flow_sum < 0) if flow_sum is not None else None,
@@ -405,6 +406,9 @@ def main() -> int:
         "lev_margin_history": lev_list,
         "pbr_history": [{"date": d, "pbr": v} for d, v in sorted(pbr_hist.items())],
         "vix_macd": vix[-130:],
+        # 日経平均とEPS×PER(16/17/18倍)・EPS・PERの推移グラフ用。[日付, 終値, EPS, PER]
+        "nikkei_valuation": [[h["date"], round(h["close"]), round(h["eps_weighted"], 1), h["per_weighted"]]
+                             for h in eps_rows if h.get("close") and h.get("per_weighted")],
     }
     OUTPUT_PATH.write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
     s = out["summary"]
