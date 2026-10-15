@@ -179,6 +179,15 @@ function chartSVG(ch, color) {
     body += `<path class="ln" d="${path(xs, g.map(y))}" stroke="var(--ref)"/>`;
     body += `<path class="ln" d="${path(xs, m.map(y))}" stroke="${color}"/>`;
     legend = `<div class="legend"><span><i style="background:${color}"></i>MACD</span><span><i style="background:var(--ref)"></i>シグナル</span></div>`;
+  } else if (ch.type === 'bb') {
+    const c = s.map(r => r[1]), u2 = s.map(r => r[2]), u1 = s.map(r => r[3]), m = s.map(r => r[4]);
+    const y = scaler(c.concat(u2, m));
+    body += `<path class="ln" d="${path(xs, u2.map(y))}" stroke="var(--ref)" stroke-dasharray="4 3"/>`;
+    body += `<path class="ln" d="${path(xs, u1.map(y))}" stroke="#60A5FA" stroke-dasharray="2 3"/>`;
+    body += `<path class="ln" d="${path(xs, m.map(y))}" stroke="var(--muted-2)" stroke-width="1"/>`;
+    body += `<path class="ln" d="${path(xs, c.map(y))}" stroke="${color}"/>`;
+    s.forEach((r, i) => { if (r[1] >= r[2]) body += `<circle cx="${xs[i]}" cy="${y(r[1])}" r="2.4" fill="var(--ref)"/>`; });
+    legend = `<div class="legend"><span><i style="background:${color}"></i>日経225</span><span><i style="background:var(--ref)"></i>+2σ(点=+2σ以上)</span><span><i style="background:#60A5FA"></i>+1σ</span><span><i style="background:var(--muted-2)"></i>20日線</span></div>`;
   } else if (ch.type === 'nikkei') {
     const ref = ch.show === 'pbr' ? 3 : 2;
     const c = s.map(r => r[1]), r2 = s.map(r => r[ref]);
@@ -283,7 +292,8 @@ function render(d) {
 
     <div class="note">
       ・自動判定は平日に更新されます。売り残・投資部門別・日経レバの信用倍率は週1回の公表なので、基準日が数日〜1週間ほど遅れます。<br>
-      ・<b>①BWの終了サイン</b>は定性的な判断のため手動入力です。ほかの項目も手動で点灯/消灯を上書きできます(リポジトリの <code>data/ignition_manual.json</code>)。<br>
+      ・<b>①BW(バンドウォーク)の終了サイン</b>は日経225の日足・ボリンジャーバンド(20日)で判定します。終値が+2σ以上で3日以上続いたらバンドウォークとし、その後20営業日以内に終値が+1σを割り込んだら点灯します。<br>
+      ・どの項目も手動で点灯/消灯を上書きできます(リポジトリの <code>data/ignition_manual.json</code>)。<br>
       ・<b>④日本株の優位性低下</b>は暫定ロジックです(日経225をドル換算した約3ヶ月の騰落率がNASDAQ100を下回ったら点灯)。<br>
       ・<b>⑤理論値</b>は「日経公表の加重平均EPS × 基準PER ${d.theory_per}倍」です。<b>⑧PBR2倍</b>は日経公表の加重平均PBRから BPS = 終値 ÷ PBR として求めています。<br>
       ・指標の表示であり、売買の推奨ではありません。

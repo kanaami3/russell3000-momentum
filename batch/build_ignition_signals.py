@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import json
 import re
+import statistics
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -53,6 +54,9 @@ DATALOAD_URL = "https://indexes.nikkei.co.jp/nkave/statistics/dataload"
 PBR_CEILING = 2.0
 EDGE_DAYS = 63                      # 日本株の優位性: 約3ヶ月の騰落率で比べる
 FLOW_WEEKS = 4                      # 海外投資家: 直近4週の合計で見る
+BB_PERIOD = 20                      # ボリンジャーバンド(20日・±1σ/±2σ)
+BW_MIN_DAYS = 3                     # +2σ以上の終値が何日続いたらバンドウォークとみなすか
+BW_LOOKBACK = 20                    # 直近何営業日以内のバンドウォークを対象にするか
 
 
 def _get_text(url: str) -> str:
@@ -190,6 +194,10 @@ def fetch_vix_macd() -> list[dict]:
 # 判定
 # ---------------------------------------------------------------------------
 
+def md_jp(d: str) -> str:
+    return f"{int(d[5:7])}/{int(d[8:10])}"
+
+
 def _item(key, no, name, lit, value, threshold, asof, source, method="auto", detail="", chart=None):
     return {
         "key": key, "no": no, "name": name,
@@ -302,6 +310,36 @@ def main() -> int:
     except (KeyError, IndexError, ZeroDivisionError, TypeError) as e:
         print(f"  WARN 日本株の優位性を計算できませんでした: {e}", file=sys.stderr)
 
+    # ---- BW(ボリンジャーバンドのバンドウォーク)の終了サイン: 日経225 ------------
+    bw = None
+    try:
+        nk_rows = {r[0]: r[4] for r in idx["N225"]["history"]}     # 同じ日付が重なることがあるので後勝ち
+        bd = sorted(nk_rows)
+        bc = [nk_rows[d] for d in bd]
+        bands = []
+        for i in range(BB_PERIOD - 1, len(bc)):
+            win = bc[i - BB_PERIOD + 1:i + 1]
+            m = sum(win) / BB_PERIOD
+            sd = statistics.stdev(win)
+            bands.append([bd[i], round(bc[i]), round(m + 2 * sd), round(m + sd), round(m)])
+        run, walk_last, walk_first = 0, None, None
+        for i, b in enumerate(bands):
+            run = run + 1 if b[1] >= b[2] else 0
+            if run >= BW_MIN_DAYS:
+                walk_last, walk_first = i, i - run + 1
+        last = bands[-1]
+        recent_walk = walk_last is not None and walk_last >= len(bands) - BW_LOOKBACK
+        walking = run >= BW_MIN_DAYS
+        bw = {
+            "date": last[0], "close": last[1], "up2": last[2], "up1": last[3],
+            "lit": bool(recent_walk and not walking and last[1] < last[3]),
+            "walking": walking,
+            "walk": [bands[walk_first][0], bands[walk_last][0]] if recent_walk else None,
+            "series": bands[-90:],
+        }
+    except (KeyError, IndexError, statistics.StatisticsError, TypeError) as e:
+        print(f"  WARN バンドウォークを計算できませんでした: {e}", file=sys.stderr)
+
     # ---- VIX MACD ------------------------------------------------------
     try:
         vix = fetch_vix_macd()
@@ -337,9 +375,18 @@ def main() -> int:
     ]
 
     switches = [
-        _item("bw_end", 1, "BW(転換社債型新株予約権付社債)の終了サイン", None, None,
-              "手動判定", None, "手動入力", method="manual",
-              detail="定性的な判断のため、data/ignition_manual.json で点灯/消灯を入力する。"),
+        _item("bw_end", 1, "BW(ボリンジャーバンドのバンドウォーク)の終了サイン",
+              bw["lit"] if bw else None,
+              {"num": bw["close"], "unit": "円",
+               "sub": (f"+1σ {bw['up1']:,}円 / +2σ {bw['up2']:,}円・"
+                       + ("いまバンドウォーク中" if bw["walking"]
+                          else f"{md_jp(bw['walk'][0])}〜{md_jp(bw['walk'][1])} にバンドウォーク" if bw["walk"]
+                          else f"直近{BW_LOOKBACK}営業日にバンドウォークなし"))} if bw else None,
+              "ウォーク後に終値 < +1σ", bw["date"] if bw else None,
+              "日経225 日足・ボリンジャーバンド(20日)",
+              detail=f"終値が+2σ以上で{BW_MIN_DAYS}日以上続いたらバンドウォーク。その後(直近{BW_LOOKBACK}営業日以内)に"
+                     "終値が+1σを割り込んだら終了サインとして点灯。",
+              chart={"type": "bb", "series": bw["series"]} if bw else None),
         _item("short_sales_below", 2, "二市場の売り残が8,000億円未満(買い戻し一巡)",
               (sales[1] < SHORT_SALES_LINE_OKU) if sales else None,
               {"num": sales[1], "unit": "億円"} if sales else None,
