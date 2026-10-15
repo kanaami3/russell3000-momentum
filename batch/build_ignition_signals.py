@@ -233,6 +233,9 @@ def main() -> int:
     mh = [h for h in mb.get("history", []) if h.get("sales_value_mil")]
     sales_series = [[h["date"], round(h["sales_value_mil"] / 100)] for h in mh[-52:]]   # 百万円 → 億円
     sales = sales_series[-1] if sales_series else None
+    # 信用買い残(兆円)と信用倍率。売り残の横に並べて「買いの積み上がり」も見せる。
+    buy_note = (f"信用買い残 {mh[-1]['purchases_value_mil'] / 1_000_000:.2f}兆円・信用倍率 {mh[-1]['ratio_by_value']:.2f}倍"
+                if mh and mh[-1].get("purchases_value_mil") and mh[-1].get("ratio_by_value") else None)
 
     # ---- 日経レバ 信用倍率(週次・履歴を貯める) ----------------------
     lev_hist = {h["date"]: h for h in (prev.get("lev_margin_history") or [])}
@@ -362,7 +365,7 @@ def main() -> int:
     fuel = [
         _item("fuel_short_sales", 1, "二市場の売り残が8,000億円以上",
               (sales[1] >= SHORT_SALES_LINE_OKU) if sales else None,
-              {"num": sales[1], "unit": "億円"} if sales else None,
+              {"num": sales[1], "unit": "億円", "sub": buy_note} if sales else None,
               f"≥ {SHORT_SALES_LINE_OKU:,}億円", sales[0] if sales else None, jpx_margin,
               detail="空売り(売り残)が8,000億円以上あり、売りが多いほど買い戻しで上昇しやすい。8,000億円を下回ると、空売りが入っていない(上昇の燃料がない)状態。",
               chart={"type": "line", "series": sales_series, "line": SHORT_SALES_LINE_OKU, "unit": "億円"}),
@@ -389,7 +392,7 @@ def main() -> int:
               chart={"type": "bb", "series": bw["series"]} if bw else None),
         _item("short_sales_below", 2, "二市場の売り残が8,000億円未満(買い戻し一巡)",
               (sales[1] < SHORT_SALES_LINE_OKU) if sales else None,
-              {"num": sales[1], "unit": "億円"} if sales else None,
+              {"num": sales[1], "unit": "億円", "sub": buy_note} if sales else None,
               f"< {SHORT_SALES_LINE_OKU:,}億円", sales[0] if sales else None, jpx_margin,
               detail=SHORT_SALES_SWITCH_NOTE,
               chart={"type": "line", "series": sales_series, "line": SHORT_SALES_LINE_OKU, "unit": "億円"}),
