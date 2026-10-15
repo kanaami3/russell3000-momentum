@@ -82,11 +82,11 @@
   .rng button.on{background:var(--text);color:#fff;border-color:var(--text)}
   .vstats{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:6px 0 4px}
   .vstats b{color:var(--text);font-size:13px}
-  #vchart svg{display:block;width:100%}
-  #vchart text{font-family:var(--mono);font-size:10.5px;fill:var(--muted)}
-  #vchart .gl{stroke:var(--line-soft);stroke-width:1}
-  #vchart .fr{fill:none;stroke:var(--line);stroke-width:1}
-  #vchart .pt-l{font-size:10.5px;fill:var(--text);font-weight:600}
+  #vchart svg,#nschart svg{display:block;width:100%}
+  #vchart text,#nschart text{font-family:var(--mono);font-size:10.5px;fill:var(--muted)}
+  #vchart .gl,#nschart .gl{stroke:var(--line-soft);stroke-width:1}
+  #vchart .fr,#nschart .fr{fill:none;stroke:var(--line);stroke-width:1}
+  #vchart .pt-l,#nschart .pt-l{font-size:10.5px;fill:var(--text);font-weight:600}
   .vtip{position:absolute;pointer-events:none;display:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:11px;line-height:1.6;box-shadow:0 6px 18px rgba(15,23,42,.12);white-space:nowrap;z-index:5}
   .vtip .sw{display:inline-block;width:10px;height:2px;vertical-align:middle;margin-right:5px}
   .vleg{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:6px}
@@ -125,7 +125,6 @@ function stateOf(it) { return it.lit === true ? 'on' : it.lit === false ? 'off' 
 function stateLabel(it) { return it.lit === true ? '点灯' : it.lit === false ? '消灯' : '未判定'; }
 function methodLabel(it) {
   if (it.method === 'manual') return it.auto_lit !== undefined ? '手動で上書き' : '手動判定';
-  if (it.key === 'japan_edge') return '自動(暫定)';
   return '自動';
 }
 
@@ -221,6 +220,7 @@ function card(it, kind) {
     ${manual}
     ${chartSVG(it.chart, color)}
     ${it.detail ? `<div class="detail">${esc(it.detail)}</div>` : ''}
+    ${it.key === 'japan_edge' ? `<a class="detail" href="#nsratio" style="color:var(--accent)">NS倍率と日経・S&P500のグラフを見る ↓</a>` : ''}
     ${it.key === 'below_theory' ? `<a class="detail" href="#valuation" style="color:var(--accent)">16・17・18倍のグラフを見る ↓</a>` : ''}
     <div class="meta"><span>基準日 ${md(it.asof)}</span><span>${esc(it.source)}</span></div>
   </div>`;
@@ -286,6 +286,26 @@ function render(d) {
       <div class="vtip" id="vtip"></div>
     </div>
 
+    <div class="vcard" id="nsratio">
+      <div class="vhead">
+        <div>
+          <h3>🌏 NS倍率と、日経平均・S&amp;P500</h3>
+          <div class="d">NS倍率 = 日経平均 ÷ S&amp;P500。上がっていれば日本株が優位(米国株より強い)。下段は期間の初日を100とした値動きの比較です。</div>
+        </div>
+        <div class="rng" id="nsrng">
+          <button data-r="6m">6ヶ月</button><button data-r="1y" class="on">1年</button><button data-r="all">全期間</button>
+        </div>
+      </div>
+      <div class="vstats" id="nsstats"></div>
+      <div id="nschart"></div>
+      <div class="vleg">
+        <span><i style="border-color:#0F766E"></i>NS倍率</span>
+        <span><i style="border-color:#DC2626"></i>日経平均</span>
+        <span><i style="border-color:#2563EB"></i>S&amp;P500</span>
+      </div>
+      <div class="vtip" id="nstip"></div>
+    </div>
+
     <h2 class="sec">🔥 着火スイッチ</h2>
     <p class="secdesc">どれも売られる方向に働く要因です。点灯した数が多いほど上昇相場が終わり、下落に向かいやすいと見ます。</p>
     <div class="grid">${d.switches.map(it => card(it, 'fire')).join('')}</div>
@@ -294,7 +314,7 @@ function render(d) {
       ・自動判定は平日に更新されます。売り残・投資部門別・日経レバの信用倍率は週1回の公表なので、基準日が数日〜1週間ほど遅れます。<br>
       ・<b>①BW(バンドウォーク)の終了サイン</b>は日経225の日足・ボリンジャーバンド(20日)で判定します。終値が+2σ以上で3日以上続いたらバンドウォークとし、その後20営業日以内に終値が+1σを割り込んだら点灯します。<br>
       ・どの項目も手動で点灯/消灯を上書きできます(リポジトリの <code>data/ignition_manual.json</code>)。<br>
-      ・<b>④日本株の優位性低下</b>は暫定ロジックです(日経225をドル換算した約3ヶ月の騰落率がNASDAQ100を下回ったら点灯)。<br>
+      ・<b>④日本株の優位性低下</b>は NS倍率(日経平均 ÷ S&P500)が約3ヶ月前(63営業日前)を下回ったら点灯します。日本株に優位性があるとショートカバーを巻き込んで上がりやすく、優位性が落ちると売られやすくなります。<br>
       ・<b>⑤理論値</b>は「日経公表の加重平均EPS × 基準PER ${d.theory_per}倍」です。<b>⑧PBR2倍</b>は日経公表の加重平均PBRから BPS = 終値 ÷ PBR として求めています。<br>
       ・指標の表示であり、売買の推奨ではありません。
     </div>`;
@@ -408,8 +428,87 @@ function setupValuation(d) {
   let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(drawValuation, 150); });
 }
 
+
+// ---- NS倍率と日経平均・S&P500 ---------------------------------------------
+let NSROWS = [], NSRANGE = '1y';
+function rangeSlice(rows, r) {
+  if (!rows.length || r === 'all') return rows;
+  const last = new Date(rows[rows.length - 1][0]);
+  const from = new Date(last); from.setMonth(from.getMonth() - (r === '6m' ? 6 : 12));
+  const f = from.toISOString().slice(0, 10);
+  return rows.filter(x => x[0] >= f);
+}
+function drawNS() {
+  const box = $('#nschart'); if (!box) return;
+  const rows = rangeSlice(NSROWS, NSRANGE); if (rows.length < 2) { box.innerHTML = '<div class="nohist">データがありません</div>'; return; }
+  const W = Math.max(320, box.clientWidth), narrow = W < 560;
+  const L = narrow ? 44 : 58, R = narrow ? 8 : 14, GAP = 16, XB = 22;
+  const panels = [{ key: 'ns', h: narrow ? 170 : 220 }, { key: 'idx', h: narrow ? 150 : 200 }];
+  let top = 6; panels.forEach(p => { p.y0 = top; top += p.h + GAP; });
+  const H = top - GAP + XB, n = rows.length, x = i => L + (W - L - R) * i / (n - 1);
+  const nk0 = rows[0][1], sp0 = rows[0][2];
+  const D = rows.map(r => ({ d: r[0], nk: r[1], sp: r[2], ns: r[3], nkr: r[1] / nk0 * 100, spr: r[2] / sp0 * 100 }));
+  const series = { ns: [['ns', '#0F766E']], idx: [['spr', '#2563EB'], ['nkr', '#DC2626']] };
+  const yOf = {}; let svg = '';
+  panels.forEach(p => {
+    const vals = D.flatMap(r => series[p.key].map(s => r[s[0]]));
+    let lo = Math.min(...vals), hi = Math.max(...vals); const pad = (hi - lo) * 0.08 || 1; lo -= pad; hi += pad;
+    const y = v => p.y0 + p.h * (1 - (v - lo) / (hi - lo)); yOf[p.key] = y;
+    niceTicks(lo, hi, narrow ? 3 : 5).forEach(t => {
+      svg += `<line class="gl" x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}"/><text x="${L - 6}" y="${y(t) + 3}" text-anchor="end">${p.key === 'ns' ? t.toFixed(1) : Math.round(t)}</text>`;
+    });
+    svg += `<rect class="fr" x="${L}" y="${p.y0}" width="${W - L - R}" height="${p.h}"/>`;
+    if (p.key === 'idx') svg += `<line x1="${L}" x2="${W - R}" y1="${y(100)}" y2="${y(100)}" stroke="var(--muted-2)" stroke-dasharray="3 3"/>`;
+    series[p.key].forEach(([k, col]) => {
+      svg += `<path d="${path(D.map((_, i) => x(i)), D.map(r => y(r[k])))}" fill="none" stroke="${col}" stroke-width="1.9"/>`;
+    });
+  });
+  const last = D[n - 1];
+  svg += `<circle cx="${x(n - 1)}" cy="${yOf.ns(last.ns)}" r="3.5" fill="#0F766E"/>`;
+  const nt = narrow ? 4 : 8;
+  for (let k = 0; k <= nt; k++) {
+    const i = Math.round((n - 1) * k / nt);
+    svg += `<text x="${x(i)}" y="${H - 6}" text-anchor="${k === 0 ? 'start' : k === nt ? 'end' : 'middle'}">${md(D[i].d).slice(narrow ? 5 : 0)}</text>`;
+  }
+  svg += `<line id="nsx" x1="0" x2="0" y1="${panels[0].y0}" y2="${panels[1].y0 + panels[1].h}" stroke="var(--muted-2)" stroke-dasharray="3 3" style="display:none"/>`;
+  svg += `<rect id="nshit" x="${L}" y="0" width="${W - L - R}" height="${H}" fill="transparent"/>`;
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${svg}</svg>`;
+  const pct = v => (v >= 100 ? '+' : '') + (v - 100).toFixed(1) + '%';
+  $('#nsstats').innerHTML = `<span>${md(last.d)} NS倍率 <b style="color:#0F766E">${last.ns.toFixed(2)}</b>倍</span>`
+    + `<span>期間の変化 日経 <b style="color:#DC2626">${pct(last.nkr)}</b></span><span>S&amp;P500 <b style="color:#2563EB">${pct(last.spr)}</b></span>`
+    + `<span>NS倍率 <b>${pct(last.ns / D[0].ns * 100)}</b></span>`;
+  const hit = $('#nshit'), vx = $('#nsx'), tip = $('#nstip'), card = $('#nsratio');
+  const move = ev => {
+    const pt = ev.touches ? ev.touches[0] : ev;
+    const rect = box.querySelector('svg').getBoundingClientRect();
+    const i = Math.max(0, Math.min(n - 1, Math.round((pt.clientX - rect.left - L) / (W - L - R) * (n - 1))));
+    const r = D[i], xi = x(i);
+    vx.setAttribute('x1', xi); vx.setAttribute('x2', xi); vx.style.display = '';
+    tip.innerHTML = `<b>${md(r.d)}</b><br><span class="sw" style="background:#0F766E"></span>NS倍率 ${r.ns.toFixed(2)}倍<br>`
+      + `<span class="sw" style="background:#DC2626"></span>日経平均 ${Math.round(r.nk).toLocaleString()}(${pct(r.nkr)})<br>`
+      + `<span class="sw" style="background:#2563EB"></span>S&amp;P500 ${r.sp.toLocaleString()}(${pct(r.spr)})`;
+    tip.style.display = 'block';
+    const cr = card.getBoundingClientRect(), tw = tip.offsetWidth;
+    let left = rect.left - cr.left + xi + 14; if (left + tw > cr.width - 8) left = rect.left - cr.left + xi - tw - 14;
+    tip.style.left = Math.max(8, left) + 'px'; tip.style.top = (rect.top - cr.top + 10) + 'px';
+  };
+  const leave = () => { vx.style.display = 'none'; tip.style.display = 'none'; };
+  hit.addEventListener('mousemove', move); hit.addEventListener('touchmove', move, { passive: true });
+  hit.addEventListener('touchstart', move, { passive: true });
+  hit.addEventListener('mouseleave', leave); hit.addEventListener('touchend', leave);
+}
+function setupNS(d) {
+  NSROWS = d.ns_ratio || [];
+  if (!NSROWS.length) { $('#nsratio').style.display = 'none'; return; }
+  document.querySelectorAll('#nsrng button').forEach(b => b.addEventListener('click', () => {
+    NSRANGE = b.dataset.r; document.querySelectorAll('#nsrng button').forEach(x => x.classList.toggle('on', x === b)); drawNS();
+  }));
+  drawNS();
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(drawNS, 150); });
+}
+
 fetch('./data/ignition_signals.json?v=' + Date.now())
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-  .then(d => { render(d); setupValuation(d); })
+  .then(d => { render(d); setupValuation(d); setupNS(d); })
   .catch(e => { $('#app').innerHTML = `<div class="empty">データを読み込めませんでした(${esc(e.message)})</div>`; $('#gen').textContent = '—'; });
 </script>
