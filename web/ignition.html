@@ -92,6 +92,13 @@
   .vleg{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:6px}
   .vleg i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:5px}
   .vleg i.dash{border-top-style:dashed}
+  .vexp{margin-top:16px;padding-top:14px;border-top:1px solid var(--line, #E5E7EB);font-size:13px;line-height:1.75}
+  .vexp h4{margin:0 0 6px;font-size:14px}
+  .vexp ol{margin:8px 0;padding-left:4px;list-style:none}
+  .vexp li{margin-bottom:8px}
+  .vexp li b{display:block}
+  .vexp .now{background:#F5F3FF;border-radius:8px;padding:8px 12px;margin:8px 0}
+  .vexp .pt{color:var(--muted)}
   .empty{font-size:13px;color:var(--muted);text-align:center;padding:60px 0;font-family:var(--mono)}
 </style>
 
@@ -284,6 +291,18 @@ function render(d) {
         <span><i style="border-color:#7C3AED"></i>PER</span>
       </div>
       <div class="vtip" id="vtip"></div>
+      <div class="vexp">
+        <h4>📝 PERの推移を読む</h4>
+        <p>株価 = EPS × PER。EPS(1株あたり利益)は「企業がどれだけ稼いでいるか」、PERは「その利益に市場が何倍の値段をつけているか(期待・評価)」です。PERが伸びていなくても、成長が止まったとは限りません。成長はEPSの伸びで見ます。</p>
+        <ol>
+          <li><b>① 2023年7月〜2025年8月:PERはおおむね14.5〜17.5倍のレンジ</b>EPSは約2,180円から約2,470円へゆるやかに増加し、株価もほぼ利益の伸びに沿って動きました。2025年4月7日の急落(米国の関税ショック)ではPERが12.6倍まで下がり、日経平均は31,137円。利益はほとんど変わらず、評価だけが一時的にはがれた場面です。</li>
+          <li><b>② 2025年9月〜2026年2月:PERが主役の上昇(期待先行)</b>EPSは約2,400円から約2,810円(+17%)だったのに対し、PERは17.5倍から20.9倍(2/27)まで上昇。日経平均は42,000円台から58,850円へ。この期間の上昇の多くは「評価の上乗せ」でした。</li>
+          <li><b>③ 2026年5月:決算でEPSが一段上がり、PERは下がる</b>5月の決算発表(新年度の会社予想)で、EPSは約3,010円(5/1)から約3,730円(6/1)へ約24%切り上がりました。株価も上がりましたが、利益の伸びのほうが大きかったため、PERは約20倍から18倍前後へ低下。6/25の高値72,366円もPER18.5倍程度で、2月の20.9倍より低い評価でした。</li>
+          <li><b>④ 2026年6月以降:利益は過去最高圏、PERは17倍前後</b>EPSは10/6に3,982円の最高を記録。PERは17〜18倍台で推移しています。</li>
+        </ol>
+        <div class="now" id="vnow"></div>
+        <p class="pt">ポイント:PERが下がる局面は「利益の伸びに株価が追いついていない」状態で、割高感はむしろ薄れています。逆にPERだけで上がった局面は、期待がはがれると下げやすくなります。理論値の目安(EPS×16倍)を割り込むと着火スイッチ⑤が点灯します。※EPSは日経公表の加重平均PERから逆算した値です。</p>
+      </div>
     </div>
 
     <div class="vcard" id="nsratio">
@@ -425,6 +444,9 @@ function setupValuation(d) {
     VRANGE = b.dataset.r; document.querySelectorAll('#vrng button').forEach(x => x.classList.toggle('on', x === b)); drawValuation();
   }));
   drawValuation();
+  const L = VROWS[VROWS.length - 1], tp = d.theory_per || 16, th = L[2] * tp;
+  const md = L[0].slice(5).replace('-', '/').replace(/^0/, '');
+  $('#vnow').innerHTML = `いま(${md})は EPS <b>${Math.round(L[2]).toLocaleString()}円</b>・PER <b>${L[3].toFixed(2)}倍</b>。理論値 EPS×${tp} = <b>${Math.round(th).toLocaleString()}円</b> に対して日経平均は ${L[1].toLocaleString()}円(${L[1] >= th ? '+' : ''}${((L[1] / th - 1) * 100).toFixed(1)}%)です。`;
   let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(drawValuation, 150); });
 }
 
