@@ -51,6 +51,10 @@ jobs:
       - name: Fetch TOPIX EPS
         run: python batch/fetch_topix_eps.py || echo "⚠ TOPIX EPSの取得に失敗（継続）"
 
+      # 燃料と着火スイッチ。指数・日経EPSの後で動かす(それらのJSONを読む)。
+      - name: Build ignition signals (燃料と着火スイッチ)
+        run: python batch/build_ignition_signals.py || echo "⚠ 着火スイッチの更新に失敗（継続）"
+
       - name: Compute JP momentum metrics
         run: python batch/calc_momentum.py jp
 
@@ -91,4 +95,5 @@ jobs:
             "data(jp): daily update $(date -u +%Y-%m-%d)" \
             data/universe_jp.json web/data/momentum_jp.json web/data/chart_data_jp.json \
             web/data/swing_picks_jp.json web/data/indices.json \
-            web/data/nikkei_eps_history.json web/data/topix_eps_history.json
+            web/data/nikkei_eps_history.json web/data/topix_eps_history.json \
+            web/data/ignition_signals.json

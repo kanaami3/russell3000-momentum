@@ -98,6 +98,12 @@
           class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors whitespace-nowrap">
           🔥 テーマランキング
         </button>
+        <button
+          @click="setMarket('ignition')"
+          :class="market === 'ignition' ? 'border-rose-600 text-rose-700' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
+          class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors whitespace-nowrap">
+          🧨 燃料と着火スイッチ
+        </button>
     </div>
   </div>
 </nav>
@@ -605,6 +611,19 @@
         style="height:760px;border:0"></iframe>
     </div>
     <p class="text-[11px] text-slate-400 mt-2">テーマの分類は当塾の定義です。情報整理であり投資勧誘ではありません。</p>
+  </section>
+  </template>
+  <template x-if="market === 'ignition'">
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-5">
+    <div class="flex items-center justify-end mb-2">
+      <a href="ignition.html" target="_blank" rel="noopener"
+        class="text-xs text-blue-600 hover:underline whitespace-nowrap">別タブで大きく見る ↗</a>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-900">
+      <iframe src="ignition.html" title="燃料と着火スイッチ"
+        loading="lazy" class="w-full block" @load="fitSectorFrame($event.target)"
+        style="height:1400px;border:0"></iframe>
+    </div>
   </section>
   </template>
 
@@ -1411,6 +1430,13 @@ const MARKET_CONFIG = {
     title: 'テーマランキング',
     label: 'THEME RANKING — テーマ別の相対力推移',
     docTitle: 'かな塾長秘書AI投資ナビ | テーマランキング',
+    defaultSort: 'm3',
+  },
+  ignition: {
+    file: null,  // 同じリポジトリの ignition.html を iframe で表示する
+    title: '燃料と着火スイッチ',
+    label: 'SHORT-COVERING FUEL & END-OF-RALLY SWITCHES',
+    docTitle: 'かな塾長秘書AI投資ナビ | 燃料と着火スイッチ',
     defaultSort: 'm3',
   },
   ipo: {
