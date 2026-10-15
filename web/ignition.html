@@ -72,6 +72,26 @@
   .legend i{display:inline-block;width:10px;height:2px;vertical-align:middle;margin-right:4px}
   .note{font-size:11.5px;color:var(--muted);line-height:1.7;border-top:1px solid var(--line);padding-top:14px}
   .note code{font-family:var(--mono);font-size:11px;background:var(--panel);padding:1px 5px;border-radius:4px;color:var(--text)}
+  /* 日経平均とEPS×PER */
+  .vcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px 12px;box-shadow:0 1px 2px rgba(15,23,42,.05);margin-bottom:28px;position:relative;scroll-margin-top:12px}
+  .vhead{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+  .vhead h3{font-size:14px;font-weight:700;margin:0}
+  .vhead .d{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .rng{display:flex;gap:4px;margin-left:auto}
+  .rng button{font-family:var(--mono);font-size:11px;padding:5px 10px;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer}
+  .rng button.on{background:var(--text);color:#fff;border-color:var(--text)}
+  .vstats{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:6px 0 4px}
+  .vstats b{color:var(--text);font-size:13px}
+  #vchart svg{display:block;width:100%}
+  #vchart text{font-family:var(--mono);font-size:10.5px;fill:var(--muted)}
+  #vchart .gl{stroke:var(--line-soft);stroke-width:1}
+  #vchart .fr{fill:none;stroke:var(--line);stroke-width:1}
+  #vchart .pt-l{font-size:10.5px;fill:var(--text);font-weight:600}
+  .vtip{position:absolute;pointer-events:none;display:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:11px;line-height:1.6;box-shadow:0 6px 18px rgba(15,23,42,.12);white-space:nowrap;z-index:5}
+  .vtip .sw{display:inline-block;width:10px;height:2px;vertical-align:middle;margin-right:5px}
+  .vleg{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:6px}
+  .vleg i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:5px}
+  .vleg i.dash{border-top-style:dashed}
   .empty{font-size:13px;color:var(--muted);text-align:center;padding:60px 0;font-family:var(--mono)}
 </style>
 
@@ -192,6 +212,7 @@ function card(it, kind) {
     ${manual}
     ${chartSVG(it.chart, color)}
     ${it.detail ? `<div class="detail">${esc(it.detail)}</div>` : ''}
+    ${it.key === 'below_theory' ? `<a class="detail" href="#valuation" style="color:var(--accent)">16・17・18倍のグラフを見る ↓</a>` : ''}
     <div class="meta"><span>基準日 ${md(it.asof)}</span><span>${esc(it.source)}</span></div>
   </div>`;
 }
@@ -233,6 +254,29 @@ function render(d) {
     <p class="secdesc">売り方が多く積み上がっているほど、買い戻しで相場が押し上げられる土台になります。</p>
     <div class="grid">${d.fuel.map(it => card(it, 'fuel')).join('')}</div>
 
+    <div class="vcard" id="valuation">
+      <div class="vhead">
+        <div>
+          <h3>📈 日経平均とEPS×PER(16・17・18倍)</h3>
+          <div class="d">EPS = 終値 ÷ 加重平均PER(日経公表)。点線は「その倍率まで買われたら日経平均はいくらか」の目安です。</div>
+        </div>
+        <div class="rng" id="vrng">
+          <button data-r="6m" class="on">6ヶ月</button><button data-r="1y">1年</button><button data-r="all">全期間</button>
+        </div>
+      </div>
+      <div class="vstats" id="vstats"></div>
+      <div id="vchart"></div>
+      <div class="vleg">
+        <span><i style="border-color:var(--text)"></i>日経平均</span>
+        <span><i class="dash" style="border-color:#60A5FA"></i>EPS×PER16</span>
+        <span><i class="dash" style="border-color:#F59E0B"></i>EPS×PER17</span>
+        <span><i class="dash" style="border-color:#DC2626"></i>EPS×PER18</span>
+        <span><i style="border-color:#1E40AF"></i>EPS</span>
+        <span><i style="border-color:#7C3AED"></i>PER</span>
+      </div>
+      <div class="vtip" id="vtip"></div>
+    </div>
+
     <h2 class="sec">🔥 着火スイッチ</h2>
     <p class="secdesc">点灯した数が多いほど、上昇相場の終了が近いと見ます。</p>
     <div class="grid">${d.switches.map(it => card(it, 'fire')).join('')}</div>
@@ -246,8 +290,116 @@ function render(d) {
     </div>`;
 }
 
+
+// ---- 日経平均とEPS×PER(3段グラフ) -----------------------------------------
+const VCOL = { close: 'var(--text)', p16: '#60A5FA', p17: '#F59E0B', p18: '#DC2626', eps: '#1E40AF', per: '#7C3AED' };
+let VROWS = [], VRANGE = '6m';
+function vSlice() {
+  if (!VROWS.length || VRANGE === 'all') return VROWS;
+  const last = new Date(VROWS[VROWS.length - 1][0]);
+  const from = new Date(last); from.setMonth(from.getMonth() - (VRANGE === '6m' ? 6 : 12));
+  const f = from.toISOString().slice(0, 10);
+  return VROWS.filter(r => r[0] >= f);
+}
+function niceTicks(lo, hi, n) {
+  const raw = (hi - lo) / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw) || raw;
+  const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(6));
+  return out;
+}
+function drawValuation() {
+  const box = $('#vchart'); if (!box) return;
+  const rows = vSlice(); if (rows.length < 2) { box.innerHTML = '<div class="nohist">データがありません</div>'; return; }
+  const W = Math.max(320, box.clientWidth), narrow = W < 560;
+  const L = narrow ? 44 : 58, R = narrow ? 8 : 14;
+  const panels = [
+    { key: 'main', h: narrow ? 220 : 300, label: '日経平均(円)' },
+    { key: 'eps', h: narrow ? 120 : 160, label: 'EPS(円)' },
+    { key: 'per', h: narrow ? 100 : 130, label: 'PER(倍)' },
+  ];
+  const GAP = 16, XB = 22;
+  let top = 6; panels.forEach(p => { p.y0 = top; top += p.h + GAP; });
+  const H = top - GAP + XB;
+  const n = rows.length, x = i => L + (W - L - R) * i / (n - 1);
+  const D = rows.map(r => ({ d: r[0], c: r[1], e: r[2], p: r[3], p16: r[2] * 16, p17: r[2] * 17, p18: r[2] * 18 }));
+  const fmt = v => Math.round(v).toLocaleString();
+  let svg = '';
+  const series = {
+    main: [['p16', VCOL.p16, true], ['p17', VCOL.p17, true], ['p18', VCOL.p18, true], ['c', VCOL.close, false]],
+    eps: [['e', VCOL.eps, false]], per: [['p', VCOL.per, false]],
+  };
+  const yOf = {};
+  panels.forEach(p => {
+    const keys = series[p.key].map(s => s[0]);
+    let vals = D.flatMap(r => keys.map(k => r[k]));
+    if (p.key === 'main') { const cs = D.map(r => r.c); const lo = Math.min(...cs), hi = Math.max(...cs); vals = vals.filter(v => v > lo * 0.9 && v < hi * 1.08).concat(cs); }
+    let lo = Math.min(...vals), hi = Math.max(...vals); const pad = (hi - lo) * 0.08 || 1; lo -= pad; hi += pad;
+    const y = v => p.y0 + p.h * (1 - (v - lo) / (hi - lo)); yOf[p.key] = y;
+    svg += `<defs><clipPath id="cp-${p.key}"><rect x="${L}" y="${p.y0}" width="${W - L - R}" height="${p.h}"/></clipPath></defs>`;
+    niceTicks(lo, hi, narrow ? 3 : 5).forEach(t => {
+      svg += `<line class="gl" x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}"/><text x="${L - 6}" y="${y(t) + 3}" text-anchor="end">${p.key === 'per' ? t.toFixed(1) : t.toLocaleString()}</text>`;
+    });
+    svg += `<rect class="fr" x="${L}" y="${p.y0}" width="${W - L - R}" height="${p.h}"/>`;
+    svg += `<g clip-path="url(#cp-${p.key})">`;
+    series[p.key].forEach(([k, col, dash]) => {
+      svg += `<path d="${path(D.map((_, i) => x(i)), D.map(r => y(r[k])))}" fill="none" stroke="${col}" stroke-width="${dash ? 1.4 : 1.9}" ${dash ? 'stroke-dasharray="5 4"' : ''}/>`;
+    });
+    svg += `</g>`;
+  });
+  // 期間内の高値に印
+  let im = 0; D.forEach((r, i) => { if (r.c > D[im].c) im = i; });
+  const xm = x(im);
+  svg += `<line x1="${xm}" x2="${xm}" y1="${panels[0].y0}" y2="${panels[2].y0 + panels[2].h}" stroke="#DC2626" stroke-opacity=".25"/>`;
+  [['main', D[im].c, `${md(D[im].d)} ${fmt(D[im].c)}`], ['eps', D[im].e, fmt(D[im].e)], ['per', D[im].p, D[im].p.toFixed(2)]].forEach(([k, v, lab]) => {
+    const yy = yOf[k](v), anchor = xm > W - 120 ? 'end' : xm < L + 80 ? 'start' : 'middle';
+    svg += `<circle cx="${xm}" cy="${yy}" r="4" fill="#DC2626"/><text class="pt-l" x="${xm}" y="${yy - 9}" text-anchor="${anchor}">${lab}</text>`;
+  });
+  // x軸
+  const nt = narrow ? 4 : 8;
+  for (let k = 0; k <= nt; k++) {
+    const i = Math.round((n - 1) * k / nt);
+    svg += `<text x="${x(i)}" y="${H - 6}" text-anchor="${k === 0 ? 'start' : k === nt ? 'end' : 'middle'}">${md(D[i].d).slice(narrow ? 5 : 0)}</text>`;
+  }
+  svg += `<line id="vx" x1="0" x2="0" y1="${panels[0].y0}" y2="${panels[2].y0 + panels[2].h}" stroke="var(--muted-2)" stroke-dasharray="3 3" style="display:none"/>`;
+  svg += `<rect id="vhit" x="${L}" y="0" width="${W - L - R}" height="${H}" fill="transparent"/>`;
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${svg}</svg>`;
+
+  const last = D[n - 1];
+  $('#vstats').innerHTML = `<span>${md(last.d)} 終値 <b>${fmt(last.c)}</b></span><span>EPS <b>${fmt(last.e)}</b></span><span>PER <b>${last.p.toFixed(2)}</b>倍</span>`
+    + `<span>×16 <b style="color:${VCOL.p16}">${fmt(last.p16)}</b></span><span>×17 <b style="color:${VCOL.p17}">${fmt(last.p17)}</b></span><span>×18 <b style="color:${VCOL.p18}">${fmt(last.p18)}</b></span>`;
+
+  const hit = $('#vhit'), vx = $('#vx'), tip = $('#vtip'), card = $('#valuation');
+  const move = ev => {
+    const pt = ev.touches ? ev.touches[0] : ev;
+    const rect = box.querySelector('svg').getBoundingClientRect();
+    const i = Math.max(0, Math.min(n - 1, Math.round((pt.clientX - rect.left - L) / (W - L - R) * (n - 1))));
+    const r = D[i], xi = x(i);
+    vx.setAttribute('x1', xi); vx.setAttribute('x2', xi); vx.style.display = '';
+    tip.innerHTML = `<b>${md(r.d)}</b><br><span class="sw" style="background:${VCOL.close}"></span>日経平均 ${fmt(r.c)}<br>`
+      + `<span class="sw" style="background:${VCOL.p18}"></span>×18 ${fmt(r.p18)}<br><span class="sw" style="background:${VCOL.p17}"></span>×17 ${fmt(r.p17)}<br><span class="sw" style="background:${VCOL.p16}"></span>×16 ${fmt(r.p16)}<br>`
+      + `<span class="sw" style="background:${VCOL.eps}"></span>EPS ${fmt(r.e)}<br><span class="sw" style="background:${VCOL.per}"></span>PER ${r.p.toFixed(2)}倍`;
+    tip.style.display = 'block';
+    const cr = card.getBoundingClientRect(), tw = tip.offsetWidth;
+    let left = rect.left - cr.left + xi + 14; if (left + tw > cr.width - 8) left = rect.left - cr.left + xi - tw - 14;
+    tip.style.left = Math.max(8, left) + 'px'; tip.style.top = (rect.top - cr.top + 10) + 'px';
+  };
+  const leave = () => { vx.style.display = 'none'; tip.style.display = 'none'; };
+  hit.addEventListener('mousemove', move); hit.addEventListener('touchmove', move, { passive: true });
+  hit.addEventListener('touchstart', move, { passive: true });
+  hit.addEventListener('mouseleave', leave); hit.addEventListener('touchend', leave);
+}
+function setupValuation(d) {
+  VROWS = d.nikkei_valuation || [];
+  if (!VROWS.length) { $('#valuation').style.display = 'none'; return; }
+  document.querySelectorAll('#vrng button').forEach(b => b.addEventListener('click', () => {
+    VRANGE = b.dataset.r; document.querySelectorAll('#vrng button').forEach(x => x.classList.toggle('on', x === b)); drawValuation();
+  }));
+  drawValuation();
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(drawValuation, 150); });
+}
+
 fetch('./data/ignition_signals.json?v=' + Date.now())
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-  .then(render)
+  .then(d => { render(d); setupValuation(d); })
   .catch(e => { $('#app').innerHTML = `<div class="empty">データを読み込めませんでした(${esc(e.message)})</div>`; $('#gen').textContent = '—'; });
 </script>
