@@ -67,8 +67,55 @@ def list_latest_weekly_files() -> list[tuple[str, str]]:
         d = m.group(2)
         iso = f"{d[:4]}-{d[4:6]}-{d[6:8]}"
         out.append((iso, url))
+    # 2026年9月下旬から新形式 YYYYMMDD_mtcurrent.xlsx に切り替わった
+    for m in re.finditer(r'href="([^"]*?(\d{8})_mtcurrent\.xlsx)"', html):
+        url = m.group(1) if m.group(1).startswith("http") else BASE + m.group(1)
+        d = m.group(2)
+        out.append((f"{d[:4]}-{d[4:6]}-{d[6:8]}", url))
     # newest first
     return sorted(set(out), reverse=True)
+
+
+def parse_current_xlsx(raw: bytes) -> dict | None:
+    """Parse the new weekly YYYYMMDD_mtcurrent.xlsx (2026-09-25 onward).
+
+    The 信用取引残高合計 row holds 二市場 [売残, 前週比, 買残, 前週比, 東京...] on the
+    株数 row, and the next row holds the same in 金額 (百万円).
+    """
+    import openpyxl
+    try:
+        ws = openpyxl.load_workbook(io.BytesIO(raw), data_only=True).worksheets[0]
+    except Exception:
+        return None
+    rows = [list(r) for r in ws.iter_rows(values_only=True)]
+    asof = None
+    for r in rows[:3]:
+        for v in r:
+            if isinstance(v, datetime):
+                asof = v.strftime("%Y-%m-%d")
+                break
+        if asof:
+            break
+
+    def nums(r):
+        return [float(v) for v in r[3:] if isinstance(v, (int, float))]
+
+    for i, r in enumerate(rows):
+        if any(isinstance(v, str) and "信用取引残高合計" in v for v in r):
+            sh, val = nums(r), (nums(rows[i + 1]) if i + 1 < len(rows) else [])
+            if not asof or len(sh) < 3 or len(val) < 3:
+                return None
+            ss, ps, sv, pv = sh[0], sh[2], val[0], val[2]
+            return {
+                "date": asof,
+                "sales_shares_thou": round(ss, 0),
+                "purchases_shares_thou": round(ps, 0),
+                "sales_value_mil": round(sv, 0),
+                "purchases_value_mil": round(pv, 0),
+                "ratio_by_shares": round(ps / ss, 2) if ss > 0 else None,
+                "ratio_by_value": round(pv / sv, 2) if sv > 0 else None,
+            }
+    return None
 
 
 def parse_latest_snapshot(raw: bytes) -> dict | None:
@@ -249,7 +296,8 @@ def main() -> int:
             if iso in by_date:
                 continue
             raw = _http_get(url)
-            row = parse_latest_snapshot(raw)
+            row = (parse_current_xlsx(raw) if url.endswith(".xlsx")
+                   else parse_latest_snapshot(raw))
             if row:
                 by_date[row["date"]] = row
                 print(f"  + {row['date']}: ratio_by_value {row['ratio_by_value']}", file=sys.stderr)

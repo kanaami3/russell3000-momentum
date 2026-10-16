@@ -73,6 +73,82 @@ def list_weekly_value_files() -> list[str]:
     return sorted(set(out), reverse=True)
 
 
+def list_weekly_xlsx_files() -> list[tuple[str, str, str]]:
+    """New format from 2026-09 week3: stock_1_w_YYYYMMDD_YYYYMMDD.xlsx (1 week/file).
+
+    Returns [(start_iso, end_iso, url)], newest first.
+    """
+    html = _http_get_text(INDEX_URL)
+    out = set()
+    for m in re.finditer(r'href="([^"]*stock_1_w_(\d{8})_(\d{8})\.xlsx)"', html):
+        url = m.group(1) if m.group(1).startswith("http") else BASE + m.group(1)
+        a, b = m.group(2), m.group(3)
+        out.add((f"{a[:4]}-{a[4:6]}-{a[6:]}", f"{b[:4]}-{b[4:6]}-{b[6:]}", url))
+    return sorted(out, key=lambda x: x[1], reverse=True)
+
+
+# 新形式の列グループ(売/買/差引/合計の4列)を、見出し3段のどれに出る名前で分類するか。
+# 海外投資家は「法人」「個人」、個人は「現金」「信用」に分かれているので合算する。
+_XLSX_TOP = {"海外投資家": "foreign", "個人": "individual", "証券会社": "securities_cos"}
+_XLSX_LEAF = {"投資信託": "investment_trust", "事業法人": "business_corp",
+              "生保・損保": "insurance", "都銀・地銀等": "banks", "信託銀行": "trust_bank"}
+
+
+def parse_value_xlsx(raw: bytes, start: str, end: str) -> dict | None:
+    """Parse one new-format weekly file -> one week record (東証プライム, 金額)."""
+    import io
+    import openpyxl
+    try:
+        ws = openpyxl.load_workbook(io.BytesIO(raw), data_only=True).worksheets[0]
+    except Exception:
+        return None
+    rows = [list(r) for r in ws.iter_rows(values_only=True)]
+
+    def s(v):
+        return "" if v is None else str(v).replace("　", "").replace(" ", "")
+
+    hdr = next((i for i, r in enumerate(rows) if sum("差引" in s(v) for v in r) >= 3), None)
+    if hdr is None or hdr < 3:
+        return None
+    prime = next((i for i, r in enumerate(rows) if len(r) > 1 and "東証プライム" in s(r[1])), None)
+    if prime is None:
+        return None
+    val_row = next((rows[i] for i in range(prime, min(prime + 3, len(rows)))
+                    if len(rows[i]) > 2 and "金額" in s(rows[i][2])), None)
+    if val_row is None:
+        return None
+
+    def label_at(r, c):
+        for j in range(c, -1, -1):
+            if s(rows[r][j]):
+                return s(rows[r][j])
+        return ""
+
+    nets: dict[str, float] = {}
+    for c, v in enumerate(rows[hdr]):
+        if "差引" not in s(v) or c >= len(val_row) or not isinstance(val_row[c], (int, float)):
+            continue
+        g = c - 2  # group starts at 売
+        top = label_at(hdr - 3, g)
+        leaf = label_at(hdr - 1, g)
+        key = next((k for n, k in _XLSX_TOP.items() if top.startswith(n)), None)
+        if key is None:
+            key = next((k for n, k in _XLSX_LEAF.items() if leaf.startswith(n)), None)
+        if key:
+            nets[key] = nets.get(key, 0.0) + float(val_row[c])
+    if "foreign" not in nets:
+        return None
+    names = {v[0]: v[1] for v in CATEGORIES.values()}
+    sm, sd = int(start[5:7]), int(start[8:])
+    em, ed = int(end[5:7]), int(end[8:])
+    return {
+        "date": end,
+        "week_label": f"{end[:4]}年{em}月 ( {sm}/{sd} - {em}/{ed} )",
+        "flows": {k: {"name": names[k], "net_thousand": round(v, 0), "net_oku": round(v / 100_000, 1)}
+                  for k, v in nets.items()},
+    }
+
+
 def _parse_range_end(range_str: str, year: int) -> str | None:
     """'06/29～07/03' -> '2026-07-03' (the week-ending Friday)."""
     m = re.search(r"(\d{1,2})/(\d{1,2})\s*[〜～\-]\s*(\d{1,2})/(\d{1,2})", range_str)
@@ -238,6 +314,18 @@ def main() -> int:
                 print(f"  + {rec['date']}: 海外 {fo} / 個人 {ind} 億円", file=sys.stderr)
     except Exception as e:
         print(f"  WARN fetch/parse failed: {e}", file=sys.stderr)
+    try:
+        for start, end, url in list_weekly_xlsx_files():
+            rec = parse_value_xlsx(_http_get(url), start, end)
+            if not rec:
+                print(f"  WARN could not parse {url}", file=sys.stderr)
+                continue
+            by_date[rec["date"]] = rec
+            fo = rec["flows"].get("foreign", {}).get("net_oku")
+            ind = rec["flows"].get("individual", {}).get("net_oku")
+            print(f"  + {rec['date']} (xlsx): 海外 {fo} / 個人 {ind} 億円", file=sys.stderr)
+    except Exception as e:
+        print(f"  WARN xlsx fetch/parse failed: {e}", file=sys.stderr)
 
     history = sorted(by_date.values(), key=lambda x: x["date"])
     if not history:
