@@ -1,9 +1,17 @@
 {
- "updated_at": "2026-10-16T00:34:16+09:00",
+ "updated_at": "2026-10-17T00:21:28+09:00",
  "profiles": {
   "648A": {
-   "ok": false,
-   "checked_at": "2026-10-10"
+   "summary_en": "LECRE Inc. designs, develops, and provides AI-based software-as-a-service (SaaS) solutions and digital transformation (DX) platforms. The company develops and operates a device-integrated, AI cloud-based Record DX platform that enables organizations to capture, manage, structure, and analyze field data, such as photographs, videos, and text records. It caters to the construction, maintenance, repair, inspection, childcare, and education sectors. LECRE Inc. was formerly known as TriWorks Corp. The company was incorporated in 1995 and is based in Minato, Japan.",
+   "sector_en": "Technology",
+   "industry_en": "Software - Infrastructure",
+   "employees": null,
+   "website": "https://lecre.jp",
+   "city": "Minato",
+   "market_cap": 19000000512,
+   "sector_ja": "情報技術",
+   "ok": true,
+   "checked_at": "2026-10-17"
   },
   "642A": {
    "summary_en": "KYUDEN Holdings Inc. engages in the power generation, transmission, distribution, and retail in Japan and internationally. It is also involved in construction and maintenance of electrical equipment; sale of gas / LNG and coal; renewable energy business; data communication; optical broadband; telecommunications construction and maintenance; information system development; public-private partnership, and data center business. Further, the company develops and manages real estate. KYUDEN Holdings Inc. was founded in 1951 and is headquartered in Fukuoka City, Japan.",
@@ -1974,8 +1982,12 @@
   "660A": {
    "ok": false,
    "checked_at": "2026-10-14"
+  },
+  "664A": {
+   "ok": false,
+   "checked_at": "2026-10-17"
   }
  },
- "count": 146,
- "ok_count": 139
+ "count": 147,
+ "ok_count": 140
 }
