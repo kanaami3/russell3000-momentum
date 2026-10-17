@@ -200,3 +200,78 @@ def attach(stocks: list[dict], fetch_dividends, now: pd.Timestamp | None = None)
         s = compute_streak(div, now=now)
         st["streak"] = {**asdict(s), "label": label(s)}
     return stocks
+
+
+def annual_dps_estimate(
+    dividends: pd.Series,
+    fy_end_month: int = FY_END_MONTH,
+    now: pd.Timestamp | None = None,
+) -> float | None:
+    """利回り計算に使う1株配当(年間)。
+
+    yfinance の dividendYield は日本株で大きく外れることがある。実測で
+    丸大食品(2288)が5.05%(Yahoo!ファイナンスの会社予想ベースは3.50%)、
+    カゴメが21%になっていた。丸大は期末一括から中間＋期末に切り替えた年で、
+    直近12か月に前期の年間70円と今期の中間40円が両方入り110円で割っていた。
+
+    そこで配当履歴から自前で出す。基本は直近の確定期の年間配当。
+    進行中の期にもう支払いがあれば、それで今期の年間を見積もる。
+      - 毎年1回払いで、同じ月の支払いなら、それが今期の年間配当
+        (9月期決算の期末など。3月期前提の集計だと「進行中」に入ってしまう)
+      - それ以外は中間配当とみなして2倍する(丸大は中間40円→80円で会社予想と一致)
+    見積もりが確定期の1.5倍を超えるときは記念・特別配当の可能性が高いので使わない。
+    """
+    if dividends is None or len(dividends) == 0:
+        return None
+    now = now or pd.Timestamp.utcnow().tz_localize(None)
+    s = dividends.copy()
+    s.index = pd.to_datetime(s.index).tz_localize(None)
+    s = s[s > 0]
+    if s.empty:
+        return None
+    fy = pd.Series([fiscal_year(t, fy_end_month) for t in s.index], index=s.index)
+    annual = s.groupby(fy.values).sum().sort_index()
+    settled = _drop_incomplete(annual, fy_end_month, now)
+    cur_fy = fiscal_year(now, fy_end_month)
+
+    base = None
+    # 直近の確定期が古すぎる(2期以上前)なら無配転落・データ欠落の可能性があるので使わない
+    if not settled.empty and int(settled.index[-1]) >= cur_fy - 2:
+        base = float(settled.iloc[-1])
+
+    running = s[(fy == cur_fy).values]
+    if running.empty or base is None:
+        return base
+
+    past = s[fy.isin(settled.index[-3:]).values]
+    past_counts = past.groupby(fy[past.index].values).size()
+    once_a_year = len(past_counts) > 0 and (past_counts == 1).all()
+    same_month = once_a_year and set(past.index.month) == set(running.index.month)
+    est = float(running.sum()) if same_month else float(running.iloc[-1]) * 2
+    if est > base * 1.5:
+        return base
+    return max(base, est)
+
+
+def reconcile_yield(yf_yield, yf_payout, dps, price, trailing_pe):
+    """yfinance の利回りと、配当履歴から出した利回りの低い方を採る。
+
+    どちらにも外れ方がある。yfinance は丸大食品・カゴメのように過大になり、
+    配当履歴は株式分割の前後で調整が混ざることがある(日本製鉄は分割前の60円と
+    分割後の12円が同じ期に入り、11%と出る。yfinance の3.74%が正しい)。
+    外れるのはどちらも「高すぎる」方向なので、低い方を採れば大きく外さない。
+
+    利回りを下げたときは配当性向も同じ配当で計算し直す(配当 ÷ 実績EPS)。
+    戻り値は (利回り%, 配当性向%)。
+    """
+    own = None
+    if dps and price and price > 0:
+        own = round(dps / price * 100, 2)
+    if own is None:
+        return yf_yield, yf_payout
+    if yf_yield is not None and yf_yield <= own:
+        return yf_yield, yf_payout
+    payout = yf_payout
+    if trailing_pe and trailing_pe > 0:
+        payout = round(dps / (price / trailing_pe) * 100, 2)
+    return own, payout
