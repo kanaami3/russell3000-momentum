@@ -22,8 +22,11 @@ from pathlib import Path
 
 import yfinance as yf
 
+import dividend_streak
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 UNIVERSE_PATH = REPO_ROOT / "data" / "universe_jp.json"
+HISTORY_CSV = REPO_ROOT / "data" / "dividend_history_jp.csv"
 OUTPUT_PATH = REPO_ROOT / "data" / "value_data_jp.csv"
 
 FIELDS = [
@@ -162,6 +165,20 @@ def main() -> int:
             if i % PROGRESS_EVERY == 0:
                 elapsed = time.time() - t0
                 print(f"  {i}/{len(universe)} done ({elapsed:.0f}s elapsed, {elapsed/i:.2f}s/ticker)", file=sys.stderr)
+
+    # **配当利回りは yfinance の値をそのまま使わない。**
+    # 丸大食品が5.05%(実際は3.5%前後)、カゴメが21%など、日本株で大きく外れる。
+    # 配当履歴(週1回更新)から出した利回りと突き合わせて低い方を採る。
+    history = dividend_streak.load_history(HISTORY_CSV) if HISTORY_CSV.exists() else {}
+    n_fixed = 0
+    for r in rows:
+        dps = dividend_streak.annual_dps_estimate(history.get(r["ticker"].replace(".T", "")))
+        new_y, new_p = dividend_streak.reconcile_yield(
+            r["dividend_yield"], r["payout_ratio"], dps, r["current_price"], r["trailing_pe"])
+        if new_y != r["dividend_yield"]:
+            n_fixed += 1
+        r["dividend_yield"], r["payout_ratio"] = new_y, new_p
+    print(f"  配当利回りを配当履歴で補正: {n_fixed}銘柄", file=sys.stderr)
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8", newline="") as f:
