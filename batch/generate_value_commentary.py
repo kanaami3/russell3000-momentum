@@ -49,7 +49,7 @@ CATEGORY_LABELS = {
     "high_roe":      "⚡ 高ROE TOP30",
     "growth":        "🌱 成長性 TOP30",
     "composite":     "🏆 総合バリュースコア TOP30",
-    "shikiho_value": "📗 四季報型スクリーニング(PER15倍以下・PBR1倍以下・ROE8%以上・配当3%以上)",
+    "dividend_growth_value": "📗 増配期待バリュー(9条件)",
 }
 
 

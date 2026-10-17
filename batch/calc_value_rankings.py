@@ -189,32 +189,72 @@ def rank_growth(df: pd.DataFrame, n: int = 30) -> list[dict]:
     return [_row_dict(r) for _, r in sub.iterrows()]
 
 
-# 四季報オンラインの「割安株」スクリーニングでよく使われる条件に合わせた一覧。
-# 他のランキングは時価総額500億円以上に絞っているが、四季報のスクリーニングは
-# 中小型も拾うので、ここだけ100億円以上まで広げる(銘柄を増やすのが目的)。
-SHIKIHO_MIN_MARKET_CAP = 10_000_000_000   # ¥100億
-SHIKIHO_MAX_PE = 15.0
-SHIKIHO_MAX_PBR = 1.0
-SHIKIHO_MIN_ROE = 8.0
-SHIKIHO_MIN_YIELD = 3.0
+# 増配期待バリュー(9条件)。割安で、増配を続けられる余力のある銘柄を拾う。
+# 他のランキングは時価総額500億円以上に絞っているが、この一覧は中小型も
+# 拾うために100億円以上まで広げる。
+ZOUHAI_MIN_MARKET_CAP = 10_000_000_000   # ⑨ ¥100億
+ZOUHAI_MAX_PE = 15.0                     # ①
+ZOUHAI_MAX_PBR = 1.5                     # ②
+ZOUHAI_MIN_ROE = 8.0                     # ③
+ZOUHAI_MIN_YIELD = 3.0                   # ④
+ZOUHAI_MAX_PAYOUT = 50.0                 # ⑤
+ZOUHAI_MIN_NON_DECREASING = 5            # ⑥ 連続非減配の期数
+ZOUHAI_MAX_DE = 100.0                    # ⑧ 有利子負債/自己資本(%)
 
 
-def rank_shikiho_value(df: pd.DataFrame, n: int = 50) -> list[dict]:
-    """PER15倍以下・PBR1倍以下・ROE8%以上・配当3%以上を全部満たす銘柄を低PER順に。"""
-    sub = df.dropna(subset=["trailing_pe", "price_to_book",
-                            "return_on_equity", "dividend_yield"]).copy()
+def rank_dividend_growth_value(df: pd.DataFrame, n: int = 50) -> list[dict]:
+    """増配期待バリュー9条件を全部満たす銘柄を、増配余地→配当利回りの順に並べる。
+
+    ① PER15倍以下 ② PBR1.5倍以下 ③ ROE8%以上 ④ 配当利回り3%以上
+    ⑤ 配当性向50%以下 ⑥ 5期以上連続で減配なし ⑦ 減益予想でない
+    ⑧ 有利子負債が自己資本以下 ⑨ 時価総額100億円以上
+
+    ⑦⑧は yfinance で値が取れない(または異常値の)銘柄がある。そこは
+    「不合格」にせず通し、表の注記で判定できなかったことを示す。
+    ⑥は配当履歴が必要なので、履歴の無い銘柄は落とす(判定不能を合格扱いにしない)。
+    """
+    sub = df.dropna(subset=["trailing_pe", "price_to_book", "return_on_equity",
+                            "dividend_yield", "payout_ratio"]).copy()
     sub = sub[
-        (sub["market_cap"].fillna(0) >= SHIKIHO_MIN_MARKET_CAP)
+        (sub["market_cap"].fillna(0) >= ZOUHAI_MIN_MARKET_CAP)
         # PE < 3 はデータ異常 or 特殊要因(売却益等)なので低PERと同じく除外
-        & (sub["trailing_pe"] >= 3) & (sub["trailing_pe"] <= SHIKIHO_MAX_PE)
-        & (sub["price_to_book"] > 0) & (sub["price_to_book"] <= SHIKIHO_MAX_PBR)
-        & (sub["return_on_equity"] >= SHIKIHO_MIN_ROE)
-        & (sub["dividend_yield"] >= SHIKIHO_MIN_YIELD)
+        & (sub["trailing_pe"] >= 3) & (sub["trailing_pe"] <= ZOUHAI_MAX_PE)
+        & (sub["price_to_book"] > 0) & (sub["price_to_book"] <= ZOUHAI_MAX_PBR)
+        & (sub["return_on_equity"] >= ZOUHAI_MIN_ROE)
+        & (sub["dividend_yield"] >= ZOUHAI_MIN_YIELD)
         & (sub["dividend_yield"] <= MAX_DIV_YIELD)
-        & ((sub["payout_ratio"].isna()) | (sub["payout_ratio"] <= MAX_PAYOUT_RATIO))
+        & (sub["payout_ratio"] > 0) & (sub["payout_ratio"] <= ZOUHAI_MAX_PAYOUT)
+        & ((sub["debt_to_equity"].isna()) | (sub["debt_to_equity"] <= ZOUHAI_MAX_DE))
     ]
-    sub = sub.sort_values("trailing_pe", ascending=True).head(n)
-    return [_row_dict(r) for _, r in sub.iterrows()]
+    if sub.empty:
+        return []
+
+    history = dividend_streak.load_history(HISTORY_CSV)
+    out = []
+    for _, r in sub.iterrows():
+        code = str(r.get("ticker") or "").replace(".T", "")
+        div = history.get(code)
+        if div is None or len(div) == 0:
+            continue
+        st = dividend_streak.compute_streak(div)
+        streak = asdict(st)
+        if streak["non_decreasing"] < ZOUHAI_MIN_NON_DECREASING:
+            continue
+        rev = eps_revision(r.get("forward_eps"), r.get("trailing_eps"))
+        rev_ok = revision_reliable(rev)
+        if rev_ok and rev < 0:
+            continue
+        rev_eff = rev if rev_ok else None
+        payout = r.get("payout_ratio")
+        headroom = judge_headroom(payout, rev_eff, rev_ok, streak)
+        out.append({
+            **_row_dict(r),
+            "headroom": None if headroom is None else int(headroom),
+            "headroom_note": headroom_note(payout, rev_eff, rev_ok, streak),
+            "streak_label": dividend_streak.label(st),
+        })
+    out.sort(key=lambda x: (-(x["headroom"] or 0), -(x["dividend_yield"] or 0)))
+    return out[:n]
 
 
 # ---------------------------------------------------------------------------
@@ -298,7 +338,7 @@ def main() -> int:
         "growth":        rank_growth(filtered),
         "composite":     rank_composite(filtered),
         # base_filter 前の df から作る(時価総額100億円以上まで広げるため)
-        "shikiho_value": rank_shikiho_value(df),
+        "dividend_growth_value": rank_dividend_growth_value(df),
     }
 
     result = {

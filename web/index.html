@@ -684,9 +684,11 @@
           </button>
         </template>
       </div>
-      <p x-show="valueActiveCategory === 'shikiho_value'" class="text-[11px] text-slate-600 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 mb-3 leading-relaxed">
-        会社四季報オンラインの割安株スクリーニングでよく使われる条件で絞り込んでいます。PER15倍以下・PBR1倍以下・ROE8%以上・配当利回り3%以上を全部満たす銘柄を、PERの低い順に最大50銘柄表示します。他のランキングより範囲を広げ、時価総額100億円以上の中小型株も含めています。
-      </p>
+      <div x-show="valueActiveCategory === 'dividend_growth_value'" class="text-[11px] text-slate-600 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 mb-3 leading-relaxed">
+        <div class="font-bold text-emerald-800 mb-1">次の9条件を全部満たす銘柄を、増配余地の大きい順(同じなら配当利回りの高い順)に最大50銘柄表示します。</div>
+        <div>① PER15倍以下　② PBR1.5倍以下　③ ROE8%以上　④ 配当利回り3%以上　⑤ 配当性向50%以下　⑥ 5期以上続けて減配なし　⑦ 減益予想でない　⑧ 有利子負債が自己資本以下　⑨ 時価総額100億円以上</div>
+        <div class="text-slate-500 mt-1">⑦⑧はデータが取れない銘柄があり、その場合は除外せずに残しています。他のタブ(時価総額500億円以上)より範囲を広げ、中小型株も含めています。</div>
+      </div>
 
       <!-- Ranking table -->
       <div class="overflow-x-auto">
@@ -699,7 +701,7 @@
               <th class="px-2 py-2 text-left">業種</th>
               <th class="px-2 py-2 text-right">時価総額</th>
               <th class="px-2 py-2 text-right">配当%</th>
-              <th class="px-2 py-2 text-right">配当性向</th><th class="px-2 py-2 text-center" x-show="valueActiveCategory === 'high_dividend'" title="配当性向・予想増益率・連続増配実績から見た増配余地(◎>○>△>×)">増配余地</th>
+              <th class="px-2 py-2 text-right">配当性向</th><th class="px-2 py-2 text-center" x-show="valueActiveCategory === 'high_dividend' || valueActiveCategory === 'dividend_growth_value'" title="配当性向・予想増益率・連続増配実績から見た増配余地(◎>○>△>×)">増配余地</th>
               <th class="px-2 py-2 text-right">PER</th>
               <th class="px-2 py-2 text-right">PBR</th>
               <th class="px-2 py-2 text-right">ROE%</th>
@@ -719,7 +721,7 @@
                 <td class="px-2 py-2 text-slate-500 text-[10px] whitespace-nowrap" x-text="r.sector17"></td>
                 <td class="px-2 py-2 text-right num text-slate-600" x-text="r.market_cap_oku ? r.market_cap_oku.toLocaleString() + '億' : '-'"></td>
                 <td class="px-2 py-2 text-right num font-bold text-amber-700" x-text="r.dividend_yield ?? '-'"></td>
-                <td class="px-2 py-2 text-right num text-slate-500" x-text="r.payout_ratio ?? '-'"></td><td class="px-2 py-2 text-center leading-tight" x-show="valueActiveCategory === 'high_dividend'" :class="headroomClass(r)" :title="r.headroom_note || ''"><span class="font-bold" x-text="headroomMark(r)"></span></td>
+                <td class="px-2 py-2 text-right num text-slate-500" x-text="r.payout_ratio ?? '-'"></td><td class="px-2 py-2 text-center leading-tight" x-show="valueActiveCategory === 'high_dividend' || valueActiveCategory === 'dividend_growth_value'" :class="headroomClass(r)" :title="r.headroom_note || ''"><span class="font-bold" x-text="headroomMark(r)"></span><div x-show="r.streak_label" class="text-[9px] text-slate-500 whitespace-nowrap" x-text="r.streak_label"></div></td>
                 <td class="px-2 py-2 text-right num text-slate-700" x-text="r.trailing_pe ?? '-'"></td>
                 <td class="px-2 py-2 text-right num text-slate-700" x-text="r.price_to_book ?? '-'"></td>
                 <td class="px-2 py-2 text-right num font-bold text-purple-700" x-text="r.return_on_equity ?? '-'"></td>
@@ -2411,7 +2413,7 @@ statusBadgeClass(iso, freshH) {
       { key: 'low_pbr',       emoji: '📉', label: '割安(低PBR)',       tint: 'teal' },
       { key: 'high_roe',      emoji: '⚡', label: '高ROE',             tint: 'purple' },
       { key: 'growth',        emoji: '🌱', label: '成長性',            tint: 'green' },
-      { key: 'shikiho_value', emoji: '📗', label: '四季報型スクリーニング', tint: 'emerald' },
+      { key: 'dividend_growth_value', emoji: '📗', label: '増配期待バリュー(9条件)', tint: 'emerald' },
     ],
 
     get activeValueRanking() {
