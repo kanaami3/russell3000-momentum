@@ -189,6 +189,34 @@ def rank_growth(df: pd.DataFrame, n: int = 30) -> list[dict]:
     return [_row_dict(r) for _, r in sub.iterrows()]
 
 
+# 四季報オンラインの「割安株」スクリーニングでよく使われる条件に合わせた一覧。
+# 他のランキングは時価総額500億円以上に絞っているが、四季報のスクリーニングは
+# 中小型も拾うので、ここだけ100億円以上まで広げる(銘柄を増やすのが目的)。
+SHIKIHO_MIN_MARKET_CAP = 10_000_000_000   # ¥100億
+SHIKIHO_MAX_PE = 15.0
+SHIKIHO_MAX_PBR = 1.0
+SHIKIHO_MIN_ROE = 8.0
+SHIKIHO_MIN_YIELD = 3.0
+
+
+def rank_shikiho_value(df: pd.DataFrame, n: int = 50) -> list[dict]:
+    """PER15倍以下・PBR1倍以下・ROE8%以上・配当3%以上を全部満たす銘柄を低PER順に。"""
+    sub = df.dropna(subset=["trailing_pe", "price_to_book",
+                            "return_on_equity", "dividend_yield"]).copy()
+    sub = sub[
+        (sub["market_cap"].fillna(0) >= SHIKIHO_MIN_MARKET_CAP)
+        # PE < 3 はデータ異常 or 特殊要因(売却益等)なので低PERと同じく除外
+        & (sub["trailing_pe"] >= 3) & (sub["trailing_pe"] <= SHIKIHO_MAX_PE)
+        & (sub["price_to_book"] > 0) & (sub["price_to_book"] <= SHIKIHO_MAX_PBR)
+        & (sub["return_on_equity"] >= SHIKIHO_MIN_ROE)
+        & (sub["dividend_yield"] >= SHIKIHO_MIN_YIELD)
+        & (sub["dividend_yield"] <= MAX_DIV_YIELD)
+        & ((sub["payout_ratio"].isna()) | (sub["payout_ratio"] <= MAX_PAYOUT_RATIO))
+    ]
+    sub = sub.sort_values("trailing_pe", ascending=True).head(n)
+    return [_row_dict(r) for _, r in sub.iterrows()]
+
+
 # ---------------------------------------------------------------------------
 # Composite value score
 # ---------------------------------------------------------------------------
@@ -269,6 +297,8 @@ def main() -> int:
         "high_roe":      rank_high_roe(filtered),
         "growth":        rank_growth(filtered),
         "composite":     rank_composite(filtered),
+        # base_filter 前の df から作る(時価総額100億円以上まで広げるため)
+        "shikiho_value": rank_shikiho_value(df),
     }
 
     result = {
