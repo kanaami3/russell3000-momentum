@@ -1,11 +1,11 @@
 {
- "asof": "2026-10-17",
- "generated_at_jst": "2026-10-17T00:21:23+09:00",
+ "asof": "2026-10-20",
+ "generated_at_jst": "2026-10-20T00:32:30+09:00",
  "source": "https://www.jpx.co.jp/listing/stocks/new/",
- "cutoff": "2024-10-16",
+ "cutoff": "2024-10-19",
  "years_back": 2,
  "pages_failed": 0,
- "count": 141,
+ "count": 139,
  "upcoming": 6,
  "ipos": [
   {
@@ -2090,36 +2090,6 @@
    "offer_price": 690.0,
    "public_shares_k": 1000.0,
    "secondary_shares_k": 4423.6,
-   "trading_unit": 100.0,
-   "listed": true
-  },
-  {
-   "code": "262A",
-   "name": "（株）インターメスティック",
-   "technical": false,
-   "listing_date": "2024-10-18",
-   "approval_date": "2024-09-12",
-   "market": "プライム",
-   "band_low": 1500.0,
-   "band_high": 1630.0,
-   "offer_price": 1630.0,
-   "public_shares_k": 7880.0,
-   "secondary_shares_k": 2842.0,
-   "trading_unit": 100.0,
-   "listed": true
-  },
-  {
-   "code": "261A",
-   "name": "（株）日水コン",
-   "technical": false,
-   "listing_date": "2024-10-16",
-   "approval_date": "2024-09-09",
-   "market": "スタンダード",
-   "band_low": 1320.0,
-   "band_high": 1430.0,
-   "offer_price": 1430.0,
-   "public_shares_k": null,
-   "secondary_shares_k": 5245.3,
    "trading_unit": 100.0,
    "listed": true
   }
