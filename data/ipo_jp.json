@@ -1,11 +1,11 @@
 {
- "asof": "2026-10-23",
- "generated_at_jst": "2026-10-23T00:52:10+09:00",
+ "asof": "2026-10-24",
+ "generated_at_jst": "2026-10-24T00:43:28+09:00",
  "source": "https://www.jpx.co.jp/listing/stocks/new/",
- "cutoff": "2024-10-22",
+ "cutoff": "2024-10-23",
  "years_back": 2,
  "pages_failed": 0,
- "count": 139,
+ "count": 138,
  "upcoming": 6,
  "ipos": [
   {
@@ -2075,21 +2075,6 @@
    "offer_price": 1200.0,
    "public_shares_k": null,
    "secondary_shares_k": 290500.0,
-   "trading_unit": 100.0,
-   "listed": true
-  },
-  {
-   "code": "264A",
-   "name": "（株）Ｓｃｈｏｏ",
-   "technical": false,
-   "listing_date": "2024-10-22",
-   "approval_date": "2024-09-17",
-   "market": "グロース",
-   "band_low": 630.0,
-   "band_high": 690.0,
-   "offer_price": 690.0,
-   "public_shares_k": 1000.0,
-   "secondary_shares_k": 4423.6,
    "trading_unit": 100.0,
    "listed": true
   }
