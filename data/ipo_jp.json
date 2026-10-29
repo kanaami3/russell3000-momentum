@@ -1,13 +1,28 @@
 {
- "asof": "2026-10-29",
- "generated_at_jst": "2026-10-29T00:03:40+09:00",
+ "asof": "2026-10-30",
+ "generated_at_jst": "2026-10-30T00:11:25+09:00",
  "source": "https://www.jpx.co.jp/listing/stocks/new/",
- "cutoff": "2024-10-28",
+ "cutoff": "2024-10-29",
  "years_back": 2,
  "pages_failed": 0,
  "count": 138,
  "upcoming": 8,
  "ipos": [
+  {
+   "code": "669A",
+   "name": "Ｍ＆Ａロイヤルアドバイザリー（株）",
+   "technical": false,
+   "listing_date": "2026-12-03",
+   "approval_date": "2026-10-29",
+   "market": "グロース",
+   "band_low": null,
+   "band_high": null,
+   "offer_price": null,
+   "public_shares_k": 50.0,
+   "secondary_shares_k": 8684.0,
+   "trading_unit": 100.0,
+   "listed": false
+  },
   {
    "code": "667A",
    "name": "ジャパンホームシールド（株）",
@@ -126,7 +141,7 @@
    "public_shares_k": 2244.6,
    "secondary_shares_k": 1124.9,
    "trading_unit": 100.0,
-   "listed": false
+   "listed": true
   },
   {
    "code": "648A",
@@ -2060,21 +2075,6 @@
    "offer_price": 1500.0,
    "public_shares_k": 140.0,
    "secondary_shares_k": 183.0,
-   "trading_unit": 100.0,
-   "listed": true
-  },
-  {
-   "code": "265A",
-   "name": "Ｈｍｃｏｍｍ（株）",
-   "technical": false,
-   "listing_date": "2024-10-28",
-   "approval_date": "2024-09-20",
-   "market": "グロース",
-   "band_low": 800.0,
-   "band_high": 850.0,
-   "offer_price": 850.0,
-   "public_shares_k": 198.8,
-   "secondary_shares_k": 712.0,
    "trading_unit": 100.0,
    "listed": true
   }
