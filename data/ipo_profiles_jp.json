@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-10-31T00:00:28+09:00",
+ "updated_at": "2026-11-03T03:13:59+09:00",
  "profiles": {
   "648A": {
    "summary_en": "LECRE Inc. designs, develops, and provides AI-based software-as-a-service (SaaS) solutions and digital transformation (DX) platforms. The company develops and operates a device-integrated, AI cloud-based Record DX platform that enables organizations to capture, manage, structure, and analyze field data, such as photographs, videos, and text records. It caters to the construction, maintenance, repair, inspection, childcare, and education sectors. LECRE Inc. was formerly known as TriWorks Corp. The company was incorporated in 1995 and is based in Minato, Japan.",
@@ -702,12 +702,32 @@
    "summary_ja": "医療情報ポータルサイト「ドクターズ・ファイル」の運営や、医療機関向けの予約管理システム、クリニックのウェブサイト作成支援などを手がけています。全国のクリニックや病院に対して、集患支援や業務効率化を促進するITツールを提供することで、広告掲載料やシステム利用料を得ています。"
   },
   "653A": {
-   "ok": false,
-   "checked_at": "2026-10-27"
+   "summary_en": "MabGenesis Inc., a biopharmaceutical company, engages in the research, discovery, development, and commercialization of therapeutic monoclonal antibody drugs for human and animal healthcare applications in Japan. The company offers proprietary antibody discovery platforms, including MOURA Libraries and IMPACT antibody isolation technology, to develop antibody therapeutics. The company was incorporated in 2019 and is based in Yokohama, Japan.",
+   "sector_en": "Healthcare",
+   "industry_en": "Drug Manufacturers - General",
+   "employees": null,
+   "website": "https://mabgenesis.com",
+   "city": "Yokohama",
+   "market_cap": null,
+   "sector_ja": "ヘルスケア",
+   "ok": true,
+   "checked_at": "2026-11-03",
+   "biz_ja": "人や動物の病気を治療する抗体医薬品の研究開発",
+   "summary_ja": "人間および動物向けの抗体医薬品に関する研究・発見・開発・事業化を行っているバイオ医薬品企業です。自社独自の技術や基盤を活用して抗体医薬品の開発に取り組んでおり、医療および動物医療の分野で実用化を目指すことで収益を得ています。"
   },
   "652A": {
-   "ok": false,
-   "checked_at": "2026-10-27"
+   "summary_en": "toggle holdings, Inc. designs, develops, and operates AI-based software platforms, digital infrastructure solutions, and real estate technology (PropTech) services in Japan. The company, through its platform, automates real estate information collection and analysis, architectural planning, land assessment, investment evaluation, and business workflow optimization. The company offers TSUKURU AI, a real estate-specific AI SaaS platform; Deve-NAVI and VC-PRO for property review, volume checks, and architectural planning; TSUKURU FUND, a real estate investment crowdfunding platform; MINE, a land analysis and urban development platform that utilizes GIS (geographic information system) technologies and data analytics for site acquisition and development planning; and UT-LAB, a research and development center and community space primarily for graduate and undergraduate students and researchers in science and engineering. The company was incorporated in 2020 and is based in Minato, Japan.",
+   "sector_en": "Real Estate",
+   "industry_en": "Real Estate Services",
+   "employees": 140,
+   "website": "https://toggle.co.jp/en",
+   "city": "Minato",
+   "market_cap": 55284756480,
+   "sector_ja": "不動産",
+   "ok": true,
+   "checked_at": "2026-11-03",
+   "biz_ja": "不動産業務を効率化するAIツールやクラウドファンディングを提供",
+   "summary_ja": "不動産業界向けにAI技術を活用したソフトウェアやIT基盤を提供しています。土地の評価や建築計画、情報収集などの業務を自動化・効率化するサービスを販売して収益を得ています。また、不動産投資のクラウドファンディングサイトや土地情報サービスも展開しています。"
   },
   "472A": {
    "summary_en": "Mirrativ Inc. develops and operates live streaming platform. Its platform offers Emomo, an avatar feature that creates alter ego; Ranking, an event that ranks users and live streams within Mirrativ based on various metrics; and Live Gaming, an interactive game feature on Mirrativ that allows streamers and viewers to play together during live broadcast. The company was formerly known as Emomo Inc. and changed its name to Mirrativ Inc. in April 2018. Mirrativ Inc. was founded in 2015 and is headquartered in Meguro, Japan.",
@@ -1991,11 +2011,11 @@
   },
   "667A": {
    "ok": false,
-   "checked_at": "2026-10-27"
+   "checked_at": "2026-11-03"
   },
   "657A": {
    "ok": false,
-   "checked_at": "2026-10-27"
+   "checked_at": "2026-11-03"
   },
   "669A": {
    "ok": false,
@@ -2003,5 +2023,5 @@
   }
  },
  "count": 150,
- "ok_count": 140
+ "ok_count": 142
 }

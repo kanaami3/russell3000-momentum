@@ -1,12 +1,12 @@
 {
- "asof": "2026-10-31",
- "generated_at_jst": "2026-10-31T00:00:25+09:00",
+ "asof": "2026-11-03",
+ "generated_at_jst": "2026-11-03T03:13:54+09:00",
  "source": "https://www.jpx.co.jp/listing/stocks/new/",
- "cutoff": "2024-10-30",
+ "cutoff": "2024-11-02",
  "years_back": 2,
  "pages_failed": 0,
  "count": 137,
- "upcoming": 8,
+ "upcoming": 7,
  "ipos": [
   {
    "code": "669A",
@@ -126,7 +126,7 @@
    "public_shares_k": 940.7,
    "secondary_shares_k": 1047.2,
    "trading_unit": 100.0,
-   "listed": false
+   "listed": true
   },
   {
    "code": "652A",
