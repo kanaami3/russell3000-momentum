@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-04T01:08:34+09:00",
+ "updated_at": "2026-11-05T01:13:08+09:00",
  "profiles": {
   "648A": {
    "summary_en": "LECRE Inc. designs, develops, and provides AI-based software-as-a-service (SaaS) solutions and digital transformation (DX) platforms. The company develops and operates a device-integrated, AI cloud-based Record DX platform that enables organizations to capture, manage, structure, and analyze field data, such as photographs, videos, and text records. It caters to the construction, maintenance, repair, inspection, childcare, and education sectors. LECRE Inc. was formerly known as TriWorks Corp. The company was incorporated in 1995 and is based in Minato, Japan.",
@@ -1994,8 +1994,18 @@
    "summary_ja": "うどん、そば、ラーメン、焼きそば、パスタ、つゆなどの麺類食品を多くのブランドで製造・販売しています。国内向けの食品卸売が主な事業で、製品の海外輸出も行っています。"
   },
   "656A": {
-   "ok": false,
-   "checked_at": "2026-10-29"
+   "summary_en": "Allganize Holdings, Inc. designs and develops AI agents and generative AI platforms that support the automation of corporate operations in Japan, South Korea, and the USA. The company offers Alli LLM App Market, including Alli Works, an AI-native workspace where agents work; Work Agent (Desktop), which processes Excel, PDF, and PPT files; Deep Research; Document 2.0, a document understanding and extraction engine; and AX Report, which offers monthly AI adoption analysis reports. It caters to the finance, HR, insurance, information technology, manufacturing and distribution, and oil and gas industries. The company was founded in 2017 and is based in Shibuya, Japan.",
+   "sector_en": "Technology",
+   "industry_en": "Software - Infrastructure",
+   "employees": 76,
+   "website": "https://www.allganize.ai",
+   "city": "Shibuya",
+   "market_cap": null,
+   "sector_ja": "情報技術",
+   "ok": true,
+   "checked_at": "2026-11-05",
+   "biz_ja": "企業の業務自動化を支援する生成AIツールや作業代行ソフトを開発",
+   "summary_ja": "日本や韓国、米国向けに、企業の業務自動化を支援する生成AIプラットフォームを開発・提供しています。文書の読み取りや資料作成を代行するツール、リサーチ機能などを備えたAIソフトのほか、AI活用状況の分析レポートを展開。金融や製造、保険、人事といった幅広い業界の企業を顧客としています。"
   },
   "658A": {
    "ok": false,
@@ -2023,5 +2033,5 @@
   }
  },
  "count": 150,
- "ok_count": 142
+ "ok_count": 143
 }
