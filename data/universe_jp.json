@@ -109,7 +109,7 @@
     "name": "ＩＮＰＥＸ",
     "sector33": "鉱業",
     "sector17": "エネルギー資源",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Large70"
   },
   {
     "ticker": "1662.T",
@@ -517,7 +517,7 @@
     "name": "トーエネック",
     "sector33": "建設業",
     "sector17": "建設・資材",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "1950.T",
@@ -674,7 +674,7 @@
   {
     "ticker": "2108.T",
     "code": "2108",
-    "name": "日本甜菜製糖",
+    "name": "ニッテン",
     "sector33": "食料品",
     "sector17": "食品",
     "size_cat": "TOPIX Small 2"
@@ -685,7 +685,7 @@
     "name": "ＤＭ三井製糖",
     "sector33": "食料品",
     "sector17": "食品",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "2117.T",
@@ -797,7 +797,7 @@
     "name": "パソナグループ",
     "sector33": "サービス業",
     "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "2170.T",
@@ -1402,7 +1402,7 @@
   {
     "ticker": "2681.T",
     "code": "2681",
-    "name": "ゲオホールディングス",
+    "name": "セカンドリテイリング",
     "sector33": "小売業",
     "sector17": "小売",
     "size_cat": "TOPIX Small 1"
@@ -1485,7 +1485,7 @@
     "name": "ＪＰホールディングス",
     "sector33": "サービス業",
     "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "2752.T",
@@ -1493,7 +1493,7 @@
     "name": "フジオフードグループ本社",
     "sector33": "小売業",
     "sector17": "小売",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "2753.T",
@@ -1549,7 +1549,7 @@
     "name": "大黒天物産",
     "sector33": "小売業",
     "sector17": "小売",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "2792.T",
@@ -1621,7 +1621,7 @@
     "name": "キオクシアホールディングス",
     "sector33": "電気機器",
     "sector17": "電機・精密",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Large70"
   },
   {
     "ticker": "2871.T",
@@ -1962,10 +1962,10 @@
   {
     "ticker": "3104.T",
     "code": "3104",
-    "name": "富士紡ホールディングス",
-    "sector33": "繊維製品",
-    "sector17": "素材・化学",
-    "size_cat": "TOPIX Small 2"
+    "name": "フジボウホールディングス",
+    "sector33": "ガラス・土石製品",
+    "sector17": "建設・資材",
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "3105.T",
@@ -2005,7 +2005,7 @@
     "name": "日東紡績",
     "sector33": "ガラス・土石製品",
     "sector17": "建設・資材",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "3116.T",
@@ -2267,8 +2267,8 @@
     "ticker": "3302.T",
     "code": "3302",
     "name": "帝国繊維",
-    "sector33": "繊維製品",
-    "sector17": "素材・化学",
+    "sector33": "輸送用機器",
+    "sector17": "自動車・輸送機",
     "size_cat": "TOPIX Small 2"
   },
   {
@@ -2317,7 +2317,7 @@
     "name": "セブン＆アイ・ホールディングス",
     "sector33": "小売業",
     "sector17": "小売",
-    "size_cat": "TOPIX Core30"
+    "size_cat": "TOPIX Large70"
   },
   {
     "ticker": "3387.T",
@@ -2483,6 +2483,14 @@
     "ticker": "3486.T",
     "code": "3486",
     "name": "グローバル・リンク・マネジメント",
+    "sector33": "不動産業",
+    "sector17": "不動産",
+    "size_cat": "-"
+  },
+  {
+    "ticker": "3491.T",
+    "code": "3491",
+    "name": "ＧＡ　ｔｅｃｈｎｏｌｏｇｉｅｓ",
     "sector33": "不動産業",
     "sector17": "不動産",
     "size_cat": "-"
@@ -2701,7 +2709,7 @@
     "name": "コロプラ",
     "sector33": "情報・通信業",
     "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "3673.T",
@@ -3157,7 +3165,7 @@
     "name": "レゾナック・ホールディングス",
     "sector33": "化学",
     "sector17": "素材・化学",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Large70"
   },
   {
     "ticker": "4005.T",
@@ -3309,7 +3317,7 @@
     "name": "イビデン",
     "sector33": "電気機器",
     "sector17": "電機・精密",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Large70"
   },
   {
     "ticker": "4063.T",
@@ -3405,7 +3413,7 @@
     "name": "四国化成ホールディングス",
     "sector33": "化学",
     "sector17": "素材・化学",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "409A.T",
@@ -3693,7 +3701,7 @@
     "name": "テクセンドフォトマスク",
     "sector33": "その他製品",
     "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "4301.T",
@@ -3925,7 +3933,7 @@
     "name": "第一工業製薬",
     "sector33": "化学",
     "sector17": "素材・化学",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "4462.T",
@@ -3942,6 +3950,14 @@
     "sector33": "化学",
     "sector17": "素材・化学",
     "size_cat": "TOPIX Small 1"
+  },
+  {
+    "ticker": "4475.T",
+    "code": "4475",
+    "name": "ＨＥＮＮＧＥ",
+    "sector33": "情報・通信業",
+    "sector17": "情報通信・サービスその他",
+    "size_cat": "-"
   },
   {
     "ticker": "4480.T",
@@ -4173,7 +4189,7 @@
     "name": "第一三共",
     "sector33": "医薬品",
     "sector17": "医薬品",
-    "size_cat": "TOPIX Core30"
+    "size_cat": "TOPIX Large70"
   },
   {
     "ticker": "4569.T",
@@ -4213,7 +4229,7 @@
     "name": "ペプチドリーム",
     "sector33": "医薬品",
     "sector17": "医薬品",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "4611.T",
@@ -4397,7 +4413,7 @@
     "name": "ＬＩＮＥヤフー",
     "sector33": "情報・通信業",
     "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Large70"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "4694.T",
@@ -4523,8 +4539,8 @@
     "ticker": "4765.T",
     "code": "4765",
     "name": "ＳＢＩグローバルアセットマネジメント",
-    "sector33": "サービス業",
-    "sector17": "情報通信・サービスその他",
+    "sector33": "証券、商品先物取引業",
+    "sector17": "金融（除く銀行）",
     "size_cat": "TOPIX Small 2"
   },
   {
@@ -4547,7 +4563,7 @@
     "ticker": "4784.T",
     "code": "4784",
     "name": "ＧＭＯインターネット",
-    "sector33": "サービス業",
+    "sector33": "情報・通信業",
     "sector17": "情報通信・サービスその他",
     "size_cat": "TOPIX Small 2"
   },
@@ -4885,7 +4901,7 @@
     "name": "ＪＸ金属",
     "sector33": "非鉄金属",
     "sector17": "鉄鋼・非鉄",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Large70"
   },
   {
     "ticker": "5019.T",
@@ -5021,7 +5037,7 @@
     "name": "ニッタ",
     "sector33": "ゴム製品",
     "sector17": "自動車・輸送機",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "5192.T",
@@ -5181,7 +5197,7 @@
     "name": "品川リフラ",
     "sector33": "ガラス・土石製品",
     "sector17": "建設・資材",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "5357.T",
@@ -5237,7 +5253,7 @@
     "name": "合同製鐵",
     "sector33": "鉄鋼",
     "sector17": "鉄鋼・非鉄",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "5411.T",
@@ -5541,7 +5557,7 @@
     "name": "フジクラ",
     "sector33": "非鉄金属",
     "sector17": "鉄鋼・非鉄",
-    "size_cat": "TOPIX Large70"
+    "size_cat": "TOPIX Core30"
   },
   {
     "ticker": "5805.T",
@@ -5549,7 +5565,7 @@
     "name": "ＳＷＣＣ",
     "sector33": "非鉄金属",
     "sector17": "鉄鋼・非鉄",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "5821.T",
@@ -5642,7 +5658,7 @@
   {
     "ticker": "5902.T",
     "code": "5902",
-    "name": "ホッカンホールディングス",
+    "name": "ホッカン",
     "sector33": "金属製品",
     "sector17": "建設・資材",
     "size_cat": "TOPIX Small 2"
@@ -5789,7 +5805,7 @@
     "name": "パイオラックス",
     "sector33": "金属製品",
     "sector17": "建設・資材",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "5989.T",
@@ -5917,7 +5933,7 @@
     "name": "シグマクシス・ホールディングス",
     "sector33": "サービス業",
     "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "6089.T",
@@ -6125,7 +6141,7 @@
     "name": "島精機製作所",
     "sector33": "機械",
     "sector17": "機械",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "6235.T",
@@ -6381,7 +6397,7 @@
     "name": "ハーモニック・ドライブ・システムズ",
     "sector33": "機械",
     "sector17": "機械",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "6326.T",
@@ -6405,7 +6421,7 @@
     "name": "東洋エンジニアリング",
     "sector33": "建設業",
     "sector17": "建設・資材",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "6331.T",
@@ -6509,7 +6525,7 @@
     "name": "ダイキン工業",
     "sector33": "機械",
     "sector17": "機械",
-    "size_cat": "TOPIX Core30"
+    "size_cat": "TOPIX Large70"
   },
   {
     "ticker": "6368.T",
@@ -6605,12 +6621,12 @@
     "name": "ＣＫＤ",
     "sector33": "機械",
     "sector17": "機械",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "6412.T",
     "code": "6412",
-    "name": "平和",
+    "name": "平和ホールディングス",
     "sector33": "機械",
     "sector17": "機械",
     "size_cat": "TOPIX Small 1"
@@ -6648,12 +6664,28 @@
     "size_cat": "TOPIX Small 1"
   },
   {
+    "ticker": "641A.T",
+    "code": "641A",
+    "name": "ＮＯＫ　Ｇｒｏｕｐ",
+    "sector33": "輸送用機器",
+    "sector17": "自動車・輸送機",
+    "size_cat": "TOPIX Mid400"
+  },
+  {
     "ticker": "6420.T",
     "code": "6420",
     "name": "ガリレイホールディングス",
     "sector33": "機械",
     "sector17": "機械",
     "size_cat": "TOPIX Small 1"
+  },
+  {
+    "ticker": "642A.T",
+    "code": "642A",
+    "name": "キューデンホールディングス",
+    "sector33": "電気・ガス業",
+    "sector17": "電力・ガス",
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "6430.T",
@@ -6795,8 +6827,8 @@
     "ticker": "6473.T",
     "code": "6473",
     "name": "ジェイテクト",
-    "sector33": "機械",
-    "sector17": "機械",
+    "sector33": "輸送用機器",
+    "sector17": "自動車・輸送機",
     "size_cat": "TOPIX Mid400"
   },
   {
@@ -6821,7 +6853,7 @@
     "name": "日本トムソン",
     "sector33": "機械",
     "sector17": "機械",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "6481.T",
@@ -6893,7 +6925,7 @@
     "name": "明電舎",
     "sector33": "電気機器",
     "sector17": "電機・精密",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "6516.T",
@@ -6918,6 +6950,14 @@
     "sector33": "電気機器",
     "sector17": "電機・精密",
     "size_cat": "TOPIX Small 1"
+  },
+  {
+    "ticker": "6524.T",
+    "code": "6524",
+    "name": "湖北工業",
+    "sector33": "電気機器",
+    "sector17": "電機・精密",
+    "size_cat": "-"
   },
   {
     "ticker": "6525.T",
@@ -6974,14 +7014,6 @@
     "sector33": "サービス業",
     "sector17": "情報通信・サービスその他",
     "size_cat": "TOPIX Mid400"
-  },
-  {
-    "ticker": "6560.T",
-    "code": "6560",
-    "name": "エル・ティー・エス",
-    "sector33": "サービス業",
-    "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "6564.T",
@@ -7101,7 +7133,7 @@
     "name": "ヤーマン",
     "sector33": "電気機器",
     "sector17": "電機・精密",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "6632.T",
@@ -7109,7 +7141,7 @@
     "name": "ＪＶＣケンウッド",
     "sector33": "電気機器",
     "sector17": "電機・精密",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "6638.T",
@@ -7309,7 +7341,7 @@
     "name": "パナソニック　ホールディングス",
     "sector33": "電気機器",
     "sector17": "電機・精密",
-    "size_cat": "TOPIX Large70"
+    "size_cat": "TOPIX Core30"
   },
   {
     "ticker": "6753.T",
@@ -7317,7 +7349,7 @@
     "name": "シャープ",
     "sector33": "電気機器",
     "sector17": "電機・精密",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "6754.T",
@@ -7589,7 +7621,7 @@
     "name": "日本マイクロニクス",
     "sector33": "電気機器",
     "sector17": "電機・精密",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "6875.T",
@@ -7773,7 +7805,7 @@
     "name": "村田製作所",
     "sector33": "電気機器",
     "sector17": "電機・精密",
-    "size_cat": "TOPIX Large70"
+    "size_cat": "TOPIX Core30"
   },
   {
     "ticker": "6986.T",
@@ -7861,7 +7893,7 @@
     "name": "ＩＨＩ",
     "sector33": "機械",
     "sector17": "機械",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Large70"
   },
   {
     "ticker": "7033.T",
@@ -7989,7 +8021,7 @@
     "name": "東京きらぼしフィナンシャルグループ",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "7180.T",
@@ -8213,7 +8245,7 @@
     "name": "本田技研工業",
     "sector33": "輸送用機器",
     "sector17": "自動車・輸送機",
-    "size_cat": "TOPIX Core30"
+    "size_cat": "TOPIX Large70"
   },
   {
     "ticker": "7269.T",
@@ -8229,7 +8261,7 @@
     "name": "ＳＵＢＡＲＵ",
     "sector33": "輸送用機器",
     "sector17": "自動車・輸送機",
-    "size_cat": "TOPIX Large70"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "7272.T",
@@ -8309,7 +8341,7 @@
     "name": "テイ・エス　テック",
     "sector33": "輸送用機器",
     "sector17": "自動車・輸送機",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "7322.T",
@@ -8317,7 +8349,7 @@
     "name": "三十三フィナンシャルグループ",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "7327.T",
@@ -8325,7 +8357,7 @@
     "name": "第四北越フィナンシャルグループ",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "7337.T",
@@ -8365,7 +8397,7 @@
     "name": "十六フィナンシャルグループ",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "7381.T",
@@ -8381,7 +8413,7 @@
     "name": "ネットプロテクションズホールディングス",
     "sector33": "その他金融業",
     "sector17": "金融（除く銀行）",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "7384.T",
@@ -8389,7 +8421,7 @@
     "name": "プロクレアホールディングス",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "7388.T",
@@ -8429,7 +8461,7 @@
     "name": "カッパ・クリエイト",
     "sector33": "小売業",
     "sector17": "小売",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "7433.T",
@@ -8477,7 +8509,7 @@
     "name": "第一興商",
     "sector33": "卸売業",
     "sector17": "商社・卸売",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "7459.T",
@@ -8509,7 +8541,7 @@
     "name": "アズワン",
     "sector33": "卸売業",
     "sector17": "商社・卸売",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "7482.T",
@@ -8669,7 +8701,7 @@
     "name": "ＶＴホールディングス",
     "sector33": "小売業",
     "sector17": "小売",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "7595.T",
@@ -8691,8 +8723,8 @@
     "ticker": "7599.T",
     "code": "7599",
     "name": "ＩＤＯＭ",
-    "sector33": "卸売業",
-    "sector17": "商社・卸売",
+    "sector33": "小売業",
+    "sector17": "小売",
     "size_cat": "TOPIX Small 1"
   },
   {
@@ -8706,7 +8738,7 @@
   {
     "ticker": "7606.T",
     "code": "7606",
-    "name": "ユナイテッドアローズ",
+    "name": "ＴＡＢＡＹＡホールディングス",
     "sector33": "小売業",
     "sector17": "小売",
     "size_cat": "TOPIX Small 1"
@@ -8957,7 +8989,7 @@
     "name": "シチズン時計",
     "sector33": "精密機器",
     "sector17": "電機・精密",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "7769.T",
@@ -9107,7 +9139,7 @@
     "ticker": "7893.T",
     "code": "7893",
     "name": "プロネクサス",
-    "sector33": "その他製品",
+    "sector33": "サービス業",
     "sector17": "情報通信・サービスその他",
     "size_cat": "TOPIX Small 2"
   },
@@ -9477,7 +9509,7 @@
     "name": "日本紙パルプ商事",
     "sector33": "卸売業",
     "sector17": "商社・卸売",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "8035.T",
@@ -9509,7 +9541,7 @@
     "name": "セイコーグループ",
     "sector33": "精密機器",
     "sector17": "電機・精密",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "8051.T",
@@ -9533,7 +9565,7 @@
     "name": "住友商事",
     "sector33": "卸売業",
     "sector17": "商社・卸売",
-    "size_cat": "TOPIX Large70"
+    "size_cat": "TOPIX Core30"
   },
   {
     "ticker": "8056.T",
@@ -9733,7 +9765,7 @@
     "name": "ユニ・チャーム",
     "sector33": "化学",
     "sector17": "素材・化学",
-    "size_cat": "TOPIX Large70"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "8125.T",
@@ -9787,14 +9819,6 @@
     "ticker": "8137.T",
     "code": "8137",
     "name": "サンワテクノス",
-    "sector33": "卸売業",
-    "sector17": "商社・卸売",
-    "size_cat": "TOPIX Small 2"
-  },
-  {
-    "ticker": "8141.T",
-    "code": "8141",
-    "name": "新光商事",
     "sector33": "卸売業",
     "sector17": "商社・卸売",
     "size_cat": "TOPIX Small 2"
@@ -10069,7 +10093,7 @@
     "name": "ゼビオホールディングス",
     "sector33": "小売業",
     "sector17": "小売",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "8282.T",
@@ -10181,7 +10205,7 @@
     "name": "秋田銀行",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "8344.T",
@@ -10189,7 +10213,7 @@
     "name": "山形銀行",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "8345.T",
@@ -10197,7 +10221,7 @@
     "name": "岩手銀行",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "8346.T",
@@ -10253,7 +10277,7 @@
     "name": "福井銀行",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "8364.T",
@@ -10269,7 +10293,7 @@
     "name": "滋賀銀行",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "8367.T",
@@ -10285,7 +10309,7 @@
     "name": "百五銀行",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "8370.T",
@@ -10309,7 +10333,7 @@
     "name": "山陰合同銀行",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "8386.T",
@@ -10325,7 +10349,7 @@
     "name": "四国銀行",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "8388.T",
@@ -10341,7 +10365,7 @@
     "name": "大分銀行",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "8393.T",
@@ -10349,7 +10373,7 @@
     "name": "宮崎銀行",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "8395.T",
@@ -10357,7 +10381,7 @@
     "name": "佐賀銀行",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "8399.T",
@@ -10453,7 +10477,7 @@
     "name": "愛媛銀行",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "8544.T",
@@ -10469,7 +10493,7 @@
     "name": "栃木銀行",
     "sector33": "銀行業",
     "sector17": "銀行",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "8551.T",
@@ -10538,10 +10562,10 @@
   {
     "ticker": "8595.T",
     "code": "8595",
-    "name": "ジャフコ　グループ",
+    "name": "ＪＡＦＣＯ",
     "sector33": "証券、商品先物取引業",
     "sector17": "金融（除く銀行）",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "8600.T",
@@ -10709,7 +10733,7 @@
     "name": "ソニーフィナンシャルグループ",
     "sector33": "保険業",
     "sector17": "金融（除く銀行）",
-    "size_cat": "TOPIX Core30"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "8739.T",
@@ -10765,7 +10789,7 @@
     "name": "アドバンスクリエイト",
     "sector33": "保険業",
     "sector17": "金融（除く銀行）",
-    "size_cat": "TOPIX Small 2"
+    "size_cat": "-"
   },
   {
     "ticker": "8801.T",
@@ -10997,7 +11021,7 @@
     "name": "西日本旅客鉄道",
     "sector33": "陸運業",
     "sector17": "運輸・物流",
-    "size_cat": "TOPIX Large70"
+    "size_cat": "TOPIX Mid400"
   },
   {
     "ticker": "9022.T",
@@ -11773,7 +11797,7 @@
     "name": "クオンツ総研ホールディングス",
     "sector33": "サービス業",
     "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "9601.T",
@@ -11837,7 +11861,7 @@
     "name": "建設技術研究所",
     "sector33": "サービス業",
     "sector17": "情報通信・サービスその他",
-    "size_cat": "TOPIX Small 1"
+    "size_cat": "TOPIX Small 2"
   },
   {
     "ticker": "9622.T",
@@ -11853,7 +11877,7 @@
     "name": "アインホールディングス",
     "sector33": "小売業",
     "sector17": "小売",
-    "size_cat": "TOPIX Mid400"
+    "size_cat": "TOPIX Small 1"
   },
   {
     "ticker": "9628.T",
