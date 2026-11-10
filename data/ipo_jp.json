@@ -1,13 +1,28 @@
 {
- "asof": "2026-11-10",
- "generated_at_jst": "2026-11-10T03:41:56+09:00",
+ "asof": "2026-11-11",
+ "generated_at_jst": "2026-11-11T01:23:41+09:00",
  "source": "https://www.jpx.co.jp/listing/stocks/new/",
- "cutoff": "2024-11-09",
+ "cutoff": "2024-11-10",
  "years_back": 2,
  "pages_failed": 0,
- "count": 138,
- "upcoming": 5,
+ "count": 139,
+ "upcoming": 6,
  "ipos": [
+  {
+   "code": "674A",
+   "name": "（株）Ｂｅｙｏｎｔ",
+   "technical": false,
+   "listing_date": "2026-12-11",
+   "approval_date": "2026-11-10",
+   "market": "グロース",
+   "band_low": null,
+   "band_high": null,
+   "offer_price": null,
+   "public_shares_k": 271.8,
+   "secondary_shares_k": 576.5,
+   "trading_unit": 100.0,
+   "listed": false
+  },
   {
    "code": "673A",
    "name": "ＮＯＴＡ（株）",

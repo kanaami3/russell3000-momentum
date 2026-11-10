@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-10T03:42:00+09:00",
+ "updated_at": "2026-11-11T01:23:44+09:00",
  "profiles": {
   "648A": {
    "summary_en": "LECRE Inc. designs, develops, and provides AI-based software-as-a-service (SaaS) solutions and digital transformation (DX) platforms. The company develops and operates a device-integrated, AI cloud-based Record DX platform that enables organizations to capture, manage, structure, and analyze field data, such as photographs, videos, and text records. It caters to the construction, maintenance, repair, inspection, childcare, and education sectors. LECRE Inc. was formerly known as TriWorks Corp. The company was incorporated in 1995 and is based in Minato, Japan.",
@@ -2012,8 +2012,18 @@
    "checked_at": "2026-11-06"
   },
   "660A": {
-   "ok": false,
-   "checked_at": "2026-11-04"
+   "summary_en": "RECEPTIONIST, Inc. designs and develops cloud-based office management software. The company offers RECEPTIONIST, a cloud-based visitor reception and check-in system that handles visitor management and processes employee and visitor information for corporate offices. It also provides Chosei Apo, a schedule adjustment and appointment scheduling tool, and Yoyaku Rooms, a meeting room and space reservation management system. Additionally, the company offers an event registration system, an interactive voice response system, and an external business entry application system. RECEPTIONIST, Inc. was incorporated in 2016 and is based in Meguro, Japan.",
+   "sector_en": "Technology",
+   "industry_en": "Software - Infrastructure",
+   "employees": null,
+   "website": "https://receptionist.co.jp",
+   "city": "Meguro",
+   "market_cap": null,
+   "sector_ja": "情報技術",
+   "ok": true,
+   "checked_at": "2026-11-11",
+   "biz_ja": "企業の受付や日程調整を効率化するクラウドシステムを提供",
+   "summary_ja": "企業向けにクラウド型のオフィス管理システムを開発・提供しています。主な製品は、来客対応と社員への通知を自動化する受付システム「RECEPTIONIST」です。さらに、外部との日程調整ツールや会議室の予約管理システムなども手掛けており、これらのソフトウェアの利用料によって収入を得ています。"
   },
   "664A": {
    "ok": false,
@@ -2034,8 +2044,12 @@
   "673A": {
    "ok": false,
    "checked_at": "2026-11-07"
+  },
+  "674A": {
+   "ok": false,
+   "checked_at": "2026-11-11"
   }
  },
- "count": 151,
- "ok_count": 143
+ "count": 152,
+ "ok_count": 144
 }
