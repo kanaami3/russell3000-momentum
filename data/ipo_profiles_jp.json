@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-12T01:05:11+09:00",
+ "updated_at": "2026-11-13T01:46:13+09:00",
  "profiles": {
   "648A": {
    "summary_en": "LECRE Inc. designs, develops, and provides AI-based software-as-a-service (SaaS) solutions and digital transformation (DX) platforms. The company develops and operates a device-integrated, AI cloud-based Record DX platform that enables organizations to capture, manage, structure, and analyze field data, such as photographs, videos, and text records. It caters to the construction, maintenance, repair, inspection, childcare, and education sectors. LECRE Inc. was formerly known as TriWorks Corp. The company was incorporated in 1995 and is based in Minato, Japan.",
@@ -2008,8 +2008,18 @@
    "summary_ja": "日本や韓国、米国向けに、企業の業務自動化を支援する生成AIプラットフォームを開発・提供しています。文書の読み取りや資料作成を代行するツール、リサーチ機能などを備えたAIソフトのほか、AI活用状況の分析レポートを展開。金融や製造、保険、人事といった幅広い業界の企業を顧客としています。"
   },
   "658A": {
-   "ok": false,
-   "checked_at": "2026-11-06"
+   "summary_en": "estie, inc. develops and provides commercial-real-estate data platforms and workflow-support services in Japan. The company offers data-driven platforms and services that support commercial-real-estate operators by improving market information flows, transactions, operational workflows, and digital transformation. The company was incorporated in 2018 and is based in Minato, Japan.",
+   "sector_en": "Technology",
+   "industry_en": "Software - Application",
+   "employees": null,
+   "website": "https://www.estie.jp",
+   "city": "Minato",
+   "market_cap": 11418930176,
+   "sector_ja": "情報技術",
+   "ok": true,
+   "checked_at": "2026-11-13",
+   "biz_ja": "商業用不動産事業者向けデータ基盤と業務支援システムを提供",
+   "summary_ja": "日本の商業用不動産事業者を対象に、市場情報の流通改善や業務の効率化、デジタルトランスフォーメーションを推進するデータ基盤や業務支援サービスを開発・提供しています。不動産の取引や運用プロセスをデジタル化し、データ分析を活用した支援を通じて収益を得ています。"
   },
   "660A": {
    "summary_en": "RECEPTIONIST, Inc. designs and develops cloud-based office management software. The company offers RECEPTIONIST, a cloud-based visitor reception and check-in system that handles visitor management and processes employee and visitor information for corporate offices. It also provides Chosei Apo, a schedule adjustment and appointment scheduling tool, and Yoyaku Rooms, a meeting room and space reservation management system. Additionally, the company offers an event registration system, an interactive voice response system, and an external business entry application system. RECEPTIONIST, Inc. was incorporated in 2016 and is based in Meguro, Japan.",
@@ -2039,7 +2049,7 @@
   },
   "669A": {
    "ok": false,
-   "checked_at": "2026-11-06"
+   "checked_at": "2026-11-13"
   },
   "673A": {
    "ok": false,
@@ -2048,8 +2058,16 @@
   "674A": {
    "ok": false,
    "checked_at": "2026-11-11"
+  },
+  "677A": {
+   "ok": false,
+   "checked_at": "2026-11-13"
+  },
+  "676A": {
+   "ok": false,
+   "checked_at": "2026-11-13"
   }
  },
- "count": 152,
- "ok_count": 144
+ "count": 154,
+ "ok_count": 145
 }
