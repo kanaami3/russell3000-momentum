@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-13T01:46:13+09:00",
+ "updated_at": "2026-11-14T01:13:14+09:00",
  "profiles": {
   "648A": {
    "summary_en": "LECRE Inc. designs, develops, and provides AI-based software-as-a-service (SaaS) solutions and digital transformation (DX) platforms. The company develops and operates a device-integrated, AI cloud-based Record DX platform that enables organizations to capture, manage, structure, and analyze field data, such as photographs, videos, and text records. It caters to the construction, maintenance, repair, inspection, childcare, and education sectors. LECRE Inc. was formerly known as TriWorks Corp. The company was incorporated in 1995 and is based in Minato, Japan.",
@@ -2037,7 +2037,7 @@
   },
   "664A": {
    "ok": false,
-   "checked_at": "2026-11-07"
+   "checked_at": "2026-11-14"
   },
   "667A": {
    "ok": false,
@@ -2053,7 +2053,7 @@
   },
   "673A": {
    "ok": false,
-   "checked_at": "2026-11-07"
+   "checked_at": "2026-11-14"
   },
   "674A": {
    "ok": false,
@@ -2066,8 +2066,16 @@
   "676A": {
    "ok": false,
    "checked_at": "2026-11-13"
+  },
+  "681A": {
+   "ok": false,
+   "checked_at": "2026-11-14"
+  },
+  "679A": {
+   "ok": false,
+   "checked_at": "2026-11-14"
   }
  },
- "count": 154,
+ "count": 156,
  "ok_count": 145
 }
