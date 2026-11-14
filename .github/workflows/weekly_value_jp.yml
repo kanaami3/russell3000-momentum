@@ -104,10 +104,18 @@ jobs:
             echo "GEMINI_API_KEY not set — skipping AI steps"
           fi
 
+      - name: Shikiho x dividend-hike picks (四季報×決算増配ピック)
+        if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
+        run: |
+          # TDnet の取得に失敗しても、手元の増配イベントでピックは作り直す。
+          python batch/fetch_dividend_hikes.py || echo "⚠ TDnet 増配取得 失敗（継続）"
+          python batch/build_shikiho_hike_picks.py || echo "⚠ 四季報×決算増配ピック 失敗（継続）"
+
       - name: Commit and push
         if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
         run: |
           bash batch/safe_commit_push.sh \
             "data(jp value): daily update $(date -u +%Y-%m-%d)" \
             data/universe_jp.json web/data/margin_balance_history.json \
-            web/data/investor_flows_jp.json web/data/dividend_screener.json
+            web/data/investor_flows_jp.json web/data/dividend_screener.json \
+            data/dividend_hikes_jp.json
