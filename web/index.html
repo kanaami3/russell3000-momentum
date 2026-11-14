@@ -6,9 +6,9 @@
 <title>かな塾長秘書AI投資ナビ</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2" />
 <link rel="apple-touch-icon" href="favicon.svg?v=2" />
-<meta name="description" content="かな塾長秘書AI投資ナビ:東証プライム全銖柄のモメンタムランキング、デイトレ・ピックアップ、バリュー投資、IPO、セクターローテーション、テーマランキングをAIが毎日自動分析。" />
+<meta name="description" content="かな塾長秘書AI投資ナビ:東証プライム全銖柄のモメンタムランキング、デイトレ・ピックアップ、配当・増配スクリーナー、IPO、セクターローテーション、テーマランキングをAIが毎日自動分析。" />
 <meta property="og:title" content="かな塾長秘書AI投資ナビ" />
-<meta property="og:description" content="日本株のモメンタム / デイトレ / バリュー / IPO / セクター / テーマを AI が毎日自動分析。塾生限定。" />
+<meta property="og:description" content="日本株のモメンタム / デイトレ / 配当・増配 / IPO / セクター / テーマを AI が毎日自動分析。塾生限定。" />
 <meta property="og:type" content="website" />
 <script src="https://cdn.tailwindcss.com"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
@@ -75,12 +75,6 @@
         🎯 朝のデイトレ・ピックアップ
       </button>
       <button
-        @click="setMarket('value')"
-        :class="market === 'value' ? 'border-blue-700 text-blue-800' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
-        💎 バリュー投資
-      </button>
-      <button
         @click="setMarket('dividend')"
         :class="market === 'dividend' ? 'border-teal-700 text-teal-800' : 'border-transparent text-slate-500 hover:text-slate-800'"
         class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
@@ -118,8 +112,8 @@
     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="briefBadgeClass(morningBrief)">
       🎯 朝ピック <span x-text="briefBadgeTime(morningBrief)"></span>
     </span>
-    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(valueData?.generated_at_jst, 30)">
-      💎 バリュー <span x-text="statusBadgeTime(valueData?.generated_at_jst)"></span>
+    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border" :class="statusBadgeClass(dividendData?.generated_at_jst, 30)">
+      🏆 配当 <span x-text="statusBadgeTime(dividendData?.generated_at_jst)"></span>
     </span>
     <span class="ml-auto text-slate-400 hidden sm:inline">🟢=新鮮 🟡=やや古 🔴=要再生成</span>
   </div>
@@ -629,117 +623,6 @@
 
 
   <!-- Earnings tab: main content -->
-
-  <!-- Value tab: loading state -->
-  <div x-show="market === 'value' && !valueData" class="text-center py-20 text-slate-500">バリュー投資データを読み込み中...</div>
-
-  <!-- Value tab: main content -->
-  <template x-if="market === 'value' && valueData">
-  <div class="space-y-8">
-    <p class="text-xs text-slate-500">
-      💎 東証プライム約<span x-text="valueData.universe_size"></span>銘柄から、時価総額500億円以上(<span x-text="valueData.filtered_count"></span>銘柄)を対象にバリュー投資指標でスクリーニング。配当 + 割安 + 売上継続 + 成長見込み の4軸でランキング。データソース: yfinance Ticker.info。<strong class="text-blue-700">毎日 09:00 / 12:00 / 15:00 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="valueData.asof"></span> (更新 <span x-text="(valueData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
-    </p>
-
-    <!-- AI Picks: Claude's curated value buys -->
-    <section x-show="(valueData.ai_picks || []).length > 0" class="bg-white border-2 border-blue-300 rounded-2xl p-5 sm:p-6 shadow-md">
-      <h2 class="text-lg font-extrabold text-blue-900 mb-4">🎯 AIが選ぶ高品質バリュー銘柄</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <template x-for="pick in (valueData.ai_picks || [])" :key="pick.ticker">
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div class="flex items-center gap-2 mb-2 flex-wrap">
-              <a class="font-bold text-blue-800 ticker-link text-base shrink-0" @click="openChart(pick.ticker)" x-text="displayTicker(pick.ticker)"></a>
-              <span class="text-slate-700 font-semibold truncate" x-text="shortName(pick.name)"></span>
-            </div>
-            <p class="text-xs text-slate-700 leading-relaxed mb-2" x-text="pick.appeal"></p>
-            <div class="space-y-1 text-[11px]">
-              <div class="flex items-start gap-2">
-                <span class="font-bold text-emerald-700 shrink-0 w-14">📈 売上根拠</span>
-                <span class="text-slate-700" x-text="pick.growth_evidence"></span>
-              </div>
-              <div class="flex items-start gap-2">
-                <span class="font-bold text-amber-700 shrink-0 w-14">📊 観察</span>
-                <span class="text-slate-700" x-text="pick.target_observation"></span>
-              </div>
-              <div class="flex items-start gap-2">
-                <span class="font-bold text-red-700 shrink-0 w-14">⚠️ リスク</span>
-                <span class="text-slate-700" x-text="pick.risk"></span>
-              </div>
-            </div>
-          </div>
-        </template>
-      </div>
-    </section>
-
-    <!-- Category tab + ranking table -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
-      <h2 class="text-lg font-extrabold text-slate-800 mb-3">📊 カテゴリ別ランキング</h2>
-      <div class="flex flex-wrap gap-2 mb-3">
-        <template x-for="cat in valueCategories" :key="cat.key">
-          <button
-            @click="valueActiveCategory = cat.key"
-            :class="valueActiveCategory === cat.key ? 'bg-blue-700 text-white border-blue-700' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'"
-            class="px-3 py-1.5 border rounded-lg text-xs font-semibold flex items-center gap-1"
-          >
-            <span x-text="cat.emoji"></span><span x-text="cat.label"></span>
-          </button>
-        </template>
-      </div>
-      <div x-show="valueActiveCategory === 'dividend_growth_value'" class="text-[11px] text-slate-600 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 mb-3 leading-relaxed">
-        <div class="font-bold text-emerald-800 mb-1">次の9条件を全部満たす銘柄を、増配余地の大きい順(同じなら配当利回りの高い順)に最大50銘柄表示します。</div>
-        <div>① PER15倍以下　② PBR1.5倍以下　③ ROE8%以上　④ 配当利回り3%以上　⑤ 配当性向50%以下　⑥ 5期以上続けて減配なし　⑦ 減益予想でない　⑧ 有利子負債が自己資本以下　⑨ 時価総額100億円以上</div>
-        <div class="text-slate-500 mt-1">⑦⑧はデータが取れない銘柄があり、その場合は除外せずに残しています。他のタブ(時価総額500億円以上)より範囲を広げ、中小型株も含めています。</div>
-      </div>
-
-      <!-- Ranking table -->
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-xs">
-          <thead class="bg-slate-100 text-slate-600 text-[10px] uppercase tracking-wider">
-            <tr>
-              <th class="px-2 py-2 text-left">#</th>
-              <th class="px-2 py-2 text-left">Ticker</th>
-              <th class="px-2 py-2 text-left">銘柄名</th>
-              <th class="px-2 py-2 text-left">業種</th>
-              <th class="px-2 py-2 text-right">時価総額</th>
-              <th class="px-2 py-2 text-right">配当%</th>
-              <th class="px-2 py-2 text-right">配当性向</th><th class="px-2 py-2 text-center" x-show="valueActiveCategory === 'high_dividend' || valueActiveCategory === 'dividend_growth_value'" title="配当性向・予想増益率・連続増配実績から見た増配余地(◎>○>△>×)">増配余地</th>
-              <th class="px-2 py-2 text-right">PER</th>
-              <th class="px-2 py-2 text-right">PBR</th>
-              <th class="px-2 py-2 text-right">ROE%</th>
-              <th class="px-2 py-2 text-right">売上成長%</th>
-              <th class="px-2 py-2 text-right">営業益率%</th>
-              <th class="px-2 py-2 text-right">スコア</th>
-            </tr>
-          </thead>
-          <tbody>
-            <template x-for="(r, i) in activeValueRanking" :key="r.ticker">
-              <tr class="border-t border-slate-100 hover:bg-blue-50/40">
-                <td class="px-2 py-2 text-slate-400 num" x-text="i + 1"></td>
-                <td class="px-2 py-2 font-bold">
-                  <a class="text-blue-800 ticker-link" @click="openChart(r.ticker)" x-text="displayTicker(r.ticker)"></a>
-                </td>
-                <td class="px-2 py-2 text-slate-700 max-w-[180px] truncate" :title="r.name" x-text="shortName(r.name)"></td>
-                <td class="px-2 py-2 text-slate-500 text-[10px] whitespace-nowrap" x-text="r.sector17"></td>
-                <td class="px-2 py-2 text-right num text-slate-600" x-text="r.market_cap_oku ? r.market_cap_oku.toLocaleString() + '億' : '-'"></td>
-                <td class="px-2 py-2 text-right num font-bold text-amber-700" x-text="r.dividend_yield ?? '-'"></td>
-                <td class="px-2 py-2 text-right num text-slate-500" x-text="r.payout_ratio ?? '-'"></td><td class="px-2 py-2 text-center leading-tight" x-show="valueActiveCategory === 'high_dividend' || valueActiveCategory === 'dividend_growth_value'" :class="headroomClass(r)" :title="r.headroom_note || ''"><span class="font-bold" x-text="headroomMark(r)"></span><div x-show="r.streak_label" class="text-[9px] text-slate-500 whitespace-nowrap" x-text="r.streak_label"></div></td>
-                <td class="px-2 py-2 text-right num text-slate-700" x-text="r.trailing_pe ?? '-'"></td>
-                <td class="px-2 py-2 text-right num text-slate-700" x-text="r.price_to_book ?? '-'"></td>
-                <td class="px-2 py-2 text-right num font-bold text-purple-700" x-text="r.return_on_equity ?? '-'"></td>
-                <td class="px-2 py-2 text-right num font-semibold" :class="pctClass(r.revenue_growth)" x-text="r.revenue_growth ?? '-'"></td>
-                <td class="px-2 py-2 text-right num text-slate-700" x-text="r.operating_margins ?? '-'"></td>
-                <td class="px-2 py-2 text-right num font-bold text-blue-700" x-text="r.value_score ?? '-'"></td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <p class="text-[11px] text-slate-400 leading-relaxed">
-      ※ データは yfinance 経由で取得。配当性向 80% 超・配当利回り 10% 超は減配リスクを考慮し除外。PER 3 未満・売上成長 200% 超はデータ異常・M&A 起因の可能性として除外。本ページの情報は投資勧誘ではなく、銘柄スクリーニングの参考情報です。
-    </p>
-  </div>
-  </template>
 
   <!-- Indices tab: main content -->
 
@@ -1423,13 +1306,6 @@ const MARKET_CONFIG = {
     docTitle: 'かな塾長秘書AI投資ナビ | 朝のデイトレ・ピックアップ',
     defaultSort: 'm3',
   },
-  value: {
-    file: null,  // uses value_jp.json only
-    title: 'バリュー投資(JP)',
-    label: 'JP VALUE INVESTING — DIVIDEND / LOW PE / LOW PBR / ROE / GROWTH',
-    docTitle: 'かな塾長秘書AI投資ナビ | バリュー投資',
-    defaultSort: 'm3',
-  },
   theme: {
     file: null,  // 同じリポジトリの theme.html を iframe で表示する
     title: 'テーマランキング',
@@ -1459,6 +1335,12 @@ const MARKET_CONFIG = {
     defaultSort: 'm3',
   },
 };
+
+// 廃止したタブの古いリンクを今のタブへ振り替える。
+// バリュー投資タブ(#value)は配当・増配余力スクリーナーに一本化した。
+function legacyMarket(m) {
+  return m === 'value' ? 'dividend' : m;
+}
 
 function momentumApp() {
   return {
@@ -2035,13 +1917,12 @@ function momentumApp() {
 
     get isJpDomain() {
       // daytrade & value also use JP tickers (.T suffix) for chart modal routing
-      return this.market === 'jp' || this.market === 'daytrade' || this.market === 'value';
+      return this.market === 'jp' || this.market === 'daytrade';
     },
 
     get headerGradient() {
       if (this.market === 'daytrade') return 'gradient-daytrade';
       if (this.market === 'indices')  return 'gradient-indices';
-      if (this.market === 'value')    return 'gradient-value';
       if (this.market === 'earnings') return 'gradient-earnings';
       if (this.market === 'dividend') return 'gradient-dividend';
       if (this.market === 'macro')    return 'gradient-macro';
@@ -2051,13 +1932,13 @@ function momentumApp() {
 
     init() {
       // Pick market from URL hash > localStorage > default 'us'
-      const hash = (location.hash || '').replace('#', '').toLowerCase();
-      let m = MARKET_CONFIG[hash] ? hash : (localStorage.getItem('market') || 'jp');
+      const hash = legacyMarket((location.hash || '').replace('#', '').toLowerCase());
+      let m = MARKET_CONFIG[hash] ? hash : legacyMarket(localStorage.getItem('market') || 'jp');
       if (!MARKET_CONFIG[m]) m = 'jp';
       this.setMarket(m, /*replaceUrl=*/true);
 
       window.addEventListener('hashchange', () => {
-        const h = (location.hash || '').replace('#', '').toLowerCase();
+        const h = legacyMarket((location.hash || '').replace('#', '').toLowerCase());
         if (MARKET_CONFIG[h] && h !== this.market) this.setMarket(h, true);
       });
 
@@ -2073,7 +1954,7 @@ function momentumApp() {
       await Promise.allSettled([
         safe(this.loadMorningBrief),
         safe(this.loadIndices),
-        safe(this.loadValue),
+        safe(this.loadDividendScreener),
         safe(this.loadMacro),
         safe(this.loadMargin),
         safe(this.loadFlows),
@@ -2150,6 +2031,7 @@ statusBadgeClass(iso, freshH) {
     },
 
     setMarket(m, replaceUrl) {
+      m = legacyMarket(m);
       if (!MARKET_CONFIG[m]) return;
       this.market = m;
       this.sortKey = MARKET_CONFIG[m].defaultSort;
@@ -2184,9 +2066,6 @@ statusBadgeClass(iso, freshH) {
       }
       if (this.market === 'indices') {
         this.loadIndices();
-      }
-      if (this.market === 'value') {
-        this.loadValue();
       }
       if (this.market === 'macro') {
         this.loadMacro();
@@ -2271,17 +2150,6 @@ statusBadgeClass(iso, freshH) {
       // 'YYYY-MM-DD' を文字列のまま分解(タイムゾーン変換による日付ズレを防ぐ)
       const f = (s) => { const p = String(s).split('-'); return parseInt(p[1], 10) + '/' + parseInt(p[2], 10); };
       return f(o.week_start) + '〜' + f(o.week_end);
-    },
-
-    async loadValue() {
-      this.valueData = null;
-      try {
-        const resp = await fetch('./data/value_jp.json?v=' + Date.now());
-        if (!resp.ok) return;
-        this.valueData = await resp.json();
-      } catch (e) {
-        console.warn('value data load failed:', e);
-      }
     },
 
     async loadDividendScreener() {
@@ -2406,24 +2274,6 @@ statusBadgeClass(iso, freshH) {
       this.divPage = 0;
     },
 
-    valueCategories: [
-      { key: 'composite',     emoji: '🏆', label: '総合バリュースコア', tint: 'blue' },
-      { key: 'high_dividend', emoji: '💰', label: '高配当・増配余力',            tint: 'amber' },
-      { key: 'low_pe',        emoji: '💎', label: '割安(低PER)',       tint: 'emerald' },
-      { key: 'low_pbr',       emoji: '📉', label: '割安(低PBR)',       tint: 'teal' },
-      { key: 'high_roe',      emoji: '⚡', label: '高ROE',             tint: 'purple' },
-      { key: 'growth',        emoji: '🌱', label: '成長性',            tint: 'green' },
-      { key: 'dividend_growth_value', emoji: '📗', label: '増配期待バリュー(9条件)', tint: 'emerald' },
-    ],
-
-    get activeValueRanking() {
-      if (!this.valueData) return [];
-      return this.valueData.rankings?.[this.valueActiveCategory] || [];
-    },
-
-    get activeValueCategoryMeta() {
-      return this.valueCategories.find(c => c.key === this.valueActiveCategory) || this.valueCategories[0];
-    },
 
     async loadIndices() {
       this._destroyIndexCharts();
@@ -3201,8 +3051,6 @@ statusBadgeClass(iso, freshH) {
     indicesData: null,
     indicesRange: {},   // {N225: 126, NDX: 126, USDJPY: 126}
     _indexCharts: {},   // {id: LightweightCharts instance}
-    valueData: null,
-    valueActiveCategory: 'composite',
     swingPicksJp: null,
     swingPicksUs: null,
     weeklyOutlook: null,          // 来週の展望 (weekly_outlook.json)

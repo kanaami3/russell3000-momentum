@@ -38,20 +38,20 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Skip the (paid) pipeline only if a COMPLETE result already exists:
-      # generated < 6h ago AND ai_picks present. An empty ai_picks means the
-      # prior run failed (e.g. JSON truncation), so we must regenerate.
-      - name: Check if value screen already fresh today
+      # 当日分(6時間以内)の配当スクリーナーが既にあれば全ステップをスキップ。
+      # 2026-11 にバリュー投資タブを廃止し、配当・増配余力スクリーナーに一本化したので、
+      # 鮮度は value_jp.json ではなく dividend_screener.json で見る。
+      - name: Check if dividend screen already fresh today
         id: freshness
         run: |
           NEED=$(python3 -c "
           import json
           from datetime import datetime
           try:
-              v = json.load(open('web/data/value_jp.json'))
+              v = json.load(open('web/data/dividend_screener.json'))
               gen = datetime.fromisoformat(v['generated_at_jst'])
               age_h = (datetime.now(gen.tzinfo) - gen).total_seconds() / 3600
-              fresh = age_h < 6 and bool(v.get('ai_picks'))
+              fresh = age_h < 6
               print('false' if fresh else 'true')
           except Exception:
               print('true')
@@ -75,15 +75,11 @@ jobs:
         if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
         run: python batch/fetch_value_data.py
 
-      - name: Compute value rankings (6 categories)
-        if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
-        run: python batch/calc_value_rankings.py
-
       - name: Dividend screener (全銘柄・割安/配当/業績 judgments)
         if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
         run: python batch/build_dividend_screener.py
 
-      - name: Generate AI commentary + AI picks (Claude)
+      - name: Generate growth-dividend AI picks
         if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -93,7 +89,6 @@ jobs:
           # Commit and push がスキップされて株価もランキングも5日間
           # 更新されなかった。個々の失敗はログに残すが終了コードは0にする。
           if [ -n "$GEMINI_API_KEY" ]; then
-            python batch/generate_value_commentary.py || echo "⚠ value commentary 失敗（継続）"
             # 増配バリューのAIピックは配当スクリーナーの出力を読むので、
             # build_dividend_screener.py の後でなければならない。
             #
@@ -114,6 +109,5 @@ jobs:
         run: |
           bash batch/safe_commit_push.sh \
             "data(jp value): daily update $(date -u +%Y-%m-%d)" \
-            data/universe_jp.json data/value_picks_history.json \
-            web/data/value_jp.json web/data/margin_balance_history.json \
+            data/universe_jp.json web/data/margin_balance_history.json \
             web/data/investor_flows_jp.json web/data/dividend_screener.json
