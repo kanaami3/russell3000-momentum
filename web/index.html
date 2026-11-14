@@ -272,7 +272,7 @@
         四季報型「増配期待バリュー9条件」と、直近の決算で配当予想を増額(増配)した銘柄を突き合わせています。
         条件: <span x-text="(dividendData.shikiho_hike_picks?.conditions||[]).join(' / ')"></span>
       </p>
-      <template x-for="grp in [{k:'a', t:'A. 9条件をすべて通過 ＋ 直近決算で増配', c:'text-emerald-800'}, {k:'b', t:'B. 1条件だけ外れたが直近決算で増配', c:'text-amber-800'}]" :key="grp.k">
+      <template x-for="grp in [{k:'a', t:'A. 9条件をすべて通過 ＋ 直近決算で増配', c:'text-emerald-800'}, {k:'b', t:'B. 1条件だけ外れたが直近決算で増配', c:'text-amber-800'}, {k:'c', t:'C. 2条件外れたが直近決算で増配(参考)', c:'text-slate-600'}]" :key="grp.k">
         <div class="mb-3" x-show="(dividendData.shikiho_hike_picks?.[grp.k]||[]).length">
           <h3 class="text-xs font-bold mb-1.5" :class="grp.c" x-text="grp.t"></h3>
           <div class="overflow-x-auto">
@@ -287,7 +287,7 @@
                   <th class="text-right py-1 pr-2">性向</th>
                   <th class="text-left py-1 pr-2">増配実績</th>
                   <th class="text-left py-1 pr-2">直近の配当修正</th>
-                  <th class="text-left py-1" x-show="grp.k==='b'">外れた条件</th>
+                  <th class="text-left py-1" x-show="grp.k!=='a'">外れた条件</th>
                 </tr>
               </thead>
               <tbody>
@@ -308,7 +308,7 @@
                       <span x-text="p.hike_detail"></span>
                       <span x-show="p.earnings_up" class="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">業績も上方修正</span>
                     </td>
-                    <td class="py-1.5 text-rose-700 whitespace-nowrap" x-show="grp.k==='b'" x-text="p.failed || ''"></td>
+                    <td class="py-1.5 text-rose-700 whitespace-nowrap" x-show="grp.k!=='a'" x-text="p.failed || ''"></td>
                   </tr>
                 </template>
               </tbody>
