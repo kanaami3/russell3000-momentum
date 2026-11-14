@@ -297,6 +297,7 @@
                     <td class="py-1.5 pr-2 whitespace-nowrap">
                       <span class="font-mono text-[10px] text-slate-500" x-text="p.code"></span>
                       <span class="font-bold text-slate-900" x-text="p.name"></span>
+                      <span x-show="p.market && p.market !== 'プライム'" class="ml-1 text-[9px] px-1 rounded bg-slate-100 text-slate-500">ス・グ</span>
                     </td>
                     <td class="py-1.5 pr-2 text-right font-semibold text-emerald-700" x-text="p.yield!=null ? p.yield.toFixed(2)+'%' : '-'"></td>
                     <td class="py-1.5 pr-2 text-right" x-text="p.per!=null ? p.per.toFixed(1) : '-'"></td>

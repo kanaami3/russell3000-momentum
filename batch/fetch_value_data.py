@@ -16,6 +16,7 @@ from __future__ import annotations
 import csv
 import json
 import sys
+import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -25,9 +26,10 @@ import yfinance as yf
 import dividend_streak
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-UNIVERSE_PATH = REPO_ROOT / "data" / "universe_jp.json"
-HISTORY_CSV = REPO_ROOT / "data" / "dividend_history_jp.csv"
-OUTPUT_PATH = REPO_ROOT / "data" / "value_data_jp.csv"
+# スタンダード・グロース分(週1回)は環境変数で入出力を差し替えて同じ処理を回す。
+UNIVERSE_PATH = Path(os.getenv("VALUE_UNIVERSE", REPO_ROOT / "data" / "universe_jp.json"))
+HISTORY_CSV = Path(os.getenv("DIV_HISTORY_CSV", REPO_ROOT / "data" / "dividend_history_jp.csv"))
+OUTPUT_PATH = Path(os.getenv("VALUE_OUTPUT", REPO_ROOT / "data" / "value_data_jp.csv"))
 
 FIELDS = [
     "ticker",
