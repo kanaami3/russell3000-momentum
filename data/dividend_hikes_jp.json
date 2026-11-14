@@ -3,11 +3,116 @@
  "updated_at": "2026-11-14",
  "events": [
   {
+   "code": "369A",
+   "date": "2026-10-15",
+   "detail": "配当予想修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "4616",
+   "date": "2026-10-15",
+   "detail": "2026年11月期 期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "5018",
+   "date": "2026-10-15",
+   "detail": "2027年２月期通期業績予想および配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "5527",
+   "date": "2026-10-15",
+   "detail": "配当予想の修正（増配）並びに株主優待制度の変更及び拡充に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "3788",
+   "date": "2026-10-19",
+   "detail": "通期業績予想の修正（上方修正）および配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "6658",
+   "date": "2026-10-19",
+   "detail": "2027年３月期連結業績予想(上方)及び期末配当予想(増配)の修正に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "8624",
+   "date": "2026-10-19",
+   "detail": "２０２７年３月期の中間普通配当予定の増配に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "2961",
+   "date": "2026-10-22",
+   "detail": "2026年９月期通期業績予想及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "7177",
+   "date": "2026-10-22",
+   "detail": "2026年12月期第３四半期連結決算速報及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "8395",
+   "date": "2026-10-23",
+   "detail": "業績予想の修正および配当予想の修正(増配)に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "8541",
+   "date": "2026-10-23",
+   "detail": "業績予想の修正及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "4718",
+   "date": "2026-10-26",
+   "detail": "業績予想及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "7970",
+   "date": "2026-10-26",
+   "detail": "連結業績予想の修正並びに剰余金の配当（中間配当）及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "8364",
+   "date": "2026-10-26",
+   "detail": "業績予想の修正及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
    "code": "4684",
    "date": "2026-10-27",
    "detail": "配当も6円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4765",
+   "date": "2026-10-27",
+   "detail": "剰余金の配当（中間配当）の増配に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "4992",
@@ -31,11 +136,25 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "1934",
+   "date": "2026-10-28",
+   "detail": "業績予想の修正および配当予想の修正（増配）ならびに剰余金の配当（中間配当）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
    "code": "2760",
    "date": "2026-10-28",
    "detail": "配当も22円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3778",
+   "date": "2026-10-28",
+   "detail": "剰余金の配当（創業30周年記念配当）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "4228",
@@ -59,11 +178,39 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "7276",
+   "date": "2026-10-28",
+   "detail": "剰余金の配当(中間配当)及び配当予想の修正(増配)に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "7283",
+   "date": "2026-10-28",
+   "detail": "通期業績予想の修正及び剰余金の配当（中間配当・増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "8524",
+   "date": "2026-10-28",
+   "detail": "業績予想の修正及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
    "code": "9022",
    "date": "2026-10-28",
    "detail": "配当も2円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "1959",
+   "date": "2026-10-29",
+   "detail": "剰余金の配当（中間配当）及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "2533",
@@ -73,11 +220,32 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "4062",
+   "date": "2026-10-29",
+   "detail": "通期連結業績予想の修正及び剰余金の配当（中間配当・増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
    "code": "4307",
    "date": "2026-10-29",
    "detail": "配当も4円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4507",
+   "date": "2026-10-29",
+   "detail": "2027年3月期 業績予想および年間配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "5832",
+   "date": "2026-10-29",
+   "detail": "2027年3月期 通期業績予想の修正および期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
   },
   {
    "code": "6454",
@@ -115,11 +283,25 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "8071",
+   "date": "2026-10-29",
+   "detail": "2027年３月期第２四半期（中間期）連結業績予想と実績値との差異、 通期連結業績予想の修正及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
    "code": "8344",
    "date": "2026-10-29",
    "detail": "配当も14円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8613",
+   "date": "2026-10-29",
+   "detail": "2027年3月期の中間配当（普通配当並びに特別配当）決定に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "9081",
@@ -150,6 +332,13 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "1972",
+   "date": "2026-10-30",
+   "detail": "業績予想の修正及び剰余金の配当（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
    "code": "3542",
    "date": "2026-10-30",
    "detail": "配当も2円増額",
@@ -162,6 +351,20 @@
    "detail": "配当も1円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4410",
+   "date": "2026-10-30",
+   "detail": "第2四半期(中間期)連結業績予想と実績との差異、通期連結業績予想の修正、剰余金の配当(中間)および配当予想(期末)の修正(増配)に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "4968",
+   "date": "2026-10-30",
+   "detail": "2027年３月期第２四半期（中間期）および通期連結業績予想の上方修正ならびに2027年３月期配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
   },
   {
    "code": "5333",
@@ -185,6 +388,27 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "5491",
+   "date": "2026-10-30",
+   "detail": "2027年３月期 第２四半期（中間期）業績予想と実績との差異及び通期業績予想の修正並びに配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "5929",
+   "date": "2026-10-30",
+   "detail": "配当方針の変更および期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "616A",
+   "date": "2026-10-30",
+   "detail": "法人税等調整額（益）の計上及び剰余金の配当（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "6262",
    "date": "2026-10-30",
    "detail": "大幅増配計画",
@@ -192,11 +416,25 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "6331",
+   "date": "2026-10-30",
+   "detail": "配当予想（期末配当及び記念配当）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "642A",
    "date": "2026-10-30",
    "detail": "配当も5円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6445",
+   "date": "2026-10-30",
+   "detail": "配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "6752",
@@ -227,11 +465,39 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "7218",
+   "date": "2026-10-30",
+   "detail": "2027年３月期通期連結業績予想の修正並びに剰余金の配当（中間配当）及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "7297",
+   "date": "2026-10-30",
+   "detail": "剰余金の配当（中間配当）および配当予想の修正（記念配当）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "7381",
+   "date": "2026-10-30",
+   "detail": "2027年3月期 通期連結業績予想の修正及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
    "code": "7476",
    "date": "2026-10-30",
    "detail": "配当も3円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7483",
+   "date": "2026-10-30",
+   "detail": "剰余金の配当（中間配当・増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "7537",
@@ -248,6 +514,13 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "7947",
+   "date": "2026-10-30",
+   "detail": "連結業績予想の公表及び剰余金の配当（中間配当・増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "8035",
    "date": "2026-10-30",
    "detail": "実質52%増配",
@@ -255,11 +528,25 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "8052",
+   "date": "2026-10-30",
+   "detail": "剰余金の配当（中間配当の増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "8137",
    "date": "2026-10-30",
    "detail": "配当も10円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8285",
+   "date": "2026-10-30",
+   "detail": "剰余金の配当（中間配当・増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "9020",
@@ -274,6 +561,20 @@
    "detail": "配当も2円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3132",
+   "date": "2026-11-02",
+   "detail": "2027年３月期通期連結業績予想の修正並びに剰余金の配当（中間配当）及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "3580",
+   "date": "2026-11-02",
+   "detail": "業績予想の修正及び剰余金の配当（中間配当の増配) に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
   },
   {
    "code": "6467",
@@ -295,6 +596,20 @@
    "detail": "配当も26円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8053",
+   "date": "2026-11-02",
+   "detail": "2027年3月期 連結業績予想の修正 並びに 剰余金の配当（中間配当）及び 配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "1967",
+   "date": "2026-11-04",
+   "detail": "業績予想および配当予想（増配）の修正に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
   },
   {
    "code": "3626",
@@ -332,6 +647,13 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "7013",
+   "date": "2026-11-04",
+   "detail": "期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "7609",
    "date": "2026-11-04",
    "detail": "配当も12円増額",
@@ -344,6 +666,20 @@
    "detail": "配当も12円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7883",
+   "date": "2026-11-04",
+   "detail": "剰余金の配当（中間配当）の増配に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "9412",
+   "date": "2026-11-04",
+   "detail": "連結業績予想の上方修正及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
   },
   {
    "code": "3034",
@@ -367,11 +703,25 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "3407",
+   "date": "2026-11-05",
+   "detail": "剰余金の配当（中間配当の増配）および期末配当予想の修正に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "3433",
    "date": "2026-11-05",
    "detail": "配当も7円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4202",
+   "date": "2026-11-05",
+   "detail": "期末配当予想の修正に関するお知らせ（増配）",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "4689",
@@ -409,11 +759,25 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "8020",
+   "date": "2026-11-05",
+   "detail": "剰余金の配当(中間配当)および期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "8150",
    "date": "2026-11-05",
    "detail": "配当も30円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "9324",
+   "date": "2026-11-05",
+   "detail": "2027年３月期通期連結業績予想の修正並びに剰余金の配当（中間配当）及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
   },
   {
    "code": "9913",
@@ -423,11 +787,39 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "9991",
+   "date": "2026-11-05",
+   "detail": "2027年3月期通期連結業績予想の修正並びに剰余金の配当（中間配当）及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "2814",
+   "date": "2026-11-06",
+   "detail": "2027年3月期第2四半期（中間期）業績予想値と実績値との差異及び2027年3月期通期業績予想の修正並びに剰余金の配当（中間配当・増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "3842",
+   "date": "2026-11-06",
+   "detail": "剰余金の配当（中間配当）の増配に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "416A",
    "date": "2026-11-06",
    "detail": "配当も3円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4769",
+   "date": "2026-11-06",
+   "detail": "剰余金の配当（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "4783",
@@ -451,6 +843,27 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "6507",
+   "date": "2026-11-06",
+   "detail": "業績予想の修正及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "6638",
+   "date": "2026-11-06",
+   "detail": "剰余金の配当（中間）及び期末配当予想の修正に関するお知らせ（増配）",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "6678",
+   "date": "2026-11-06",
+   "detail": "配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "6743",
    "date": "2026-11-06",
    "detail": "配当も2円増額",
@@ -472,6 +885,27 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "7228",
+   "date": "2026-11-06",
+   "detail": "2026年12月期通期連結業績予想の修正及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "7272",
+   "date": "2026-11-06",
+   "detail": "2026年12月期の期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "7472",
+   "date": "2026-11-06",
+   "detail": "株主還元に関する基本方針の変更（ＤＯＥ指標導入）及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "7701",
    "date": "2026-11-06",
    "detail": "配当も2円増額",
@@ -486,11 +920,25 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "8336",
+   "date": "2026-11-06",
+   "detail": "剰余金の配当（増配）及び配当予想の修正に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "8359",
    "date": "2026-11-06",
    "detail": "配当も7円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8393",
+   "date": "2026-11-06",
+   "detail": "剰余金の配当（中間配当）および期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "8425",
@@ -505,6 +953,27 @@
    "detail": "配当も2円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "9763",
+   "date": "2026-11-06",
+   "detail": "配当方針の変更（累進配当の導入）および 期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "1803",
+   "date": "2026-11-09",
+   "detail": "業績予想の修正並びに剰余金の配当（中間配当）及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "1938",
+   "date": "2026-11-09",
+   "detail": "剰余金の配当(中間配当)の決定及び期末配当予想の修正(増配)、並びに株主還元指標の水準変更に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "2264",
@@ -540,6 +1009,13 @@
    "detail": "配当も11円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4409",
+   "date": "2026-11-09",
+   "detail": "配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "4994",
@@ -598,6 +1074,13 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "7634",
+   "date": "2026-11-09",
+   "detail": "剰余金の配当（中間配当）及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "7966",
    "date": "2026-11-09",
    "detail": "配当予想を上方修正",
@@ -640,11 +1123,53 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "9045",
+   "date": "2026-11-09",
+   "detail": "配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "9083",
+   "date": "2026-11-09",
+   "detail": "2027年３月期配当予想の修正(増配)に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "1885",
+   "date": "2026-11-10",
+   "detail": "業績予想の修正並びに剰余金の配当（中間配当）及び 期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
    "code": "1960",
    "date": "2026-11-10",
    "detail": "配当も25円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "2304",
+   "date": "2026-11-10",
+   "detail": "剰余金の配当(増配)に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "2331",
+   "date": "2026-11-10",
+   "detail": "通期業績予想の修正（上方修正）ならびに中間配当（増配）および期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "2531",
+   "date": "2026-11-10",
+   "detail": "2027年３月期の連結業績予想ならびに配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
   },
   {
    "code": "3131",
@@ -661,6 +1186,13 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "3569",
+   "date": "2026-11-10",
+   "detail": "剰余金の配当（中間配当・増配）の決定 及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "4046",
    "date": "2026-11-10",
    "detail": "今期配当を2円増額修正",
@@ -673,6 +1205,13 @@
    "detail": "今期配当を16円増額修正",
    "earnings_up": false,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4554",
+   "date": "2026-11-10",
+   "detail": "剰余金の配当（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "4732",
@@ -731,11 +1270,25 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "7003",
+   "date": "2026-11-10",
+   "detail": "2027年度３月期期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "7189",
    "date": "2026-11-10",
    "detail": "配当も18円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7337",
+   "date": "2026-11-10",
+   "detail": "2027年 3月期（通期）業績予想の修正並びに剰余金の配当（中間配当）の決定及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
   },
   {
    "code": "7389",
@@ -850,6 +1403,27 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "1980",
+   "date": "2026-11-11",
+   "detail": "2027年３月期業績予想及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "3537",
+   "date": "2026-11-11",
+   "detail": "通期連結業績予想の修正及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "3632",
+   "date": "2026-11-11",
+   "detail": "配当方針の変更及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "4027",
    "date": "2026-11-11",
    "detail": "配当も30円増額",
@@ -864,11 +1438,25 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "4538",
+   "date": "2026-11-11",
+   "detail": "業績予想の修正及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
    "code": "4918",
    "date": "2026-11-11",
    "detail": "配当も25円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4931",
+   "date": "2026-11-11",
+   "detail": "個別業績の前期実績値との差異及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "5013",
@@ -920,6 +1508,13 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "6284",
+   "date": "2026-11-11",
+   "detail": "剰余金の配当（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "6324",
    "date": "2026-11-11",
    "detail": "配当も8円増額",
@@ -948,11 +1543,32 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "7167",
+   "date": "2026-11-11",
+   "detail": "通期業績予想の修正および期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
    "code": "7186",
    "date": "2026-11-11",
    "detail": "配当も11円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7505",
+   "date": "2026-11-11",
+   "detail": "剰余金の配当(増配)に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "8138",
+   "date": "2026-11-11",
+   "detail": "剰余金の配当（創業80周年記念配当）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "8920",
@@ -976,11 +1592,25 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "2982",
+   "date": "2026-11-12",
+   "detail": "配当方針の変更（連結配当性向40％程度）及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "3182",
    "date": "2026-11-12",
    "detail": "配当も4円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3437",
+   "date": "2026-11-12",
+   "detail": "連結業績予想及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
   },
   {
    "code": "3465",
@@ -1004,11 +1634,46 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "3965",
+   "date": "2026-11-12",
+   "detail": "剰余金の配当（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "3968",
+   "date": "2026-11-12",
+   "detail": "通期連結業績予想の修正（上方修正）及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
    "code": "4041",
    "date": "2026-11-12",
    "detail": "配当も10円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4051",
+   "date": "2026-11-12",
+   "detail": "配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "4377",
+   "date": "2026-11-12",
+   "detail": "配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "4526",
+   "date": "2026-11-12",
+   "detail": "配当方針の変更および配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "5142",
@@ -1023,6 +1688,20 @@
    "detail": "配当も15円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6249",
+   "date": "2026-11-12",
+   "detail": "期末配当予想の修正（会社設立15周年記念配当）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "6351",
+   "date": "2026-11-12",
+   "detail": "剰余金の配当（第76期中間配当および記念配当）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   },
   {
    "code": "6482",
@@ -1060,6 +1739,20 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "7803",
+   "date": "2026-11-12",
+   "detail": "通期業績予想の修正及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "8101",
+   "date": "2026-11-12",
+   "detail": "配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
    "code": "8309",
    "date": "2026-11-12",
    "detail": "配当も実質7%増額",
@@ -1067,11 +1760,281 @@
    "source": "決算まとめ(手動収集)"
   },
   {
+   "code": "8341",
+   "date": "2026-11-12",
+   "detail": "剰余金の配当（増配）および期末配当予想の修正に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "8345",
+   "date": "2026-11-12",
+   "detail": "「業績予想の修正」並びに「剰余金の配当（中間配当・増配）」および「期末配当予想の修正（増配）」に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "8381",
+   "date": "2026-11-12",
+   "detail": "2027年3月期 通期業績予想の修正及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
    "code": "8511",
    "date": "2026-11-12",
    "detail": "配当も18円増額",
    "earnings_up": true,
    "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "9076",
+   "date": "2026-11-12",
+   "detail": "期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "9791",
+   "date": "2026-11-12",
+   "detail": "剰余金の配当（中間配当）および期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "253A",
+   "date": "2026-11-13",
+   "detail": "特別損失及び特別利益の計上並びに配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "3088",
+   "date": "2026-11-13",
+   "detail": "剰余金の配当（中間配当）の決定及び2027年３月期配当予想の上方修正に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "3156",
+   "date": "2026-11-13",
+   "detail": "2027年３月期通期連結業績予想の修正（上方修正）並びに配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "3173",
+   "date": "2026-11-13",
+   "detail": "2027年3月期第2四半期連結・個別業績予想値と実績値との差異、通期連結・個別業績予想の修正、中間配当の増配及び期末配当予想の修正に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "3358",
+   "date": "2026-11-13",
+   "detail": "剰余金の配当（中間配当・復配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "3416",
+   "date": "2026-11-13",
+   "detail": "配当予想の修正（記念配当）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "3486",
+   "date": "2026-11-13",
+   "detail": "連結業績予想（上方修正）及び配当予想（増配）の修正に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "3939",
+   "date": "2026-11-13",
+   "detail": "剰余金の配当（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "3976",
+   "date": "2026-11-13",
+   "detail": "配当予想の修正（上場来初配当・上場10周年記念配当）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "4125",
+   "date": "2026-11-13",
+   "detail": "2027年３月期第２四半期（中間期）連結業績予想と実績との差異及び通期業績予想の上方修正、期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "4180",
+   "date": "2026-11-13",
+   "detail": "通期連結業績予想の修正及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "4256",
+   "date": "2026-11-13",
+   "detail": "配当予想の修正（創業15周年記念配当）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "4406",
+   "date": "2026-11-13",
+   "detail": "2027年３月期連結業績予想の修正及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "4811",
+   "date": "2026-11-13",
+   "detail": "2026年12月期 配当予想の修正（創立30周年記念配当）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "5161",
+   "date": "2026-11-13",
+   "detail": "剰余金の配当（中間配当・増配）および期末配当予想の修正に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "5250",
+   "date": "2026-11-13",
+   "detail": "配当予想の修正（増配）及び2027年12月期以降の配当方針の変更の関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "5381",
+   "date": "2026-11-13",
+   "detail": "2027年3月期通期業績予想および配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "5844",
+   "date": "2026-11-13",
+   "detail": "通期業績予想の修正および期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "5975",
+   "date": "2026-11-13",
+   "detail": "剰余金の配当（中間配当）及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "5985",
+   "date": "2026-11-13",
+   "detail": "2027年３月期 剰余金の配当（中間配当）及び期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "6231",
+   "date": "2026-11-13",
+   "detail": "通期業績予想および期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "6265",
+   "date": "2026-11-13",
+   "detail": "通期連結業績予想の修正および期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "6306",
+   "date": "2026-11-13",
+   "detail": "2027年3月期 第２四半期（中間期）連結業績予想値と実績値との差異及び配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "6554",
+   "date": "2026-11-13",
+   "detail": "剰余金の配当（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "6742",
+   "date": "2026-11-13",
+   "detail": "2027年３月期第２四半期累計期間（中間期）業績予想値と実績値との差異ならびに通期業績予想および配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "6776",
+   "date": "2026-11-13",
+   "detail": "2027年３月期 配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "6837",
+   "date": "2026-11-13",
+   "detail": "通期連結業績予想の修正（上方）および配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "6863",
+   "date": "2026-11-13",
+   "detail": "2027年３月期通期業績予想の修正および中期経営計画「NIRECO-VISION 100」の数値目標変更（上方修正）ならびに期末配当予想の修正に関するお知らせ",
+   "earnings_up": true,
+   "source": "TDnet"
+  },
+  {
+   "code": "7254",
+   "date": "2026-11-13",
+   "detail": "剰余金の配当（中間配当・増配）及び期末配当予想の修正に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "7367",
+   "date": "2026-11-13",
+   "detail": "配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "7871",
+   "date": "2026-11-13",
+   "detail": "剰余金の配当(増配)および期末配当予想の修正に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "8361",
+   "date": "2026-11-13",
+   "detail": "期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
+  },
+  {
+   "code": "9823",
+   "date": "2026-11-13",
+   "detail": "期末配当予想の修正（増配）に関するお知らせ",
+   "earnings_up": false,
+   "source": "TDnet"
   }
- ]
+ ],
+ "last_fetch": {
+  "ok_days": 22,
+  "added": 137
+ }
 }
