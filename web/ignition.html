@@ -622,10 +622,10 @@ function drawFG() {
   const last = D[n - 1];
   svg += `<circle cx="${x(n - 1)}" cy="${yF(last.fg)}" r="4" fill="${FGC.fg}"/><text class="pk" x="${x(n - 1) - 6}" y="${yF(last.fg) + (last.fg > 50 ? 17 : -8)}" text-anchor="end">${Math.round(last.fg)}</text>`;
   // x軸
-  const nt = narrow ? 4 : 8;
+  const nt = narrow ? 3 : 8;
   for (let k = 0; k <= nt; k++) {
     const i = Math.round((n - 1) * k / nt), d = D[i].d;
-    svg += `<text x="${x(i)}" y="${H - 6}" text-anchor="${k === 0 ? 'start' : k === nt ? 'end' : 'middle'}">${d.slice(2, 4)}/${d.slice(5, 7)}/${d.slice(8, 10)}</text>`;
+    svg += `<text x="${x(i)}" y="${H - 6}" text-anchor="${k === 0 ? 'start' : k === nt ? 'end' : 'middle'}">${d.slice(2, 4)}/${d.slice(5, 7)}${narrow ? '' : '/' + d.slice(8, 10)}</text>`;
   }
   svg += `<line id="fgx" x1="0" x2="0" y1="${T}" y2="${T + PH}" stroke="var(--muted-2)" stroke-dasharray="3 3" style="display:none"/>`;
   svg += `<rect id="fghit" x="${L}" y="0" width="${W - L - R}" height="${H}" fill="transparent"/>`;

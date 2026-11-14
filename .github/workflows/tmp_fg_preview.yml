@@ -18,7 +18,5 @@ jobs:
           import json, build_ignition_signals as b
           rows = b.build_fear_greed([])
           json.dump(rows, open('/tmp/fg.json','w'))
-          print('ROWS', len(rows), rows[:2], rows[-2:])
+          print('ROWS', len(rows)); print('FGJSON' + json.dumps(rows, separators=(',',':')))
           "
-      - uses: actions/upload-artifact@v4
-        with: { name: fg, path: /tmp/fg.json }
