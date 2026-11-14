@@ -49,6 +49,24 @@ PERIOD = os.getenv("THEME_PERIOD", "2y")
 # 期間を変えて見られるよう少し長めに残す。
 KEEP_DAYS = int(os.getenv("THEME_KEEP_DAYS", "260"))
 
+# 東証の大引け(15:30)。データが確定するまで少し余裕を見る。
+# これより前に走った場合、当日の足は場中の途中値なので捨てる。
+# (GitHub Actions の cron は数時間遅れることがあり、朝の便が場中に
+#  ずれ込んで前場の途中値を「当日の終値」として書いていた)
+CLOSE_CUTOFF = (15, 45)
+
+
+def drop_intraday_bar(df: pd.DataFrame, now: datetime) -> pd.DataFrame:
+    """場中に取得した当日の足(未確定)を落とす。"""
+    if df.empty:
+        return df
+    last = df.index[-1]
+    last_date = last.date() if hasattr(last, "date") else last
+    if last_date == now.date() and (now.hour, now.minute) < CLOSE_CUTOFF:
+        print(f"  当日 {last_date} の足は場中の途中値のため除外します", file=sys.stderr)
+        return df.iloc[:-1]
+    return df
+
 
 def download(tickers: list[str]) -> pd.DataFrame:
     df = yf.download(tickers, period=PERIOD, interval="1d",
@@ -94,7 +112,8 @@ def equal_weight_index(closes: pd.DataFrame, codes: list[str]) -> pd.Series | No
 def main() -> int:
     tickers = all_tickers()
     print(f"{len(tickers)} 銘柄を取得します", file=sys.stderr)
-    closes = download(tickers)
+    now = datetime.now(JST)
+    closes = drop_intraday_bar(download(tickers), now)
     if closes.empty or BENCHMARK not in closes.columns:
         print("株価が取得できませんでした。既存ファイルを維持します。", file=sys.stderr)
         return 1
@@ -111,7 +130,6 @@ def main() -> int:
         series.append({"name": name, "rs": [round(float(v), 5) for v in rs]})
 
     dates = [d.date().isoformat() for d in closes.index[-KEEP_DAYS:]]
-    now = datetime.now(JST)
 
     market = {
         "generated_at": now.isoformat(timespec="seconds"),
@@ -124,6 +142,9 @@ def main() -> int:
 
     # ---- テーマごとの銘柄一覧 ----
     vol = volumes(tickers)
+    if not vol.empty:
+        # 終値と同じ日の出来高を使う(場中の当日分は落としてある)
+        vol = vol[vol.index <= closes.index[-1]]
     stocks = {}
     for name, rows in THEME_BASKETS.items():
         items = []
