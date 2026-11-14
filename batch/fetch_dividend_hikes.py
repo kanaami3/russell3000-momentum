@@ -26,6 +26,9 @@ OUT = REPO_ROOT / "data" / "dividend_hikes_jp.json"
 JST = timezone(timedelta(hours=9))
 BASE = "https://www.release.tdnet.info/inbs/I_list_{page:03d}_{ymd}.html"
 LOOKBACK_DAYS = 7
+# TDnet は約1か月分しか残らない。まだ TDnet 由来のイベントが無い(初回)ときは
+# 1か月さかのぼって、手動収集で漏れた日(10/24, 10/31, 11/13 など)を埋める。
+BACKFILL_DAYS = 31
 KEEP_DAYS = 200
 MAX_PAGES = 15
 
@@ -64,7 +67,10 @@ def fetch_day(day: datetime) -> list[dict] | None:
                 continue
             rows += 1
             title = cells["Title"]
-            if not HIKE.search(title) or NOT_HIKE.search(title):
+            # 「（増配）」と書かない会社も多い。業績の上方修正と同時の
+            # 「配当予想の修正」は、ほぼ増額なので拾う。
+            hike = HIKE.search(title) or ("配当予想の修正" in title and "上方修正" in title)
+            if not hike or NOT_HIKE.search(title):
                 continue
             code = cells["Code"][:4]  # TDnet は 5桁 (末尾0)
             out.append({
@@ -88,9 +94,10 @@ def main() -> int:
     have = {(e["code"], e["date"]) for e in events}
 
     today = datetime.now(JST)
+    lookback = LOOKBACK_DAYS if any(e.get("source") == "TDnet" for e in events) else BACKFILL_DAYS
     added = 0
     ok_days = 0
-    for i in range(LOOKBACK_DAYS):
+    for i in range(lookback):
         day = today - timedelta(days=i)
         if day.weekday() >= 5:
             continue
@@ -111,7 +118,7 @@ def main() -> int:
     data["updated_at"] = today.strftime("%Y-%m-%d")
     data["last_fetch"] = {"ok_days": ok_days, "added": added}
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"dividend hikes: +{added} (TDnet ok days {ok_days}/{LOOKBACK_DAYS}), total {len(events)}")
+    print(f"dividend hikes: +{added} (TDnet ok days {ok_days}, lookback {lookback}d), total {len(events)}")
     return 0
 
 

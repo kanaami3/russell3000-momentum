@@ -5,6 +5,7 @@ dividend_screener.json の全銘柄に9条件を当て、data/dividend_hikes_jp.
 
   A: 判定できる8条件(有利子負債はデータなしで未判定)をすべて満たし、直近に増配
   B: 1条件だけ外れたが、直近に増配
+  C: 2条件外れたが、直近に増配(参考枠)
 
 結果は dividend_screener.json の "shikiho_hike_picks" に書き足す。
 build_dividend_screener.py の後に走らせること(通信なし)。
@@ -23,7 +24,8 @@ HIKES = REPO_ROOT / "data" / "dividend_hikes_jp.json"
 JST = timezone(timedelta(hours=9))
 RECENT_DAYS = 120  # 中間決算〜本決算の1シーズン分
 MAX_A = 15
-MAX_B = 8
+MAX_B = 10
+MAX_C = 12
 
 # Bグループで「外れた条件」として表に出す言い方
 MISS = {
@@ -58,14 +60,14 @@ def main() -> int:
         if e["code"] not in latest or e["date"] > latest[e["code"]]["date"]:
             latest[e["code"]] = e
 
-    a, b = [], []
+    a, b, c = [], [], []
     for s in scr.get("stocks", []):
         ev = latest.get(s["code"])
         if not ev:
             continue
         failed = [MISS[k] for k, _, f in CONDS if not f(s)]
         # 高配当狙いなので、利回り3%未満はBにも入れない
-        if len(failed) > 1 or "利回り3%未満" in failed:
+        if len(failed) > 2 or "利回り3%未満" in failed:
             continue
         st = s.get("streak") or {}
         row = {
@@ -76,15 +78,16 @@ def main() -> int:
             "streak_label": st.get("label"), "headroom": s.get("headroom"),
             "hike_date": ev["date"], "hike_detail": ev["detail"],
             "earnings_up": ev.get("earnings_up", False),
-            "failed": failed[0] if failed else None,
+            "failed": " / ".join(failed) if failed else None,
         }
-        (b if failed else a).append(row)
+        [a, b, c][len(failed)].append(row)
 
     def key(r):
         return (-(r["headroom"] or 0), -(r["streak_years"] or 0), -(r["yield"] or 0))
 
     a.sort(key=key)
     b.sort(key=key)
+    c.sort(key=key)
     scr["shikiho_hike_picks"] = {
         "asof": scr.get("asof"),
         "conditions": [label for _, label, _ in CONDS] + ["有利子負債が自己資本以下(データなしのため未判定)"],
@@ -92,9 +95,10 @@ def main() -> int:
         "hike_events": len(latest),
         "a": a[:MAX_A],
         "b": b[:MAX_B],
+        "c": c[:MAX_C],
     }
     SCREENER.write_text(json.dumps(scr, ensure_ascii=False), encoding="utf-8")
-    print(f"shikiho×hike picks: A={len(a)} B={len(b)} (hike events {len(latest)})")
+    print(f"shikiho×hike picks: A={len(a)} B={len(b)} C={len(c)} (hike events {len(latest)})")
     return 0
 
 
