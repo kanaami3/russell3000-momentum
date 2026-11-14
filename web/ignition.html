@@ -82,10 +82,10 @@
   .rng button.on{background:var(--text);color:#fff;border-color:var(--text)}
   .vstats{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:6px 0 4px}
   .vstats b{color:var(--text);font-size:13px}
-  #vchart svg,#nschart svg{display:block;width:100%}
-  #vchart text,#nschart text{font-family:var(--mono);font-size:10.5px;fill:var(--muted)}
-  #vchart .gl,#nschart .gl{stroke:var(--line-soft);stroke-width:1}
-  #vchart .fr,#nschart .fr{fill:none;stroke:var(--line);stroke-width:1}
+  #vchart svg,#nschart svg,#fgchart svg{display:block;width:100%}
+  #vchart text,#nschart text,#fgchart text{font-family:var(--mono);font-size:10.5px;fill:var(--muted)}
+  #vchart .gl,#nschart .gl,#fgchart .gl{stroke:var(--line-soft);stroke-width:1}
+  #vchart .fr,#nschart .fr,#fgchart .fr{fill:none;stroke:var(--line);stroke-width:1}
   #vchart .pt-l,#nschart .pt-l{font-size:10.5px;fill:var(--text);font-weight:600}
   .vtip{position:absolute;pointer-events:none;display:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:11px;line-height:1.6;box-shadow:0 6px 18px rgba(15,23,42,.12);white-space:nowrap;z-index:5}
   .vtip .sw{display:inline-block;width:10px;height:2px;vertical-align:middle;margin-right:5px}
@@ -99,6 +99,9 @@
   .vexp li b{display:block}
   .vexp .now{background:#F5F3FF;border-radius:8px;padding:8px 12px;margin:8px 0}
   .vexp .pt{color:var(--muted)}
+  #fgchart .pk{font-size:11px;font-weight:700;fill:#1D8BCB;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+  #fgchart .yb{font-size:11px;font-weight:700;fill:var(--text)}
+  .fgnow{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;margin-left:4px}
   .empty{font-size:13px;color:var(--muted);text-align:center;padding:60px 0;font-family:var(--mono)}
 </style>
 
@@ -325,6 +328,27 @@ function render(d) {
       <div class="vtip" id="nstip"></div>
     </div>
 
+    <div class="vcard" id="fgsp">
+      <div class="vhead">
+        <div>
+          <h3>😱 Fear &amp; Greed指数とS&amp;P500の推移</h3>
+          <div class="d">CNNのFear &amp; Greed指数(0=極度の恐怖、100=極度の強欲)とS&amp;P500を重ねています。20を割り込む「陰の極」は株価の底入れの目安、80に近づくと過熱の目安です。</div>
+        </div>
+        <div class="rng" id="fgrng">
+          <button data-r="1y">1年</button><button data-r="2y">2年</button><button data-r="all" class="on">全期間</button>
+        </div>
+      </div>
+      <div class="vstats" id="fgstats"></div>
+      <div id="fgchart"></div>
+      <div class="vleg">
+        <span><i style="border-color:#1D8BCB"></i>Fear&amp;Greed指数(左軸)</span>
+        <span><i style="border-color:#DC2626"></i>S&amp;P500(右軸)</span>
+        <span><i class="dash" style="border-color:var(--muted-2)"></i>80・70・30・20</span>
+        <span><span style="display:inline-block;width:9px;height:9px;border:1.5px solid #DC2626;border-radius:50%;vertical-align:middle;margin-right:5px"></span>恐怖の底</span>
+      </div>
+      <div class="vtip" id="fgtip"></div>
+    </div>
+
     <h2 class="sec">🔥 着火スイッチ</h2>
     <p class="secdesc">どれも売られる方向に働く要因です。点灯した数が多いほど上昇相場が終わり、下落に向かいやすいと見ます。</p>
     <div class="grid">${d.switches.map(it => card(it, 'fire')).join('')}</div>
@@ -529,8 +553,128 @@ function setupNS(d) {
   let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(drawNS, 150); });
 }
 
+// ---- Fear & Greed指数とS&P500 ---------------------------------------------
+const FGC = { fg: '#1D8BCB', sp: '#DC2626' };
+let FGROWS = [], FGRANGE = 'all';
+function fgLabel(v) { return v < 25 ? '極度の恐怖' : v < 45 ? '恐怖' : v < 55 ? '中立' : v < 75 ? '強欲' : '極度の強欲'; }
+function fgTone(v) { return v < 25 ? ['#FEE2E2', '#B91C1C'] : v < 45 ? ['#FEF3C7', '#B45309'] : v < 55 ? ['#F1F5F9', '#475569'] : ['#D1FAE5', '#047857']; }
+// 山と谷: 直前の極値から th ポイント以上反転したら、その極値を確定させる(ジグザグ)
+function fgPivots(D, th) {
+  const out = []; let dir = 0, hi = 0, lo = 0;
+  for (let i = 1; i < D.length; i++) {
+    const v = D[i].fg;
+    if (dir === 0) {
+      if (v > D[hi].fg) hi = i; if (v < D[lo].fg) lo = i;
+      if (v - D[lo].fg >= th) { out.push({ i: lo, t: 'tr' }); dir = 1; hi = i; }
+      else if (D[hi].fg - v >= th) { out.push({ i: hi, t: 'pk' }); dir = -1; lo = i; }
+    } else if (dir === 1) {
+      if (v > D[hi].fg) hi = i;
+      else if (D[hi].fg - v >= th) { out.push({ i: hi, t: 'pk' }); dir = -1; lo = i; }
+    } else {
+      if (v < D[lo].fg) lo = i;
+      else if (v - D[lo].fg >= th) { out.push({ i: lo, t: 'tr' }); dir = 1; hi = i; }
+    }
+  }
+  return out;
+}
+function drawFG() {
+  const box = $('#fgchart'); if (!box) return;
+  let rows = FGROWS;
+  if (FGRANGE !== 'all' && rows.length) {
+    const from = new Date(rows[rows.length - 1][0]); from.setFullYear(from.getFullYear() - (FGRANGE === '1y' ? 1 : 2));
+    const f = from.toISOString().slice(0, 10); rows = rows.filter(r => r[0] >= f);
+  }
+  if (rows.length < 2) { box.innerHTML = '<div class="nohist">データがありません</div>'; return; }
+  const W = Math.max(320, box.clientWidth), narrow = W < 560;
+  const L = narrow ? 34 : 50, R = narrow ? 40 : 54, T = 24, PH = narrow ? 300 : 420, XB = 24, H = T + PH + XB;
+  const D = rows.map(r => ({ d: r[0], fg: r[1], sp: r[2] }));
+  const n = D.length, x = i => L + (W - L - R) * i / (n - 1);
+  const yF = v => T + PH * (1 - v / 100);
+  const sps = D.map(r => r.sp).filter(v => v != null);
+  let lo = Math.min(...sps), hi = Math.max(...sps); const pad = (hi - lo) * 0.06 || 1; lo -= pad; hi += pad;
+  const yS = v => T + PH * (1 - (v - lo) / (hi - lo));
+  let svg = `<defs><clipPath id="cp-fg"><rect x="${L}" y="${T}" width="${W - L - R}" height="${PH}"/></clipPath></defs>`;
+  // 左軸(0〜100)。10・20・70・80は丸で強調
+  for (let t = 0; t <= 100; t += 10) {
+    const hl = [10, 20, 70, 80].includes(t);
+    if (hl) svg += `<circle cx="${L - (narrow ? 15 : 22)}" cy="${yF(t)}" r="${narrow ? 10 : 13}" fill="${t <= 20 ? '#BBF7D0' : '#D9F99D'}"/>`;
+    svg += `<text class="${hl ? 'yb' : ''}" x="${L - (narrow ? 15 : 22)}" y="${yF(t) + 3.5}" text-anchor="middle">${t}</text>`;
+  }
+  // 右軸(S&P500)
+  niceTicks(lo, hi, narrow ? 4 : 7).forEach(t => {
+    svg += `<line class="gl" x1="${L}" x2="${W - R}" y1="${yS(t)}" y2="${yS(t)}"/><text x="${W - R + 5}" y="${yS(t) + 3.5}">${t.toLocaleString()}</text>`;
+  });
+  svg += `<rect class="fr" x="${L}" y="${T}" width="${W - L - R}" height="${PH}"/>`;
+  [80, 70, 30, 20].forEach(t => { svg += `<line x1="${L}" x2="${W - R}" y1="${yF(t)}" y2="${yF(t)}" stroke="#64748B" stroke-width="1" stroke-dasharray="3 3"/>`; });
+  const xs = D.map((_, i) => x(i));
+  svg += `<g clip-path="url(#cp-fg)">`;
+  svg += `<path d="${path(xs, D.map(r => yF(r.fg)))}" fill="none" stroke="${FGC.fg}" stroke-width="${narrow ? 1.1 : 1.4}"/>`;
+  svg += `<path d="${path(xs, D.map(r => r.sp == null ? null : yS(r.sp)))}" fill="none" stroke="${FGC.sp}" stroke-width="${narrow ? 1.4 : 1.7}"/>`;
+  svg += `</g>`;
+  // 山と谷の値。狭い画面では近すぎるラベルを間引く
+  // 近すぎる同じ種類のラベルは、より極端な方(山は高い方・谷は低い方)だけ残す
+  const minGap = narrow ? 26 : 30, shown = [];
+  fgPivots(D, 25).forEach(p => {
+    const prev = [...shown].reverse().find(q => q.t === p.t);
+    if (prev && x(p.i) - x(prev.i) < minGap) {
+      if (p.t === 'pk' ? D[p.i].fg > D[prev.i].fg : D[p.i].fg < D[prev.i].fg) shown[shown.indexOf(prev)] = p;
+    } else shown.push(p);
+  });
+  shown.forEach(p => {
+    const r = D[p.i], xx = x(p.i), yy = yF(r.fg);
+    if (p.t === 'tr') svg += `<circle cx="${xx}" cy="${yy}" r="4" fill="#fff" stroke="#DC2626" stroke-width="1.5"/>`;
+    svg += `<text class="pk" x="${xx}" y="${p.t === 'pk' ? yy - 7 : yy + 17}" text-anchor="middle">${Math.round(r.fg)}</text>`;
+  });
+  const last = D[n - 1];
+  svg += `<circle cx="${x(n - 1)}" cy="${yF(last.fg)}" r="4" fill="${FGC.fg}"/><text class="pk" x="${x(n - 1) - 6}" y="${yF(last.fg) + (last.fg > 50 ? 17 : -8)}" text-anchor="end">${Math.round(last.fg)}</text>`;
+  // x軸
+  const nt = narrow ? 3 : 8;
+  for (let k = 0; k <= nt; k++) {
+    const i = Math.round((n - 1) * k / nt), d = D[i].d;
+    svg += `<text x="${x(i)}" y="${H - 6}" text-anchor="${k === 0 ? 'start' : k === nt ? 'end' : 'middle'}">${d.slice(2, 4)}/${d.slice(5, 7)}${narrow ? '' : '/' + d.slice(8, 10)}</text>`;
+  }
+  svg += `<line id="fgx" x1="0" x2="0" y1="${T}" y2="${T + PH}" stroke="var(--muted-2)" stroke-dasharray="3 3" style="display:none"/>`;
+  svg += `<rect id="fghit" x="${L}" y="0" width="${W - L - R}" height="${H}" fill="transparent"/>`;
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${svg}</svg>`;
+
+  const [bg, fc] = fgTone(last.fg);
+  const lastSp = [...D].reverse().find(r => r.sp != null);
+  const minR = D.reduce((a, r) => r.fg < a.fg ? r : a, D[0]);
+  $('#fgstats').innerHTML = `<span>${md(last.d)} Fear&amp;Greed <b style="color:${FGC.fg}">${last.fg.toFixed(0)}</b><span class="fgnow" style="background:${bg};color:${fc}">${fgLabel(last.fg)}</span></span>`
+    + (lastSp ? `<span>S&amp;P500 <b style="color:${FGC.sp}">${lastSp.sp.toLocaleString()}</b></span>` : '')
+    + `<span>期間の最低 <b>${minR.fg.toFixed(0)}</b>(${md(minR.d)})</span>`;
+
+  const hit = $('#fghit'), vx = $('#fgx'), tip = $('#fgtip'), card = $('#fgsp');
+  const move = ev => {
+    const pt = ev.touches ? ev.touches[0] : ev;
+    const rect = box.querySelector('svg').getBoundingClientRect();
+    const i = Math.max(0, Math.min(n - 1, Math.round((pt.clientX - rect.left - L) / (W - L - R) * (n - 1))));
+    const r = D[i], xi = x(i);
+    vx.setAttribute('x1', xi); vx.setAttribute('x2', xi); vx.style.display = '';
+    tip.innerHTML = `<b>${md(r.d)}</b><br><span class="sw" style="background:${FGC.fg}"></span>Fear&amp;Greed ${r.fg.toFixed(0)}(${fgLabel(r.fg)})<br>`
+      + `<span class="sw" style="background:${FGC.sp}"></span>S&amp;P500 ${r.sp != null ? r.sp.toLocaleString() : '—'}`;
+    tip.style.display = 'block';
+    const cr = card.getBoundingClientRect(), tw = tip.offsetWidth;
+    let left = rect.left - cr.left + xi + 14; if (left + tw > cr.width - 8) left = rect.left - cr.left + xi - tw - 14;
+    tip.style.left = Math.max(8, left) + 'px'; tip.style.top = (rect.top - cr.top + 10) + 'px';
+  };
+  const leave = () => { vx.style.display = 'none'; tip.style.display = 'none'; };
+  hit.addEventListener('mousemove', move); hit.addEventListener('touchmove', move, { passive: true });
+  hit.addEventListener('touchstart', move, { passive: true });
+  hit.addEventListener('mouseleave', leave); hit.addEventListener('touchend', leave);
+}
+function setupFG(d) {
+  FGROWS = (d.fear_greed_sp500 || []).filter(r => r[1] != null);
+  if (FGROWS.length < 2) { $('#fgsp').style.display = 'none'; return; }
+  document.querySelectorAll('#fgrng button').forEach(b => b.addEventListener('click', () => {
+    FGRANGE = b.dataset.r; document.querySelectorAll('#fgrng button').forEach(x => x.classList.toggle('on', x === b)); drawFG();
+  }));
+  drawFG();
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(drawFG, 150); });
+}
+
 fetch('./data/ignition_signals.json?v=' + Date.now())
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-  .then(d => { render(d); setupValuation(d); setupNS(d); })
+  .then(d => { render(d); setupValuation(d); setupNS(d); setupFG(d); })
   .catch(e => { $('#app').innerHTML = `<div class="empty">データを読み込めませんでした(${esc(e.message)})</div>`; $('#gen').textContent = '—'; });
 </script>
