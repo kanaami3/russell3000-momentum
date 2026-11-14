@@ -99,6 +99,31 @@
   .vexp li b{display:block}
   .vexp .now{background:#F5F3FF;border-radius:8px;padding:8px 12px;margin:8px 0}
   .vexp .pt{color:var(--muted)}
+  /* 上昇の合否判定(ADX) */
+  .adxst{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin:10px 0 6px}
+  .adxbadge{font-size:13px;font-weight:700;padding:6px 12px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+  .adxbadge.uptrend{color:#B91C1C;background:#FEF2F2;border-color:#FCA5A5}
+  .adxbadge.downtrend{color:#047857;background:#ECFDF5;border-color:#6EE7B7}
+  .adxbadge.testing{color:#92400E;background:#FFFBEB;border-color:#FCD34D}
+  .adxbadge.failed{color:#475569;background:#F1F5F9;border-color:#CBD5E1}
+  .adxbadge.range,.adxbadge.weak{color:var(--muted);background:var(--bg)}
+  .adxtext{flex:1;min-width:240px;font-size:13px;line-height:1.7}
+  .adxnums{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:2px 0 8px}
+  .adxnums b{font-size:13px;color:var(--text)}
+  #adxchart svg{display:block;width:100%}
+  #adxchart text{font-family:var(--mono);font-size:10.5px;fill:var(--muted)}
+  #adxchart .gl{stroke:var(--line-soft);stroke-width:1}
+  #adxchart text.lb{paint-order:stroke;stroke:var(--panel);stroke-width:3px;stroke-linejoin:round}
+  #adxchart .fr{fill:none;stroke:var(--line);stroke-width:1}
+  .tblwrap{overflow-x:auto;margin:8px 0}
+  table.adxt{border-collapse:collapse;width:100%;font-size:12px;min-width:520px}
+  table.adxt th,table.adxt td{padding:6px 8px;border-bottom:1px solid var(--line-soft);text-align:right;white-space:nowrap}
+  table.adxt th{font-size:11px;color:var(--muted);font-weight:600;background:var(--bg)}
+  table.adxt td:first-child,table.adxt th:first-child{text-align:left}
+  table.adxt .ok{color:#B91C1C;font-weight:700}
+  table.adxt .ng{color:var(--muted);font-weight:700}
+  table.adxt .pd{color:#92400E;font-weight:700}
+  .pos{color:#B91C1C}.neg{color:#047857}
   .empty{font-size:13px;color:var(--muted);text-align:center;padding:60px 0;font-family:var(--mono)}
 </style>
 
@@ -263,6 +288,49 @@ function render(d) {
         ${lampsRow(d.switches, 'fire')}
         <div class="meter"><i style="width:${(s.switch_lit / s.switch_total * 100).toFixed(0)}%"></i></div>
         <div class="verdict">${verdictText(s)}</div>
+      </div>
+    </div>
+
+    <div class="vcard" id="adx">
+      <div class="vhead">
+        <div>
+          <h3>📐 上昇の合否判定(ADX)</h3>
+          <div class="d">天井は当てにいかず、「始まった上昇が本物かどうか」を判定します。日経225 日足・ADX(14)。</div>
+        </div>
+        <div class="rng" id="adxrng">
+          <button data-r="6m">6ヶ月</button><button data-r="1y" class="on">1年</button>
+        </div>
+      </div>
+      <div class="adxst" id="adxst"></div>
+      <div class="adxnums" id="adxnums"></div>
+      <div id="adxchart"></div>
+      <div class="vleg">
+        <span><i style="border-color:var(--text)"></i>日経平均</span>
+        <span><i style="border-color:#7C3AED"></i>ADX</span>
+        <span><i style="border-color:#DC2626"></i>+DI(上げの強さ)</span>
+        <span><i style="border-color:#059669"></i>−DI(下げの強さ)</span>
+        <span>▲合格 ✕不合格(+DIが上抜けた日)</span>
+      </div>
+      <div class="vtip" id="adxtip"></div>
+      <div class="vexp">
+        <h4>📝 判定のルール</h4>
+        <ol>
+          <li><b>① 上昇の始まり = +DI が −DI を上抜けた日</b>ここから判定を始めます。</li>
+          <li><b>② 10営業日(約2週間)以内に、+DI優勢のまま ADX が25を超えたら「合格」</b>上昇がトレンドを作る力を持っている、本物の上昇と見ます。</li>
+          <li><b>③ 超えられないまま期限が来るか、先に −DI が上に戻ったら「不合格」</b>レンジ内の戻りと見て、乗らないようにします。</li>
+          <li><b>④ ADXが20未満のときのクロスは信じない</b>方向感のない相場では、+DI・−DIのクロスはほとんどがだましです。</li>
+        </ol>
+        <h4 style="margin-top:12px">4月の上昇(合格)と10月の上昇(不合格)</h4>
+        <div class="tblwrap"><table class="adxt">
+          <tr><th></th><th>4月の上昇(本物)</th><th>10月の上昇(ニセ)</th></tr>
+          <tr><td>+DIが上抜けた日</td><td>4/8(56,308円)・ADX 22.3</td><td>9/30(66,754円)・ADX 13.7</td></tr>
+          <tr><td>10営業日以内のADX</td><td class="ok">4/20に25.6 → 合格</td><td class="ng">10/8の20.5が最大 → 不合格</td></tr>
+          <tr><td>その後のADX</td><td>5/14に39.5まで上昇</td><td>11/4まで一度も25に届かず</td></tr>
+          <tr><td>結果</td><td class="pos">6/25の高値72,366円まで上昇</td><td class="neg">10/6が天井、11/6まで −18.7%</td></tr>
+        </table></div>
+        <p class="pt">ポイント:ADXのピークで天井を当てようとすると、1つの上昇の中でピークが何度も出るため外れが多くなります(2026年の+DI優勢のピーク11回のうち、20日後に下がっていたのは4回)。天井を予測するより、「上昇がADXを25より上に押し上げられるか」で合否を判定するほうが、ニセの上昇に乗らずに済みます。ただし、合格前に上がり始めてしまう上昇もあり(2025年12月など)、全部を拾えるルールではありません。</p>
+        <h4 style="margin-top:12px">過去1年の判定</h4>
+        <div class="tblwrap" id="adxtests"></div>
       </div>
     </div>
 
@@ -529,8 +597,117 @@ function setupNS(d) {
   let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(drawNS, 150); });
 }
 
+// ---- 上昇の合否判定(ADX) ---------------------------------------------------
+let ADX = null, ADXRANGE = '1y';
+const ACOL = { close: 'var(--text)', adx: '#7C3AED', pdi: '#DC2626', mdi: '#059669' };
+function drawAdx() {
+  const box = $('#adxchart'); if (!box || !ADX) return;
+  const rows = rangeSlice(ADX.series, ADXRANGE); if (rows.length < 2) { box.innerHTML = '<div class="nohist">データがありません</div>'; return; }
+  const W = Math.max(320, box.clientWidth), narrow = W < 560;
+  const L = narrow ? 44 : 58, R = narrow ? 8 : 14, GAP = 16, XB = 22;
+  const panels = [{ key: 'px', h: narrow ? 150 : 190 }, { key: 'adx', h: narrow ? 150 : 190 }];
+  let top = 6; panels.forEach(p => { p.y0 = top; top += p.h + GAP; });
+  const H = top - GAP + XB, n = rows.length, x = i => L + (W - L - R) * i / (n - 1);
+  const D = rows.map(r => ({ d: r[0], c: r[1], a: r[2], p: r[3], m: r[4] }));
+  const idx = {}; D.forEach((r, i) => { idx[r.d] = i; });
+  const series = { px: [['c', ACOL.close, 1.9]], adx: [['p', ACOL.pdi, 1.3], ['m', ACOL.mdi, 1.3], ['a', ACOL.adx, 2.2]] };
+  const yOf = {}; let svg = '';
+  panels.forEach(p => {
+    let vals = D.flatMap(r => series[p.key].map(s => r[s[0]]));
+    if (p.key === 'adx') vals = vals.concat([0, ADX.trend_line]);
+    let lo = Math.min(...vals), hi = Math.max(...vals); const pad = (hi - lo) * 0.06 || 1; lo -= pad; hi += pad;
+    if (p.key === 'adx') lo = Math.max(0, lo);
+    const y = v => p.y0 + p.h * (1 - (v - lo) / (hi - lo)); yOf[p.key] = y;
+    // 判定期間の帯
+    if (p.key === 'px') (ADX.tests || []).forEach(t => {
+      const i0 = idx[t.start]; if (i0 == null) return;
+      const i1 = idx[t.end_date] ?? (n - 1);
+      const col = t.result === 'pass' ? 'rgba(220,38,38,.08)' : t.result === 'fail' ? 'rgba(100,116,139,.08)' : 'rgba(245,158,11,.14)';
+      svg += `<rect x="${x(i0)}" y="${panels[0].y0}" width="${Math.max(2, x(i1) - x(i0))}" height="${panels[1].y0 + panels[1].h - panels[0].y0}" fill="${col}"/>`;
+    });
+    if (p.key === 'adx') {
+      svg += `<rect x="${L}" y="${y(ADX.range_line)}" width="${W - L - R}" height="${y(lo) - y(ADX.range_line)}" fill="rgba(148,163,184,.10)"/>`;
+    }
+    niceTicks(lo, hi, narrow ? 3 : 4).forEach(t => {
+      svg += `<line class="gl" x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}"/><text x="${L - 6}" y="${y(t) + 3}" text-anchor="end">${p.key === 'adx' ? Math.round(t) : t.toLocaleString()}</text>`;
+    });
+    svg += `<rect class="fr" x="${L}" y="${p.y0}" width="${W - L - R}" height="${p.h}"/>`;
+    if (p.key === 'adx') {
+      svg += `<line x1="${L}" x2="${W - R}" y1="${y(ADX.trend_line)}" y2="${y(ADX.trend_line)}" stroke="#7C3AED" stroke-dasharray="5 4" stroke-opacity=".7"/>`
+        + `<text class="lb" x="${L + 4}" y="${y(ADX.trend_line) - 4}" style="fill:#7C3AED">25 トレンドあり</text>`
+        + `<line x1="${L}" x2="${W - R}" y1="${y(ADX.range_line)}" y2="${y(ADX.range_line)}" stroke="var(--muted-2)" stroke-dasharray="3 3"/>`
+        + `<text class="lb" x="${L + 4}" y="${y(ADX.range_line) + 12}">20未満 方向感なし</text>`;
+    }
+    series[p.key].forEach(([k, col, w]) => {
+      svg += `<path d="${path(D.map((_, i) => x(i)), D.map(r => y(r[k])))}" fill="none" stroke="${col}" stroke-width="${w}"/>`;
+    });
+  });
+  // 判定の印(+DIが上抜けた日)
+  (ADX.tests || []).forEach(t => {
+    const i = idx[t.start]; if (i == null) return;
+    const xx = x(i), yy = yOf.px(D[i].c) + 14;
+    if (t.result === 'pass') svg += `<path d="M${xx},${yy - 6} l5,8 h-10 z" fill="#DC2626"/>`;
+    else if (t.result === 'fail') svg += `<path d="M${xx - 4},${yy - 4} l8,8 M${xx + 4},${yy - 4} l-8,8" stroke="#64748B" stroke-width="2"/>`;
+    else svg += `<circle cx="${xx}" cy="${yy}" r="4.5" fill="#F59E0B"/>`;
+  });
+  const last = D[n - 1];
+  svg += `<circle cx="${x(n - 1)}" cy="${yOf.adx(last.a)}" r="3.5" fill="${ACOL.adx}"/>`;
+  const nt = narrow ? 4 : 8;
+  for (let k = 0; k <= nt; k++) {
+    const i = Math.round((n - 1) * k / nt);
+    svg += `<text x="${x(i)}" y="${H - 6}" text-anchor="${k === 0 ? 'start' : k === nt ? 'end' : 'middle'}">${md(D[i].d).slice(narrow ? 5 : 0)}</text>`;
+  }
+  svg += `<line id="adxx" x1="0" x2="0" y1="${panels[0].y0}" y2="${panels[1].y0 + panels[1].h}" stroke="var(--muted-2)" stroke-dasharray="3 3" style="display:none"/>`;
+  svg += `<rect id="adxhit" x="${L}" y="0" width="${W - L - R}" height="${H}" fill="transparent"/>`;
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${svg}</svg>`;
+  const testAt = {}; (ADX.tests || []).forEach(t => { testAt[t.start] = t; });
+  const hit = $('#adxhit'), vx = $('#adxx'), tip = $('#adxtip'), card = $('#adx');
+  const move = ev => {
+    const pt = ev.touches ? ev.touches[0] : ev;
+    const rect = box.querySelector('svg').getBoundingClientRect();
+    const i = Math.max(0, Math.min(n - 1, Math.round((pt.clientX - rect.left - L) / (W - L - R) * (n - 1))));
+    const r = D[i], xi = x(i), t = testAt[r.d];
+    vx.setAttribute('x1', xi); vx.setAttribute('x2', xi); vx.style.display = '';
+    tip.innerHTML = `<b>${md(r.d)}</b><br><span class="sw" style="background:${ACOL.close}"></span>日経平均 ${r.c.toLocaleString()}<br>`
+      + `<span class="sw" style="background:${ACOL.adx}"></span>ADX ${r.a.toFixed(1)}<br>`
+      + `<span class="sw" style="background:${ACOL.pdi}"></span>+DI ${r.p.toFixed(1)}<br><span class="sw" style="background:${ACOL.mdi}"></span>−DI ${r.m.toFixed(1)}`
+      + (t ? `<br>+DI上抜け → ${t.result === 'pass' ? '合格' : t.result === 'fail' ? '不合格' : '判定中'}` : '');
+    tip.style.display = 'block';
+    const cr = card.getBoundingClientRect(), tw = tip.offsetWidth;
+    let left = rect.left - cr.left + xi + 14; if (left + tw > cr.width - 8) left = rect.left - cr.left + xi - tw - 14;
+    tip.style.left = Math.max(8, left) + 'px'; tip.style.top = (rect.top - cr.top + 10) + 'px';
+  };
+  const leave = () => { vx.style.display = 'none'; tip.style.display = 'none'; };
+  hit.addEventListener('mousemove', move); hit.addEventListener('touchmove', move, { passive: true });
+  hit.addEventListener('touchstart', move, { passive: true });
+  hit.addEventListener('mouseleave', leave); hit.addEventListener('touchend', leave);
+}
+function setupAdx(d) {
+  ADX = d.adx_test;
+  if (!ADX || !ADX.series || !ADX.series.length) { $('#adx').style.display = 'none'; return; }
+  $('#adxst').innerHTML = `<span class="adxbadge ${esc(ADX.state)}">${esc(ADX.label)}</span><div class="adxtext">${esc(ADX.text)}</div>`;
+  const arrow = ADX.adx > ADX.adx_prev ? '↑' : ADX.adx < ADX.adx_prev ? '↓' : '→';
+  $('#adxnums').innerHTML = `<span>${md(ADX.date)} 終値 <b>${ADX.close.toLocaleString()}</b></span>`
+    + `<span>ADX <b style="color:${ACOL.adx}">${ADX.adx.toFixed(1)}</b> ${arrow}(前日 ${ADX.adx_prev.toFixed(1)})</span>`
+    + `<span>+DI <b style="color:${ACOL.pdi}">${ADX.pdi.toFixed(1)}</b></span><span>−DI <b style="color:${ACOL.mdi}">${ADX.mdi.toFixed(1)}</b></span>`
+    + `<span>優勢 <b style="color:${ADX.direction === 'up' ? ACOL.pdi : ACOL.mdi}">${ADX.direction === 'up' ? '上(+DI)' : '下(−DI)'}</b></span>`;
+  const pct = v => v == null ? '<span class="pt">—</span>' : `<span class="${v >= 0 ? 'pos' : 'neg'}">${v >= 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
+  const res = t => t.result === 'pass' ? `<span class="ok">合格</span>(${t.pass_day}営業日目)`
+    : t.result === 'fail' ? `<span class="ng">不合格</span>(${t.reason === 'reversed' ? '−DIが再逆転' : '期限切れ'})`
+    : `<span class="pd">判定中</span>(残り${t.days_left}営業日)`;
+  const tests = (ADX.tests || []).slice().reverse();
+  $('#adxtests').innerHTML = tests.length ? `<table class="adxt"><tr><th>+DIが上抜けた日</th><th>終値</th><th>そのときのADX</th><th>期間中の最大ADX</th><th>判定</th><th>20日後</th><th>40日後</th></tr>`
+    + tests.map(t => `<tr><td>${md(t.start)}</td><td>${t.start_close.toLocaleString()}</td><td>${t.start_adx.toFixed(1)}</td><td>${t.max_adx.toFixed(1)}</td><td>${res(t)}</td><td>${pct(t.ret20)}</td><td>${pct(t.ret40)}</td></tr>`).join('')
+    + `</table>` : '<div class="nohist">過去1年に判定はありません</div>';
+  document.querySelectorAll('#adxrng button').forEach(b => b.addEventListener('click', () => {
+    ADXRANGE = b.dataset.r; document.querySelectorAll('#adxrng button').forEach(x => x.classList.toggle('on', x === b)); drawAdx();
+  }));
+  drawAdx();
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(drawAdx, 150); });
+}
+
 fetch('./data/ignition_signals.json?v=' + Date.now())
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-  .then(d => { render(d); setupValuation(d); setupNS(d); })
+  .then(d => { render(d); setupAdx(d); setupValuation(d); setupNS(d); })
   .catch(e => { $('#app').innerHTML = `<div class="empty">データを読み込めませんでした(${esc(e.message)})</div>`; $('#gen').textContent = '—'; });
 </script>

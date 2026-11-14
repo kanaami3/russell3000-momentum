@@ -57,6 +57,10 @@ FLOW_WEEKS = 4                      # 海外投資家: 直近4週の合計で見
 BB_PERIOD = 20                      # ボリンジャーバンド(20日・±1σ/±2σ)
 BW_MIN_DAYS = 3                     # +2σ以上の終値が何日続いたらバンドウォークとみなすか
 BW_LOOKBACK = 20                    # 直近何営業日以内のバンドウォークを対象にするか
+ADX_N = 14                          # ADX・±DI の期間(ワイルダー方式)
+ADX_TREND = 25                      # これを超えたら「トレンドあり」
+ADX_RANGE = 20                      # これを下回ったら「方向感なし(DIのクロスは信じない)」
+ADX_TEST_DAYS = 10                  # 上昇の合否判定: +DIが上抜けてから何営業日以内にADX25超えが必要か
 
 
 def _get_text(url: str) -> str:
@@ -223,6 +227,133 @@ def build_ns_ratio(nk_fallback: dict[str, float]) -> list[list]:
 
 
 # ---------------------------------------------------------------------------
+# 上昇の合否判定(ADX)
+#   +DI が -DI を上抜けた日を「上昇の始まり」とし、そこから10営業日以内に
+#   +DI優勢のまま ADX が25を超えたら合格(本物の上昇)、超えられなければ不合格(レンジ内の戻り)。
+# ---------------------------------------------------------------------------
+
+def calc_adx(rows: list[tuple[str, float, float, float]], n: int = ADX_N) -> list[dict]:
+    """rows = [(日付, 高値, 安値, 終値), ...] → [{date, close, adx, pdi, mdi}, ...](ワイルダー平滑化)"""
+    tr, pdm, mdm = [], [], []
+    for i in range(1, len(rows)):
+        _, h, l, c = rows[i]
+        _, ph, pl, pc = rows[i - 1]
+        up, dn = h - ph, pl - l
+        pdm.append(up if up > dn and up > 0 else 0.0)
+        mdm.append(dn if dn > up and dn > 0 else 0.0)
+        tr.append(max(h - l, abs(h - pc), abs(l - pc)))
+    if len(tr) < n * 2:
+        return []
+    atr, p, m = sum(tr[:n]), sum(pdm[:n]), sum(mdm[:n])
+    dxs, out, adx = [], [], None
+    for i in range(n, len(tr)):
+        atr = atr - atr / n + tr[i]
+        p = p - p / n + pdm[i]
+        m = m - m / n + mdm[i]
+        if atr <= 0:
+            continue
+        pdi, mdi = 100 * p / atr, 100 * m / atr
+        dx = 100 * abs(pdi - mdi) / (pdi + mdi) if pdi + mdi else 0.0
+        dxs.append(dx)
+        if len(dxs) < n:
+            continue
+        adx = sum(dxs) / n if adx is None else (adx * (n - 1) + dx) / n
+        d, _, _, c = rows[i + 1]
+        out.append({"date": d, "close": c, "adx": adx, "pdi": pdi, "mdi": mdi})
+    return out
+
+
+def build_adx_test(n225_history: list) -> dict | None:
+    # indices.json は同じ日付に先物の行が続くことがあるので、先に出てくる指数の行を使う
+    first: dict[str, list] = {}
+    for r in n225_history:
+        if r[2] and r[3] and r[4]:
+            first.setdefault(r[0], r)
+    rows = [(d, float(first[d][2]), float(first[d][3]), float(first[d][4])) for d in sorted(first)]
+    S = calc_adx(rows)
+    if len(S) < 30:
+        return None
+
+    # +DI が -DI を上抜けるたびに判定を始める
+    tests = []
+    for j in range(1, len(S)):
+        if not (S[j]["pdi"] > S[j]["mdi"] and S[j - 1]["pdi"] <= S[j - 1]["mdi"]):
+            continue
+        t = {"start": S[j]["date"], "start_close": round(S[j]["close"]), "start_adx": round(S[j]["adx"], 1),
+             "result": "pending", "pass_date": None, "pass_day": None, "end_date": None, "max_adx": round(S[j]["adx"], 1)}
+        for k in range(0, ADX_TEST_DAYS + 1):
+            if j + k >= len(S):
+                break
+            s = S[j + k]
+            if k > 0 and s["mdi"] > s["pdi"]:          # 25を超える前に-DIが再逆転 → だまし
+                t["result"], t["end_date"], t["reason"] = "fail", s["date"], "reversed"
+                break
+            t["max_adx"] = max(t["max_adx"], round(s["adx"], 1))
+            if s["adx"] >= ADX_TREND:
+                t["result"], t["pass_date"], t["pass_day"] = "pass", s["date"], k
+                t["end_date"] = s["date"]
+                break
+        else:
+            t["result"], t["end_date"], t["reason"] = "fail", S[j + ADX_TEST_DAYS]["date"], "timeout"
+        if t["result"] == "pending":
+            t["day"] = len(S) - 1 - j
+            t["days_left"] = ADX_TEST_DAYS - t["day"]
+        # その後の値動き(20・40営業日後)
+        for h in (20, 40):
+            t[f"ret{h}"] = round((S[j + h]["close"] / S[j]["close"] - 1) * 100, 1) if j + h < len(S) else None
+        tests.append(t)
+
+    last, prev = S[-1], S[-2]
+    up = last["pdi"] > last["mdi"]
+    adx = last["adx"]
+    adx_peak5 = max(s["adx"] for s in S[-6:-1])
+    turning_down = adx < prev["adx"]
+    pending = tests[-1] if tests and tests[-1]["result"] == "pending" else None
+    recent = tests[-1] if tests else None
+
+    if pending:
+        state, label = "testing", f"判定中({pending['day']}営業日目/残り{pending['days_left']}営業日)"
+        text = (f"{md_jp(pending['start'])}に+DIが-DIを上抜け、上昇が始まりました。"
+                f"{md_jp(S[-1]['date'])}時点のADXは{adx:.1f}。"
+                f"あと{pending['days_left']}営業日以内に25を超えれば合格(本物の上昇)、超えられなければ不合格(レンジ内の戻り)です。")
+    elif up and adx < ADX_TREND and recent and recent["result"] == "fail":
+        state, label = "failed", "不合格(レンジ内の戻り)"
+        text = (f"{md_jp(recent['start'])}からの上昇は、{ADX_TEST_DAYS}営業日以内にADXを25より上に押し上げられませんでした"
+                f"(最大{recent['max_adx']:.1f})。トレンドを作る力がなく、レンジ内の戻りと判定します。")
+    elif up and adx >= ADX_TREND:
+        state, label = "uptrend", "上昇トレンド(合格)"
+        text = (f"+DI優勢でADXは{adx:.1f}。上昇トレンドが続いています。"
+                + ("ADXが前日より下がり、勢いは鈍り始めています。" if turning_down else ""))
+    elif (not up) and adx >= ADX_TREND:
+        state, label = "downtrend", "下落トレンド(本物)"
+        text = (f"-DI優勢でADXは{adx:.1f}。下向きに25を超えており、下落トレンドは「本物」の判定です。"
+                + ("ADXが前日より下がり、下落の勢いが鈍り始めました。この後の反発が10営業日以内にADXを25超えに戻せるかを見ます。"
+                   if turning_down else
+                   "ADXがまだ上向きなので、下落の勢いは続いています。まずADXが折れて下向きになるのを待ちます。"))
+    elif adx < ADX_RANGE:
+        state, label = "range", "レンジ(方向感なし)"
+        text = (f"ADXは{adx:.1f}で20未満。方向感のない相場です。この間の+DI・-DIのクロスはほとんどがだましなので、信じないのが基本です。")
+    else:
+        state, label = "weak", "トレンドが弱い(ADX 20〜25)"
+        text = (f"ADXは{adx:.1f}。{'+DI' if up else '-DI'}優勢ですが、トレンドと呼べる25にはまだ届いていません。")
+
+    one_year_ago = S[max(0, len(S) - 260)]["date"]
+    return {
+        "date": last["date"], "close": round(last["close"]),
+        "adx": round(adx, 1), "adx_prev": round(prev["adx"], 1), "adx_peak5": round(adx_peak5, 1),
+        "pdi": round(last["pdi"], 1), "mdi": round(last["mdi"], 1),
+        "direction": "up" if up else "down", "turning_down": turning_down,
+        "state": state, "label": label, "text": text,
+        "trend_line": ADX_TREND, "range_line": ADX_RANGE, "test_days": ADX_TEST_DAYS,
+        "pending": pending,
+        "tests": [t for t in tests if t["start"] >= one_year_ago],
+        # [日付, 終値, ADX, +DI, -DI]
+        "series": [[s["date"], round(s["close"]), round(s["adx"], 1), round(s["pdi"], 1), round(s["mdi"], 1)]
+                   for s in S[-260:]],
+    }
+
+
+# ---------------------------------------------------------------------------
 # 判定
 # ---------------------------------------------------------------------------
 
@@ -375,6 +506,15 @@ def main() -> int:
     except (KeyError, IndexError, statistics.StatisticsError, TypeError) as e:
         print(f"  WARN バンドウォークを計算できませんでした: {e}", file=sys.stderr)
 
+    # ---- 上昇の合否判定(ADX): 日経225 ------------------------------------
+    adx_test = None
+    try:
+        adx_test = build_adx_test(idx["N225"]["history"])
+        if adx_test:
+            print(f"  ADX {adx_test['adx']} (+DI {adx_test['pdi']} / -DI {adx_test['mdi']}) → {adx_test['label']}", file=sys.stderr)
+    except (KeyError, IndexError, TypeError, ZeroDivisionError) as e:
+        print(f"  WARN ADXを計算できませんでした: {e}", file=sys.stderr)
+
     # ---- NS倍率 --------------------------------------------------------
     try:
         nk_fb = {r[0]: r[4] for r in idx["N225"]["history"]} if "N225" in idx else {}
@@ -506,6 +646,7 @@ def main() -> int:
         },
         "fuel": fuel,
         "switches": switches,
+        "adx_test": adx_test,
         # 次回以降に引き継ぐ履歴(Yahooは最新値しか出ないので、週ごとに貯める)
         "lev_margin_history": lev_list,
         "pbr_history": [{"date": d, "pbr": v} for d, v in sorted(pbr_hist.items())],
