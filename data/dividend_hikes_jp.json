@@ -1,0 +1,1077 @@
+{
+ "note": "直近決算で配当予想の増額修正・増配を発表した銘柄。TDnetの適時開示タイトルから毎日自動追記(batch/fetch_dividend_hikes.py)。初期分は2026-10-27〜11-12の決算まとめから手動収集。",
+ "updated_at": "2026-11-14",
+ "events": [
+  {
+   "code": "4684",
+   "date": "2026-10-27",
+   "detail": "配当も6円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4992",
+   "date": "2026-10-27",
+   "detail": "今期配当を10円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6988",
+   "date": "2026-10-27",
+   "detail": "今期配当を8円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7299",
+   "date": "2026-10-27",
+   "detail": "配当も6円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "2760",
+   "date": "2026-10-28",
+   "detail": "配当も22円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4228",
+   "date": "2026-10-28",
+   "detail": "配当も8円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4832",
+   "date": "2026-10-28",
+   "detail": "上期配当を2円増額",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6501",
+   "date": "2026-10-28",
+   "detail": "上期配当を4円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "9022",
+   "date": "2026-10-28",
+   "detail": "配当も2円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "2533",
+   "date": "2026-10-29",
+   "detail": "今期配当を3円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4307",
+   "date": "2026-10-29",
+   "detail": "配当も4円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6454",
+   "date": "2026-10-29",
+   "detail": "配当も3円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6504",
+   "date": "2026-10-29",
+   "detail": "未定だった配当は40円増配",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6622",
+   "date": "2026-10-29",
+   "detail": "配当も9円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6754",
+   "date": "2026-10-29",
+   "detail": "配当も13円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6861",
+   "date": "2026-10-29",
+   "detail": "今期配当を実質増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8344",
+   "date": "2026-10-29",
+   "detail": "配当も14円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "9081",
+   "date": "2026-10-29",
+   "detail": "配当も5円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "9551",
+   "date": "2026-10-29",
+   "detail": "配当も10円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "9766",
+   "date": "2026-10-29",
+   "detail": "配当も75円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "1939",
+   "date": "2026-10-30",
+   "detail": "配当も16円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3542",
+   "date": "2026-10-30",
+   "detail": "配当も2円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4204",
+   "date": "2026-10-30",
+   "detail": "配当も1円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5333",
+   "date": "2026-10-30",
+   "detail": "配当も20円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5334",
+   "date": "2026-10-30",
+   "detail": "配当を増額修正",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5480",
+   "date": "2026-10-30",
+   "detail": "配当も45円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6262",
+   "date": "2026-10-30",
+   "detail": "大幅増配計画",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "642A",
+   "date": "2026-10-30",
+   "detail": "配当も5円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6752",
+   "date": "2026-10-30",
+   "detail": "配当も16円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6762",
+   "date": "2026-10-30",
+   "detail": "配当も10円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6961",
+   "date": "2026-10-30",
+   "detail": "配当も30円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7184",
+   "date": "2026-10-30",
+   "detail": "配当も7円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7476",
+   "date": "2026-10-30",
+   "detail": "配当も3円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7537",
+   "date": "2026-10-30",
+   "detail": "配当も23円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7942",
+   "date": "2026-10-30",
+   "detail": "配当も14円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8035",
+   "date": "2026-10-30",
+   "detail": "実質52%増配",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8137",
+   "date": "2026-10-30",
+   "detail": "配当も10円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "9020",
+   "date": "2026-10-30",
+   "detail": "配当も4円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "2327",
+   "date": "2026-11-02",
+   "detail": "配当も2円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6467",
+   "date": "2026-11-02",
+   "detail": "配当予想を上方修正",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7366",
+   "date": "2026-11-02",
+   "detail": "配当を5円増額修正",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7480",
+   "date": "2026-11-02",
+   "detail": "配当も26円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3626",
+   "date": "2026-11-04",
+   "detail": "配当も2円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4022",
+   "date": "2026-11-04",
+   "detail": "配当も7円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4559",
+   "date": "2026-11-04",
+   "detail": "今期配当を1円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5697",
+   "date": "2026-11-04",
+   "detail": "配当も10円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5857",
+   "date": "2026-11-04",
+   "detail": "配当も20円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7609",
+   "date": "2026-11-04",
+   "detail": "配当も12円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7729",
+   "date": "2026-11-04",
+   "detail": "配当も12円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3034",
+   "date": "2026-11-05",
+   "detail": "今期配当を10円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3110",
+   "date": "2026-11-05",
+   "detail": "配当も9円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3252",
+   "date": "2026-11-05",
+   "detail": "配当も5円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3433",
+   "date": "2026-11-05",
+   "detail": "配当も7円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4689",
+   "date": "2026-11-05",
+   "detail": "今期配当を1円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5384",
+   "date": "2026-11-05",
+   "detail": "配当も4円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6367",
+   "date": "2026-11-05",
+   "detail": "配当も10円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6941",
+   "date": "2026-11-05",
+   "detail": "配当も35円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7917",
+   "date": "2026-11-05",
+   "detail": "配当も4円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8150",
+   "date": "2026-11-05",
+   "detail": "配当も30円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "9913",
+   "date": "2026-11-05",
+   "detail": "配当も6円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "416A",
+   "date": "2026-11-06",
+   "detail": "配当も3円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4783",
+   "date": "2026-11-06",
+   "detail": "今期配当を20円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4970",
+   "date": "2026-11-06",
+   "detail": "配当も10円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6315",
+   "date": "2026-11-06",
+   "detail": "配当も6円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6743",
+   "date": "2026-11-06",
+   "detail": "配当も2円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6777",
+   "date": "2026-11-06",
+   "detail": "配当も100円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6787",
+   "date": "2026-11-06",
+   "detail": "配当を増額修正",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7701",
+   "date": "2026-11-06",
+   "detail": "配当も2円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8012",
+   "date": "2026-11-06",
+   "detail": "配当も3円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8359",
+   "date": "2026-11-06",
+   "detail": "配当も7円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8425",
+   "date": "2026-11-06",
+   "detail": "配当も6円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "9302",
+   "date": "2026-11-06",
+   "detail": "配当も2円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "2264",
+   "date": "2026-11-09",
+   "detail": "配当も3円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "2802",
+   "date": "2026-11-09",
+   "detail": "配当も2円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4021",
+   "date": "2026-11-09",
+   "detail": "配当も8円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4064",
+   "date": "2026-11-09",
+   "detail": "配当も29円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4286",
+   "date": "2026-11-09",
+   "detail": "配当も11円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4994",
+   "date": "2026-11-09",
+   "detail": "配当も10円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5463",
+   "date": "2026-11-09",
+   "detail": "配当も6円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5535",
+   "date": "2026-11-09",
+   "detail": "配当も0.5円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6155",
+   "date": "2026-11-09",
+   "detail": "配当も5円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6402",
+   "date": "2026-11-09",
+   "detail": "配当も7円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6448",
+   "date": "2026-11-09",
+   "detail": "配当も20円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6651",
+   "date": "2026-11-09",
+   "detail": "配当も16円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7014",
+   "date": "2026-11-09",
+   "detail": "配当も10円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7966",
+   "date": "2026-11-09",
+   "detail": "配当予想を上方修正",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8159",
+   "date": "2026-11-09",
+   "detail": "配当も10円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8331",
+   "date": "2026-11-09",
+   "detail": "配当も8円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8334",
+   "date": "2026-11-09",
+   "detail": "配当も4円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8439",
+   "date": "2026-11-09",
+   "detail": "配当も14円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8591",
+   "date": "2026-11-09",
+   "detail": "上期配当を6.29円増額",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "1960",
+   "date": "2026-11-10",
+   "detail": "配当も25円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3131",
+   "date": "2026-11-10",
+   "detail": "配当も190円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3443",
+   "date": "2026-11-10",
+   "detail": "配当も6円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4046",
+   "date": "2026-11-10",
+   "detail": "今期配当を2円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4047",
+   "date": "2026-11-10",
+   "detail": "今期配当を16円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4732",
+   "date": "2026-11-10",
+   "detail": "配当も0.8円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5121",
+   "date": "2026-11-10",
+   "detail": "配当も54円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5393",
+   "date": "2026-11-10",
+   "detail": "今期配当を5円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5631",
+   "date": "2026-11-10",
+   "detail": "配当も8円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5831",
+   "date": "2026-11-10",
+   "detail": "配当も5円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6016",
+   "date": "2026-11-10",
+   "detail": "配当も11円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6418",
+   "date": "2026-11-10",
+   "detail": "配当も27円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6855",
+   "date": "2026-11-10",
+   "detail": "配当も20円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7189",
+   "date": "2026-11-10",
+   "detail": "配当も18円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7389",
+   "date": "2026-11-10",
+   "detail": "配当も2円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7482",
+   "date": "2026-11-10",
+   "detail": "配当も7円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7867",
+   "date": "2026-11-10",
+   "detail": "今期配当を10円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7906",
+   "date": "2026-11-10",
+   "detail": "今期配当を3円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8050",
+   "date": "2026-11-10",
+   "detail": "配当も15円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8088",
+   "date": "2026-11-10",
+   "detail": "配当も5円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8154",
+   "date": "2026-11-10",
+   "detail": "配当も20円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8354",
+   "date": "2026-11-10",
+   "detail": "配当も30円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8368",
+   "date": "2026-11-10",
+   "detail": "配当も4円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8830",
+   "date": "2026-11-10",
+   "detail": "配当も3円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "9880",
+   "date": "2026-11-10",
+   "detail": "配当も40円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "9888",
+   "date": "2026-11-10",
+   "detail": "年間118円増配",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "1762",
+   "date": "2026-11-11",
+   "detail": "配当も26円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "1810",
+   "date": "2026-11-11",
+   "detail": "配当予想を上方修正",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "1925",
+   "date": "2026-11-11",
+   "detail": "配当を増額修正",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "1926",
+   "date": "2026-11-11",
+   "detail": "配当を増額修正",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4027",
+   "date": "2026-11-11",
+   "detail": "配当も30円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4231",
+   "date": "2026-11-11",
+   "detail": "配当も10円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4918",
+   "date": "2026-11-11",
+   "detail": "配当も25円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5013",
+   "date": "2026-11-11",
+   "detail": "未定だった配当は18円増配",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5019",
+   "date": "2026-11-11",
+   "detail": "配当も4円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5714",
+   "date": "2026-11-11",
+   "detail": "配当も77円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6013",
+   "date": "2026-11-11",
+   "detail": "配当も11円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6165",
+   "date": "2026-11-11",
+   "detail": "配当も0.2円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6237",
+   "date": "2026-11-11",
+   "detail": "配当も20円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6278",
+   "date": "2026-11-11",
+   "detail": "配当も30円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6324",
+   "date": "2026-11-11",
+   "detail": "配当も8円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6794",
+   "date": "2026-11-11",
+   "detail": "大幅な増配",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6850",
+   "date": "2026-11-11",
+   "detail": "配当も5円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6998",
+   "date": "2026-11-11",
+   "detail": "配当も50円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7186",
+   "date": "2026-11-11",
+   "detail": "配当も11円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8920",
+   "date": "2026-11-11",
+   "detail": "今期配当を4円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "1384",
+   "date": "2026-11-12",
+   "detail": "配当も20円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "150A",
+   "date": "2026-11-12",
+   "detail": "配当も3円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3182",
+   "date": "2026-11-12",
+   "detail": "配当も4円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3465",
+   "date": "2026-11-12",
+   "detail": "今期配当を20円増額修正",
+   "earnings_up": false,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3695",
+   "date": "2026-11-12",
+   "detail": "配当も3.41円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "3864",
+   "date": "2026-11-12",
+   "detail": "今期配当を実質増額修正",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "4041",
+   "date": "2026-11-12",
+   "detail": "配当も10円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5142",
+   "date": "2026-11-12",
+   "detail": "期末配当10円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "5991",
+   "date": "2026-11-12",
+   "detail": "配当も15円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6482",
+   "date": "2026-11-12",
+   "detail": "未定だった配当は20円実施",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6490",
+   "date": "2026-11-12",
+   "detail": "今期配当を実質増額修正",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6871",
+   "date": "2026-11-12",
+   "detail": "配当も30円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "6952",
+   "date": "2026-11-12",
+   "detail": "未定だった配当は5円増配",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "7235",
+   "date": "2026-11-12",
+   "detail": "配当も10円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8309",
+   "date": "2026-11-12",
+   "detail": "配当も実質7%増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  },
+  {
+   "code": "8511",
+   "date": "2026-11-12",
+   "detail": "配当も18円増額",
+   "earnings_up": true,
+   "source": "決算まとめ(手動収集)"
+  }
+ ]
+}

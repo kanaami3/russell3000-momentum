@@ -261,6 +261,67 @@
       </p>
     </div>
 
+    <!-- 四季報型9条件 × 直近決算の増配 -->
+    <div x-show="dividendData.shikiho_hike_picks" class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-300 rounded-2xl p-4">
+      <div class="flex items-baseline justify-between flex-wrap gap-2 mb-1">
+        <h2 class="font-extrabold text-emerald-900">📗 四季報×決算増配ピック</h2>
+        <span class="text-[11px] text-slate-500"
+              x-text="'直近' + (dividendData.shikiho_hike_picks?.recent_days||0) + '日に増配を発表した ' + (dividendData.shikiho_hike_picks?.hike_events||0) + ' 銘柄と照合'"></span>
+      </div>
+      <p class="text-[11px] text-slate-500 mb-3">
+        四季報型「増配期待バリュー9条件」と、直近の決算で配当予想を増額(増配)した銘柄を突き合わせています。
+        条件: <span x-text="(dividendData.shikiho_hike_picks?.conditions||[]).join(' / ')"></span>
+      </p>
+      <template x-for="grp in [{k:'a', t:'A. 9条件をすべて通過 ＋ 直近決算で増配', c:'text-emerald-800'}, {k:'b', t:'B. 1条件だけ外れたが直近決算で増配', c:'text-amber-800'}]" :key="grp.k">
+        <div class="mb-3" x-show="(dividendData.shikiho_hike_picks?.[grp.k]||[]).length">
+          <h3 class="text-xs font-bold mb-1.5" :class="grp.c" x-text="grp.t"></h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+              <thead class="text-[10px] text-slate-500 border-b">
+                <tr>
+                  <th class="text-left py-1 pr-2">#</th>
+                  <th class="text-left py-1 pr-2">銘柄</th>
+                  <th class="text-right py-1 pr-2">利回り</th>
+                  <th class="text-right py-1 pr-2">PER</th>
+                  <th class="text-right py-1 pr-2">PBR</th>
+                  <th class="text-right py-1 pr-2">性向</th>
+                  <th class="text-left py-1 pr-2">増配実績</th>
+                  <th class="text-left py-1 pr-2">直近の配当修正</th>
+                  <th class="text-left py-1" x-show="grp.k==='b'">外れた条件</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="(p, i) in (dividendData.shikiho_hike_picks?.[grp.k]||[])" :key="p.code">
+                  <tr class="border-b border-slate-100">
+                    <td class="py-1.5 pr-2 text-slate-400" x-text="i+1"></td>
+                    <td class="py-1.5 pr-2 whitespace-nowrap">
+                      <span class="font-mono text-[10px] text-slate-500" x-text="p.code"></span>
+                      <span class="font-bold text-slate-900" x-text="p.name"></span>
+                    </td>
+                    <td class="py-1.5 pr-2 text-right font-semibold text-emerald-700" x-text="p.yield!=null ? p.yield.toFixed(2)+'%' : '-'"></td>
+                    <td class="py-1.5 pr-2 text-right" x-text="p.per!=null ? p.per.toFixed(1) : '-'"></td>
+                    <td class="py-1.5 pr-2 text-right" x-text="p.pbr!=null ? p.pbr.toFixed(2) : '-'"></td>
+                    <td class="py-1.5 pr-2 text-right" x-text="p.payout!=null ? Math.round(p.payout)+'%' : '-'"></td>
+                    <td class="py-1.5 pr-2 whitespace-nowrap" x-text="(p.streak_years||0) >= 3 ? p.streak_years + '期連続増配' : (p.non_decreasing ? p.non_decreasing + '期非減配' : '-')"></td>
+                    <td class="py-1.5 pr-2">
+                      <span class="text-slate-500" x-text="p.hike_date.slice(5).replace('-','/')"></span>
+                      <span x-text="p.hike_detail"></span>
+                      <span x-show="p.earnings_up" class="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">業績も上方修正</span>
+                    </td>
+                    <td class="py-1.5 text-rose-700 whitespace-nowrap" x-show="grp.k==='b'" x-text="p.failed || ''"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </template>
+      <p class="text-[10px] text-slate-400 mt-1">
+        並びは増配余地→連続増配の期数→利回りの順。利回りは増額前の配当で計算されている場合があります。
+        増配の発表はTDnetの適時開示から毎日追加しています。推奨銘柄ではありません。
+      </p>
+    </div>
+
     <!-- condition controls -->
     <div class="bg-white border-2 border-teal-200 rounded-2xl p-4">
       <div class="flex items-baseline justify-between mb-3 flex-wrap gap-2">
