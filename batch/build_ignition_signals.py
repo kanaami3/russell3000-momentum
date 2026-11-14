@@ -14,6 +14,9 @@
   着火⑦  VIXのMACDがゴールデンクロス中                 … yfinance ^VIX
   着火⑧  日経平均がPBR2倍(BPS×2)に到達               … 日経の公表PBR(加重平均)
 
+参考グラフ:
+  Fear & Greed指数(CNN)とS&P500の推移(2022年3月〜)           … CNN・yfinance ^GSPC
+
 手動で判定するもの:
   着火①  BW(転換社債型新株予約権付社債)の終了サイン
   ほかの項目も data/ignition_manual.json の status で上書きできる。
@@ -223,6 +226,68 @@ def build_ns_ratio(nk_fallback: dict[str, float]) -> list[list]:
 
 
 # ---------------------------------------------------------------------------
+# Fear & Greed指数(CNN)とS&P500
+# ---------------------------------------------------------------------------
+
+FG_START = "2022-03-01"             # グラフの始まり(CNNはこの日付以降の日次を返す)
+FG_URL = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata/"
+
+
+def fetch_fear_greed_history() -> dict[str, float]:
+    """CNN Fear & Greed の日次スコア {日付: スコア}。calc_momentum.py と同じ取得先。"""
+    headers = {
+        "Accept": "application/json",
+        "Origin": "https://www.cnn.com",
+        "Referer": "https://www.cnn.com/markets/fear-and-greed",
+    }
+    url = FG_URL + FG_START
+    if _SESSION is not None:
+        data = _SESSION.get(url, headers=headers, timeout=25).json()
+    else:
+        req = urllib.request.Request(url, headers={**headers, "User-Agent": "Mozilla/5.0"})
+        data = json.loads(urllib.request.urlopen(req, timeout=25).read().decode("utf-8"))
+    out: dict[str, float] = {}
+    for p in ((data or {}).get("fear_and_greed_historical") or {}).get("data") or []:
+        try:
+            d = datetime.fromtimestamp(float(p["x"]) / 1000, tz=timezone.utc).date().isoformat()
+            out[d] = round(float(p["y"]), 1)
+        except (KeyError, TypeError, ValueError):
+            continue
+    # 当日の値(履歴の最終点より新しいことがある)
+    fg = (data or {}).get("fear_and_greed") or {}
+    if fg.get("score") is not None and fg.get("timestamp"):
+        out[str(fg["timestamp"])[:10]] = round(float(fg["score"]), 1)
+    return out
+
+
+def build_fear_greed(prev_rows: list) -> list[list]:
+    """[[日付, Fear&Greed, S&P500終値], ...]。前回の値を引き継ぎ、取れた分だけ上書きする。"""
+    fg = {r[0]: r[1] for r in prev_rows if r[1] is not None}
+    sp = {r[0]: r[2] for r in prev_rows if r[2] is not None}
+    try:
+        got = fetch_fear_greed_history()
+        fg.update(got)
+        print(f"  Fear&Greed {len(got)} 日分取得", file=sys.stderr)
+    except Exception as e:
+        print(f"  WARN Fear&Greed 取得失敗(前回の値を使用): {e}", file=sys.stderr)
+    try:
+        sp.update({d: round(v, 2) for d, v in _yf_closes("^GSPC").items()})
+    except Exception as e:
+        print(f"  WARN S&P500 取得失敗(前回の値を使用): {e}", file=sys.stderr)
+    sp_dates = sorted(sp)
+    out, j = [], 0
+    for d in sorted(fg):
+        if d < FG_START:
+            continue
+        # その日以前で直近のS&P500終値(米国の休場日にF&Gが出ていても線がとぎれないように)
+        while j + 1 < len(sp_dates) and sp_dates[j + 1] <= d:
+            j += 1
+        v = sp[sp_dates[j]] if sp_dates and sp_dates[j] <= d else None
+        out.append([d, fg[d], v])
+    return out
+
+
+# ---------------------------------------------------------------------------
 # 判定
 # ---------------------------------------------------------------------------
 
@@ -384,6 +449,11 @@ def main() -> int:
         print(f"  WARN NS倍率 取得失敗: {e}", file=sys.stderr)
         ns = prev.get("ns_ratio") or []
 
+    # ---- Fear & Greed と S&P500 ----------------------------------------
+    fear_greed = build_fear_greed(prev.get("fear_greed_sp500") or [])
+    if fear_greed:
+        print(f"  Fear&Greed×S&P500 {len(fear_greed)} 日分(最新 {fear_greed[-1]})", file=sys.stderr)
+
     # ---- VIX MACD ------------------------------------------------------
     try:
         vix = fetch_vix_macd()
@@ -513,6 +583,8 @@ def main() -> int:
         # 日経平均とEPS×PER(16/17/18倍)・EPS・PERの推移グラフ用。[日付, 終値, EPS, PER]
         # NS倍率グラフ用。[日付, 日経平均, S&P500, NS倍率]
         "ns_ratio": ns,
+        # Fear&Greed指数とS&P500の重ねグラフ用。[日付, Fear&Greed, S&P500]
+        "fear_greed_sp500": fear_greed,
         "nikkei_valuation": [[h["date"], round(h["close"]), round(h["eps_weighted"], 1), h["per_weighted"]]
                              for h in eps_rows if h.get("close") and h.get("per_weighted")],
     }
