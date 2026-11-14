@@ -9,10 +9,6 @@ on:
   schedule:
     - cron: "40 4 * * 6"  # 土曜 13:40 JST(配当履歴の週次ジョブ 11:00 JST の後)
   workflow_dispatch:
-  # このファイル自体を変更して main に入れたときにも1回走る(手動実行の代わり)
-  push:
-    branches: [main]
-    paths: [".github/workflows/dividend_ext_jp.yml"]
 
 permissions:
   contents: write
@@ -51,13 +47,6 @@ jobs:
           VALUE_OUTPUT: data/value_data_jp_ext.csv
           DIV_HISTORY_CSV: data/dividend_history_jp_ext.csv
         run: python batch/fetch_value_data.py
-
-      # プライムも取り直して配当スクリーナーを作り直す。これでスタンダード・グロースが
-      # 日次更新を待たずにスクリーナーとピックに合流する。
-      - name: Fetch fundamentals (Prime) and rebuild dividend screener
-        run: |
-          python batch/fetch_value_data.py
-          python batch/build_dividend_screener.py
 
       - name: Dividend hikes from TDnet + shikiho x hike picks
         run: |

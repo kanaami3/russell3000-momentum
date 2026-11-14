@@ -240,6 +240,16 @@ def main() -> int:
         print(f"ERROR: {INPUT_CSV} not found — run fetch_value_data.py first", file=sys.stderr)
         return 1
 
+    # **プライムの取得がほぼ全滅したときは書き出さない。**
+    # 2026-11-14、yfinance のレート制限でプライム1,553銘柄の株価がすべて欠け、
+    # スタンダード・グロースだけのスクリーナーで上書きしてしまった。
+    with open(INPUT_CSV, encoding="utf-8") as f:
+        _main = list(csv.DictReader(f))
+    _ok = sum(1 for r in _main if _f(r.get("current_price")) is not None)
+    if _ok < len(_main) * 0.5:
+        print(f"ERROR: プライムの株価が {_ok}/{len(_main)} 銘柄しか取れていません。既存のスクリーナーを残します。", file=sys.stderr)
+        return 1
+
     rows = []
     src_rows = []
     seen = set()
