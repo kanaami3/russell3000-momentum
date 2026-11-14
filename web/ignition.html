@@ -612,10 +612,16 @@ function drawFG() {
   svg += `<path d="${path(xs, D.map(r => r.sp == null ? null : yS(r.sp)))}" fill="none" stroke="${FGC.sp}" stroke-width="${narrow ? 1.4 : 1.7}"/>`;
   svg += `</g>`;
   // 山と谷の値。狭い画面では近すぎるラベルを間引く
-  const piv = fgPivots(D, 25), minGap = narrow ? 26 : 30, lastX = { pk: -1e9, tr: -1e9 };
-  piv.forEach(p => {
+  // 近すぎる同じ種類のラベルは、より極端な方(山は高い方・谷は低い方)だけ残す
+  const minGap = narrow ? 26 : 30, shown = [];
+  fgPivots(D, 25).forEach(p => {
+    const prev = [...shown].reverse().find(q => q.t === p.t);
+    if (prev && x(p.i) - x(prev.i) < minGap) {
+      if (p.t === 'pk' ? D[p.i].fg > D[prev.i].fg : D[p.i].fg < D[prev.i].fg) shown[shown.indexOf(prev)] = p;
+    } else shown.push(p);
+  });
+  shown.forEach(p => {
     const r = D[p.i], xx = x(p.i), yy = yF(r.fg);
-    if (xx - lastX[p.t] < minGap) return; lastX[p.t] = xx;
     if (p.t === 'tr') svg += `<circle cx="${xx}" cy="${yy}" r="4" fill="#fff" stroke="#DC2626" stroke-width="1.5"/>`;
     svg += `<text class="pk" x="${xx}" y="${p.t === 'pk' ? yy - 7 : yy + 17}" text-anchor="middle">${Math.round(r.fg)}</text>`;
   });
