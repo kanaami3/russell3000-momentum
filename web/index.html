@@ -78,13 +78,7 @@
         @click="setMarket('value')"
         :class="market === 'value' ? 'border-blue-700 text-blue-800' : 'border-transparent text-slate-500 hover:text-slate-800'"
         class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
-        💎 バリュー投資
-      </button>
-      <button
-        @click="setMarket('dividend')"
-        :class="market === 'dividend' ? 'border-teal-700 text-teal-800' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        class="px-4 sm:px-6 py-3 sm:py-4 border-b-2 font-bold text-sm sm:text-base transition-colors shrink-0">
-        🏆 配当・増配余力スクリーナー
+        💎 バリュー・配当
       </button>
         <button
           @click="setMarket('ipo')"
@@ -219,19 +213,30 @@
   <!-- Macro tab: main content -->
 
   <!-- Dividend screener tab -->
-  <div x-show="market === 'dividend' && !dividendData" class="text-center py-20 text-slate-500">配当・増配余力スクリーナーを読み込み中...</div>
+  <!-- バリュー・配当タブ: 表示切り替え -->
+  <div x-show="market === 'value'" class="flex flex-wrap gap-2">
+    <template x-for="v in valueViews" :key="v.key">
+      <button @click="setValueView(v.key)"
+              :class="valueView === v.key ? 'bg-blue-800 text-white border-blue-800 shadow' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'"
+              class="px-4 py-2 border rounded-full text-sm font-bold flex items-center gap-1.5">
+        <span x-text="v.emoji"></span><span x-text="v.label"></span>
+      </button>
+    </template>
+    <p class="w-full text-[11px] text-slate-500 mt-1" x-text="(valueViews.find(v => v.key === valueView) || {}).note"></p>
+  </div>
+  <div x-show="market === 'value' && valueView !== 'ranking' && !dividendData" class="text-center py-20 text-slate-500">配当・増配データを読み込み中...</div>
   <div x-show="market === 'ipo'" class="max-w-6xl mx-auto px-4 sm:px-6 pt-5 text-xs text-slate-500" x-text="ipoCaption()"></div>
   <div x-show="market === 'theme'" class="max-w-6xl mx-auto px-4 sm:px-6 pt-5 text-xs text-slate-500">当塾で見ているテーマごとに銖柄バスケットを等ウェイトで組み、TOPIXに対する相対力で毎営業日ランク付けしています。線の追い抜きが資金の移り先です。</div>
-  <template x-if="market === 'dividend' && dividendData">
+  <template x-if="market === 'value' && valueView !== 'ranking' && dividendData">
   <div class="space-y-4">
-    <p class="text-xs text-slate-500">
+    <p x-show="valueView === 'screener'" class="text-xs text-slate-500">
       🏆 東証 <strong x-text="(dividendData.universe_size||0).toLocaleString()"></strong> 銘柄から、条件に合う銘柄を自動抽出。
       <strong>割安・配当・業績</strong>の3軸＋総合で機械判定(◎○△×)。データ源: yfinance ・ asof <span x-text="dividendData.asof"></span>。
       <span class="text-slate-400">※情報整理であり投資勧誘ではありません。</span>
     </p>
 
     <!-- AI が選ぶ増配バリュー銘柄 -->
-    <div x-show="dividendData.ai_growth_dividend" class="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-300 rounded-2xl p-4">
+    <div x-show="valueView === 'picks' && dividendData.ai_growth_dividend" class="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-300 rounded-2xl p-4">
       <div class="flex items-baseline justify-between flex-wrap gap-2 mb-1">
         <h2 class="font-extrabold text-amber-900">🎯 AIが選ぶ増配バリュー銘柄</h2>
         <span class="text-[11px] text-slate-500"
@@ -267,6 +272,7 @@
       </p>
     </div>
 
+    <div x-show="valueView === 'screener'" class="space-y-4">
     <!-- condition controls -->
     <div class="bg-white border-2 border-teal-200 rounded-2xl p-4">
       <div class="flex items-baseline justify-between mb-3 flex-wrap gap-2">
@@ -374,6 +380,7 @@
         <span class="text-slate-600" x-text="(divPage+1)+' / '+divTotalPages"></span>
         <button @click="divPage=Math.min(divTotalPages-1,divPage+1)" :disabled="divPage>=divTotalPages-1" class="px-3 py-1 rounded border disabled:opacity-40">次へ</button>
       </div>
+    </div>
     </div>
   </div>
   </template>
@@ -631,17 +638,17 @@
   <!-- Earnings tab: main content -->
 
   <!-- Value tab: loading state -->
-  <div x-show="market === 'value' && !valueData" class="text-center py-20 text-slate-500">バリュー投資データを読み込み中...</div>
+  <div x-show="market === 'value' && valueView !== 'screener' && !valueData" class="text-center py-20 text-slate-500">バリュー投資データを読み込み中...</div>
 
   <!-- Value tab: main content -->
-  <template x-if="market === 'value' && valueData">
-  <div class="space-y-8">
-    <p class="text-xs text-slate-500">
+  <template x-if="market === 'value' && valueView !== 'screener' && valueData">
+  <div class="space-y-8" :class="valueView === 'picks' ? 'mt-4' : ''">
+    <p x-show="valueView === 'ranking'" class="text-xs text-slate-500">
       💎 東証プライム約<span x-text="valueData.universe_size"></span>銘柄から、時価総額500億円以上(<span x-text="valueData.filtered_count"></span>銘柄)を対象にバリュー投資指標でスクリーニング。配当 + 割安 + 売上継続 + 成長見込み の4軸でランキング。データソース: yfinance Ticker.info。<strong class="text-blue-700">毎日 09:00 / 12:00 / 15:00 JST 自動更新</strong> ・ <span class="text-slate-700">asof <span x-text="valueData.asof"></span> (更新 <span x-text="(valueData.generated_at_jst || '').slice(5,16).replace('T',' ')"></span> JST)</span>。
     </p>
 
     <!-- AI Picks: Claude's curated value buys -->
-    <section x-show="(valueData.ai_picks || []).length > 0" class="bg-white border-2 border-blue-300 rounded-2xl p-5 sm:p-6 shadow-md">
+    <section x-show="valueView === 'picks' && (valueData.ai_picks || []).length > 0" class="bg-white border-2 border-blue-300 rounded-2xl p-5 sm:p-6 shadow-md">
       <h2 class="text-lg font-extrabold text-blue-900 mb-4">🎯 AIが選ぶ高品質バリュー銘柄</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <template x-for="pick in (valueData.ai_picks || [])" :key="pick.ticker">
@@ -671,7 +678,7 @@
     </section>
 
     <!-- Category tab + ranking table -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+    <section x-show="valueView === 'ranking'" class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
       <h2 class="text-lg font-extrabold text-slate-800 mb-3">📊 カテゴリ別ランキング</h2>
       <div class="flex flex-wrap gap-2 mb-3">
         <template x-for="cat in valueCategories" :key="cat.key">
@@ -1425,9 +1432,9 @@ const MARKET_CONFIG = {
   },
   value: {
     file: null,  // uses value_jp.json only
-    title: 'バリュー投資(JP)',
+    title: 'バリュー・配当(JP)',
     label: 'JP VALUE INVESTING — DIVIDEND / LOW PE / LOW PBR / ROE / GROWTH',
-    docTitle: 'かな塾長秘書AI投資ナビ | バリュー投資',
+    docTitle: 'かな塾長秘書AI投資ナビ | バリュー・配当',
     defaultSort: 'm3',
   },
   theme: {
@@ -2150,6 +2157,8 @@ statusBadgeClass(iso, freshH) {
     },
 
     setMarket(m, replaceUrl) {
+      // 旧「配当・増配余力スクリーナー」タブはバリュー・配当タブに統合した。古いリンク(#dividend)はスクリーナー表示へ。
+      if (m === 'dividend') { m = 'value'; this.valueView = 'screener'; }
       if (!MARKET_CONFIG[m]) return;
       this.market = m;
       this.sortKey = MARKET_CONFIG[m].defaultSort;
@@ -2187,6 +2196,7 @@ statusBadgeClass(iso, freshH) {
       }
       if (this.market === 'value') {
         this.loadValue();
+        this.loadDividendScreener();
       }
       if (this.market === 'macro') {
         this.loadMacro();
@@ -2405,6 +2415,14 @@ statusBadgeClass(iso, freshH) {
       else { this.divSort = k; this.divSortDesc = true; }
       this.divPage = 0;
     },
+
+    valueView: 'picks',
+    valueViews: [
+      { key: 'picks',    emoji: '🎯', label: 'AIピック',     note: 'AIが選んだ高品質バリュー銘柄と増配バリュー銘柄を並べて表示します。' },
+      { key: 'ranking',  emoji: '📊', label: 'ランキング',   note: '時価総額500億円以上を対象に、総合・高配当・低PER・低PBR・高ROE・成長性・9条件でランキングします。' },
+      { key: 'screener', emoji: '🔎', label: '全銘柄スクリーナー', note: '東証の全銘柄を条件で絞り込み、割安・配当・業績を◎○△×で判定します。' },
+    ],
+    setValueView(v) { this.valueView = v; },
 
     valueCategories: [
       { key: 'composite',     emoji: '🏆', label: '総合バリュースコア', tint: 'blue' },
