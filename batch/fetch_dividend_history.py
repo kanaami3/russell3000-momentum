@@ -31,9 +31,9 @@ import pandas as pd
 import yfinance as yf
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-UNIVERSE_JSON = REPO_ROOT / "data" / "universe_jp.json"
+UNIVERSE_JSON = Path(os.getenv("DIV_UNIVERSE", REPO_ROOT / "data" / "universe_jp.json"))
 FALLBACK_CSV = REPO_ROOT / "data" / "value_data_jp.csv"
-OUTPUT_CSV = REPO_ROOT / "data" / "dividend_history_jp.csv"
+OUTPUT_CSV = Path(os.getenv("DIV_HISTORY_CSV", REPO_ROOT / "data" / "dividend_history_jp.csv"))
 
 BATCH_SIZE = int(os.getenv("DIV_BATCH_SIZE", "40"))
 BATCH_PAUSE_SEC = float(os.getenv("DIV_BATCH_PAUSE_SEC", "2.0"))

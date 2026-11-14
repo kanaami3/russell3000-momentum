@@ -22,12 +22,14 @@ import requests
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_PATH = REPO_ROOT / "data" / "universe_jp.json"
+EXT_OUTPUT_PATH = REPO_ROOT / "data" / "universe_jp_ext.json"
 
 JPX_XLS_URL = (
     "https://www.jpx.co.jp/markets/statistics-equities/misc/"
     "tvdivq0000001vg2-att/data_j.xlsx"
 )
 TARGET_SEGMENT = "プライム（内国株式）"
+EXT_SEGMENTS = ["スタンダード（内国株式）", "グロース（内国株式）"]
 
 HEADERS = {
     "User-Agent": (
@@ -37,20 +39,9 @@ HEADERS = {
 }
 
 
-def main() -> int:
-    print(f"Fetching JPX listed companies file...", file=sys.stderr)
-    resp = requests.get(JPX_XLS_URL, headers=HEADERS, timeout=60)
-    resp.raise_for_status()
-
-    df = pd.read_excel(io.BytesIO(resp.content))
-    print(f"  Total rows: {len(df)}", file=sys.stderr)
-
-    # Filter to Prime market (domestic equities)
-    prime = df[df["市場・商品区分"] == TARGET_SEGMENT].copy()
-    print(f"  Prime equities: {len(prime)}", file=sys.stderr)
-
+def _to_universe(frame) -> list[dict]:
     universe: list[dict] = []
-    for _, row in prime.iterrows():
+    for _, row in frame.iterrows():
         code = str(row["コード"]).strip()
         if not code or code == "-":
             continue
@@ -68,12 +59,36 @@ def main() -> int:
             }
         )
 
+    return universe
+
+
+def main() -> int:
+    print(f"Fetching JPX listed companies file...", file=sys.stderr)
+    resp = requests.get(JPX_XLS_URL, headers=HEADERS, timeout=60)
+    resp.raise_for_status()
+
+    df = pd.read_excel(io.BytesIO(resp.content))
+    print(f"  Total rows: {len(df)}", file=sys.stderr)
+
+    # Filter to Prime market (domestic equities)
+    prime = df[df["市場・商品区分"] == TARGET_SEGMENT].copy()
+    print(f"  Prime equities: {len(prime)}", file=sys.stderr)
+
+    universe = _to_universe(prime)
+
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(
         json.dumps(universe, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
     print(f"Wrote {len(universe)} tickers to {OUTPUT_PATH}", file=sys.stderr)
+
+    # 配当スクリーナー用に、スタンダード・グロースも別ファイルに出す。
+    # universe_jp.json(プライム)はモメンタム等の日次ジョブも読むので、そちらは広げない。
+    ext = df[df["市場・商品区分"].isin(EXT_SEGMENTS)].copy()
+    ext_universe = _to_universe(ext)
+    EXT_OUTPUT_PATH.write_text(json.dumps(ext_universe, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"Wrote {len(ext_universe)} Standard/Growth tickers to {EXT_OUTPUT_PATH}", file=sys.stderr)
     if universe:
         print(f"  first: {universe[0]['ticker']} {universe[0]['name']}", file=sys.stderr)
         print(f"  last:  {universe[-1]['ticker']} {universe[-1]['name']}", file=sys.stderr)

@@ -72,6 +72,7 @@ def main() -> int:
         st = s.get("streak") or {}
         row = {
             "code": s["code"], "name": s["name"], "sector": s.get("sector"),
+            "market": s.get("market"),
             "yield": s.get("yield"), "per": s.get("per"), "pbr": s.get("pbr"),
             "roe": s.get("roe"), "payout": s.get("payout"),
             "streak_years": st.get("years"), "non_decreasing": st.get("non_decreasing"),

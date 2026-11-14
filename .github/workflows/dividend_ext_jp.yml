@@ -1,0 +1,60 @@
+name: Weekly JP dividend data (Standard/Growth)
+
+# 配当スクリーナーと「四季報×決算増配ピック」の対象をスタンダード・グロースまで広げる。
+# プライムは日次(weekly_value_jp.yml)で取っているが、スタンダード・グロースの約2,200銘柄を
+# 毎日足すと30分の制限を超えるので、ここで週1回取ってコミットしておき、
+# 日次の build_dividend_screener.py がそのCSVを読み込んで合流させる。
+# ついでに TDnet の増配開示も取り込んで、ピックを作り直す。
+on:
+  schedule:
+    - cron: "40 4 * * 6"  # 土曜 13:40 JST(配当履歴の週次ジョブ 11:00 JST の後)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  ext:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch JP universe (Prime + Standard/Growth)
+        run: python batch/fetch_universe_jp.py
+
+      - name: Fetch dividend history (Standard/Growth)
+        env:
+          DIV_UNIVERSE: data/universe_jp_ext.json
+          DIV_HISTORY_CSV: data/dividend_history_jp_ext.csv
+        run: python batch/fetch_dividend_history.py || echo "⚠ 配当履歴(スタンダード・グロース) 失敗（継続）"
+
+      - name: Fetch fundamentals (Standard/Growth)
+        env:
+          VALUE_UNIVERSE: data/universe_jp_ext.json
+          VALUE_OUTPUT: data/value_data_jp_ext.csv
+          DIV_HISTORY_CSV: data/dividend_history_jp_ext.csv
+        run: python batch/fetch_value_data.py
+
+      - name: Dividend hikes from TDnet + shikiho x hike picks
+        run: |
+          python batch/fetch_dividend_hikes.py || echo "⚠ TDnet 増配取得 失敗（継続）"
+          python batch/build_shikiho_hike_picks.py || echo "⚠ 四季報×決算増配ピック 失敗（継続）"
+
+      - name: Commit and push
+        run: |
+          files="data/universe_jp_ext.json data/value_data_jp_ext.csv data/dividend_hikes_jp.json web/data/dividend_screener.json"
+          [ -f data/dividend_history_jp_ext.csv ] && files="$files data/dividend_history_jp_ext.csv"
+          bash batch/safe_commit_push.sh "data(jp dividend): Standard/Growth weekly $(date -u +%Y-%m-%d)" $files

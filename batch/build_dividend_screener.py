@@ -23,6 +23,9 @@ from ai_carry import carry_previous_ai
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INPUT_CSV = REPO_ROOT / "data" / "value_data_jp.csv"
+# スタンダード・グロース分。週1回 dividend_ext_jp.yml が取ってコミットする。
+EXT_CSV = REPO_ROOT / "data" / "value_data_jp_ext.csv"
+EXT_HISTORY_CSV = REPO_ROOT / "data" / "dividend_history_jp_ext.csv"
 OUTPUT_PATH = REPO_ROOT / "web" / "data" / "dividend_screener.json"
 HISTORY_CSV = REPO_ROOT / "data" / "dividend_history_jp.csv"
 
@@ -238,8 +241,20 @@ def main() -> int:
         return 1
 
     rows = []
-    with open(INPUT_CSV, encoding="utf-8") as f:
-        for r in csv.DictReader(f):
+    src_rows = []
+    seen = set()
+    for path, market in ((INPUT_CSV, "プライム"), (EXT_CSV, "スタンダード・グロース")):
+        if not path.exists():
+            continue
+        with open(path, encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                if r.get("ticker") in seen:
+                    continue
+                seen.add(r.get("ticker"))
+                r["_market"] = market
+                src_rows.append(r)
+    if True:
+        for r in src_rows:
             price = _f(r.get("current_price"))
             per = _f(r.get("trailing_pe"))
             pbr = _f(r.get("price_to_book"))
@@ -268,6 +283,7 @@ def main() -> int:
                 "code": code,
                 "name": r.get("name"),
                 "sector": r.get("sector17"),
+                "market": r["_market"],
                 "yield": round(yld, 2) if yld is not None else None,
                 "price": round(price) if price is not None else None,
                 "payout": round(payout, 1) if payout is not None else None,   # 既に%
@@ -286,6 +302,8 @@ def main() -> int:
     # 総合判定の高い順に並べておく(デフォルト表示用)
     # --- 増配判定（配当履歴CSVを読むだけ。通信しない） ---
     history = dividend_streak.load_history(HISTORY_CSV)
+    for _code, _s in dividend_streak.load_history(EXT_HISTORY_CSV).items():
+        history.setdefault(_code, _s)
     dividend_streak.attach(rows, lambda c: history.get(str(c)))
 
     # 年次DPSの明細は落とす。25年 x 857銘柄で2万件を超え、毎日コミットする
