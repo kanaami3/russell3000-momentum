@@ -182,6 +182,18 @@ def main() -> int:
         r["dividend_yield"], r["payout_ratio"] = new_y, new_p
     print(f"  配当利回りを配当履歴で補正: {n_fixed}銘柄", file=sys.stderr)
 
+    # レート制限で取れなかった銘柄は、前回のファイルに値があればそれを残す
+    # (スタンダード・グロース分は週1回コミットしているので、悪い回で上書きしない)。
+    if OUTPUT_PATH.exists():
+        with open(OUTPUT_PATH, encoding="utf-8") as f:
+            prev = {r["ticker"]: r for r in csv.DictReader(f) if r.get("current_price")}
+        kept = 0
+        for i, r in enumerate(rows):
+            if r.get("current_price") is None and r["ticker"] in prev:
+                rows[i] = prev[r["ticker"]]
+                kept += 1
+        print(f"  前回の値で補った銘柄: {kept}", file=sys.stderr)
+
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8", newline="") as f:
         # fetch_error は診断用に行へ付けてあるだけなので CSV には出さない

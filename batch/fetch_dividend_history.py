@@ -120,6 +120,14 @@ def main() -> int:
         print("1件も取得できませんでした。既存のキャッシュを維持します。", file=sys.stderr)
         return 1
 
+    # 取れなかった銘柄は前回の履歴を残す(レート制限の回で履歴が消えないように)
+    if failed and OUTPUT_CSV.exists():
+        miss = set(failed)
+        with OUTPUT_CSV.open(encoding="utf-8", newline="") as fh:
+            old = [(r["code"], r["ex_date"], float(r["amount"])) for r in csv.DictReader(fh) if r["code"] in miss]
+        rows.extend(old)
+        print(f"前回の履歴で補った銘柄: {len({c for c, _, _ in old})}")
+
     OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
     tmp = OUTPUT_CSV.with_suffix(".csv.tmp")
     with tmp.open("w", encoding="utf-8", newline="") as fh:
