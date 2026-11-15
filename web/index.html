@@ -275,7 +275,34 @@
       <template x-for="grp in [{k:'a', t:'A. 9条件をすべて通過 ＋ 直近決算で増配', c:'text-emerald-800'}, {k:'b', t:'B. 1条件だけ外れたが直近決算で増配', c:'text-amber-800'}, {k:'c', t:'C. 2条件外れたが直近決算で増配(参考)', c:'text-slate-600'}]" :key="grp.k">
         <div class="mb-3" x-show="(dividendData.shikiho_hike_picks?.[grp.k]||[]).length">
           <h3 class="text-xs font-bold mb-1.5" :class="grp.c" x-text="grp.t"></h3>
-          <div class="overflow-x-auto">
+          <!-- スマホ: カード表示 -->
+          <div class="sm:hidden space-y-1.5">
+            <template x-for="(p, i) in (dividendData.shikiho_hike_picks?.[grp.k]||[])" :key="'m'+p.code">
+              <div class="bg-white/80 border border-slate-200 rounded-lg px-2.5 py-2 text-xs">
+                <div class="flex items-baseline gap-1.5">
+                  <span class="text-slate-400 w-4 shrink-0" x-text="i+1"></span>
+                  <span class="font-mono text-[10px] text-slate-500" x-text="p.code"></span>
+                  <span class="font-bold text-slate-900 truncate" x-text="p.name"></span>
+                  <span x-show="p.market && p.market !== 'プライム'" class="text-[9px] px-1 rounded bg-slate-100 text-slate-500 shrink-0">ス・グ</span>
+                  <span class="ml-auto font-bold text-emerald-700 shrink-0" x-text="p.yield!=null ? p.yield.toFixed(2)+'%' : '-'"></span>
+                </div>
+                <div class="mt-1 pl-5 text-[11px] text-slate-600 flex flex-wrap gap-x-3">
+                  <span>PER <b x-text="p.per!=null ? p.per.toFixed(1) : '-'"></b></span>
+                  <span>PBR <b x-text="p.pbr!=null ? p.pbr.toFixed(2) : '-'"></b></span>
+                  <span>性向 <b x-text="p.payout!=null ? Math.round(p.payout)+'%' : '-'"></b></span>
+                  <span x-text="(p.streak_years||0) >= 3 ? p.streak_years + '期連続増配' : (p.non_decreasing ? p.non_decreasing + '期非減配' : '')"></span>
+                </div>
+                <div class="mt-1 pl-5 text-[11px] text-slate-600 leading-snug">
+                  <span class="text-slate-400" x-text="p.hike_date.slice(5).replace('-','/')"></span>
+                  <span x-text="p.hike_detail"></span>
+                  <span x-show="p.earnings_up" class="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 whitespace-nowrap">業績も上方修正</span>
+                </div>
+                <div x-show="grp.k!=='a' && p.failed" class="mt-1 pl-5 text-[11px] text-rose-700" x-text="'外れた条件: ' + (p.failed||'')"></div>
+              </div>
+            </template>
+          </div>
+          <!-- PC: 表 -->
+          <div class="hidden sm:block overflow-x-auto">
             <table class="w-full text-xs">
               <thead class="text-[10px] text-slate-500 border-b">
                 <tr>
@@ -304,7 +331,7 @@
                     <td class="py-1.5 pr-2 text-right" x-text="p.pbr!=null ? p.pbr.toFixed(2) : '-'"></td>
                     <td class="py-1.5 pr-2 text-right" x-text="p.payout!=null ? Math.round(p.payout)+'%' : '-'"></td>
                     <td class="py-1.5 pr-2 whitespace-nowrap" x-text="(p.streak_years||0) >= 3 ? p.streak_years + '期連続増配' : (p.non_decreasing ? p.non_decreasing + '期非減配' : '-')"></td>
-                    <td class="py-1.5 pr-2">
+                    <td class="py-1.5 pr-2 min-w-[16rem]">
                       <span class="text-slate-500" x-text="p.hike_date.slice(5).replace('-','/')"></span>
                       <span x-text="p.hike_detail"></span>
                       <span x-show="p.earnings_up" class="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">業績も上方修正</span>
