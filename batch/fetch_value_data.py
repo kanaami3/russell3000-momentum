@@ -54,7 +54,7 @@ FIELDS = [
 ]
 
 # Concurrency settings
-MAX_WORKERS = 8        # yfinance is OK with light parallelism
+MAX_WORKERS = int(os.getenv("VALUE_WORKERS", "8"))  # yfinance is OK with light parallelism
 PROGRESS_EVERY = 100
 
 
@@ -153,6 +153,12 @@ def main() -> int:
         return 1
 
     universe = json.loads(UNIVERSE_PATH.read_text(encoding="utf-8"))
+    # VALUE_ONLY_MISSING=1: 前回のファイルで株価が無い銘柄だけ取り直す(レート制限の取りこぼし埋め)
+    if os.getenv("VALUE_ONLY_MISSING") == "1" and OUTPUT_PATH.exists():
+        with open(OUTPUT_PATH, encoding="utf-8") as f:
+            have = {r["ticker"] for r in csv.DictReader(f) if r.get("current_price")}
+        universe = [u for u in universe if u["ticker"] not in have]
+        print(f"  取りこぼしのみ取得: {len(universe)} 銘柄", file=sys.stderr)
     print(f"Fetching value data for {len(universe)} JP Prime tickers...", file=sys.stderr)
 
     rows: list[dict] = []
@@ -192,6 +198,8 @@ def main() -> int:
             if r.get("current_price") is None and r["ticker"] in prev:
                 rows[i] = prev[r["ticker"]]
                 kept += 1
+        got = {r["ticker"] for r in rows}
+        rows.extend(r for t_, r in prev.items() if t_ not in got)
         print(f"  前回の値で補った銘柄: {kept}", file=sys.stderr)
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
