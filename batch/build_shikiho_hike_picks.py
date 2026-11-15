@@ -23,9 +23,9 @@ SCREENER = REPO_ROOT / "web" / "data" / "dividend_screener.json"
 HIKES = REPO_ROOT / "data" / "dividend_hikes_jp.json"
 JST = timezone(timedelta(hours=9))
 RECENT_DAYS = 120  # 中間決算〜本決算の1シーズン分
-MAX_A = 25
-MAX_B = 20
-MAX_C = 20
+MAX_A = 50
+MAX_B = 40
+MAX_C = 40
 
 # Bグループで「外れた条件」として表に出す言い方
 MISS = {

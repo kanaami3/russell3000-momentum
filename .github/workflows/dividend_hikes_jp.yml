@@ -1,0 +1,35 @@
+name: JP dividend hikes (TDnet) + shikiho picks
+
+# TDnet の増配開示(タイトル + XBRL の配当予想)を取り込み、四季報×決算増配ピックを作り直す。
+# 平日の日次ジョブ(weekly_value_jp.yml)でも同じ処理を回しているが、
+# 判定方法を変えたときにすぐ作り直せるよう、このファイルか取得スクリプトの変更でも走らせる。
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/dividend_hikes_jp.yml", "batch/fetch_dividend_hikes.py", "batch/build_shikiho_hike_picks.py"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  hikes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - run: pip install -r requirements.txt
+      - name: Dividend hikes from TDnet + shikiho x hike picks
+        run: |
+          python batch/fetch_dividend_hikes.py
+          python batch/build_shikiho_hike_picks.py
+      - name: Commit and push
+        run: bash batch/safe_commit_push.sh "data(jp dividend): TDnet hikes $(date -u +%Y-%m-%d)" data/dividend_hikes_jp.json web/data/dividend_screener.json
