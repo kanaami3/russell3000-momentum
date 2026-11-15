@@ -9,6 +9,11 @@ on:
   schedule:
     - cron: "40 4 * * 6"  # 土曜 13:40 JST(配当履歴の週次ジョブ 11:00 JST の後)
   workflow_dispatch:
+  # このファイルを変更して main に入れたときにも1回走る(手動実行の代わり)。
+  # push のときは、取りこぼした銘柄だけを取り直す。
+  push:
+    branches: [main]
+    paths: [".github/workflows/dividend_ext_jp.yml"]
 
 permissions:
   contents: write
@@ -36,6 +41,7 @@ jobs:
         run: python batch/fetch_universe_jp.py
 
       - name: Fetch dividend history (Standard/Growth)
+        if: github.event_name != 'push'
         env:
           DIV_UNIVERSE: data/universe_jp_ext.json
           DIV_HISTORY_CSV: data/dividend_history_jp_ext.csv
@@ -46,7 +52,12 @@ jobs:
           VALUE_UNIVERSE: data/universe_jp_ext.json
           VALUE_OUTPUT: data/value_data_jp_ext.csv
           DIV_HISTORY_CSV: data/dividend_history_jp_ext.csv
+          VALUE_WORKERS: "3"
+          VALUE_ONLY_MISSING: ${{ github.event_name == 'push' && '1' || '0' }}
         run: python batch/fetch_value_data.py
+
+      - name: Merge Standard/Growth into dividend screener
+        run: cd batch && python merge_ext_into_screener.py
 
       - name: Dividend hikes from TDnet + shikiho x hike picks
         run: |
