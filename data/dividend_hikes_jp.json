@@ -1,6 +1,6 @@
 {
  "note": "直近決算で配当予想の増額修正・増配を発表した銘柄。TDnetの適時開示タイトルから毎日自動追記(batch/fetch_dividend_hikes.py)。初期分は2026-10-27〜11-12の決算まとめから手動収集。",
- "updated_at": "2026-11-17",
+ "updated_at": "2026-11-18",
  "events": [
   {
    "code": "369A",
@@ -10053,7 +10053,7 @@
  ],
  "last_fetch": {
   "ok_days": 5,
-  "added": 1
+  "added": 0
  },
  "xbrl_seen": [
   "081220260810516735.zip",
