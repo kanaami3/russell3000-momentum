@@ -372,6 +372,21 @@
             <option value="">すべて</option><option value="4">◎のみ</option><option value="34">◎○</option>
           </select></label>
       </div>
+      <div class="mt-3 border-t border-slate-100 pt-3">
+        <div class="flex items-center gap-2 flex-wrap text-xs">
+          <span class="text-slate-600 font-bold">📊 10年実績:</span>
+          <template x-for="o in [{v:'',l:'条件なし'},{v:'6',l:'6項目すべて合格'},{v:'5',l:'5項目以上'},{v:'4',l:'4項目以上'}]" :key="o.v">
+            <button @click="divTrackMin=o.v; resetDivPage()" :class="divTrackMin===o.v?'bg-indigo-600 text-white':'bg-white text-slate-600 border'" class="px-2.5 py-1 rounded-full" x-text="o.l"></button>
+          </template>
+        </div>
+        <div class="mt-2 flex items-center gap-1.5 flex-wrap text-xs">
+          <span class="text-slate-500">必ず合格してほしい項目:</span>
+          <template x-for="(k, i) in TRACK_ITEMS" :key="k">
+            <button @click="toggleTrackReq(i)" :class="divTrackReq.includes(i)?'bg-indigo-100 text-indigo-800 border-indigo-400':'bg-white text-slate-500'" class="px-2 py-0.5 rounded-full border" x-text="(divTrackReq.includes(i)?'✓ ':'')+TRACK_LABELS[k]"></button>
+          </template>
+        </div>
+        <p x-show="!dividendData?.track_meta" class="mt-1 text-[11px] text-amber-700">10年実績のデータは準備中です(有価証券報告書から取り込み中)。準備ができるまでこの条件では絞り込めません。</p>
+      </div>
       <div class="mt-3 flex items-center gap-2 flex-wrap text-xs">
         <span class="text-slate-500">業種:</span>
         <button @click="divSectorFilter=''; resetDivPage()" :class="divSectorFilter===''?'bg-teal-600 text-white':'bg-white text-slate-600 border'" class="px-2.5 py-1 rounded-full">全て</button>
@@ -386,6 +401,12 @@
     </div>
 
     <!-- 増配銘柄の探し方 --><div class="bg-teal-50 border border-teal-200 rounded-2xl p-4 text-sm text-slate-700 leading-relaxed"><p class="font-bold text-teal-800 mb-1">💡 増配しそうな銘柄の探し方</p><p>「増配」列は<strong>過去の実績</strong>(何期連続で増配・非減配してきたか)。「増配余地」列は、配当性向・予想増益率・増配実績から見た"これから増配できる余地"の判定(◎○△×)で、右側の%は配当性向を目標水準まで引き上げた場合に利回りがどこまで伸びるかの理論値です。</p><p class="mt-1">この2つを組み合わせて見るのがコツです。<strong>増配余地が◎で、増配列にも実績(○期連続など)がある銘柄</strong>が最も期待できます。増配余地の%が高くても増配実績が浅い・判定が△×の銘柄は、「余地はあるが実際に増配するかは不透明」と捉えてください。</p><p class="mt-1"><strong>決算後の増配発表もあわせて見るとさらに確度が上がります。</strong>上の「📗 四季報×決算増配ピック」は、プライム・スタンダード・グロースの全上場銘柄(約3,200社)を対象に、四季報型の9条件(PER15倍以下・PBR1.5倍以下・ROE8%以上・利回り3%以上・配当性向50%以下・5期以上減配なし・減益予想でない・時価総額100億円以上・有利子負債が自己資本以下)と、直近120日にTDnetで出た増配の開示を突き合わせたものです。開示のタイトルだけでなく、決算短信と配当予想の修正に付いているXBRLの配当予想も読み、今期の年間配当予想が前期より多い銘柄や、配当予想を増額した銘柄も拾っています。Aは条件をすべて満たした銘柄、Bは1条件、Cは2条件だけ外れた銘柄で、利回り3%未満は除いています。増配の開示は平日の朝に毎日取り込んでいます。</p><p class="mt-1 text-xs text-slate-500">有利子負債の条件はデータがないため未判定です。TDnetには約1か月分しか残らないため、それより前の発表は一部しか拾えていません。</p></div><!-- table -->
+    <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 text-sm text-slate-700 leading-relaxed">
+      <p class="font-bold text-indigo-800 mb-1">📊 10年実績チェック(予想ではなく実績で選ぶ)</p>
+      <p>有価証券報告書の「主要な経営指標等の推移」から<strong>直近10期だけ</strong>を取り出し、6項目を自動で判定しています。11期以上前は主力事業や経営陣が入れ替わっている可能性があるので、データがあっても使いません。10期あればコロナショックのような逆境が必ず含まれ、そこでどんな実績を残したかが分かります。</p>
+      <p class="mt-1">①EPSが増加傾向 ②増配傾向 ③BPSが着実に積み上がり ④配当性向が上昇傾向でない ⑤自己資本比率の悪化が続いていない ⑥高ROE(8%以上)・高ROA(4%以上)が10期の7割以上で続いている。表の「10年実績」の丸をクリックすると、10期の推移と判定理由が開きます。</p>
+      <p class="mt-1 text-xs text-slate-500"><span class="text-emerald-600">●</span>=合格 <span class="text-rose-600">●</span>=不合格 ○=データ不足で判定不能(上場10年未満など)。1株あたりの数値は株式分割を調整して今の株数ベースにそろえています。<template x-if="dividendData?.track_meta"><span x-text="'判定 '+dividendData.track_meta.count.toLocaleString()+'銘柄・'+(dividendData.track_meta.generated_at_jst||'').slice(0,10)+'更新'"></span></template></p>
+    </div>
     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-xs whitespace-nowrap">
@@ -404,13 +425,14 @@
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('overall')">総合</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('growth')" title="連続増配にもとづく評価">増配</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('headroom')" title="配当性向・予想増益率・増配実績から見た、これから増配できる余地">増配余地</th>
+              <th class="px-2 py-2 text-center cursor-pointer hover:text-indigo-700" @click="setDivSort('track')" title="有価証券報告書の直近10期で見た6項目の合格数。クリックで推移を表示">10年実績</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('dividend')">配当</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('value')">割安</th>
               <th class="px-2 py-2 text-center cursor-pointer hover:text-teal-700" @click="setDivSort('earnings')">業績</th>
             </tr>
           </thead>
-          <tbody>
             <template x-for="r in divRows" :key="r.code">
+            <tbody>
               <tr class="border-t border-slate-100 hover:bg-slate-50">
                 <td class="px-2 py-1.5 text-slate-500" x-text="r.sector"></td>
                 <td class="px-2 py-1.5 font-mono" x-text="r.code"></td>
@@ -439,14 +461,50 @@
                   <span class="font-bold" x-text="headroomMark(r)"></span>
                   <span class="block text-[9px] font-normal opacity-75 whitespace-nowrap" x-text="headroomYield(r)"></span>
                 </td>
+                <td class="px-1 py-1.5 text-center leading-tight cursor-pointer" :class="trackOpen[r.code]?'bg-indigo-50':''" @click="toggleTrack(r)" :title="trackTitle(r)">
+                  <span class="inline-flex gap-0.5 align-middle">
+                    <template x-for="(v, i) in (r.tr ? r.tr.i : [null,null,null,null,null,null])" :key="i">
+                      <span class="inline-block w-2 h-2 rounded-full" :class="v===1?'bg-emerald-500':v===0?'bg-rose-500':'border border-slate-300'"></span>
+                    </template>
+                  </span>
+                  <span class="block text-[9px]" :class="r.tr?'text-slate-600':'text-slate-300'" x-text="r.tr ? (r.tr.p+'/6'+(r.tr.k<6?' (判定'+r.tr.k+')':'')) : '–'"></span>
+                </td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.dividend)" x-text="divMark(r.judge.dividend)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.value)" x-text="divMark(r.judge.value)"></td>
                 <td class="px-1 py-1.5 text-center font-bold" :class="divCellClass(r.judge.earnings)">
                   <span x-text="divMark(r.judge.earnings)"></span><span x-show="r.fwdWeak" class="text-[9px] align-super text-slate-500" title="予想EPSが欠損/異常のため、業績判定は過去業績のみ(今期予想は未反映)">*</span>
                 </td>
               </tr>
+              <tr x-show="trackOpen[r.code]" class="bg-indigo-50/40">
+                <td colspan="17" class="p-0">
+                  <div class="sticky left-0 p-3 whitespace-normal" style="max-width: min(calc(100vw - 3rem), 68rem)">
+                    <div x-show="!trackDetail(r)" class="text-xs text-slate-500" x-text="trackData ? 'この銘柄は有価証券報告書の10期推移がまだ取れていません。' : '読み込み中…'"></div>
+                    <template x-if="trackDetail(r)">
+                      <div>
+                        <div class="text-xs text-slate-600 mb-2">
+                          <b x-text="r.name"></b> の直近10期
+                          (<span x-text="trackDetail(r).fy[0]"></span>〜<span x-text="trackDetail(r).fy[trackDetail(r).fy.length-1]"></span> 期、<span x-text="trackDetail(r).fy.length"></span>期分)
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                          <template x-for="(k, i) in TRACK_ITEMS" :key="k">
+                            <div class="bg-white rounded-lg border p-2" :class="trackDetail(r).items[i]===1?'border-emerald-300':trackDetail(r).items[i]===0?'border-rose-300':'border-slate-200'">
+                              <div class="flex items-center justify-between text-xs">
+                                <span class="font-bold text-slate-700" x-text="(i+1)+'. '+TRACK_LABELS[k]"></span>
+                                <span class="font-bold" :class="trackDetail(r).items[i]===1?'text-emerald-700':trackDetail(r).items[i]===0?'text-rose-700':'text-slate-400'"
+                                      x-text="trackDetail(r).items[i]===1?'○ 合格':trackDetail(r).items[i]===0?'× 不合格':'判定不能'"></span>
+                              </div>
+                              <div class="mt-1" x-html="trackSpark(trackDetail(r), k)"></div>
+                              <div class="text-[11px] text-slate-500 mt-0.5" x-text="trackDetail(r).notes[i]"></div>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
             </template>
-          </tbody>
         </table>
       </div>
     </div>
@@ -2342,8 +2400,12 @@ statusBadgeClass(iso, freshH) {
       if (f.roeMin != null && f.roeMin !== '')     rows = rows.filter(r => r.roe != null && r.roe >= f.roeMin);
       if (this.divJudge === '4')  rows = rows.filter(r => r.judge.overall === 4);
       if (this.divJudge === '34') rows = rows.filter(r => (r.judge.overall ?? 0) >= 3);
+      // 10年実績。判定不能(データ不足)の銘柄は、条件を付けたら外す(合格扱いにしない)
+      if (this.divTrackMin) rows = rows.filter(r => r.tr && r.tr.p >= +this.divTrackMin);
+      if (this.divTrackReq.length) rows = rows.filter(r => r.tr && this.divTrackReq.every(i => r.tr.i[i] === 1));
       const k = this.divSort;
-      const val = (r) => ['overall','value','dividend','earnings'].includes(k) ? (r.judge[k] ?? -1) : (r[k] ?? -Infinity);
+      const val = (r) => k === 'track' ? (r.tr ? r.tr.p * 10 + r.tr.k : -1)
+        : ['overall','value','dividend','earnings'].includes(k) ? (r.judge[k] ?? -1) : (r[k] ?? -Infinity);
       rows.sort((a, b) => { const diff = this.divSortDesc ? (val(b) - val(a)) : (val(a) - val(b)); if (diff !== 0 || k !== 'headroom') return diff; return (b.yield ?? -Infinity) - (a.yield ?? -Infinity); });
       return rows;
     },
@@ -2356,6 +2418,70 @@ statusBadgeClass(iso, freshH) {
     divResetFilters() {
       this.divF = { yieldMin: null, pbrMax: null, perMax: null, payoutMax: null, roeMin: null };
       this.divJudge = ''; this.divSectorFilter = ''; this.divPage = 0;
+      this.divTrackMin = ''; this.divTrackReq = [];
+    },
+    toggleTrackReq(i) {
+      const a = this.divTrackReq;
+      this.divTrackReq = a.includes(i) ? a.filter(x => x !== i) : [...a, i];
+      this.divPage = 0;
+    },
+    async toggleTrack(r) {
+      this.trackOpen = { ...this.trackOpen, [r.code]: !this.trackOpen[r.code] };
+      if (this.trackOpen[r.code] && !this.trackData) {
+        try {
+          const resp = await fetch('./data/track_record_jp.json?v=' + (this.dividendData?.track_meta?.generated_at_jst || Date.now()));
+          this.trackData = resp.ok ? await resp.json() : { stocks: {} };
+        } catch (e) { this.trackData = { stocks: {} }; }
+      }
+    },
+    trackDetail(r) { return this.trackData?.stocks?.[r.code] || null; },
+    trackTitle(r) {
+      if (!r.tr) return '10年実績: 有価証券報告書の推移が未取得(上場が新しい・取得待ちなど)';
+      const mark = v => v === 1 ? '○' : v === 0 ? '×' : '－';
+      return '10年実績 ' + r.tr.p + '/6 合格(直近 ' + r.tr.fy + ' 期まで' + r.tr.n + '期)\n'
+        + this.TRACK_ITEMS.map((k, i) => mark(r.tr.i[i]) + ' ' + this.TRACK_LABELS[k]).join('\n')
+        + '\nクリックで10期の推移を表示';
+    },
+    // 10期のミニ推移(SVG)。項目に対応する系列を描く。ROE・ROA は2本。
+    trackSpark(d, k) {
+      const map = { eps: [['eps','EPS','円']], dps: [['dps','1株配当','円']], bps: [['bps','BPS','円']],
+                    payout: [['payout','配当性向','%']], equity: [['eq','自己資本比率','%']],
+                    profit: [['roe','ROE','%'], ['roa','ROA','%']] };
+      const lines = map[k] || [];
+      const W = 220, H = 46, P = 4;
+      const all = lines.flatMap(([key]) => (d[key] || []).filter(v => v != null));
+      if (!all.length) return '<div class="text-[11px] text-slate-400">データなし</div>';
+      let lo = Math.min(...all), hi = Math.max(...all);
+      if (k === 'profit') { lo = Math.min(lo, 0); }
+      if (hi === lo) { hi += 1; lo -= 1; }
+      const n = d.fy.length;
+      const x = i => P + (n <= 1 ? 0 : i * (W - 2 * P) / (n - 1));
+      const y = v => H - P - (v - lo) * (H - 2 * P) / (hi - lo);
+      const colors = ['#4f46e5', '#0d9488'];
+      let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="w-full h-12" preserveAspectRatio="none">';
+      if (lo < 0 && hi > 0) svg += '<line x1="0" x2="' + W + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="#cbd5e1" stroke-dasharray="2 2"/>';
+      const ref = k === 'profit' ? [[8, '#a5b4fc'], [4, '#99f6e4']] : [];
+      for (const [v, c] of ref) if (v > lo && v < hi) svg += '<line x1="0" x2="' + W + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="' + c + '" stroke-dasharray="3 3"/>';
+      lines.forEach(([key], li) => {
+        const vals = d[key] || [];
+        let path = '', pen = false;
+        vals.forEach((v, i) => {
+          if (v == null) { pen = false; return; }
+          path += (pen ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1) + ' ';
+          pen = true;
+        });
+        svg += '<path d="' + path + '" fill="none" stroke="' + colors[li] + '" stroke-width="1.8" vector-effect="non-scaling-stroke"/>';
+        vals.forEach((v, i) => { if (v != null) svg += '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(v).toFixed(1) + '" r="1.8" fill="' + colors[li] + '"/>'; });
+      });
+      svg += '</svg>';
+      const fmt = (v, u) => v == null ? '-' : (u === '%' ? v.toFixed(1) + '%' : Math.abs(v) >= 100 ? Math.round(v).toLocaleString() + '円' : v.toFixed(1) + '円');
+      const legend = lines.map(([key, label, u], li) => {
+        const vals = (d[key] || []);
+        const first = vals.find(v => v != null), last = [...vals].reverse().find(v => v != null);
+        return '<span style="color:' + colors[li] + '">' + label + ' ' + fmt(first, u) + ' → ' + fmt(last, u) + '</span>';
+      }).join('　');
+      const yrs = '<div class="flex justify-between text-[9px] text-slate-400"><span>' + (d.fy[0] || '') + '</span><span>' + (d.fy[n - 1] || '') + '</span></div>';
+      return svg + yrs + '<div class="text-[11px]">' + legend + '</div>';
     },
     setDivSort(k) {
       if (this.divSort === k) this.divSortDesc = !this.divSortDesc;
@@ -3154,6 +3280,12 @@ statusBadgeClass(iso, freshH) {
     divSectorFilter: '',          // 業種フィルタ
     divF: { yieldMin: 3.0, pbrMax: null, perMax: null, payoutMax: null, roeMin: null },
     divJudge: '',                 // '' | '4'(◎) | '34'(◎○)
+    divTrackMin: '',              // 10年実績の合格数の下限('' | '4' | '5' | '6')
+    divTrackReq: [],              // 必ず合格してほしい項目(TRACK_ITEMS の添字)
+    trackOpen: {},                // {code: true} 推移を開いている行
+    trackData: null,              // track_record_jp.json(行を開いたときに読む)
+    TRACK_ITEMS: ['eps','dps','bps','payout','equity','profit'],
+    TRACK_LABELS: { eps:'EPS増加傾向', dps:'増配傾向', bps:'BPS積み上げ', payout:'配当性向が上昇していない', equity:'自己資本比率が悪化し続けていない', profit:'高ROE・ROAが持続' },
     divPage: 0,
     divPageSize: 50,
     _macroChart: null,
