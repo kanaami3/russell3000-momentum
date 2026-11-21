@@ -27,6 +27,9 @@ SCREENER = REPO_ROOT / "web" / "data" / "dividend_screener.json"
 HIKES = REPO_ROOT / "data" / "dividend_hikes_jp.json"
 JST = timezone(timedelta(hours=9))
 RECENT_DAYS = 120  # 中間決算〜本決算の1シーズン分
+# 予想EPSが実績比でこの%までの減少は「減益予想でない」扱いにする。
+# yfinance の予想EPSは端数や一過性要因でわずかに下振れることがあるため。
+FWD_TOLERANCE_PCT = -5.0
 MAX_A = 100
 MAX_B = 60
 MAX_C = 40
@@ -34,7 +37,7 @@ MAX_C = 40
 # Bグループで「外れた条件」として表に出す言い方
 MISS = {
     "per": "PER15倍超", "pbr": "PBR1.5倍超", "roe": "ROE8%未満", "yield": "利回り3%未満",
-    "payout": "配当性向50%超", "nocut": "減配なしが5期未満", "fwd": "減益予想(予想EPS<実績EPS)または予想なし",
+    "payout": "配当性向50%超", "nocut": "減配なしが5期未満", "fwd": "5%超の減益予想または予想なし",
     "mcap": "時価総額100億円未満",
 }
 
@@ -45,10 +48,10 @@ CONDS = [
     ("yield", "利回り3%以上", lambda s: (s.get("yield") or 0) >= 3),
     ("payout", "配当性向50%以下", lambda s: s.get("payout") is not None and 0 < s["payout"] <= 50),
     ("nocut", "5期以上減配なし", lambda s: ((s.get("streak") or {}).get("non_decreasing") or 0) >= 5),
-    # 予想EPSが実績EPS以上。以前は「予想EPSが取れていて極端でない」だけを見ており、
+    # 予想EPSが実績EPSの95%以上(-5%までは許容)。以前は「予想EPSが取れていて極端でない」だけを見ており、
     # 実績比 -55% までの減益予想でも合格していた。予想EPSが無い・異常値の銘柄も不合格。
-    ("fwd", "減益予想でない", lambda s: (not s.get("fwdWeak")) and s.get("revOk")
-                                      and isinstance(s.get("rev"), (int, float)) and s["rev"] >= 0),
+    ("fwd", "減益予想でない(-5%まで許容)", lambda s: (not s.get("fwdWeak")) and s.get("revOk")
+                                      and isinstance(s.get("rev"), (int, float)) and s["rev"] >= FWD_TOLERANCE_PCT),
     ("mcap", "時価総額100億円以上", lambda s: (s.get("mcap") or 0) >= 100),
 ]
 
