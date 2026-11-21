@@ -40,7 +40,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/dividend_history_jp.csv
+          git add data/dividend_history_jp.csv data/splits_jp.csv
           if git diff --cached --quiet; then
             echo "変更なし。"
           else

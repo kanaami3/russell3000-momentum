@@ -1,0 +1,60 @@
+name: Daily JP 10-year track record (EDINET)
+
+# 有価証券報告書(EDINET)から直近10期の経営指標を集め、増配スクリーナーの
+# 「10年実績」6項目を判定する。
+#
+# 初回は約6年半ぶんの書類一覧と数千通の有報を読むので1回では終わらない。
+# スクリプトが時間の上限で区切って途中経過をコミットし、次の実行が続きから進める
+# (毎晩走るので数日で埋まる。急ぐときは手動実行を数回)。
+# 埋まったあとは、前日に提出された有報を読むだけなので数分で終わる。
+#
+# 必要な設定: リポジトリの Secrets に EDINET_API_KEY(無ければ何もせず成功で終わる)
+on:
+  schedule:
+    - cron: "30 18 * * *"   # 毎日 03:30 JST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# 長時間走るので日次データ更新(data-update)とは別のグループにする。
+# 同じグループにすると、走っている間に日次更新が待たされ、取りこぼされる。
+concurrency:
+  group: edinet-financials
+  cancel-in-progress: false
+
+jobs:
+  edinet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 200
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch annual reports (有価証券報告書 → 主要な経営指標等の推移)
+        env:
+          EDINET_API_KEY: ${{ secrets.EDINET_API_KEY }}
+          EDINET_TIME_BUDGET_MIN: "170"
+        run: python batch/fetch_edinet_financials.py
+
+      - name: Judge 10-year track record and commit
+        run: |
+          # スクリーナーは日次ジョブが書き換えるので、最新を取り込んでから判定を載せる。
+          # (古いスクリーナーに載せて -X ours で押し込むと、日次の更新を巻き戻してしまう)
+          git stash push --include-untracked -- data/ web/data/ || true
+          git pull --ff-only origin main
+          git stash pop || true
+          python batch/track_record.py
+          files=""
+          for f in web/data/track_record_jp.json web/data/dividend_screener.json data/edinet_asr_index.csv data/edinet_state.json data/financial_history_jp.csv; do
+            if [ -f "$f" ]; then files="$files $f"; fi
+          done
+          [ -z "$files" ] && { echo "コミットするものがありません"; exit 0; }
+          bash batch/safe_commit_push.sh "data(jp track record): EDINET 10-year $(date -u +%Y-%m-%d)" $files

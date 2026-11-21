@@ -45,6 +45,7 @@ jobs:
         env:
           DIV_UNIVERSE: data/universe_jp_ext.json
           DIV_HISTORY_CSV: data/dividend_history_jp_ext.csv
+          DIV_SPLITS_CSV: data/splits_jp_ext.csv
         run: python batch/fetch_dividend_history.py || echo "⚠ 配当履歴(スタンダード・グロース) 失敗（継続）"
 
       - name: Fetch fundamentals (Standard/Growth)
@@ -68,4 +69,5 @@ jobs:
         run: |
           files="data/universe_jp_ext.json data/value_data_jp_ext.csv data/dividend_hikes_jp.json web/data/dividend_screener.json"
           [ -f data/dividend_history_jp_ext.csv ] && files="$files data/dividend_history_jp_ext.csv"
+          [ -f data/splits_jp_ext.csv ] && files="$files data/splits_jp_ext.csv"
           bash batch/safe_commit_push.sh "data(jp dividend): Standard/Growth weekly $(date -u +%Y-%m-%d)" $files

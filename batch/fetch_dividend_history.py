@@ -34,6 +34,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 UNIVERSE_JSON = Path(os.getenv("DIV_UNIVERSE", REPO_ROOT / "data" / "universe_jp.json"))
 FALLBACK_CSV = REPO_ROOT / "data" / "value_data_jp.csv"
 OUTPUT_CSV = Path(os.getenv("DIV_HISTORY_CSV", REPO_ROOT / "data" / "dividend_history_jp.csv"))
+# 株式分割の履歴。10年実績(track_record.py)で、有報の1株指標を今の株数ベースに
+# そろえるのに使う。配当と同じ価格履歴に入っているので追加の通信はない。
+SPLITS_CSV = Path(os.getenv("DIV_SPLITS_CSV", REPO_ROOT / "data" / "splits_jp.csv"))
 
 BATCH_SIZE = int(os.getenv("DIV_BATCH_SIZE", "40"))
 BATCH_PAUSE_SEC = float(os.getenv("DIV_BATCH_PAUSE_SEC", "2.0"))
@@ -79,17 +82,45 @@ def read_universe() -> list[str]:
     return list(dict.fromkeys(codes))   # 重複除去（順序は維持）
 
 
+_SPLITS: dict[str, list[tuple[str, float]]] = {}
+
+
 def fetch_one(code: str) -> pd.Series | None:
     try:
-        div = yf.Ticker(f"{code}.T").dividends
+        tk = yf.Ticker(f"{code}.T")
+        div = tk.dividends
     except Exception:
         return None
+    try:
+        sp = tk.splits
+        if sp is not None and len(sp):
+            sp.index = pd.to_datetime(sp.index).tz_localize(None)
+            _SPLITS[code] = [(d.date().isoformat(), float(r)) for d, r in sp.items() if r and r > 0 and r != 1]
+        else:
+            _SPLITS[code] = []
+    except Exception:
+        pass
     if div is None or len(div) == 0:
         return None
     div = div.copy()
     div.index = pd.to_datetime(div.index).tz_localize(None)
     cutoff = pd.Timestamp.utcnow().tz_localize(None) - pd.DateOffset(years=YEARS_BACK)
     return div[div.index >= cutoff]
+
+
+def write_splits(failed: list[str]) -> None:
+    """分割履歴を書き出す。取れなかった銘柄は前回の行を残す。"""
+    rows = [(c, d, r) for c, lst in _SPLITS.items() for d, r in lst]
+    if SPLITS_CSV.exists():
+        with SPLITS_CSV.open(encoding="utf-8", newline="") as fh:
+            rows += [(r["code"], r["date"], float(r["ratio"])) for r in csv.DictReader(fh)
+                     if r["code"] not in _SPLITS]
+    tmp = SPLITS_CSV.with_suffix(".csv.tmp")
+    with tmp.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["code", "date", "ratio"])
+        w.writerows(sorted(rows))
+    os.replace(tmp, SPLITS_CSV)
 
 
 def main() -> int:
@@ -135,6 +166,7 @@ def main() -> int:
         w.writerow(["code", "ex_date", "amount"])
         w.writerows(rows)
     os.replace(tmp, OUTPUT_CSV)
+    write_splits(failed)
 
     covered = len(codes) - len(failed)
     print(f"完了: {covered}/{len(codes)} 銘柄, {len(rows)} 行 -> {OUTPUT_CSV.name}")

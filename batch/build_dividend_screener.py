@@ -42,6 +42,8 @@ HISTORY_CSV = REPO_ROOT / "data" / "dividend_history_jp.csv"
 import dividend_streak
 import dividend_judge
 import dividend_growth_screen
+# 10年実績(有報の10期推移)。週次で作った track_record_jp.json を読むだけで通信しない。
+import track_record
 
 MARKS = {4: "◎", 3: "○", 2: "△", 1: "×"}
 
@@ -347,6 +349,11 @@ def main() -> int:
                 "unk": _ev["unknown"],
             }
 
+    # 10年実績の要約を各銘柄に付ける(推移の明細は track_record_jp.json に分けてある)
+    track = track_record.load_track_json()
+    n_tr = track_record.attach(rows, track)
+    print(f"10年実績を付与: {n_tr}銘柄", file=sys.stderr)
+
     # overall が変わったので並べ直す
     rows.sort(key=lambda x: (x["judge"]["overall"] or 0, x["yield"] or 0), reverse=True)
 
@@ -377,6 +384,7 @@ def main() -> int:
             },
             "unimplemented": growth_screen["unimplemented"],
         },
+        "track_meta": track_record.meta(track),
         "stocks": rows,
     }
 
