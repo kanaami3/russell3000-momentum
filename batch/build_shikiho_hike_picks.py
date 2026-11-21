@@ -34,7 +34,7 @@ MAX_C = 40
 # Bグループで「外れた条件」として表に出す言い方
 MISS = {
     "per": "PER15倍超", "pbr": "PBR1.5倍超", "roe": "ROE8%未満", "yield": "利回り3%未満",
-    "payout": "配当性向50%超", "nocut": "減配なしが5期未満", "fwd": "今期は減益予想",
+    "payout": "配当性向50%超", "nocut": "減配なしが5期未満", "fwd": "減益予想(予想EPS<実績EPS)または予想なし",
     "mcap": "時価総額100億円未満",
 }
 
@@ -45,7 +45,10 @@ CONDS = [
     ("yield", "利回り3%以上", lambda s: (s.get("yield") or 0) >= 3),
     ("payout", "配当性向50%以下", lambda s: s.get("payout") is not None and 0 < s["payout"] <= 50),
     ("nocut", "5期以上減配なし", lambda s: ((s.get("streak") or {}).get("non_decreasing") or 0) >= 5),
-    ("fwd", "減益予想でない", lambda s: not s.get("fwdWeak")),
+    # 予想EPSが実績EPS以上。以前は「予想EPSが取れていて極端でない」だけを見ており、
+    # 実績比 -55% までの減益予想でも合格していた。予想EPSが無い・異常値の銘柄も不合格。
+    ("fwd", "減益予想でない", lambda s: (not s.get("fwdWeak")) and s.get("revOk")
+                                      and isinstance(s.get("rev"), (int, float)) and s["rev"] >= 0),
     ("mcap", "時価総額100億円以上", lambda s: (s.get("mcap") or 0) >= 100),
 ]
 
