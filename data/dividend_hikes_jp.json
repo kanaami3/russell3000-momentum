@@ -410,7 +410,9 @@
    "date": "2026-10-28",
    "detail": "剰余金の配当（創業30周年記念配当）に関するお知らせ",
    "earnings_up": false,
-   "source": "TDnet"
+   "source": "TDnet",
+   "special": true,
+   "kind": "special"
   },
   {
    "code": "3843",
@@ -1061,7 +1063,9 @@
    "date": "2026-10-29",
    "detail": "2027年3月期の中間配当（普通配当並びに特別配当）決定に関するお知らせ",
    "earnings_up": false,
-   "source": "TDnet"
+   "source": "TDnet",
+   "special": true,
+   "kind": "special"
   },
   {
    "code": "9081",
@@ -1674,9 +1678,11 @@
   {
    "code": "6331",
    "date": "2026-10-30",
-   "detail": "配当予想（期末配当及び記念配当）に関するお知らせ",
-   "earnings_up": false,
-   "source": "TDnet"
+   "detail": "普通配当を前期115円→今期予想129円に増配（ほかに経営統合契約締結の記念配当6円、記念込みの年間予想は135円。記念配当は増配に数えない）",
+   "earnings_up": true,
+   "source": "決算説明会(手動確認)",
+   "kind": "manual",
+   "special_checked": true
   },
   {
    "code": "642A",
@@ -1884,7 +1890,9 @@
    "date": "2026-10-30",
    "detail": "剰余金の配当（中間配当）および配当予想の修正（記念配当）に関するお知らせ",
    "earnings_up": false,
-   "source": "TDnet"
+   "source": "TDnet",
+   "special": true,
+   "kind": "special"
   },
   {
    "code": "7381",
@@ -6928,7 +6936,9 @@
    "date": "2026-11-11",
    "detail": "剰余金の配当（創業80周年記念配当）に関するお知らせ",
    "earnings_up": false,
-   "source": "TDnet"
+   "source": "TDnet",
+   "special": true,
+   "kind": "special"
   },
   {
    "code": "8151",
@@ -7918,7 +7928,9 @@
    "date": "2026-11-12",
    "detail": "期末配当予想の修正（会社設立15周年記念配当）に関するお知らせ",
    "earnings_up": false,
-   "source": "TDnet"
+   "source": "TDnet",
+   "special": true,
+   "kind": "special"
   },
   {
    "code": "6250",
@@ -7957,7 +7969,9 @@
    "date": "2026-11-12",
    "detail": "剰余金の配当（第76期中間配当および記念配当）に関するお知らせ",
    "earnings_up": false,
-   "source": "TDnet"
+   "source": "TDnet",
+   "special": true,
+   "kind": "special"
   },
   {
    "code": "6357",
@@ -8809,7 +8823,9 @@
    "date": "2026-11-13",
    "detail": "配当予想の修正（記念配当）に関するお知らせ",
    "earnings_up": false,
-   "source": "TDnet"
+   "source": "TDnet",
+   "special": true,
+   "kind": "special"
   },
   {
    "code": "3445",
@@ -8942,7 +8958,9 @@
    "date": "2026-11-13",
    "detail": "配当予想の修正（上場来初配当・上場10周年記念配当）に関するお知らせ",
    "earnings_up": false,
-   "source": "TDnet"
+   "source": "TDnet",
+   "special": true,
+   "kind": "special"
   },
   {
    "code": "3981",
@@ -9003,7 +9021,9 @@
    "date": "2026-11-13",
    "detail": "配当予想の修正（創業15周年記念配当）に関するお知らせ",
    "earnings_up": false,
-   "source": "TDnet"
+   "source": "TDnet",
+   "special": true,
+   "kind": "special"
   },
   {
    "code": "4301",
@@ -9137,7 +9157,9 @@
    "date": "2026-11-13",
    "detail": "2026年12月期 配当予想の修正（創立30周年記念配当）に関するお知らせ",
    "earnings_up": false,
-   "source": "TDnet"
+   "source": "TDnet",
+   "special": true,
+   "kind": "special"
   },
   {
    "code": "4845",
@@ -10025,7 +10047,9 @@
    "date": "2026-11-16",
    "detail": "記念配当に伴う中間配当予想の修正と配当方針変更に関するお知らせ",
    "earnings_up": false,
-   "source": "TDnet"
+   "source": "TDnet",
+   "special": true,
+   "kind": "special"
   },
   {
    "code": "7946",
@@ -10086,7 +10110,9 @@
    "date": "2026-11-20",
    "detail": "剰余金の配当（特別配当）に関するお知らせ",
    "earnings_up": false,
-   "source": "TDnet"
+   "source": "TDnet",
+   "special": true,
+   "kind": "special"
   }
  ],
  "last_fetch": {
@@ -13021,5 +13047,16 @@
   "091220261119583737.zip",
   "091220261120584035.zip",
   "091220261120584103.zip"
+ ],
+ "specials": [
+  {
+   "code": "6331",
+   "fy_end": "2027-03",
+   "part": "期末",
+   "amount": 6.0,
+   "date": "2026-10-30",
+   "source": "manual",
+   "note": "経営統合契約締結記念。2027年3月期の年間135円のうち6円（決算説明会 2026-11-18）"
+  }
  ]
 }

@@ -7,6 +7,10 @@ dividend_screener.json の全銘柄に9条件を当て、data/dividend_hikes_jp.
   B: 1条件だけ外れたが、直近に増配
   C: 2条件外れたが、直近に増配(参考枠)
 
+「直近に増配」には記念配当・特別配当だけの増額を含めない(special の付いたイベント)。
+利回り・配当性向・減配なし期数も、dividend_streak.load_history が記念・特別配当を
+差し引いた普通配当で計算している。
+
 結果は dividend_screener.json の "shikiho_hike_picks" に書き足す。
 build_dividend_screener.py の後に走らせること(通信なし)。
 """
@@ -56,6 +60,9 @@ def main() -> int:
     latest: dict[str, dict] = {}
     for e in events:
         if e["date"] < cutoff:
+            continue
+        # 記念・特別配当だけの増額は増配に数えない(一過性で翌期に剝落する)
+        if e.get("special"):
             continue
         if e["code"] not in latest or e["date"] > latest[e["code"]]["date"]:
             latest[e["code"]] = e
