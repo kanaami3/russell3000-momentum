@@ -23,6 +23,9 @@ yfinance の `.dividends` が返すのは権利落ち日。3月期なら中間�
 のだから記録が切れるのは正しいが、「記念配当を除けば連続増配」という会社を
 一律に切り捨てることにもなる。ここは判定を変えず、`had_special` を立てて
 画面側で注釈できるようにする（自動で除外すると、本物の減配を隠す方が危険）。
+ただし額が分かっている記念・特別配当(TDnet の注記から拾ったもの)は、load_history が
+読み込みの時点で差し引き、普通配当だけで集計する。額の分からない突出を推測で
+削ることはしない。
 """
 
 from __future__ import annotations
@@ -161,11 +164,62 @@ def label(s: Streak) -> str:
     return "減配あり"
 
 
-def load_history(csv_path) -> dict[str, pd.Series]:
+# fetch_dividend_hikes.py が TDnet の注記から拾った記念・特別配当の額(と手入力ぶん)
+SPECIALS_JSON = Path(__file__).resolve().parent.parent / "data" / "dividend_hikes_jp.json"
+
+
+def load_specials(path=SPECIALS_JSON) -> list[dict]:
+    try:
+        import json
+        return json.loads(Path(path).read_text(encoding="utf-8")).get("specials", []) or []
+    except (OSError, ValueError):
+        return []
+
+
+def strip_specials(series: pd.Series, items: list[dict]) -> pd.Series:
+    """配当履歴から記念・特別配当の額を差し引く。
+
+    yfinance の配当明細は普通配当と記念配当を1件に合算している。額が分かって
+    いるもの(items: [{fy_end: "2027-03", part: "期末"|"中間"|None, amount}])だけ
+    該当する支払いから引く。期末は決算月、中間は決算月の6か月前の権利落ちを探す。
+    分割の調整で額が合わない(引くと0以下になる)ときは触らない。
+    """
+    if not items or series is None or series.empty:
+        return series
+    s = series.copy()
+    for it in items:
+        try:
+            y, m = (int(x) for x in str(it["fy_end"]).split("-"))
+            amt = float(it["amount"])
+        except (KeyError, ValueError, TypeError):
+            continue
+        end = pd.Timestamp(year=y, month=m, day=1) + pd.offsets.MonthEnd(0)
+        win = s[(s.index > end - pd.DateOffset(months=12)) & (s.index <= end)]
+        if win.empty:
+            continue
+        part = it.get("part")
+        if part == "期末":
+            cand = win[(win.index.year == y) & (win.index.month == m)]
+        elif part == "中間":
+            mid = end - pd.DateOffset(months=6)
+            cand = win[(win.index.year == mid.year) & (win.index.month == mid.month)]
+        else:
+            cand = win if len(win) == 1 else win[(win.index.year == y) & (win.index.month == m)]
+        if len(cand) != 1:
+            continue
+        ts = cand.index[0]
+        if s.loc[ts] - amt > 0:
+            s.loc[ts] = round(float(s.loc[ts]) - amt, 6)
+    return s
+
+
+def load_history(csv_path, specials: list[dict] | None = None) -> dict[str, pd.Series]:
     """fetch_dividend_history.py が書いた CSV を code -> Series に読み込む。
 
     index は権利落ち日。ファイルが無ければ空の辞書を返す（全銘柄が「判定なし」に
     なるだけで、ビルドは止めない）。
+    記念・特別配当は差し引いた普通配当にする(額が分かっているものだけ)。
+    利回り・配当性向・連続増配のどれも、記念配当込みだと一過性の上乗せで良く見える。
     """
     path = Path(csv_path)
     if not path.exists():
@@ -174,10 +228,15 @@ def load_history(csv_path) -> dict[str, pd.Series]:
     if df.empty:
         return {}
     df["ex_date"] = pd.to_datetime(df["ex_date"])
+    if specials is None:
+        specials = load_specials()
+    by_code: dict[str, list[dict]] = {}
+    for it in specials:
+        by_code.setdefault(str(it.get("code")), []).append(it)
     out: dict[str, pd.Series] = {}
     for code, grp in df.groupby("code"):
         s = grp.set_index("ex_date")["amount"].sort_index()
-        out[str(code)] = s
+        out[str(code)] = strip_specials(s, by_code.get(str(code), []))
     return out
 
 

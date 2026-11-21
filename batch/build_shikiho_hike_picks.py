@@ -7,6 +7,10 @@ dividend_screener.json の全銘柄に9条件を当て、data/dividend_hikes_jp.
   B: 1条件だけ外れたが、直近に増配
   C: 2条件外れたが、直近に増配(参考枠)
 
+「直近に増配」には記念配当・特別配当だけの増額を含めない(special の付いたイベント)。
+利回り・配当性向・減配なし期数も、dividend_streak.load_history が記念・特別配当を
+差し引いた普通配当で計算している。
+
 結果は dividend_screener.json の "shikiho_hike_picks" に書き足す。
 build_dividend_screener.py の後に走らせること(通信なし)。
 """
@@ -30,7 +34,7 @@ MAX_C = 40
 # Bグループで「外れた条件」として表に出す言い方
 MISS = {
     "per": "PER15倍超", "pbr": "PBR1.5倍超", "roe": "ROE8%未満", "yield": "利回り3%未満",
-    "payout": "配当性向50%超", "nocut": "減配なしが5期未満", "fwd": "今期は減益予想",
+    "payout": "配当性向50%超", "nocut": "減配なしが5期未満", "fwd": "減益予想(予想EPS<実績EPS)または予想なし",
     "mcap": "時価総額100億円未満",
 }
 
@@ -41,7 +45,10 @@ CONDS = [
     ("yield", "利回り3%以上", lambda s: (s.get("yield") or 0) >= 3),
     ("payout", "配当性向50%以下", lambda s: s.get("payout") is not None and 0 < s["payout"] <= 50),
     ("nocut", "5期以上減配なし", lambda s: ((s.get("streak") or {}).get("non_decreasing") or 0) >= 5),
-    ("fwd", "減益予想でない", lambda s: not s.get("fwdWeak")),
+    # 予想EPSが実績EPS以上。以前は「予想EPSが取れていて極端でない」だけを見ており、
+    # 実績比 -55% までの減益予想でも合格していた。予想EPSが無い・異常値の銘柄も不合格。
+    ("fwd", "減益予想でない", lambda s: (not s.get("fwdWeak")) and s.get("revOk")
+                                      and isinstance(s.get("rev"), (int, float)) and s["rev"] >= 0),
     ("mcap", "時価総額100億円以上", lambda s: (s.get("mcap") or 0) >= 100),
 ]
 
@@ -56,6 +63,9 @@ def main() -> int:
     latest: dict[str, dict] = {}
     for e in events:
         if e["date"] < cutoff:
+            continue
+        # 記念・特別配当だけの増額は増配に数えない(一過性で翌期に剝落する)
+        if e.get("special"):
             continue
         if e["code"] not in latest or e["date"] > latest[e["code"]]["date"]:
             latest[e["code"]] = e
