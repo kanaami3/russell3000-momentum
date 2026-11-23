@@ -1,11 +1,11 @@
 {
- "asof": "2026-11-21",
- "generated_at_jst": "2026-11-21T01:55:12+09:00",
+ "asof": "2026-11-24",
+ "generated_at_jst": "2026-11-24T05:06:17+09:00",
  "source": "https://www.jpx.co.jp/listing/stocks/new/",
- "cutoff": "2024-11-20",
+ "cutoff": "2024-11-23",
  "years_back": 2,
  "pages_failed": 0,
- "count": 147,
+ "count": 146,
  "upcoming": 13,
  "ipos": [
   {
@@ -2195,21 +2195,6 @@
    "offer_price": 950.0,
    "public_shares_k": 640.0,
    "secondary_shares_k": 570.9,
-   "trading_unit": 100.0,
-   "listed": true
-  },
-  {
-   "code": "274A",
-   "name": "（株）ガーデン",
-   "technical": false,
-   "listing_date": "2024-11-22",
-   "approval_date": "2024-10-18",
-   "market": "スタンダード",
-   "band_low": 3100.0,
-   "band_high": 3200.0,
-   "offer_price": 3200.0,
-   "public_shares_k": 1600.0,
-   "secondary_shares_k": null,
    "trading_unit": 100.0,
    "listed": true
   }

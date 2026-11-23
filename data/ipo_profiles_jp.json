@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-21T01:55:17+09:00",
+ "updated_at": "2026-11-24T05:06:22+09:00",
  "profiles": {
   "648A": {
    "summary_en": "LECRE Inc. designs, develops, and provides AI-based software-as-a-service (SaaS) solutions and digital transformation (DX) platforms. The company develops and operates a device-integrated, AI cloud-based Record DX platform that enables organizations to capture, manage, structure, and analyze field data, such as photographs, videos, and text records. It caters to the construction, maintenance, repair, inspection, childcare, and education sectors. LECRE Inc. was formerly known as TriWorks Corp. The company was incorporated in 1995 and is based in Minato, Japan.",
@@ -2041,11 +2041,21 @@
   },
   "667A": {
    "ok": false,
-   "checked_at": "2026-11-17"
+   "checked_at": "2026-11-24"
   },
   "657A": {
-   "ok": false,
-   "checked_at": "2026-11-17"
+   "summary_en": "HiJoJo Partners Inc. is a venture capital firm specializing in mid- to late-stage startup investments. The firm provides investment opportunities in unicorns and high-growth companies worldwide through curated funds. HiJoJo Partners Inc. was founded in November 2017 and is headquartered in Tokyo, Japan.",
+   "sector_en": "Financial Services",
+   "industry_en": "Capital Markets",
+   "employees": null,
+   "website": "https://www.hijojo-partners.com",
+   "city": "Tokyo",
+   "market_cap": 24475019264,
+   "sector_ja": "金融",
+   "ok": true,
+   "checked_at": "2026-11-24",
+   "biz_ja": "急成長スタートアップへ投資するファンドの運営",
+   "summary_ja": "国内外で急成長する未上場の有力企業や、評価額が高い企業（ユニコーン）を主な投資対象とするベンチャーキャピタルです。投資家から資金を集めて専門のファンドを設立・運用し、有望企業への投資機会を提供することで運用報酬などを得ています。"
   },
   "669A": {
    "ok": false,
@@ -2077,11 +2087,11 @@
   },
   "688A": {
    "ok": false,
-   "checked_at": "2026-11-17"
+   "checked_at": "2026-11-24"
   },
   "686A": {
    "ok": false,
-   "checked_at": "2026-11-17"
+   "checked_at": "2026-11-24"
   },
   "711A": {
    "ok": false,
@@ -2093,5 +2103,5 @@
   }
  },
  "count": 160,
- "ok_count": 145
+ "ok_count": 146
 }
