@@ -33,4 +33,4 @@ jobs:
           python batch/build_shikiho_hike_picks.py
       - name: Commit and push
         run: |
-          bash batch/safe_commit_push.sh "data(jp dividend): TDnet hikes $(date -u +%Y-%m-%d)" data/dividend_hikes_jp.json web/data/dividend_screener.json
+          bash batch/safe_commit_push.sh "data(jp dividend): TDnet hikes $(date -u +%Y-%m-%d)" data/dividend_hikes_jp.json data/dividend_forecast_jp.json web/data/dividend_screener.json

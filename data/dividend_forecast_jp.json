@@ -1,0 +1,1 @@
+{"note":"TDnet の決算短信・配当予想の修正(XBRLサマリー)から取った、銘柄ごとの最新の会社予想。batch/fetch_dividend_hikes.py が毎日更新。初回の実行で直近1か月分を読み込む。","updated_at":null,"forecasts":{}}

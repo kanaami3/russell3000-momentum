@@ -30,7 +30,7 @@ MAX_C = 40
 # Bグループで「外れた条件」として表に出す言い方
 MISS = {
     "per": "PER15倍超", "pbr": "PBR1.5倍超", "roe": "ROE8%未満", "yield": "利回り3%未満",
-    "payout": "配当性向50%超", "nocut": "減配なしが5期未満", "fwd": "今期は減益予想",
+    "payout": "配当性向50%超", "nocut": "減配なしが5期未満", "fwd": "今期は減益予想(または予想なし)",
     "mcap": "時価総額100億円未満",
 }
 
@@ -41,7 +41,9 @@ CONDS = [
     ("yield", "利回り3%以上", lambda s: (s.get("yield") or 0) >= 3),
     ("payout", "配当性向50%以下", lambda s: s.get("payout") is not None and 0 < s["payout"] <= 50),
     ("nocut", "5期以上減配なし", lambda s: ((s.get("streak") or {}).get("non_decreasing") or 0) >= 5),
-    ("fwd", "減益予想でない", lambda s: not s.get("fwdWeak")),
+    # 予想増益率(会社の純利益予想の前期比。無ければ予想EPS÷実績EPS−1)が0%以上。
+    # 以前は「予想EPSが取れたか」(fwdWeak)だけを見ていて、減益予想でも通っていた。
+    ("fwd", "減益予想でない", lambda s: s.get("revOk") and s.get("rev") is not None and s["rev"] >= 0),
     ("mcap", "時価総額100億円以上", lambda s: (s.get("mcap") or 0) >= 100),
 ]
 
@@ -65,6 +67,10 @@ def main() -> int:
         ev = latest.get(s["code"])
         if not ev:
             continue
+        # 会社予想が前期より少ない(減配予想)なら、増配の開示があっても増配銘柄ではない
+        # (例: 期中に上方修正したが、なお前期実績を下回る)
+        if s.get("divCut"):
+            continue
         failed = [MISS[k] for k, _, f in CONDS if not f(s)]
         # 高配当狙いなので、利回り3%未満はBにも入れない
         if len(failed) > 2 or "利回り3%未満" in failed:
@@ -80,11 +86,15 @@ def main() -> int:
             "hike_date": ev["date"], "hike_detail": ev["detail"],
             "earnings_up": ev.get("earnings_up", False),
             "failed": " / ".join(failed) if failed else None,
+            # 利回り・配当性向が会社予想で確認できたか(できていない銘柄は画面で「未確認」と出す)
+            "divSrc": s.get("divSrc"), "dps": s.get("dps"), "dpsPrior": s.get("dpsPrior"),
+            "divNote": s.get("divNote"),
         }
         [a, b, c][len(failed)].append(row)
 
     def key(r):
-        return (-(r["headroom"] or 0), -(r["streak_years"] or 0), -(r["yield"] or 0))
+        # 会社予想で利回りを確認できた銘柄を先に並べる
+        return (r.get("divSrc") != "company", -(r["headroom"] or 0), -(r["streak_years"] or 0), -(r["yield"] or 0))
 
     a.sort(key=key)
     b.sort(key=key)

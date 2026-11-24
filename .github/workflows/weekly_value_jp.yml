@@ -75,6 +75,13 @@ jobs:
         if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
         run: python batch/fetch_value_data.py
 
+      # TDnet の増配開示と会社予想(年間配当・1株利益)を先に取り込む。
+      # 配当スクリーナーの利回り・配当性向はこの会社予想で計算し直すので、
+      # build_dividend_screener.py より前でなければならない。
+      - name: Dividend hikes + company forecasts from TDnet
+        if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
+        run: python batch/fetch_dividend_hikes.py || echo "⚠ TDnet 増配取得 失敗（継続）"
+
       - name: Dividend screener (全銘柄・割安/配当/業績 judgments)
         if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
         run: python batch/build_dividend_screener.py
@@ -107,8 +114,7 @@ jobs:
       - name: Shikiho x dividend-hike picks (四季報×決算増配ピック)
         if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
         run: |
-          # TDnet の取得に失敗しても、手元の増配イベントでピックは作り直す。
-          python batch/fetch_dividend_hikes.py || echo "⚠ TDnet 増配取得 失敗（継続）"
+          # TDnet の取得(上のステップ)に失敗しても、手元の増配イベントでピックは作り直す。
           python batch/build_shikiho_hike_picks.py || echo "⚠ 四季報×決算増配ピック 失敗（継続）"
 
       - name: Commit and push
@@ -118,4 +124,4 @@ jobs:
             "data(jp value): daily update $(date -u +%Y-%m-%d)" \
             data/universe_jp.json web/data/margin_balance_history.json \
             web/data/investor_flows_jp.json web/data/dividend_screener.json \
-            data/dividend_hikes_jp.json
+            data/dividend_hikes_jp.json data/dividend_forecast_jp.json

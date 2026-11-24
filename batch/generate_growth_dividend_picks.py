@@ -71,6 +71,10 @@ def select_candidates(stocks: list[dict]) -> list[dict]:
             continue
         if s.get("headroom") in (None, 1):     # 増配余地なし・× は除外
             continue
+        # 利回りを会社予想で確認できない銘柄・減配予想の銘柄は候補にしない。
+        # (divSrc が無いのは会社予想を取り込む前のデータなので、従来どおり通す)
+        if s.get("divSrc") not in (None, "company") or s.get("divCut"):
+            continue
         out.append(s)
 
     # 増配余地 → 連続増配期数 → 利回り の順で優先
