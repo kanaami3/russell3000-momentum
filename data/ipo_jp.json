@@ -1,12 +1,12 @@
 {
- "asof": "2026-11-24",
- "generated_at_jst": "2026-11-24T05:06:17+09:00",
+ "asof": "2026-11-25",
+ "generated_at_jst": "2026-11-25T04:28:55+09:00",
  "source": "https://www.jpx.co.jp/listing/stocks/new/",
- "cutoff": "2024-11-23",
+ "cutoff": "2024-11-24",
  "years_back": 2,
  "pages_failed": 0,
  "count": 146,
- "upcoming": 13,
+ "upcoming": 12,
  "ipos": [
   {
    "code": "711A",
@@ -167,7 +167,7 @@
    "market": "グロース",
    "band_low": 210.0,
    "band_high": 220.0,
-   "offer_price": null,
+   "offer_price": 220.0,
    "public_shares_k": 50.0,
    "secondary_shares_k": 8684.0,
    "trading_unit": 100.0,
@@ -201,7 +201,7 @@
    "public_shares_k": 617.3,
    "secondary_shares_k": 1633.7,
    "trading_unit": 100.0,
-   "listed": false
+   "listed": true
   },
   {
    "code": "657A",
