@@ -34,6 +34,7 @@ HISTORY_CSV = REPO_ROOT / "data" / "dividend_history_jp.csv"
 import dividend_streak
 import dividend_judge
 import dividend_growth_screen
+import dividend_forecast
 HISTORY_CSV = REPO_ROOT / "data" / "dividend_history_jp.csv"
 
 # 同じ batch/ 配下のモジュール。週次で貯めた配当履歴から増配判定を足す。
@@ -253,6 +254,8 @@ def main() -> int:
     rows = []
     src_rows = []
     seen = set()
+    # TDnet の会社予想(年間配当・1株利益)。あれば利回り・配当性向をこれで出し直す
+    forecasts = dividend_forecast.load()
     for path, market in ((INPUT_CSV, "プライム"), (EXT_CSV, "スタンダード・グロース")):
         if not path.exists():
             continue
@@ -280,15 +283,26 @@ def main() -> int:
             if price is None:
                 continue
 
+            code = (r.get("ticker") or "").replace(".T", "")
+            fc = dividend_forecast.fresh(forecasts.get(code))
+            div = dividend_forecast.resolve(yld, payout, price, per, fc)
+            yld, payout = div["yield"], div["payout"]
+            if "fwdEps" in div:
+                fwd_eps = div["fwdEps"]
+
             rev = eps_revision(fwd_eps, trail_eps)   # 予想EPS改定の方向
             rev_ok = revision_reliable(rev)          # 現実的な範囲か
+            # 会社が開示した純利益予想の前期比があれば、それを予想増益率にする。
+            # yfinance の予想EPSは中小型株で桁違いになることがあり、実績も直近12か月で
+            # 前期実績とずれる。会社の数字なので異常値の除外もしない。
+            if "profitChg" in div:
+                rev, rev_ok = div["profitChg"], True
             rev_eff = rev if rev_ok else None        # 判定に使うのは信頼できる時のみ
             j_val = judge_value(per, pbr)
             j_div = judge_dividend(yld, payout)
             j_ern = judge_earnings(roe, eg, rg, rev_eff)
             j_all = overall([j_val, j_div, j_ern])
 
-            code = (r.get("ticker") or "").replace(".T", "")
             rows.append({
                 "code": code,
                 "name": r.get("name"),
@@ -307,7 +321,10 @@ def main() -> int:
                 # 予想EPSが異常 or 欠損 → 業績判定は過去ベースのみ(予想を織り込めず)
                 "fwdWeak": (fwd_eps is None) or (not rev_ok and rev is not None),
                 "judge": {"overall": j_all, "value": j_val, "dividend": j_div, "earnings": j_ern},
+                # 利回り・配当性向の出どころ。company=会社予想(TDnet)、それ以外は未確認
+                **{k: div[k] for k in ("divSrc", "dps", "dpsPrior", "dpsDate", "divCut", "divHike", "dpsSpecial", "dpsPriorSpecial") if k in div},
             })
+            rows[-1]["divNote"] = dividend_forecast.note(rows[-1])
 
     # 総合判定の高い順に並べておく(デフォルト表示用)
     # --- 増配判定（配当履歴CSVを読むだけ。通信しない） ---
