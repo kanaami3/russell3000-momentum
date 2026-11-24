@@ -124,3 +124,8 @@ if __name__ == "__main__":
         if k.startswith("test_"):
             v()
             print("ok", k)
+
+
+def test_split_suspect_not_cut():
+    r = df.resolve(3.0, 30, 1124, 9, {"dps": 43, "prior": 180, "eps": 133.08, "date": "2026-11-11"})
+    assert r.get("divCut") is None and r["divSplitSuspect"]

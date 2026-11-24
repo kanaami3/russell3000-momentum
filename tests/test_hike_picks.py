@@ -80,3 +80,10 @@ def test_revision_vs_year_over_year():
     assert not is_revision({"source": "TDnet XBRL", "kind": "tanshin", "detail": "決算短信で今期の年間配当予想…"})
     assert not is_revision({"source": "TDnet", "detail": "2027年３月期 第２四半期決算短信（増配）"})
     assert is_revision({"source": "決算まとめ(手動収集)", "detail": "配当も20円増額"})
+
+
+def test_split_is_review_not_cut():
+    # ラサ工業: 前期180円は株式分割前の額。今期予想43円を減配とはしない
+    r = evaluate(stock(1124, 1.31, 9, 439), REV, {"dps": 43, "prior": 180, "eps": 133.08},
+                 {"eps": 120.0, "roe": 14.6})
+    assert r["cut"] is False and r["review"]
