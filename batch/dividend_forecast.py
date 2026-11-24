@@ -104,6 +104,10 @@ def resolve(est_yield, est_payout, price, per, fc: dict | None) -> dict:
     if _num(prior) and _num(sp_prior) and 0 < sp_prior < prior:
         out["dpsPriorSpecial"] = sp_prior
         prior = prior - sp_prior
+    # 前期の半分未満は株式分割の可能性が高い(前期の配当が分割前の額のまま)。減配とは言えない
+    if _num(prior) and dps < prior * 0.5:
+        out["divSplitSuspect"] = True
+        prior = None
     if _num(prior):
         out["dpsPrior"] = round(prior, 2)
         out["divCut"] = dps < prior - 1e-6

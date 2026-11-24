@@ -39,6 +39,7 @@ ACTUALS = REPO_ROOT / "data" / "fy_actuals_jp.json"
 JST = timezone(timedelta(hours=9))
 RECENT_DAYS = 120  # 中間決算〜本決算の1シーズン分
 FORECAST_FRESH_DAYS = 200
+SPLIT_RATIO = 0.5  # 予想が前期の半分未満なら株式分割を疑う
 MAX_A = 100
 MAX_B = 60
 MAX_C = 40
@@ -117,6 +118,11 @@ def evaluate(s: dict, ev: dict, fc: dict | None, act: dict | None) -> dict:
     if SPECIAL_TITLE.search(ev.get("detail", "")):
         review.append("増額が記念・特別配当の可能性(開示タイトル)")
 
+    # 前期の半分未満は、減配より株式分割(前期の配当が分割前の額のまま)の可能性が高い。
+    # 例: ラサ工業は前期180円(分割前)、今期予想43円。比べられないので要確認に回す。
+    if dps is not None and prior is not None and dps < prior * SPLIT_RATIO:
+        review.append(f"株式分割の可能性(前期{prior:g}円→予想{dps:g}円で比較できない)")
+        prior = None
     cut = dps is not None and prior is not None and dps < prior - 1e-6
     yld = round(dps / price * 100, 2) if dps is not None and _num(price) and price > 0 else None
     payout = round(dps / eps_f * 100, 1) if dps is not None and eps_f else None
