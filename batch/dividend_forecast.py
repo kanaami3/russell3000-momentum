@@ -84,6 +84,11 @@ def resolve(est_yield, est_payout, price, per, fc: dict | None) -> dict:
         return out
     if not _num(price) or price <= 0:
         return out
+    # 記念・特別配当は一過性なので除き、普通配当で利回り・配当性向・増減を見る
+    sp_cur = fc.get("special_cur") or 0
+    if _num(sp_cur) and 0 < sp_cur < dps:
+        out["dpsSpecial"] = sp_cur
+        dps = dps - sp_cur
     out["divSrc"] = "company"
     out["dps"] = round(dps, 2)
     out["yield"] = round(dps / price * 100, 2)
@@ -95,6 +100,10 @@ def resolve(est_yield, est_payout, price, per, fc: dict | None) -> dict:
     else:
         out["payout"] = None
     prior = fc.get("prior")
+    sp_prior = fc.get("special_prior") or 0
+    if _num(prior) and _num(sp_prior) and 0 < sp_prior < prior:
+        out["dpsPriorSpecial"] = sp_prior
+        prior = prior - sp_prior
     if _num(prior):
         out["dpsPrior"] = round(prior, 2)
         out["divCut"] = dps < prior - 1e-6
@@ -106,9 +115,11 @@ def note(row: dict) -> str:
     """利回りセルのホバー用の説明。"""
     src = row.get("divSrc")
     if src == "company":
-        s = f"会社予想 年間{row['dps']:g}円"
+        s = f"会社予想 普通配当 年間{row['dps']:g}円"
+        if row.get("dpsSpecial"):
+            s += f"(ほか記念・特別{row['dpsSpecial']:g}円は除外)"
         if row.get("dpsPrior") is not None:
-            s += f"(前期 {row['dpsPrior']:g}円"
+            s += f"(前期 普通{row['dpsPrior']:g}円"
             s += "・減配予想)" if row.get("divCut") else ("・増配予想)" if row.get("divHike") else "・据え置き)")
         return s + f" / {row.get('dpsDate')} の開示(TDnet)"
     if src == "undecided":

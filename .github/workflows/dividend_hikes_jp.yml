@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [".github/workflows/dividend_hikes_jp.yml", "batch/fetch_dividend_hikes.py", "batch/build_shikiho_hike_picks.py"]
+    paths: [".github/workflows/dividend_hikes_jp.yml", "batch/fetch_dividend_hikes.py", "batch/build_shikiho_hike_picks.py", "batch/fetch_fy_actuals.py"]
 
 permissions:
   contents: write
@@ -30,7 +30,8 @@ jobs:
       - name: Dividend hikes from TDnet + shikiho x hike picks
         run: |
           python batch/fetch_dividend_hikes.py
+          python batch/fetch_fy_actuals.py || echo "⚠ 前期実績の取得 失敗（継続）"
           python batch/build_shikiho_hike_picks.py
       - name: Commit and push
         run: |
-          bash batch/safe_commit_push.sh "data(jp dividend): TDnet hikes $(date -u +%Y-%m-%d)" data/dividend_hikes_jp.json data/dividend_forecast_jp.json web/data/dividend_screener.json
+          bash batch/safe_commit_push.sh "data(jp dividend): TDnet hikes $(date -u +%Y-%m-%d)" data/dividend_hikes_jp.json data/dividend_forecast_jp.json data/fy_actuals_jp.json web/data/dividend_screener.json

@@ -80,7 +80,10 @@ jobs:
       # build_dividend_screener.py より前でなければならない。
       - name: Dividend hikes + company forecasts from TDnet
         if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
-        run: python batch/fetch_dividend_hikes.py || echo "⚠ TDnet 増配取得 失敗（継続）"
+        run: |
+          python batch/fetch_dividend_hikes.py || echo "⚠ TDnet 増配取得 失敗（継続）"
+          # 増額修正した銘柄の前期実績EPS・ROE(四季報×増配ピックの条件判定用)
+          python batch/fetch_fy_actuals.py || echo "⚠ 前期実績の取得 失敗（継続）"
 
       - name: Dividend screener (全銘柄・割安/配当/業績 judgments)
         if: steps.freshness.outputs.need_run == 'true' || github.event.inputs.force == 'true'
@@ -124,4 +127,4 @@ jobs:
             "data(jp value): daily update $(date -u +%Y-%m-%d)" \
             data/universe_jp.json web/data/margin_balance_history.json \
             web/data/investor_flows_jp.json web/data/dividend_screener.json \
-            data/dividend_hikes_jp.json data/dividend_forecast_jp.json
+            data/dividend_hikes_jp.json data/dividend_forecast_jp.json data/fy_actuals_jp.json

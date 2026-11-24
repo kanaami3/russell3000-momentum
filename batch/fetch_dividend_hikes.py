@@ -57,6 +57,7 @@ CELL = re.compile(r'<td[^>]*class="[^"]*kj(Code|Name|Title)[^"]*"[^>]*>(.*?)</td
 TAG = re.compile(r"<[^>]+>")
 ZIP = re.compile(r'href="([^"]+\.zip)"')
 IXNUM = re.compile(r"<ix:nonFraction\b([^>]*?)(?:/>|>(.*?)</ix:nonFraction>)", re.S)
+IXTEXT = re.compile(r"<ix:nonNumeric\b([^>]*)>(.*?)</ix:nonNumeric>", re.S)
 ATTR = re.compile(r'([\w:]+)="([^"]*)"')
 
 
@@ -99,6 +100,51 @@ def _facts(html: str) -> dict[str, dict[str, float]]:
         if a.get("sign") == "-":
             v = -v
         out[kind][a.get("contextRef", "")] = v
+    # 配当の注記(記念配当・特別配当の内訳はここにしか書かれない)
+    notes = [TAG.sub(" ", b) for a, b in IXTEXT.findall(html) if "NoteToDividends" in a]
+    if notes:
+        out["note"] = {"": re.sub(r"\s+", " ", " ".join(notes)).strip()}
+    return out
+
+
+# 「2026年３月期年間配当金の内訳 普通配当77円、特別配当23円」のような注記から、
+# 記念・特別配当の額を拾う。ラベルに「予想」があれば今期(予想)、なければ前期の内訳。
+NOTE_SEG = re.compile(r"(\d{4})年\s*\d{1,2}月期([^。内]{0,20}?)(?:の)?(?:年間|中間|期末|第\S{1,4}四半期末)?配当(?:金)?(?:\(予想\)|（予想）)?の?内訳(.{0,120}?)(?=\d{4}年\s*\d{1,2}月期|$)")
+NOTE_SPECIAL = re.compile(r"(記念|特別)配当\s*([\d,，]+(?:\.\d+)?)\s*円(?:\s*(\d+)\s*銭)?")
+NOTE_ANY = re.compile(r"記念配当|特別配当")
+
+
+def _z2h(s: str) -> str:
+    return s.translate(str.maketrans("０１２３４５６７８９（）．，", "0123456789().,"))
+
+
+def parse_special(note: str, cur_fy: int | None = None) -> dict:
+    """注記から {"special_prior": 円, "special_cur": 円, "special_note": 注記に記載があるか}。
+
+    cur_fy は予想の対象期(2027年３月期なら2027)。内訳の期がそれ以上なら今期、
+    それより前なら前期の記念・特別配当とみなす。分からなければ「予想」の文字で分ける。
+    """
+    note = _z2h(note or "")
+    out = {"special_note": bool(NOTE_ANY.search(note))}
+    if not out["special_note"]:
+        return out
+    prior = cur = 0.0
+    parsed = False
+    for m in NOTE_SEG.finditer(note):
+        label, body = m.group(2) + m.group(0)[:40], m.group(3)
+        amt = 0.0
+        for k in NOTE_SPECIAL.finditer(body):
+            amt += float(k.group(2).replace(",", "")) + (float(k.group(3)) / 100 if k.group(3) else 0)
+        if not amt:
+            continue
+        parsed = True
+        fy = int(m.group(1))
+        if (cur_fy is not None and fy >= cur_fy) or (cur_fy is None and "予想" in label):
+            cur += amt
+        else:
+            prior += amt
+    if parsed:
+        out["special_prior"], out["special_cur"] = prior, cur
     return out
 
 
@@ -157,7 +203,19 @@ def _period_ctx(facts: dict[str, float], period: str, *need: str) -> bool:
     return any(period in c and all(n in c for n in need) for c in facts)
 
 
-def extract_forecast(all_facts: dict[str, dict[str, float]]) -> dict | None:
+FY_IN_TITLE = re.compile(r"(\d{4})年\s*\d{1,2}月期")
+
+
+def forecast_fy(title: str, kind: str) -> int | None:
+    """開示タイトルから予想の対象期(年)を出す。本決算の短信は来期。"""
+    m = FY_IN_TITLE.search(_z2h(title or ""))
+    if not m:
+        return None
+    y = int(m.group(1))
+    return y + 1 if kind == "tanshin_full" else y
+
+
+def extract_forecast(all_facts: dict[str, dict[str, float]], title: str = "") -> dict | None:
     """会社が開示した「今の」年間配当予想と、その前提の1株利益予想を取り出す。
 
     配当スクリーナーの利回り・配当性向は、yfinance の利回り(過去12か月の実績や
@@ -202,6 +260,7 @@ def extract_forecast(all_facts: dict[str, dict[str, float]]) -> dict | None:
                 out["profit_chg"] = round(c, 4)
             break
     out["undecided"] = out["dps"] is None
+    out.update(parse_special(all_facts.get("note", {}).get("", ""), forecast_fy(title, out["kind"])))
     return out
 
 
@@ -221,13 +280,16 @@ def fetch_xbrl(name: str) -> dict[str, dict[str, float]] | None:
         zf = zipfile.ZipFile(io.BytesIO(r.content))
     except Exception:
         return None
-    facts: dict[str, dict] = {"dps": {}, "eps": {}, "chg": {}, "dps_nil": {}}
+    facts: dict[str, dict] = {"dps": {}, "eps": {}, "chg": {}, "dps_nil": {}, "note": {}}
     for n in zf.namelist():
         # 決算短信はサマリー(Summary/ 配下)、配当予想の修正は zip 直下の ixbrl
         if not n.endswith("-ixbrl.htm") or "/Attachment/" in n:
             continue
         for k, v in _facts(zf.read(n).decode("utf-8", "ignore")).items():
-            facts[k].update(v)
+            if k == "note":
+                facts["note"][""] = (facts["note"].get("", "") + " " + v[""]).strip()
+            else:
+                facts[k].update(v)
     return facts
 
 
@@ -288,7 +350,7 @@ def fetch_day(day: datetime, xbrl_seen: set[str] | None = None,
                 continue  # 取れなかった zip は次回また読む
             xbrl_seen.add(name)
             if forecasts is not None:
-                fc = extract_forecast(facts)
+                fc = extract_forecast(facts, title)
                 if fc is not None:
                     fc.update({"date": day.strftime("%Y-%m-%d"), "zip": name, "title": title[:80]})
                     old = forecasts.get(code)
@@ -296,7 +358,7 @@ def fetch_day(day: datetime, xbrl_seen: set[str] | None = None,
                     if old is None or (old.get("date"), old.get("zip", "")[4:]) <= (fc["date"], name[4:]):
                         # 配当予想だけの修正には利益予想が無い。直前の短信の利益予想を引き継ぐ
                         if old and fc["kind"] == "revision":
-                            for k in ("eps", "profit_chg"):
+                            for k in ("eps", "profit_chg", "special_prior", "special_cur"):
                                 if k not in fc and k in old:
                                     fc[k] = old[k]
                         forecasts[code] = fc

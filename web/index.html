@@ -266,13 +266,13 @@
       <div class="flex items-baseline justify-between flex-wrap gap-2 mb-1">
         <h2 class="font-extrabold text-emerald-900">📗 四季報×決算増配ピック</h2>
         <span class="text-[11px] text-slate-500"
-              x-text="'直近' + (dividendData.shikiho_hike_picks?.recent_days||0) + '日に増配を発表した ' + (dividendData.shikiho_hike_picks?.hike_events||0) + ' 銘柄と照合'"></span>
+              x-text="'直近' + (dividendData.shikiho_hike_picks?.recent_days||0) + '日に配当を増額修正した ' + (dividendData.shikiho_hike_picks?.hike_events||0) + ' 銘柄と照合'"></span>
       </div>
       <p class="text-[11px] text-slate-500 mb-3">
-        四季報型「増配期待バリュー9条件」と、直近の決算で配当予想を増額(増配)した銘柄を突き合わせています。
+        四季報型「増配期待バリュー9条件」と、直近120日に期中の配当予想を増額修正した銘柄を突き合わせています(前期比で増えているだけの予想は対象外)。配当は普通配当(記念・特別配当を除く)、利回り・配当性向・PERは会社予想、ROEと条件7の比較対象は前期実績です。
         条件: <span x-text="(dividendData.shikiho_hike_picks?.conditions||[]).join(' / ')"></span>
       </p>
-      <template x-for="grp in [{k:'a', t:'A. 9条件をすべて通過 ＋ 直近決算で増配', c:'text-emerald-800'}, {k:'b', t:'B. 1条件だけ外れたが直近決算で増配', c:'text-amber-800'}, {k:'c', t:'C. 2条件外れたが直近決算で増配(参考)', c:'text-slate-600'}]" :key="grp.k">
+      <template x-for="grp in [{k:'a', t:'A. 9条件をすべて開示データで確認して合格 ＋ 期中に配当を増額修正', c:'text-emerald-800'}, {k:'b', t:'B. 1条件だけ外れたが期中に増額修正', c:'text-amber-800'}, {k:'c', t:'C. 2条件外れたが期中に増額修正(参考)', c:'text-slate-600'}, {k:'review', t:'要確認. 開示データで確かめられない条件があるため、A〜Cに入れていない銘柄', c:'text-slate-500'}]" :key="grp.k">
         <div class="mb-3" x-show="(dividendData.shikiho_hike_picks?.[grp.k]||[]).length">
           <h3 class="text-xs font-bold mb-1.5" :class="grp.c" x-text="grp.t"></h3>
           <!-- スマホ: カード表示 -->
@@ -297,7 +297,7 @@
                   <span x-text="p.hike_detail"></span>
                   <span x-show="p.earnings_up" class="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 whitespace-nowrap">業績も上方修正</span>
                 </div>
-                <div x-show="grp.k!=='a' && p.failed" class="mt-1 pl-5 text-[11px] text-rose-700" x-text="'外れた条件: ' + (p.failed||'')"></div>
+                <div x-show="grp.k!=='a' && (p.failed || p.unknown || p.review)" class="mt-1 pl-5 text-[11px] text-rose-700" x-text="pickIssues(p)"></div>
               </div>
             </template>
           </div>
@@ -314,7 +314,7 @@
                   <th class="text-right py-1 pr-2">性向</th>
                   <th class="text-left py-1 pr-2">増配実績</th>
                   <th class="text-left py-1 pr-2">直近の配当修正</th>
-                  <th class="text-left py-1" x-show="grp.k!=='a'">外れた条件</th>
+                  <th class="text-left py-1" x-show="grp.k!=='a'">外れた条件・未確認</th>
                 </tr>
               </thead>
               <tbody>
@@ -336,7 +336,7 @@
                       <span x-text="p.hike_detail"></span>
                       <span x-show="p.earnings_up" class="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">業績も上方修正</span>
                     </td>
-                    <td class="py-1.5 text-rose-700 whitespace-nowrap" x-show="grp.k!=='a'" x-text="p.failed || ''"></td>
+                    <td class="py-1.5 text-rose-700" x-show="grp.k!=='a'" x-text="pickIssues(p)"></td>
                   </tr>
                 </template>
               </tbody>
@@ -345,8 +345,8 @@
         </div>
       </template>
       <p class="text-[10px] text-slate-400 mt-1">
-        並びは増配余地→連続増配の期数→利回りの順。利回り・配当性向は、決算短信・配当予想の修正(TDnet)の会社予想(年間配当÷株価、年間配当÷1株利益予想)で計算しています。
-        会社予想を確認できなかった銘柄は「未確認」と表示し、各グループの後ろに並べています。前期より配当予想が少ない(減配予想)銘柄は除外しています。
+利回り・配当性向は、決算短信・配当予想の修正(TDnet)の会社予想(年間配当÷株価、年間配当÷1株利益予想)で計算しています。
+        条件のどれかを開示データで確かめられない銘柄・記念配当の扱いを判断できない銘柄は「要確認」に分け、A〜Cには入れていません。普通配当で前期を下回る(減配予想)銘柄は除外しています。並びは利回りの高い順。
         増配の発表はTDnetの適時開示(タイトルと決算短信・配当予想修正のXBRL)から毎日追加しています。推奨銘柄ではありません。
       </p>
     </div>
@@ -391,7 +391,7 @@
       </div>
     </div>
 
-    <!-- 増配銘柄の探し方 --><div class="bg-teal-50 border border-teal-200 rounded-2xl p-4 text-sm text-slate-700 leading-relaxed"><p class="font-bold text-teal-800 mb-1">💡 増配しそうな銘柄の探し方</p><p>「増配」列は<strong>過去の実績</strong>(何期連続で増配・非減配してきたか)。「増配余地」列は、配当性向・予想増益率・増配実績から見た"これから増配できる余地"の判定(◎○△×)で、右側の%は配当性向を目標水準まで引き上げた場合に利回りがどこまで伸びるかの理論値です。</p><p class="mt-1">この2つを組み合わせて見るのがコツです。<strong>増配余地が◎で、増配列にも実績(○期連続など)がある銘柄</strong>が最も期待できます。増配余地の%が高くても増配実績が浅い・判定が△×の銘柄は、「余地はあるが実際に増配するかは不透明」と捉えてください。</p><p class="mt-1"><strong>決算後の増配発表もあわせて見るとさらに確度が上がります。</strong>上の「📗 四季報×決算増配ピック」は、プライム・スタンダード・グロースの全上場銘柄(約3,200社)を対象に、四季報型の9条件(PER15倍以下・PBR1.5倍以下・ROE8%以上・利回り3%以上・配当性向50%以下・5期以上減配なし・減益予想でない・時価総額100億円以上・有利子負債が自己資本以下)と、直近120日にTDnetで出た増配の開示を突き合わせたものです。開示のタイトルだけでなく、決算短信と配当予想の修正に付いているXBRLの配当予想も読み、今期の年間配当予想が前期より多い銘柄や、配当予想を増額した銘柄も拾っています。Aは条件をすべて満たした銘柄、Bは1条件、Cは2条件だけ外れた銘柄で、利回り3%未満は除いています。増配の開示は平日の朝に毎日取り込んでいます。</p><p class="mt-1 text-xs text-slate-500">有利子負債の条件はデータがないため未判定です。TDnetには約1か月分しか残らないため、それより前の発表は一部しか拾えていません。</p></div><!-- table -->
+    <!-- 増配銘柄の探し方 --><div class="bg-teal-50 border border-teal-200 rounded-2xl p-4 text-sm text-slate-700 leading-relaxed"><p class="font-bold text-teal-800 mb-1">💡 増配しそうな銘柄の探し方</p><p>「増配」列は<strong>過去の実績</strong>(何期連続で増配・非減配してきたか)。「増配余地」列は、配当性向・予想増益率・増配実績から見た"これから増配できる余地"の判定(◎○△×)で、右側の%は配当性向を目標水準まで引き上げた場合に利回りがどこまで伸びるかの理論値です。</p><p class="mt-1">この2つを組み合わせて見るのがコツです。<strong>増配余地が◎で、増配列にも実績(○期連続など)がある銘柄</strong>が最も期待できます。増配余地の%が高くても増配実績が浅い・判定が△×の銘柄は、「余地はあるが実際に増配するかは不透明」と捉えてください。</p><p class="mt-1"><strong>決算後の増配発表もあわせて見るとさらに確度が上がります。</strong>上の「📗 四季報×決算増配ピック」は、プライム・スタンダード・グロースの全上場銘柄(約3,200社)を対象に、四季報型の9条件(PER15倍以下・PBR1.5倍以下・ROE8%以上・利回り3%以上・配当性向50%以下・5期以上減配なし・減益予想でない・時価総額100億円以上・有利子負債が自己資本以下)と、直近120日にTDnetで出た増配の開示を突き合わせたものです。期中の配当予想の増額修正(開示タイトル、配当予想の修正のXBRL)だけを数え、決算短信で今期予想が前期実績より多いだけの銘柄は数えません。配当は普通配当で比べ、利回り・配当性向・PERは会社予想、ROEと条件7(予想EPS≧前期実績EPS)は前期の実績で判定します。Aはすべての条件を開示データで確かめて合格した銘柄、Bは1条件、Cは2条件だけ外れた銘柄で、利回り3%未満は除いています。確かめられない条件が残る銘柄は「要確認」に分けています。増配の開示は平日の朝に毎日取り込んでいます。</p><p class="mt-1 text-xs text-slate-500">有利子負債の条件はデータがないため未判定です。TDnetには約1か月分しか残らないため、それより前の発表は一部しか拾えていません。</p></div><!-- table -->
     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-xs whitespace-nowrap">
@@ -3166,7 +3166,15 @@ statusBadgeClass(iso, freshH) {
     divSectorFilter: '',          // 業種フィルタ
     divF: { yieldMin: 3.0, pbrMax: null, perMax: null, payoutMax: null, roeMin: null },
     divJudge: '',                 // '' | '4'(◎) | '34'(◎○)
-    divVerifiedOnly: true,        // 会社予想で利回りを確認できた銘柄だけ(未確認の推定値で順位を付けない)
+    divVerifiedOnly: true,
+    // 四季報×増配ピックで外れた条件・確かめられない条件・人の判断が要る事情を1行に
+    pickIssues(p) {
+      const a = [];
+      if (p.failed) a.push('外れた: ' + p.failed);
+      if (p.unknown) a.push('未確認: ' + p.unknown);
+      if (p.review) a.push('要判断: ' + p.review);
+      return a.join(' ／ ');
+    },        // 会社予想で利回りを確認できた銘柄だけ(未確認の推定値で順位を付けない)
     divPage: 0,
     divPageSize: 50,
     _macroChart: null,

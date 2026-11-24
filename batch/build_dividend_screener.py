@@ -322,7 +322,7 @@ def main() -> int:
                 "fwdWeak": (fwd_eps is None) or (not rev_ok and rev is not None),
                 "judge": {"overall": j_all, "value": j_val, "dividend": j_div, "earnings": j_ern},
                 # 利回り・配当性向の出どころ。company=会社予想(TDnet)、それ以外は未確認
-                **{k: div[k] for k in ("divSrc", "dps", "dpsPrior", "dpsDate", "divCut", "divHike") if k in div},
+                **{k: div[k] for k in ("divSrc", "dps", "dpsPrior", "dpsDate", "divCut", "divHike", "dpsSpecial", "dpsPriorSpecial") if k in div},
             })
             rows[-1]["divNote"] = dividend_forecast.note(rows[-1])
 
