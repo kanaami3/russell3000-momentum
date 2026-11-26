@@ -351,6 +351,102 @@
       </p>
     </div>
 
+    <!-- 四季報オンラインのスクリーニング候補(手動スナップショット) -->
+    <div x-show="shikihoOnline" class="bg-gradient-to-br from-sky-50 to-white border-2 border-sky-300 rounded-2xl p-4">
+      <div class="flex items-baseline justify-between flex-wrap gap-2 mb-1">
+        <h2 class="font-extrabold text-sky-900">📘 四季報スクリーニング候補</h2>
+        <span class="text-[11px] text-slate-500"
+              x-text="(shikihoOnline?.asof||'').replaceAll('-','/') + ' 時点・' + (shikihoOnline?.hit_count||0) + ' 銘柄ヒット'"></span>
+      </div>
+      <p class="text-[11px] text-slate-500 mb-1">
+        四季報オンラインの保存済み条件でヒットした銘柄のうち、上のピックにない業種を埋める候補です。
+        条件: <span x-text="(shikihoOnline?.conditions||[]).join(' / ')"></span>
+      </p>
+      <p class="text-[11px] text-rose-700 bg-rose-50 border border-rose-200 rounded-lg px-2.5 py-1.5 mb-3 leading-relaxed">
+        ⚠ この条件には「直近の増配発表」と「5期以上減配なし」が入っていないため、上のA枠とは別物です。
+        右端の「増配の裏付け」はサイトの配当データ(毎日更新)で照合した結果で、緑は5期以上減配なし、灰色は裏付けがまだない銘柄です。
+      </p>
+
+      <h3 class="text-xs font-bold text-sky-800 mb-1.5">手薄な業種を埋める新顔(食品・医薬・通信・金融ほか)</h3>
+      <!-- スマホ: カード -->
+      <div class="sm:hidden space-y-1.5 mb-3">
+        <template x-for="p in (shikihoOnline?.sector_gap||[])" :key="'som'+p.code">
+          <div class="bg-white/80 border border-slate-200 rounded-lg px-2.5 py-2 text-xs">
+            <div class="flex items-baseline gap-1.5">
+              <span class="text-[9px] px-1 rounded bg-sky-100 text-sky-800 shrink-0" x-text="p.sector"></span>
+              <span class="font-mono text-[10px] text-slate-500" x-text="p.code"></span>
+              <span class="font-bold text-slate-900 truncate" x-text="p.name"></span>
+              <span class="ml-auto font-bold text-emerald-700 shrink-0" x-text="p.yield.toFixed(2)+'%'"></span>
+            </div>
+            <div class="mt-1 pl-1 text-[11px] text-slate-600 flex flex-wrap gap-x-3">
+              <span>PER <b x-text="p.per.toFixed(1)"></b></span>
+              <span>PBR <b x-text="p.pbr.toFixed(2)"></b></span>
+              <span>☆増配可能性 <b x-text="p.hike_score"></b></span>
+            </div>
+            <div class="mt-1 pl-1 text-[11px]" :class="soCheck(p.code).cls" x-text="'増配の裏付け: ' + soCheck(p.code).text"></div>
+          </div>
+        </template>
+      </div>
+      <!-- PC: 表 -->
+      <div class="hidden sm:block overflow-x-auto mb-3">
+        <table class="w-full text-xs">
+          <thead class="text-[10px] text-slate-500 border-b">
+            <tr>
+              <th class="text-left py-1 pr-2">業種</th>
+              <th class="text-left py-1 pr-2">銘柄</th>
+              <th class="text-right py-1 pr-2">利回り</th>
+              <th class="text-right py-1 pr-2">PER</th>
+              <th class="text-right py-1 pr-2">PBR</th>
+              <th class="text-right py-1 pr-2" title="四季報オンラインの☆来期増配可能性">☆増配可能性</th>
+              <th class="text-left py-1">増配の裏付け(サイトのデータ)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="p in (shikihoOnline?.sector_gap||[])" :key="'so'+p.code">
+              <tr class="border-b border-slate-100">
+                <td class="py-1.5 pr-2"><span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 whitespace-nowrap" x-text="p.sector"></span></td>
+                <td class="py-1.5 pr-2 whitespace-nowrap">
+                  <span class="font-mono text-[10px] text-slate-500" x-text="p.code"></span>
+                  <span class="font-bold text-slate-900" x-text="p.name"></span>
+                </td>
+                <td class="py-1.5 pr-2 text-right font-semibold text-emerald-700" x-text="p.yield.toFixed(2)+'%'"></td>
+                <td class="py-1.5 pr-2 text-right" x-text="p.per.toFixed(1)"></td>
+                <td class="py-1.5 pr-2 text-right" x-text="p.pbr.toFixed(2)"></td>
+                <td class="py-1.5 pr-2 text-right" x-text="p.hike_score"></td>
+                <td class="py-1.5" :class="soCheck(p.code).cls" x-text="soCheck(p.code).text"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+
+      <details class="mb-2">
+        <summary class="text-xs font-bold text-sky-800 cursor-pointer" x-text="'利回り5%以上の新顔(' + (shikihoOnline?.high_yield||[]).length + '銘柄・業種問わず)'"></summary>
+        <div class="mt-2 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
+          <template x-for="p in (shikihoOnline?.high_yield||[])" :key="'soh'+p.code">
+            <div class="bg-white/80 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs">
+              <div class="flex items-baseline gap-1.5">
+                <span class="font-mono text-[10px] text-slate-500" x-text="p.code"></span>
+                <span class="font-bold text-slate-900 truncate" x-text="p.name"></span>
+                <span class="ml-auto font-bold text-emerald-700 shrink-0" x-text="p.yield.toFixed(2)+'%'"></span>
+              </div>
+              <div class="text-[11px] mt-0.5" :class="soCheck(p.code).cls" x-text="soCheck(p.code).text"></div>
+            </div>
+          </template>
+        </div>
+      </details>
+
+      <p class="text-xs text-slate-600 mb-2">
+        <span class="font-bold text-sky-800">四季報でもヒットした既存の厳選銘柄:</span>
+        <template x-for="(p, i) in (shikihoOnline?.overlap||[])" :key="'sov'+p.code">
+          <span><span x-text="(i ? '、' : '') + p.name"></span><span class="text-[10px] text-slate-400" x-text="'(' + p.code + ')'"></span></span>
+        </template>
+      </p>
+      <p class="text-[10px] text-slate-400">
+        利回り・PER・PBR・☆増配可能性は四季報オンラインの値(今期予想・記念/特別配当を含む場合あり)で、取得日の株価で計算されています。この欄は自動更新されません。推奨銘柄ではありません。投資判断はご自身でお願いします。
+      </p>
+    </div>
+
     <!-- condition controls -->
     <div class="bg-white border-2 border-teal-200 rounded-2xl p-4">
       <div class="flex items-baseline justify-between mb-3 flex-wrap gap-2">
@@ -2258,6 +2354,12 @@ statusBadgeClass(iso, freshH) {
       } catch (e) {
         console.warn('dividend screener load failed:', e);
       }
+      try {
+        const r2 = await fetch('./data/shikiho_online_screen.json?v=' + Date.now());
+        if (r2.ok) this.shikihoOnline = await r2.json();
+      } catch (e) {
+        console.warn('shikiho online screen load failed:', e);
+      }
     },
 
     // 判定記号とセル色
@@ -3161,6 +3263,34 @@ statusBadgeClass(iso, freshH) {
     earningsExpanded: {},         // {ticker: bool} for expand/collapse
     macroData: null,              // Nikkei EPS history
     dividendData: null,           // 配当・増配余力スクリーナー(全銘柄)
+    shikihoOnline: null,          // 四季報オンラインのスクリーニング結果(手動スナップショット)
+    // スクリーナー全銘柄と四季報×決算増配ピックから、銘柄ごとの増配の裏付けを1行にする
+    soCheck(code) {
+      const d = this.dividendData;
+      if (!d) return { text: '', cls: '' };
+      // 描画中にリアクティブな値を書き換えないよう、索引はAlpineの外(window)に置く
+      const key = (d.asof || '') + '|' + (d.generated_at_jst || '');
+      if (!window.__soMap || window.__soMap.key !== key) {
+        const m = { key, stock: {}, grp: {} };
+        (d.stocks || []).forEach(r => { m.stock[r.code] = r; });
+        ['a', 'b', 'c', 'review'].forEach(k => (d.shikiho_hike_picks?.[k] || []).forEach(r => { m.grp[r.code] = k; }));
+        window.__soMap = m;
+      }
+      const m = window.__soMap, g = m.grp[code], r = m.stock[code];
+      if (!r && !g) return { text: 'スクリーナー対象外のため未確認', cls: 'text-slate-400' };
+      const parts = [];
+      if (g) parts.push({ a: 'A枠', b: 'B枠', c: 'C枠', review: '要確認枠' }[g] + 'に掲載中');
+      else if (r?.divHike && r?.dpsDate) parts.push('増配予想(' + r.dpsDate.slice(5).replace('-', '/') + '開示)');
+      const st = r?.streak;
+      if (st) {
+        const nd = st.non_decreasing || 0;
+        if ((st.years || 0) >= 3) parts.push(st.years + '期連続増配' + (nd > st.years && nd >= 5 ? '・' + nd + '期非減配' : ''));
+        else if (nd) parts.push(nd + '期非減配');
+      }
+      if (r?.divCut) parts.push('減配予想');
+      const ok = (g === 'a') || (st && (st.non_decreasing || 0) >= 5 && !r.divCut);
+      return { text: parts.join(' / ') || '増配の裏付けなし', cls: r?.divCut ? 'text-rose-700' : (ok ? 'text-emerald-700' : 'text-slate-500') };
+    },
     divSort: 'headroom',          // ソート列(デフォルト=増配余地ランキング)
     divSortDesc: true,
     divSectorFilter: '',          // 業種フィルタ
