@@ -53,67 +53,16 @@
  ],
  "sector_gap": [
   {
-   "sector": "食品",
-   "code": "1384",
-   "name": "ホクリヨウ",
-   "yield": 4.24,
-   "per": 7.1,
-   "pbr": 1.1,
-   "hike_score": 10
-  },
-  {
-   "sector": "食品",
-   "code": "2918",
-   "name": "わらべや日洋HD",
-   "yield": 4.48,
-   "per": 13.5,
-   "pbr": 0.75,
-   "hike_score": 15
-  },
-  {
-   "sector": "食品",
-   "code": "250A",
-   "name": "シマダヤ",
-   "yield": 3.61,
-   "per": 8.7,
-   "pbr": 1.08,
-   "hike_score": 8
-  },
-  {
    "sector": "医薬",
    "code": "4540",
    "name": "ツムラ",
    "yield": 3.97,
    "per": 10.4,
    "pbr": 0.87,
-   "hike_score": 10
-  },
-  {
-   "sector": "通信販売",
-   "code": "9441",
-   "name": "ベルパーク",
-   "yield": 4.72,
-   "per": 7.7,
-   "pbr": 1.23,
-   "hike_score": 12
-  },
-  {
-   "sector": "金融",
-   "code": "7148",
-   "name": "FPG",
-   "yield": 6.73,
-   "per": 7.4,
-   "pbr": 1.72,
-   "hike_score": 3.4
-  },
-  {
-   "sector": "金融",
-   "code": "8624",
-   "name": "いちよし証券",
-   "yield": 5.54,
-   "per": 10.7,
-   "pbr": 1.37,
-   "hike_score": 5
+   "hike_score": 10,
+   "dps_change": "147→158円",
+   "record": "3期連続増配・21期減配なし",
+   "payout": "40%"
   },
   {
    "sector": "商社",
@@ -122,7 +71,10 @@
    "yield": 3.94,
    "per": 10.4,
    "pbr": 0.99,
-   "hike_score": 12
+   "hike_score": 12,
+   "dps_change": "147→171円",
+   "record": "5期連続増配",
+   "payout": "40%"
   },
   {
    "sector": "鉄道",
@@ -131,16 +83,10 @@
    "yield": 3.23,
    "per": 12.3,
    "pbr": 1.13,
-   "hike_score": 7
-  },
-  {
-   "sector": "物流",
-   "code": "9028",
-   "name": "ゼロ",
-   "yield": 5.11,
-   "per": 6.7,
-   "pbr": 0.96,
-   "hike_score": 16.4
+   "hike_score": 7,
+   "dps_change": "115→121円",
+   "record": "2016年の上場来減配なし",
+   "payout": "40%"
   },
   {
    "sector": "IT",
@@ -149,128 +95,45 @@
    "yield": 4.47,
    "per": 13.6,
    "pbr": 1.71,
-   "hike_score": 10
-  },
-  {
-   "sector": "レジャー",
-   "code": "6417",
-   "name": "SANKYO",
-   "yield": 4.52,
-   "per": 12.7,
-   "pbr": 1.67,
-   "hike_score": 10
+   "hike_score": 10,
+   "dps_change": "200→220円",
+   "record": "5期連続増配・12期減配なし",
+   "payout": "50%"
   }
  ],
- "high_yield": [
+ "screen_rule": "今期の配当予想が前期より多い(増配予想) / 5期以上減配なし / 配当性向50%以下",
+ "excluded": [
   {
-   "code": "7148",
+   "name": "ホクリヨウ",
+   "reason": "減配予想 130→100円"
+  },
+  {
+   "name": "SANKYO",
+   "reason": "前期に減配"
+  },
+  {
    "name": "FPG",
-   "yield": 6.73
+   "reason": "前期・今期とも減配"
   },
   {
-   "code": "7236",
-   "name": "ティラド",
-   "yield": 6.37
-  },
-  {
-   "code": "1814",
-   "name": "大末建設",
-   "yield": 6.03
-  },
-  {
-   "code": "414A",
-   "name": "オーバーラップHD",
-   "yield": 5.98
-  },
-  {
-   "code": "4246",
-   "name": "ダイキョーニシカワ",
-   "yield": 5.86
-  },
-  {
-   "code": "9163",
-   "name": "ナレルG",
-   "yield": 5.79
-  },
-  {
-   "code": "6554",
-   "name": "エスユーエス",
-   "yield": 5.65
-  },
-  {
-   "code": "8624",
    "name": "いちよし証券",
-   "yield": 5.54
+   "reason": "2023年3月期に減配"
   },
   {
-   "code": "7781",
-   "name": "平山HD",
-   "yield": 5.46
-  },
-  {
-   "code": "1972",
-   "name": "三晃金属",
-   "yield": 5.42
-  },
-  {
-   "code": "9743",
-   "name": "丹青社",
-   "yield": 5.38
-  },
-  {
-   "code": "5445",
-   "name": "東京鐵鋼",
-   "yield": 5.37
-  },
-  {
-   "code": "3918",
-   "name": "PCIソリューションズ",
-   "yield": 5.35
-  },
-  {
-   "code": "4028",
-   "name": "石原産業",
-   "yield": 5.23
-  },
-  {
-   "code": "1870",
-   "name": "矢作建設",
-   "yield": 5.18
-  },
-  {
-   "code": "3321",
-   "name": "ミタチ産業",
-   "yield": 5.18
-  },
-  {
-   "code": "7595",
-   "name": "アルゴグラフィックス",
-   "yield": 5.17
-  },
-  {
-   "code": "8150",
-   "name": "三信電気",
-   "yield": 5.16
-  },
-  {
-   "code": "6648",
-   "name": "かわでん",
-   "yield": 5.13
-  },
-  {
-   "code": "9028",
    "name": "ゼロ",
-   "yield": 5.11
+   "reason": "2022年6月期に減配"
   },
   {
-   "code": "7235",
-   "name": "東京ラヂエーター",
-   "yield": 5.08
+   "name": "ベルパーク",
+   "reason": "2022年12月期に減配"
   },
   {
-   "code": "8572",
-   "name": "アコム",
-   "yield": 5.01
+   "name": "シマダヤ",
+   "reason": "2024年上場で実績が足りない"
+  },
+  {
+   "name": "わらべや日洋HD",
+   "reason": "今期は120円で据え置き"
   }
  ]
 }
