@@ -354,17 +354,18 @@
     <!-- 四季報オンラインのスクリーニング候補(手動スナップショット) -->
     <div x-show="shikihoOnline" class="bg-gradient-to-br from-sky-50 to-white border-2 border-sky-300 rounded-2xl p-4">
       <div class="flex items-baseline justify-between flex-wrap gap-2 mb-1">
-        <h2 class="font-extrabold text-sky-900">📘 四季報スクリーニング候補</h2>
+        <h2 class="font-extrabold text-sky-900">📘 四季報スクリーニング × A判定</h2>
         <span class="text-[11px] text-slate-500"
-              x-text="(shikihoOnline?.asof||'').replaceAll('-','/') + ' 時点・' + (shikihoOnline?.hit_count||0) + ' 銘柄ヒットから厳選'"></span>
+              x-text="(shikihoOnline?.asof||'').replaceAll('-','/') + ' 時点・' + (shikihoOnline?.hit_count||0) + ' 銘柄ヒット → A ' + (shikihoOnline?.a||[]).length + ' 銘柄'"></span>
       </div>
       <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">
-        四季報オンラインの保存済み条件でヒットした銘柄のうち、上のピックにない業種の候補を、配当の実績でもう一度ふるいにかけました。
-        残したのは「<span x-text="shikihoOnline?.screen_rule || ''"></span>」をすべて満たす銘柄だけです。
+        四季報オンラインの保存済み条件(<span x-text="(shikihoOnline?.conditions||[]).join(' / ')"></span>)でヒットした銘柄を、Aグループの条件
+        「<span x-text="shikihoOnline?.judge_rule || ''"></span>」で判定し直しました。
       </p>
+      <h3 class="text-xs font-bold text-emerald-800 mb-1.5">A. すべての条件を満たした銘柄</h3>
       <!-- スマホ: カード -->
       <div class="sm:hidden space-y-1.5 mb-3">
-        <template x-for="p in (shikihoOnline?.sector_gap||[])" :key="'som'+p.code">
+        <template x-for="p in (shikihoOnline?.a||[])" :key="'som'+p.code">
           <div class="bg-white/80 border border-slate-200 rounded-lg px-2.5 py-2 text-xs">
             <div class="flex items-baseline gap-1.5">
               <span class="text-[9px] px-1 rounded bg-sky-100 text-sky-800 shrink-0" x-text="p.sector"></span>
@@ -376,8 +377,9 @@
               <span>PER <b x-text="p.per.toFixed(1)"></b></span>
               <span>PBR <b x-text="p.pbr.toFixed(2)"></b></span>
               <span>性向 <b x-text="p.payout"></b></span>
+              <span x-text="p.record"></span>
             </div>
-            <div class="mt-1 pl-1 text-[11px] text-emerald-700" x-text="'今期 ' + p.dps_change + '・' + p.record"></div>
+            <div class="mt-1 pl-1 text-[11px] text-emerald-700" x-text="'増配の発表: ' + p.hike"></div>
           </div>
         </template>
       </div>
@@ -392,12 +394,12 @@
               <th class="text-right py-1 pr-2">PER</th>
               <th class="text-right py-1 pr-2">PBR</th>
               <th class="text-right py-1 pr-2">性向</th>
-              <th class="text-left py-1 pr-2">今期の配当予想</th>
-              <th class="text-left py-1">配当の実績</th>
+              <th class="text-left py-1 pr-2">増配の実績</th>
+              <th class="text-left py-1">直近の増配発表</th>
             </tr>
           </thead>
           <tbody>
-            <template x-for="p in (shikihoOnline?.sector_gap||[])" :key="'so'+p.code">
+            <template x-for="p in (shikihoOnline?.a||[])" :key="'so'+p.code">
               <tr class="border-b border-slate-100">
                 <td class="py-1.5 pr-2"><span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 whitespace-nowrap" x-text="p.sector"></span></td>
                 <td class="py-1.5 pr-2 whitespace-nowrap">
@@ -408,27 +410,27 @@
                 <td class="py-1.5 pr-2 text-right" x-text="p.per.toFixed(1)"></td>
                 <td class="py-1.5 pr-2 text-right" x-text="p.pbr.toFixed(2)"></td>
                 <td class="py-1.5 pr-2 text-right" x-text="p.payout"></td>
-                <td class="py-1.5 pr-2 whitespace-nowrap text-emerald-700" x-text="p.dps_change + ' 増配予想'"></td>
-                <td class="py-1.5 text-emerald-700" x-text="p.record"></td>
+                <td class="py-1.5 pr-2 whitespace-nowrap" x-text="p.record"></td>
+                <td class="py-1.5 text-emerald-700" x-text="p.hike"></td>
               </tr>
             </template>
           </tbody>
         </table>
       </div>
-      <p class="text-[11px] text-slate-500 mb-2 leading-relaxed">
-        <span class="font-semibold text-slate-600">外した銘柄:</span>
-        <template x-for="(p, i) in (shikihoOnline?.excluded||[])" :key="'sox'+p.name">
-          <span x-text="(i ? '、' : '') + p.name + '(' + p.reason + ')'"></span>
+      <h3 class="text-xs font-bold text-amber-800 mb-1.5">B. あと少し(1条件だけ外れた)</h3>
+      <ul class="text-[11px] text-slate-600 mb-3 space-y-0.5">
+        <template x-for="p in (shikihoOnline?.b||[])" :key="'sob'+p.code">
+          <li>
+            <span class="font-mono text-[10px] text-slate-500" x-text="p.code"></span>
+            <span class="font-bold text-slate-800" x-text="p.name"></span>
+            <span class="text-emerald-700 font-semibold" x-text="p.yield.toFixed(2)+'%'"></span>
+            <span class="text-rose-700" x-text="'… ' + p.reason"></span>
+          </li>
         </template>
-      </p>
-      <p class="text-xs text-slate-600 mb-2">
-        <span class="font-bold text-sky-800">四季報でもヒットした既存の厳選銘柄:</span>
-        <template x-for="(p, i) in (shikihoOnline?.overlap||[])" :key="'sov'+p.code">
-          <span><span x-text="(i ? '、' : '') + p.name"></span><span class="text-[10px] text-slate-400" x-text="'(' + p.code + ')'"></span></span>
-        </template>
-      </p>
+      </ul>
       <p class="text-[10px] text-slate-400">
-        利回り・PER・PBRは四季報オンラインの値(取得日の株価)。配当予想・配当性向は決算短信(TDnet)の会社予想、減配の有無は配当履歴で確かめました。この欄は自動更新されません。推奨銘柄ではありません。投資判断はご自身でお願いします。
+        ほかの銘柄は、直近120日に増配の発表がないか、2つ以上の条件を外れました。サイトの配当データにない<span x-text="shikihoOnline?.not_judged||0"></span>銘柄は判定していません。
+        利回り・PER・PBRは四季報オンラインの値(取得日の株価)、配当性向・予想EPSは会社予想(決算短信)、増配の発表日は適時開示と株探で確かめました。この欄は自動更新されません。推奨銘柄ではありません。投資判断はご自身でお願いします。
       </p>
     </div>
 
