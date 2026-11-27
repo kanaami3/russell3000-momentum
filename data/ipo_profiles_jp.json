@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-27T03:22:16+09:00",
+ "updated_at": "2026-11-28T03:07:35+09:00",
  "profiles": {
   "648A": {
    "summary_en": "LECRE Inc. designs, develops, and provides AI-based software-as-a-service (SaaS) solutions and digital transformation (DX) platforms. The company develops and operates a device-integrated, AI cloud-based Record DX platform that enables organizations to capture, manage, structure, and analyze field data, such as photographs, videos, and text records. It caters to the construction, maintenance, repair, inspection, childcare, and education sectors. LECRE Inc. was formerly known as TriWorks Corp. The company was incorporated in 1995 and is based in Minato, Japan.",
@@ -2036,8 +2036,18 @@
    "summary_ja": "企業向けにクラウド型のオフィス管理システムを開発・提供しています。主な製品は、来客対応と社員への通知を自動化する受付システム「RECEPTIONIST」です。さらに、外部との日程調整ツールや会議室の予約管理システムなども手掛けており、これらのソフトウェアの利用料によって収入を得ています。"
   },
   "664A": {
-   "ok": false,
-   "checked_at": "2026-11-21"
+   "summary_en": "TOKIUM Inc. offers travel and expense management services to businesses. The company develops 'Dr Wallet', a cloud based bookkeeping service. TOKIUM Inc. was formerly known as BearTail Inc. and changed its name to TOKIUM Inc. in April 2022. The company was founded in 2012 and is based in Chuo, Japan.",
+   "sector_en": "Technology",
+   "industry_en": "Software - Infrastructure",
+   "employees": 278,
+   "website": "https://www.keihi.com",
+   "city": "Chuo",
+   "market_cap": null,
+   "sector_ja": "情報技術",
+   "ok": true,
+   "checked_at": "2026-11-28",
+   "biz_ja": "企業の経費精算やクラウド会計ソフトを提供する会社",
+   "summary_ja": "企業向けに旅費や経費の管理・精算を効率化するサービスを提供している会社です。また、クラウド型の記帳サービス「Dr. Wallet」の開発も手がけています。法人顧客へのサービス提供を通じて収益を得ており、旧社名は株式会社BearTailで2022年4月に現社名へ変更しました。"
   },
   "667A": {
    "ok": false,
@@ -2063,7 +2073,7 @@
   },
   "673A": {
    "ok": false,
-   "checked_at": "2026-11-21"
+   "checked_at": "2026-11-28"
   },
   "674A": {
    "ok": false,
@@ -2079,11 +2089,11 @@
   },
   "681A": {
    "ok": false,
-   "checked_at": "2026-11-21"
+   "checked_at": "2026-11-28"
   },
   "679A": {
    "ok": false,
-   "checked_at": "2026-11-21"
+   "checked_at": "2026-11-28"
   },
   "688A": {
    "ok": false,
@@ -2103,5 +2113,5 @@
   }
  },
  "count": 160,
- "ok_count": 146
+ "ok_count": 147
 }
