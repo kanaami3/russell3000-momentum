@@ -351,6 +351,34 @@
       </p>
     </div>
 
+    <!-- 利回り4%以上の増配A銘柄(手動スナップショット) -->
+    <div x-show="aYield4" class="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-300 rounded-2xl p-4">
+      <div class="flex items-baseline justify-between flex-wrap gap-2 mb-1">
+        <h2 class="font-extrabold text-amber-900">💰 利回り4%以上の増配A銘柄</h2>
+        <span class="text-[11px] text-slate-500"
+              x-text="(aYield4?.asof||'').replaceAll('-','/') + ' の株価・' + (aYield4?.picks||[]).length + ' 銘柄'"></span>
+      </div>
+      <p class="text-[11px] text-slate-500 mb-3">増配Aグループの銘柄のうち、利回りが4%以上のものを利回りの高い順に並べています。</p>
+      <div class="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-4 mb-2">
+        <template x-for="(p, i) in (aYield4?.picks||[])" :key="'ay'+p.code">
+          <div class="bg-white/80 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs">
+            <div class="flex items-baseline gap-1.5">
+              <span class="text-slate-400 w-4 shrink-0" x-text="i+1"></span>
+              <span class="font-mono text-[10px] text-slate-500" x-text="p.code"></span>
+              <span class="font-bold text-slate-900 truncate" x-text="p.name"></span>
+              <span class="ml-auto font-bold text-emerald-700 shrink-0" x-text="p.yield.toFixed(2)+'%'"></span>
+            </div>
+            <div class="pl-5 text-[11px] text-slate-600">
+              <span x-text="'配当性向 ' + p.payout.toFixed(1) + '%'"></span>
+              <span x-show="p.note" class="ml-1 text-rose-700" x-text="'※' + p.note"></span>
+            </div>
+          </div>
+        </template>
+      </div>
+      <p class="text-[11px] text-slate-500" x-text="aYield4?.dropped || ''"></p>
+      <p class="text-[10px] text-slate-400 mt-1">この欄は自動更新されません。推奨銘柄ではありません。投資判断はご自身でお願いします。</p>
+    </div>
+
     <!-- 四季報オンラインのスクリーニング候補(手動スナップショット) -->
     <div x-show="shikihoOnline" class="bg-gradient-to-br from-sky-50 to-white border-2 border-sky-300 rounded-2xl p-4">
       <div class="flex items-baseline justify-between flex-wrap gap-2 mb-1">
@@ -2347,6 +2375,12 @@ statusBadgeClass(iso, freshH) {
       } catch (e) {
         console.warn('shikiho online screen load failed:', e);
       }
+      try {
+        const r3 = await fetch('./data/a_yield4.json?v=' + Date.now());
+        if (r3.ok) this.aYield4 = await r3.json();
+      } catch (e) {
+        console.warn('a_yield4 load failed:', e);
+      }
     },
 
     // 判定記号とセル色
@@ -3251,6 +3285,7 @@ statusBadgeClass(iso, freshH) {
     macroData: null,              // Nikkei EPS history
     dividendData: null,           // 配当・増配余力スクリーナー(全銘柄)
     shikihoOnline: null,          // 四季報オンラインのスクリーニング結果(手動スナップショット)
+    aYield4: null,                // 利回り4%以上の増配A銘柄(手動スナップショット)
     divSort: 'headroom',          // ソート列(デフォルト=増配余地ランキング)
     divSortDesc: true,
     divSectorFilter: '',          // 業種フィルタ

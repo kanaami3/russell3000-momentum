@@ -1,0 +1,147 @@
+{
+ "asof": "2026-11-27 14:10",
+ "title": "利回り4%以上の増配A銘柄",
+ "picks": [
+  {
+   "code": "4246",
+   "name": "ダイキョーニシカワ",
+   "yield": 5.74,
+   "payout": 37.4,
+   "note": ""
+  },
+  {
+   "code": "1847",
+   "name": "イチケン",
+   "yield": 5.02,
+   "payout": 30.8,
+   "note": ""
+  },
+  {
+   "code": "5480",
+   "name": "日本冶金工業",
+   "yield": 4.93,
+   "payout": 35.0,
+   "note": "鉄鋼のシクリカル"
+  },
+  {
+   "code": "5288",
+   "name": "アジアパイルHD",
+   "yield": 4.79,
+   "payout": 34.6,
+   "note": ""
+  },
+  {
+   "code": "4221",
+   "name": "大倉工業",
+   "yield": 4.72,
+   "payout": 47.2,
+   "note": ""
+  },
+  {
+   "code": "2498",
+   "name": "オリエンタルコンサルHD",
+   "yield": 4.7,
+   "payout": 39.6,
+   "note": ""
+  },
+  {
+   "code": "7525",
+   "name": "リックス",
+   "yield": 4.67,
+   "payout": 40.9,
+   "note": ""
+  },
+  {
+   "code": "3277",
+   "name": "サンセイランディック",
+   "yield": 4.66,
+   "payout": 26.7,
+   "note": ""
+  },
+  {
+   "code": "4249",
+   "name": "森六HD",
+   "yield": 4.46,
+   "payout": 32.0,
+   "note": ""
+  },
+  {
+   "code": "7482",
+   "name": "シモジマ",
+   "yield": 4.33,
+   "payout": 49.9,
+   "note": "増配余地は薄め"
+  },
+  {
+   "code": "7670",
+   "name": "オーウェル",
+   "yield": 4.26,
+   "payout": 27.7,
+   "note": ""
+  },
+  {
+   "code": "5331",
+   "name": "ノリタケ",
+   "yield": 4.26,
+   "payout": 36.7,
+   "note": ""
+  },
+  {
+   "code": "4064",
+   "name": "日本カーバイド工業",
+   "yield": 4.24,
+   "payout": 40.0,
+   "note": ""
+  },
+  {
+   "code": "5741",
+   "name": "UACJ",
+   "yield": 4.17,
+   "payout": 24.4,
+   "note": ""
+  },
+  {
+   "code": "9991",
+   "name": "ジェコス",
+   "yield": 4.13,
+   "payout": 40.1,
+   "note": ""
+  },
+  {
+   "code": "8425",
+   "name": "みずほリース",
+   "yield": 4.12,
+   "payout": 30.2,
+   "note": ""
+  },
+  {
+   "code": "1967",
+   "name": "ヤマト",
+   "yield": 4.12,
+   "payout": 40.7,
+   "note": ""
+  },
+  {
+   "code": "8065",
+   "name": "佐藤商事",
+   "yield": 4.07,
+   "payout": 26.9,
+   "note": ""
+  },
+  {
+   "code": "5714",
+   "name": "DOWA HD",
+   "yield": 4.04,
+   "payout": 26.6,
+   "note": ""
+  },
+  {
+   "code": "1938",
+   "name": "日本リーテック",
+   "yield": 4.02,
+   "payout": 38.0,
+   "note": ""
+  }
+ ],
+ "dropped": "前日は4%以上だったTOYO TIRE(3.96%)と第四北越FG(3.88%)は、当日の上昇で4%を割りました。"
+}
